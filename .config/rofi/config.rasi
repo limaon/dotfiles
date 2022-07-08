@@ -1,0 +1,21 @@
+configuration {
+    show-icons: true;
+    /* icon-theme: "Papirus-Dark"; */
+    combi-modi: [ window, drun ];
+    modi: [ combi ];
+    display-combi: " Open ";
+    location: 0;
+    max-history-size: 10;
+    hide-scrollbar: true;
+    fixed-num-lines: false;
+    disable-history: false;
+    no-lazy-grab: true;
+    sort: false;
+    display-file-browser-extended: "Files";
+    display-window: " Window";
+    display-drun: " Launch";
+    display-calc: "   ";
+    display-emoji: " Select ";
+}
+
+@theme "./i3wm-theme-basic.rasi"
