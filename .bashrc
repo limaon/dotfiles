@@ -7,7 +7,7 @@
 
 shopt -s nocaseglob
 
-alias dotconfig='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias dotconf='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias ls='ls -F --color=auto --group-directories-first'
 alias grep='grep --color=always'
 alias egrep='egrep --color=auto'
