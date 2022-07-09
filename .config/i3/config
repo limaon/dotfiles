@@ -76,15 +76,11 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
 # move focused window
-# bindsym $mod+Shift+h move left
-# bindsym $mod+Shift+j move down
-# bindsym $mod+Shift+k move up
-# bindsym $mod+Shift+l move right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 
-bindsym $mod+Shift+h exec i3l move left
-bindsym $mod+Shift+j exec i3l move down
-bindsym $mod+Shift+k exec i3l move up
-bindsym $mod+Shift+l exec i3l move right
 
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth yes
@@ -98,9 +94,9 @@ bindsym $mod+semicolon split toggle
 bindsym $mod+F11 fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-# bindsym $mod+s layout stacking
-# bindsym $mod+w layout tabbed
-# bindsym $mod+e layout toggle split
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
@@ -337,23 +333,3 @@ mode "$mode_display" {
     bindsym Escape mode "default"
 }
 # bindsym $mod+x mode "$mode_display"
-
-
-###############################
-######## i3 Layouts ###########
-###############################
-set $i3layout Layout: [(v)stack|(h)stack|(s)piral|(3)columns|(2)columns|(c)ompanion|(a)utosplit]
-
-mode "$i3layout" {
-    bindsym v exec --no-startup-id i3l vstack 0.6 && dunstify 'Layout vstack', mode "default"
-    bindsym h exec --no-startup-id i3l hstack 0.6 down && dunstify 'Layout hstack', mode "default"
-    bindsym s exec --no-startup-id i3l spiral 0.6 && dunstify 'Layout spiral', mode "default"
-    bindsym 3 exec --no-startup-id i3l 3columns 0.66 0.5 2 && dunstify 'Layout 3columns', mode "default"
-    bindsym 2 exec --no-startup-id i3l 2columns && dunstify 'Layout 2columns', mode "default"
-    bindsym c exec --no-startup-id i3l companion 0.3 0.4 && dunstify 'Layout companion', mode "default"
-    bindsym a exec --no-startup-id i3l autosplit && dunstify 'Layout companion', mode "default"
-
-    bindsym Return mode "default"
-    bindsym Escape mode "default"
-}
-bindsym $mod+y mode "$i3layout"
