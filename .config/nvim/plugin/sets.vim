@@ -31,6 +31,7 @@ set hidden  		" Habilita a edicao de buffers
 set noswapfile
 set nobackup		" Nao salva arquivos de backup
 set scrolloff=8
+set sidescrolloff=6
 set autochdir		" Vai para o diretorio do arquivo aberto
 set pumheight=8		" Maximo de palavras no popup de autocomplete
 set mouse=a	    	" Suporte a mouse
