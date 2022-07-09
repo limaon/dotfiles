@@ -50,3 +50,5 @@ and (re)compiling the source code.
 ### Patches that i use
 
 - [Custom Urgent Border](https://dwm.suckless.org/patches/urgentborder/)
+- [Fullgaps](https://dwm.suckless.org/patches/fullgaps/)
+- [Next prev tag](https://dwm.suckless.org/patches/nextprev/)
