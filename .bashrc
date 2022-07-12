@@ -1,13 +1,58 @@
 #
-# ~/.bashrc
+# My bashrc setup
 #
+
+# Environment variables set everywhere
+export EDITOR="/usr/bin/nvim"
+export TERMINAL="/usr/bin/alacritty"
+export BROWSER="/usr/bin/firefox"
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+export LANGUAGE="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+
+# XDG Paths
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+# Others Paths
+export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
+# export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority" # This line will break some DMs
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
+export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
+export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
+export SCREENRC="$XDG_CONFIG_HOME/screen/screenrc"
+export HISTCONTROL=ignoredups:erasedups           # No duplicate entries
+
+# Xorg Paths
+export USERXSESSION="$XDG_CACHE_HOME/X11/xsession"
+export USERXSESSIONRC="$XDG_CACHE_HOME/X11/xsessionrc"
+export ALTUSERXSESSION="$XDG_CACHE_HOME/X11/Xsession"
+export ERRFILE="$XDG_CACHE_HOME/X11/xsession-errors"
+
+# PostgreSQL Paths
+export PSQLRC="$XDG_CONFIG_HOME/pg/psqlrc"
+export PSQL_HISTORY="$XDG_STATE_HOME/psql_history"
+export PGPASSFILE="$XDG_CONFIG_HOME/pg/pgpass"
+export PGSERVICEFILE="$XDG_CONFIG_HOME/pg/pg_service.conf"
+
+# ASDF Paths
+export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
+export ASDF_DATA_DIR="${XDG_DATA_HOME}/asdf"
+export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/pip/default-python-packages"
+export ASDF_NPM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/npm/default-npm-packages"
+export ASDF_GEM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/gem/default-gems"
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
 shopt -s nocaseglob
 
-alias dotconf='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias gitdf='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias ls='ls -F --color=auto --group-directories-first'
 alias grep='grep --color=always'
 alias egrep='egrep --color=auto'
@@ -69,4 +114,4 @@ PS4='+ '
  
 
 # asdf config
-. /opt/asdf-vm/asdf.sh
+ . /opt/asdf-vm/asdf.sh
