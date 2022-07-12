@@ -14,7 +14,7 @@ fi
 
 # xprofile
 [[ -f /etc/xprofile ]] && /etc/xprofile
-[[ -f ~/.config/X11/xprofile ]] && "${HOME}/.xprofile"
+[[ -f ~/.config/X11/xprofile ]] && "${HOME}/.config/X11/.xprofile"
 
-# Start i3wm
-exec i3
+# Start qtile window manager
+# exec qtile
