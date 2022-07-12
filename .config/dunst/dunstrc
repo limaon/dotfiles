@@ -33,13 +33,13 @@
     origin = top-right
 
     # Offset from the origin
-    offset = 10x25
+    offset = 6x28
 
     # Scale factor. It is auto-detected if value is 0.
     scale = 0
 
     # Maximum number of notification (0 means no limit)
-    notification_limit = 0
+    notification_limit = 6
 
     ### Progress bar ###
 
@@ -49,7 +49,7 @@
 
     # Set the progress bar height. This includes the frame, so make sure
     # it's at least twice as big as the frame width.
-    progress_bar_height = 10
+    progress_bar_height = 12
 
     # Set the frame width of the progress bar
     progress_bar_frame_width = 1
@@ -68,7 +68,7 @@
     # The transparency of the window.  Range: [0; 100].
     # This option will only work if a compositing window manager is
     # present (e.g. xcompmgr, compiz, etc.). (X11 only)
-    transparency = 0
+    transparency = 1
 
     # Draw a line of "separator_height" pixel height between two
     # notifications.
@@ -80,17 +80,17 @@
     padding = 10
 
     # Horizontal padding.
-    horizontal_padding = 10
+    horizontal_padding = 15
 
     # Padding between text and icon.
-    text_icon_padding = 20
+    text_icon_padding = 15
 
     # Defines width in pixels of frame around the notification window.
     # Set to 0 to disable.
     frame_width = 2
 
     # Defines color of the frame around the notification window.
-    frame_color = "#aaaaaa"
+    frame_color = "#839496"
 
     # Size of gap to display between notifications - requires a compositor.
     # If value is greater than 0, separator_height will be ignored and a border
@@ -118,11 +118,11 @@
 
     ### Text ###
 
-    font = Hack Nerd Font 9
+    font = FiraCode Nerd Font 9
 
     # The spacing between lines.  If the height is smaller than the
     # font height, it will get raised to the font height.
-    line_height = 0
+    line_height = 1
 
     # Possible values are:
     # full: Allow a small subset of html markup in notifications:
@@ -203,8 +203,7 @@
     max_icon_size = 32
 
     # Paths to default icons.
-    #icon_path = /usr/share/icons/Adwaita/16x16/status/:/usr/share/icons/Adwaita/16x16/devices/:/usr/share/icons/Papirus/16x16/panel/:$HOME/.local/share/icons/
-    icon_path = /usr/share/icons/Papirus/16x16/panel/:/home/lima/.local/share/icons/
+    icon_path = /usr/share/icons/ePapirus/24x24/status/:/usr/share/icons/ePapirus-Dark/24x24/actions/
 
     ### History ###
 
@@ -237,7 +236,7 @@
     # corners.
     # The radius will be automatically lowered if it exceeds half of the
     # notification height to avoid clipping text and/or icons.
-    corner_radius = 5
+    corner_radius = 4
 
     # Ignore the dbus closeNotification message.
     # Useful to enforce the timeout set by dunst configuration. Without this
@@ -301,27 +300,30 @@
     # IMPORTANT: colors have to be defined in quotation marks.
     # Otherwise the "#" and following would be interpreted as a comment.
     background = "#333333"
-    foreground = "#e3e3e3"
-    highlight = "#005792"
-    timeout = 5
+    foreground = "#eee8d5"
+    highlight = "#b58900"
+    timeout = 6
     # Icon for notifications with low urgency, uncomment to enable
-    default_icon = ~/.local/share/icons/bell.png
+    # default_icon = /usr/share/icons/ePapirus-Dark/24x24/status/messagebox_info.svg
+    default_icon = /usr/share/icons/ePapirus-Dark/24x24/actions/bell.svg
 
 [urgency_normal]
-    background = "#285577"
-    foreground = "#ffffff"
-    highlight = "#EDEDED"
-    timeout = 5
+    # background = "#285577"
+    background = "#002b36"
+    foreground = "#eee8d5"
+    highlight = "#b58900"
+    timeout = 6
     # Icon for notifications with normal urgency, uncomment to enable
-    default_icon = ~/.local/share/icons/bell.png
+    # default_icon = /usr/share/icons/ePapirus-Dark/24x24/status/dialog-information.svg
+    default_icon = /usr/share/icons/ePapirus-Dark/24x24/actions/bell.svg
 
 [urgency_critical]
-    background = "#900000"
-    foreground = "#ffffff"
-    frame_color = "#ff0000"
+    background = "#dc322f"
+    foreground = "#fdf6e3"
+    frame_color = "#93a1a1"
     timeout = 8
     # Icon for notifications with critical urgency, uncomment to enable
-    default_icon = ~/.local/share/icons/warning.png
+    default_icon = /usr/share/icons/ePapirus-Dark/24x24/status/dialog-warning.svg
 
 # Every section that isn't one of the above is interpreted as a rules to
 # override settings for certain messages.
