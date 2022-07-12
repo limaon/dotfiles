@@ -5,10 +5,11 @@
 
 # this script WILL NOT WORK if you don't have feh and rofi, please install them first
 #
-dir="/home/$USER/Pictures/Wallpapers/" # wallpapers folder, change it to yours, make sure that it ends with a /
+dir="/home/$USER/Pictures/Backgrounds/" # wallpapers folder, change it to yours, make sure that it ends with a /
 cd $dir
 wallpaper="None is selected" 
-set="feh --bg-fill"
+# set="feh --bg-fill"
+set="nitrogen --set-scaled"
 view="sxiv"
 startup_config_file="/home/$USER/.config/bspwm/bspwmrc" #change this to whatever config file that sets your wallpaper on startup, this file will get modified if you choose tp set a wallpaper permanantly 
 
@@ -17,7 +18,8 @@ selectpic(){
     wallpaper=$(ls $dir | rofi -dmenu -p "Set wallpaper: ($wallpaper)")
 
     if [[ $wallpaper == "q" || $wallpaper == "" ]]; then
-        killall feh && exit 
+        # killall feh && exit 
+        killall nitrogen && exit 
     else
         # action
         set_wall
@@ -40,7 +42,8 @@ action(){
 
 ########-FUNCTION TO SET THE SELECTED WALLPAPER, BUT IT IS NOT PERMANANT, THE CHANGE WILL BE UNDONE AFTER LOGOUT OR REBOOT-#######
 set_wall(){
-    $set $wallpaper && killall feh &
+    # $set $wallpaper && killall feh &
+    $set $wallpaper && killall nitrogen &
 }
 ###################################################################################################################################
 
@@ -58,7 +61,8 @@ set_after_view(){
   if [[ $setorno == "set (permanant)" ]]; then
       set_permanant
     else
-      killall feh && wch
+      # killall feh && wch
+      killall nitrogen && wch
     fi
 }
 ################################################################################################
@@ -66,7 +70,8 @@ set_after_view(){
 #########-FUNCTION TO SET THE WALLPAPER permanantly, IT WILL MODIFY YOUR START UP CONFIG FILE-###########
 set_permanant(){
   set_wall
-  sed -i '/feh/d' $startup_config_file
+  # sed -i '/feh/d' $startup_config_file
+  sed -i '/nitrogen/d' $startup_config_file
   echo "$set $dir$wallpaper &" >> $startup_config_file
 }
 #########################################################################################################
