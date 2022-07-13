@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# load Xresources
+xrdb -load ~/.config/X11/Xresources
+
+# set wallpaper
+# feh --bg-fill --randomize ~/Pictures/backgrounds/* &
+# nitrogen --set-scaled --random /home/void/Pictures/Wallpapers
+nitrogen --restore &
+
+# Network Manager Applet
+# nm-applet --indicator &
+nm-applet &
+
+# Bluetooth systray icon
+blueman-applet &
+
+# Compositor
+picom -b &
+
+# Hide mouse when typing
+xbanish &
+
+# start redshift
+redshift &
+
+# for notification
+dunst &
+
+# Gnome polkit
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+
+# Don't Randomly Turn off
+# xset s off
+# xset -dpms
+# xset s noblank
+
+# Speedy keys
+xset r rate 300 40 &
+
+# Remap caps to escape set a keyboard layout
+# setxkbmap -option caps:escape
+setxkbmap -option grp:alt_shift_toggle -option caps:swapescape -layout us,br -variant qwerty
+
+# Mouse settings
+xinput set-prop "2.4G Mouse" "libinput Accel Speed" -1.0 &
+xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Natural Scrolling Enabled" 1 &
+
+# Monitor Config
+xrandr --auto --output eDP-1 --left-of HDMI-1
+
+# zsh config dir
+# export ZDOTDIR=$HOME/.config/zsh
+
+# Strat i3
+# exec i3

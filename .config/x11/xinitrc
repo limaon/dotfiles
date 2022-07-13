@@ -14,7 +14,8 @@ fi
 
 # xprofile
 [[ -f /etc/xprofile ]] && /etc/xprofile
-[[ -f ~/.config/X11/xprofile ]] && "${HOME}/.config/X11/.xprofile"
+# [[ -f ~/.config/X11/xprofile ]] && "${HOME}/.config/X11/xprofile"
+. "${XDG_CONFIG_HOME:-$HOME/.config}/x11/xprofile"
 
 # Start qtile window manager
 # exec qtile

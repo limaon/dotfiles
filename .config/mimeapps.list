@@ -1,0 +1,14 @@
+[Default Applications]
+inode/directory=Alacritty.desktop
+image/jpm=sxiv.desktop
+text/x-txt2tags=org.xfce.mousepad.desktop
+text/plain=org.xfce.mousepad.desktop
+image/svg+xml=sxiv.desktop
+
+[Added Associations]
+application/pdf=org.pwmt.zathura.desktop;
+image/jpm=sxiv.desktop;
+image/webp=sxiv.desktop;
+text/x-txt2tags=org.xfce.mousepad.desktop;
+text/plain=org.xfce.mousepad.desktop;
+image/svg+xml=sxiv.desktop;
