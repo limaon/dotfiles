@@ -2,10 +2,16 @@
 # My bashrc setup
 #
 
-# Environment variables set everywhere
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Defautl programs
 export EDITOR="/usr/bin/nvim"
 export TERMINAL="/usr/bin/alacritty"
 export BROWSER="/usr/bin/firefox"
+export READER="/usr/bin/zathura"
+
+# Set language
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export LANGUAGE="en_US.UTF-8"
@@ -16,23 +22,27 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
+export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
 
 # Others Paths
-export WGETRC="$XDG_CONFIG_HOME/wget/wgetrc"
+export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
 # export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority" # This line will break some DMs
-export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
+export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
 export SCREENRC="$XDG_CONFIG_HOME/screen/screenrc"
 export HISTCONTROL=ignoredups:erasedups           # No duplicate entries
+export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
+export ANDROID_SDK_HOME="${XDG_CONFIG_HOME:-$HOME/.config}/android"
+export ELECTRUMDIR="${XDG_DATA_HOME:-$HOME/.local/share}/electrum"
 
 # Xorg Paths
-export USERXSESSION="$XDG_CACHE_HOME/X11/xsession"
-export USERXSESSIONRC="$XDG_CACHE_HOME/X11/xsessionrc"
-export ALTUSERXSESSION="$XDG_CACHE_HOME/X11/Xsession"
-export ERRFILE="$XDG_CACHE_HOME/X11/xsession-errors"
+export USERXSESSION="${XDG_CACHE_HOME:-$HOME/.cache}/X11/xsession"
+export USERXSESSIONRC="${XDG_CACHE_HOME:-$HOME/.cache}/X11/xsessionrc"
+export ALTUSERXSESSION="${XDG_CACHE_HOME:-$HOME/.cache}/X11/Xsession"
+export ERRFILE="${XDG_CACHE_HOME:-$HOME/.cache}/X11/xsession-errors"
 
 # PostgreSQL Paths
 export PSQLRC="$XDG_CONFIG_HOME/pg/psqlrc"
@@ -47,42 +57,97 @@ export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/pip/default-python-
 export ASDF_NPM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/npm/default-npm-packages"
 export ASDF_GEM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/gem/default-gems"
 
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
+# Other program settings:
+export _JAVA_AWT_WM_NONREPARENTING=1	# Fix for Java applications in dwm
+export LESS='-F -i -J -M -R -W -x4 -X -z-4' # https://www.topbug.net/blog/2016/09/27/make-gnu-less-more-powerful/
+export MOZ_USE_XINPUT2="1"		# Mozilla smooth scrolling/touchpads.
 
+
+# Fix QT themes on GTK Desktops
+# https://tatsumoto.neocities.org/blog/setting-up-anki.html#gtk-theme
+export QT_QPA_PLATFORMTHEME=qt6ct
+
+# Fix QT plugin path for pyqt packages installed with pip.
+# export QT_PLUGIN_PATH=/usr/lib/qt/plugins:$(find ~/.local/lib/ -type d -wholename '*/python3*/site-packages/PyQt*/plugins' | paste -s -d :)
+
+# Fix Java programs
+# https://wiki.archlinux.org/index.php/Java_Runtime_Environment_fonts
+export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=gasp'
+
+# Start graphical server on tty1 if not already running.
+# https://wiki.archlinux.org/index.php/Xinit#Autostart_X_at_login
+if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
+	exec startx "$XINITRC"
+fi
+
+# Use $XINITRC variable if file exists.
+[ -f "$XINITRC" ] && alias startx="startx $XINITRC"
+
+# Shell options
 shopt -s nocaseglob
 
-alias gitdf='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias ls='ls -F --color=auto --group-directories-first'
-alias grep='grep --color=always'
-alias egrep='egrep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias rmpyc='find . -name "*.pyc" -exec rm -f {} \;'
-alias ping='ping -c 5'
+# dotfiles in git
+# https://wiki.archlinux.org/index.php/Dotfiles
+alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
-# confirm before overwriting something 
-alias cp="cp -i" 
-alias mv='mv -i' 
-alias rm='rm -i'
+# Colors commands
+alias \
+        ls='ls -F --color=auto --group-directories-first' \
+	diff="diff --color=auto" \
+        grep='grep --color=always' \
+        egrep='egrep --color=auto' \
+        fgrep='fgrep --color=auto' \
+        rmpyc='find . -name "*.pyc" -exec rm -f {} \;' \
+        ping='ping -c 5' \
 
-#PS1='[\u@\h \W]\$ '
+# Youtube
+alias \
+	yt="yt-dlp --embed-metadata -i -o '~/Videos/%(title)s.%(ext)s' -f mp4" \
+	ytautosub="yt --write-auto-subs --embed-subs" \
+	yta="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' " \
+	mp3dl="yta --audio-quality 1 --audio-format mp3" \
+
+# Confirm before overwriting something 
+alias \
+        cp="cp -iv" \
+        mv="mv -iv" \
+        rm="rm -vI" \
 
 #Display ISO version and distribution information in short
 alias version="sed -n 1p /etc/os-release && sed -n 11p /etc/os-release && sed -n 12p /etc/os-release"
 
 #Pacman Shortcuts
-alias sync="sudo pacman -Syyy"
-alias install="sudo pacman -S"
-alias update="sudo pacman -Syyu"
-alias search="pacman -Ss"
-alias search-local="pacman -Qs"
-alias pkg-info="pacman -Qi"
-alias local-install="sudo pacman -U"
-alias clr-cache="sudo pacman -Scc"
-alias unlock="sudo rm /var/lib/pacman/db.lck"
-alias autoremove="sudo pacman -Rns"
-alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'    # remove orphaned packages
-alias parsua='paru -Sua --noconfirm'                # update only AUR pkgs (paru)
+alias \
+        sync="sudo pacman -Syyy" \
+        install="sudo pacman -S" \
+        update="sudo pacman -Syyu" \
+        search="pacman -Ss" \
+        search-local="pacman -Qs" \
+        pkg-info="pacman -Qi" \
+        local-install="sudo pacman -U" \
+        clr-cache="sudo pacman -Scc" \
+        unlock="sudo rm /var/lib/pacman/db.lck" \
+        autoremove="sudo pacman -Rns" \
+        cleanup='sudo pacman -Rns $(pacman -Qtdq)' \
+        parsua='paru -Sua --noconfirm' \
+
+# Journal
+alias \
+	journal="journalctl --since '3 day ago'" \
+	errors="journalctl -p err..alert -b -e" \
+
+# Other alias
+alias \
+        update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg" \
+        genpasswd="openssl rand -base64 21" \
+
+# Applications
+alias \
+	ncclock="ncmpcpp -s clock" \
+	ncvisualizer="ncmpcpp -s visualizer" \
+	nf="clear && neofetch" \
+	kakasi_reading="kakasi -i utf8 -o utf8 -u -JH -KH" \
+
 
 # Fancy prompting colors
 red='\[\e[0;31m\]'
@@ -111,7 +176,6 @@ PS1="[$BLUE\u$CLEAR@$WHITE\h $white\W$CLEAR]$MAGENTA\$(__git_ps1 ' (%s)') $BLUE\
 PS2='> '
 PS3='> '
 PS4='+ '
- 
 
 # asdf config
  . /opt/asdf-vm/asdf.sh
