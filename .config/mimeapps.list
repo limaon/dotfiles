@@ -4,6 +4,15 @@ image/jpm=sxiv.desktop
 text/x-txt2tags=org.xfce.mousepad.desktop
 text/plain=org.xfce.mousepad.desktop
 image/svg+xml=sxiv.desktop
+text/html=brave-browser.desktop
+x-scheme-handler/http=xfce4-web-browser.desktop
+x-scheme-handler/https=xfce4-web-browser.desktop
+x-scheme-handler/about=brave-browser.desktop
+x-scheme-handler/unknown=brave-browser.desktop
+application/x-gzpdf=org.pwmt.zathura.desktop
+application/x-bzpdf=org.pwmt.zathura.desktop
+application/x-lzpdf=org.pwmt.zathura.desktop
+application/x-xzpdf=org.pwmt.zathura.desktop
 
 [Added Associations]
 application/pdf=org.pwmt.zathura.desktop;
@@ -12,3 +21,13 @@ image/webp=sxiv.desktop;
 text/x-txt2tags=org.xfce.mousepad.desktop;
 text/plain=org.xfce.mousepad.desktop;
 image/svg+xml=sxiv.desktop;
+image/png=sxiv.desktop;
+image/jpeg=sxiv.desktop;
+application/x-shellscript=org.xfce.mousepad.desktop;
+application/x-gzpdf=org.pwmt.zathura.desktop;
+application/x-bzpdf=org.pwmt.zathura.desktop;
+application/x-lzpdf=org.pwmt.zathura.desktop;
+application/x-xzpdf=org.pwmt.zathura.desktop;
+x-scheme-handler/http=xfce4-web-browser.desktop;
+x-scheme-handler/https=xfce4-web-browser.desktop;
+

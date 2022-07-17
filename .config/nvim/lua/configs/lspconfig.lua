@@ -18,15 +18,16 @@ M.on_attach = function(client, bufnr)
     local lsp_mappings = utils.load_config().mappings.lspconfig
     utils.load_mappings({ lsp_mappings }, { buffer = bufnr })
 
-    if client.supports_method "textDocument/signatureHelp" then
-        vim.api.nvim_create_autocmd({ "CursorHoldI" }, {
-            pattern = "*",
-            group = vim.api.nvim_create_augroup("LspSignature", {}),
-            callback = function()
-                vim.lsp.buf.signature_help()
-            end,
-        })
-    end
+    -- if client.supports_method "textDocument/signatureHelp" then
+    --     vim.api.nvim_create_autocmd({ "CursorHoldI" }, {
+    --         pattern = "*",
+    --         group = vim.api.nvim_create_augroup("LspSignature", {}),
+    --         callback = function()
+    --             vim.lsp.buf.signature_help()
+    --         end,
+    --     })
+    -- end
+
 end
 
 local capabilities = require('cmp_nvim_lsp').update_capabilities(
@@ -87,9 +88,7 @@ lspconfig.tsserver.setup {
 lspconfig.cssls.setup { on_attach = M.on_attach, }
 lspconfig.emmet_ls.setup { on_attach = M.on_attach }
 
-lspconfig.pylsp.setup {
-    on_attach = M.on_attach,
-}
+lspconfig.pylsp.setup { on_attach = M.on_attach, }
 
 -- requires a file containing user's lspconfigs
 local addlsp_confs = utils.load_config().plugins.options.lspconfig.setup_lspconf
