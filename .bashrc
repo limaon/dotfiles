@@ -178,4 +178,4 @@ PS3='> '
 PS4='+ '
 
 # asdf config
- . /opt/asdf-vm/asdf.sh
+. /opt/asdf-vm/asdf.sh
