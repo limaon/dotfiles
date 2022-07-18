@@ -14,8 +14,8 @@
     background-color:            rgba(0,0,0,0%);
     active-background:           #111111;
     alternate-active-foreground: @active-foreground;
-    font: "Source Code Pro 10";
-    prompt-font: "Hack Nerd Font 9";
+    font: "Hack Nerd Font 11";
+    prompt-font: "Source Code Pro 10";
 
 
 }
