@@ -43,7 +43,8 @@ action(){
 ########-FUNCTION TO SET THE SELECTED WALLPAPER, BUT IT IS NOT PERMANANT, THE CHANGE WILL BE UNDONE AFTER LOGOUT OR REBOOT-#######
 set_wall(){
     # $set $wallpaper && killall feh &
-    $set $wallpaper && killall nitrogen &
+    # $set $wallpaper && killall nitrogen &
+    $set $wallpaper
 }
 ###################################################################################################################################
 

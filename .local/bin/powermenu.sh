@@ -2,7 +2,7 @@
 
 function powermenu {
     options="Cancel\nShutdown\nReboot\nSuspend\nLock\nLogout"
-    selected=$(echo -e $options | dmenu -i -p "Select: ") 
+    selected=$(echo -e $options | rofi -dmenu -p "PowerMenu:") 
     if [[ $selected = "Shutdown" ]]; then
         systemctl poweroff -i
     elif [[ $selected = "Reboot" ]]; then
