@@ -1,12 +1,23 @@
 import os
 import subprocess
-import time
+# import time
 from libqtile import qtile
-from libqtile import bar, layout, widget
-from libqtile.config import Click, Drag, Group, Key, Match, Screen
-from libqtile import hook
+from libqtile import bar, layout, widget, hook
 from libqtile.lazy import lazy
+from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.utils import guess_terminal
+from socket import gethostbyname, gethostname
+from scripts import storage
+
+
+mod = "mod4"
+terminal = guess_terminal()
+home_dir = os.path.expanduser('~')
+
+
+@hook.subscribe.startup_once
+def autostart():
+    subprocess.Popen([home_dir + '/.config/qtile/scripts/autostart.sh'])
 
 
 def get_monitors():
@@ -26,7 +37,7 @@ def set_screen(event):
     subprocess.run(["autorandr," "--change"])
     qtile.restart()
 
-# When application launched automatically focus it's group
+# When application launched automatically focus it's groupp
 
 
 @hook.subscribe.client_new
@@ -39,61 +50,35 @@ def modify_window(client):
             break
 
 
-"""
-Hook to fallback to the first group with
-windows when last window of group is killed
-"""
+@hook.subscribe.client_managed
+def make_urgent(window):
+    atom = set([qtile.core.conn.atoms["_NET_WM_STATE_DEMANDS_ATTENTION"]])
+    prev_state = set(window.window.get_property(
+        "_NET_WM_STATE", "ATOM", unpack=int))
+    new_state = prev_state | atom
+    window.window.set_property("_NET_WM_STATE", list(new_state))
 
 
-@hook.subscribe.client_killed
-def fallback(window):
-    if window.groups.window != [window]:
-        return
-    idx = qtile.groups.index(window.group)
-    for group in qtile.group[idx - 1::-1]:
-        if group.windows:
-            qtile.current_screen.toggle_group(group)
-            return
-        qtile.current_screen.toggle_group(qtile.group[0])
-
-# Work around for matching Spotify
-
-
-@hook.subscribe.cliente_new
-def slight_delay(window):
-    time.sleep(0.04)
-
-
-mod = "mod4"
-terminal = guess_terminal()
-home_dir = os.path.expanduser('~')
-
-MYCOLORS = [
-    '#00ff00', '#ff9900', '#ff0000', '#002b36',
-    '#073642', '#586e75', '#657b83', '#839496',
-    '#93a1a1', '#eee8d5', '#fdf6e3', '#b58900',
-    '#cb4b16', '#dc322f', '#d33682', '#6c71c4',
-    '#268bd2', '#2aa198', '#859900',
-]
-
-GREEN = MYCOLORS[0]
-ORANGE = MYCOLORS[1]
-RED = MYCOLORS[2]
-BASE03 = MYCOLORS[3]
-BASE02 = MYCOLORS[4]
-BASE01 = MYCOLORS[5]
-BASE00 = MYCOLORS[6]
-BASE1 = MYCOLORS[7]
-BASE2 = MYCOLORS[8]
-BASE3 = MYCOLORS[9]
-S_YELLOW = MYCOLORS[10]
-S_ORANGE = MYCOLORS[11]
-S_RED = MYCOLORS[12]
-S_MAGENTA = MYCOLORS[13]
-S_VIOLET = MYCOLORS[14]
-S_BLUE = MYCOLORS[15]
-S_CYAN = MYCOLORS[16]
-S_GREEN = MYCOLORS[17]
+# Theme
+SOLARIZED = {"GREEN": '#00ff00',
+             "ORANGE": '#ff9900',
+             "RED": '#ff0000',
+             "BASE03": '#002b36',
+             "BASE02": '#073642',
+             "BASE01": '#586e75',
+             "BASE00": '#657b83',
+             "BASE0":     '#839496',
+             "BASE1": '#93a1a1',
+             "BASE2": '#eee8d5',
+             "BASE3": '#fdf6e3',
+             "S_YELLOW": '#b58900',
+             "S_ORANGE": '#cb4b16',
+             "S_RED": '#dc322f',
+             "S_MAGENTA": '#d33682',
+             "S_VIOLET": '#6c71c4',
+             "S_BLUE": '#268bd2',
+             "S_CYAN": '#2aa198',
+             "S_GREEN": '#859900'}
 
 keys = [
     # Navegane panes
@@ -186,15 +171,15 @@ keys = [
     # +_+_+_+_+_+ Hardware Configs +_+_+_+_+_+
     # Volume
     Key([], "XF86AudioMute",
-        lazy.spawn(home_dir + "/.local/bin/volume mute"),
+        lazy.spawn(home_dir + "/.local/bin/volume muted"),
         desc='Mute audio'
         ),
     Key([], "XF86AudioLowerVolume",
-        lazy.spawn(home_dir + "/.local/bin/volume down"),
+        lazy.spawn(home_dir + "/.local/bin/volume medium"),
         desc='Volume down'
         ),
     Key([], "XF86AudioRaiseVolume",
-        lazy.spawn(home_dir + "/.local/bin/volume up"),
+        lazy.spawn(home_dir + "/.local/bin/volume high"),
         desc='Volume up'
         ),
 
@@ -221,6 +206,11 @@ keys = [
         desc='Audio previous'
     ),
 
+    Key([mod], "space",
+        lazy.widget["keyboardlayout"].next_keyboard(),
+        desc="Next keyboard layout."
+        ),
+
     # Brightness
     Key([], "XF86MonBrightnessDown",
         lazy.spawn(home_dir + "/.local/bin/brightness down"),
@@ -231,8 +221,17 @@ keys = [
         desc='Brightness up'
         ),
 
+    Key([mod, "shift"], "e",
+        lazy.spawn(home_dir + "/.local/bin/powermenu.sh"),
+        desc="Run powermenu by rofi"
+        ),
+
+    Key([mod, "shift"], "space",
+        lazy.window.toggle_floating(),
+        desc="Toggle float mode"
+        ),
+
     # Screenshots
-    # Save screen to clipboard
     Key([mod], "Print",
         lazy.spawn("flameshot gui"),
         desc='Start screenshot provider'
@@ -242,124 +241,266 @@ keys = [
 groups = [Group(i) for i in "123456789"]
 
 for i in groups:
-    keys.extend(
-        [
-            # mod1 + letter of group = switch to group
-            Key(
-                [mod], i.name,
-                lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
+    keys.extend([
+        Key([mod], i.name,
+            lazy.group[i.name].toscreen(),
+            desc="Switch to group {}".format(i.name),
             ),
-            # mod1 + shift + letter of group = switch to & move focused window
-            Key(
-                [mod, "shift"], i.name,
-                lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(
-                    i.name),
+        Key([mod, "shift"], i.name,
+            lazy.window.togroup(i.name, switch_group=True),
+            desc="Switch to & move focused window to group {}".format(i.name),
             ),
-            # Or, use below if you prefer not to switch to that group.
-            # # mod1 + shift + letter of group = move focused window to group
-            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-            #     desc="move focused window to group {}".format(i.name)),
-        ]
-    )
+        Key([mod, "control"], "Right",
+            lazy.screen.next_group(),
+            desc="Switch to next group"
+            ),
+        Key([mod, "control"], "Left",
+            lazy.screen.prev_group(),
+            desc="Switch to previous group"
+            ),
+    ])
+
+# DEFAULT THEME SETTINGS FOR LAYOUTS #
+lyt_theme = {"border_width": 2,
+             "margin": 2,
+             "font": "Source Code Pro Medium",
+             "font_size": 10,
+             "border_focus": SOLARIZED["S_RED"],
+             "border_normal": SOLARIZED["BASE01"]
+             }
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
-    layout.Max(),
-    # Try more layouts by unleashing below layouts.
-    # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
-    # layout.Matrix(),
-    # layout.MonadTall(),
-    # layout.MonadWide(),
-    # layout.RatioTile(),
-    # layout.Tile(),
-    # layout.TreeTab(),
+    layout.MonadTall(**lyt_theme, single_margin=0, single_border_width=0),
+    layout.MonadWide(**lyt_theme, single_margin=0, single_border_width=0),
+    layout.MonadThreeCol(**lyt_theme, single_margin=0, single_border_width=0),
+    layout.Tile(**lyt_theme,
+                add_after_last=True,
+                shift_windows=True,
+                border_on_single=False,
+                margin_on_single=False,
+                ),
+    layout.Columns(**lyt_theme,
+                   border_focus_stack=[SOLARIZED["RED"], SOLARIZED["S_RED"]],
+                   margin_on_single=0,
+                   ),
+    # layout.Floating(**lyt_theme),
+    # layout.Spiral(**lyt_theme),
+    # layout.Bsp(**lyt_theme),
+    # layout.RatioTile(**lyt_theme),
+    # layout.VerticalTile(**lyt_theme),
+    # layout.Stack(num_stacks=2, **lyt_theme),
+    # layout.Max(),
+    # layout.Matrix(**lyt_theme),
+    # layout.TreeTab()
     # layout.VerticalTile(),
-    # layout.Zoomy(),
+    # layout.Zoomy(**lyt_theme, columnwidth=300),
 ]
 
+
+def init_separator():
+    return widget.Sep(
+        margin=6,
+        linewidth=2,
+        padding=12,
+        size_percent=70,
+        # background=SOLARIZED["BASE03"],
+        foreground=SOLARIZED["BASE02"])
+
+
+def nerd_icon(nerdfont_icon, fg_color):
+    return widget.TextBox(
+        font="FiraCode Nerd Font",
+        fontsize=12,
+        text=nerdfont_icon,
+        foreground=fg_color,
+        # background=SOLARIZED["BASE01"]
+    )
+
+
+def init_edge_spacer():
+    return widget.Spacer(
+        length=5,
+        background=SOLARIZED["BASE01"])
+
+
+sep = init_separator()
+space = init_edge_spacer()
+
 widget_defaults = dict(
-    font="Hack Nerd Font",
+    font="Source Code Pro Medium",
+    # foreground=SOLARIZED["BASE2"],
     fontsize=12,
     padding=3,
 )
 extension_defaults = widget_defaults.copy()
 
-screens = [
-    Screen(
-        top=bar.Bar(
-            [
-                widget.CurrentLayout(),
-                widget.GroupBox(),
-                widget.Prompt(),
-                widget.WindowName(),
-                widget.Chord(
-                    chords_colors={
-                        "launch": ("#ff0000", "#ffffff"),
-                    },
-                    name_transform=lambda name: name.upper(),
-                ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn",
-                               foreground="#d75f5f"),
-                widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.QuickExit(),
-            ],
-            24,
-            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]
-            # Borders are magenta
+
+def init_widgets_list():
+    widget_list = [
+        widget.CurrentLayoutIcon(scale=0.8),
+        widget.GroupBox(
+            font="Hack Nerd Font",
+            fontsize=13,
+            foreground=SOLARIZED["BASE2"],
+            # background=SOLARIZED["BASE02"],
+            borderwidth=3,
+            highlight_method="line",
+            this_current_screen_border=SOLARIZED["S_BLUE"],
+            active=SOLARIZED["BASE3"],
+            inactive=SOLARIZED["BASE00"],
         ),
-    ),
-]
+        sep,
+        widget.WindowName(max_chars=30),
+        widget.Chord(
+            chords_colors={
+                "launch": ("#ff0000", "#ffffff"),
+            },
+            name_transform=lambda name: name.upper(),
+        ),
+        # sep,
+        # nerd_icon("", SOLARIZED["BASE01"]),
+        # widget.GenPollText(
+        #     update_interval=5,
+        #     func=lambda: subprocess.check_output(
+        #         f"{home_dir}/.config/qtile/scripts/instaled-pkgs.sh".decode(
+        #             "utf-8")
+        #     ),
+        # ),
+        nerd_icon(" ", SOLARIZED["BASE00"]),
+        widget.Wlan(
+            foreground=SOLARIZED["GREEN"],
+            format='({percent:2.0%})'
+        ),
+        widget.GenPollText(
+            update_interval=5,
+            foreground=SOLARIZED["GREEN"],
+            func=lambda: gethostbyname(gethostname()),
+            mouse_callbacks={
+                'Button1': lambda: qtile.cmd_spawn(f"{terminal} -e nmcli")
+            }
+        ),
+        sep,
+        nerd_icon(" ", SOLARIZED["BASE00"]),
+        widget.KeyboardLayout(
+            configured_keyboards=['us', 'br'],
+        ),
+        sep,
+        nerd_icon("墳 ", SOLARIZED["BASE00"]),
+        widget.PulseVolume(
+            get_volume_command="pamixer --get-volume",
+            mouse_callbacks={
+                'Button1': lambda: qtile.cmd_spawn("pavucontrol")
+            }
+        ),
+        sep,
+        nerd_icon(" ", SOLARIZED["BASE00"]),
+        widget.GenPollText(
+            update_interval=5,
+            func=lambda: storage.diskspace('FreeSpace'),
+            mouse_callbacks={
+                'Button1': lambda: qtile.cmd_spawn("gparted")
+            }
+        ),
+        sep,
+        widget.Battery(
+            format="{char}{percent:2.0%}",
+            full_char=' FULL ',
+            charge_char='  CHR ',
+            discharge_char=' BAT ',
+            empty_char=' No battery',
+            unknown_char=' UNK',
+            low_percentage=0.15,
+        ),
+        sep,
+        nerd_icon(" ", SOLARIZED["BASE00"]),
+        widget.Clock(
+            # format="%I:%M %p",
+            format="%H:%M",
+        ),
+        nerd_icon("  ", SOLARIZED["BASE00"]),
+        widget.Clock(
+            format="%b %d-%Y",
+            mouse_callbacks={
+                'Button1': lambda: qtile.cmd_spawn(
+                    home_dir + "/.config/qtile/scripts/show_calendar.sh"
+                )
+            }
+        ),
+        sep,
+        widget.Systray(),
+    ]
+    return widget_list
+
+
+def init_screens():
+    return [Screen(top=bar.Bar(
+        widgets=init_widgets_list(),
+        size=24,
+        # opacity=0.9,
+        # margin=[5, 10, 0, 0.10]
+    ))]
+
+
+screens = init_screens()
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(),
-         start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(),
-         start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front()),
+    Drag(
+        [mod], "Button1",
+        lazy.window.set_position_floating(),
+        start=lazy.window.get_position()
+    ),
+    Drag(
+        [mod], "Button3",
+        lazy.window.set_size_floating(),
+        start=lazy.window.get_size()
+    ),
+    Click(
+        [mod], "Button2",
+        lazy.window.bring_to_front()
+    ),
 ]
+
+floating_layout = layout.Floating(float_rules=[
+    *layout.Floating.default_float_rules,
+    Match(wm_class="confirmreset"),  # gitk
+    Match(wm_class="makebranch"),  # gitk
+    Match(wm_class="maketag"),  # gitk
+    Match(wm_class="ssh-askpass"),  # ssh-askpass
+    Match(wm_class="anki"),
+    Match(wm_class="gufw.py"),
+    Match(wm_class="Transmission-gtk"),
+    Match(wm_class="Blueman-manager"),
+    Match(wm_class="Arandr"),
+    Match(wm_class="Simple-scan"),
+    Match(wm_class="Lxappearance"),
+    Match(wm_class="pavucontrol"),
+    Match(wm_class="GParted"),
+
+    Match(title="branchdialog"),  # gitk
+    Match(title="pinentry"),  # GPG key password entry
+    Match(title='Qalculate!'),
+], **lyt_theme)
 
 dgroups_key_binder = None
 dgroups_app_rules = []  # type: list
 follow_mouse_focus = True
 bring_front_click = False
 cursor_warp = False
-floating_layout = layout.Floating(
-    float_rules=[
-        # Run the utility of `xprop` to
-        # see the wm class and name of an X client.
-        *layout.Floating.default_float_rules,
-        Match(wm_class="confirmreset"),  # gitk
-        Match(wm_class="makebranch"),  # gitk
-        Match(wm_class="maketag"),  # gitk
-        Match(wm_class="ssh-askpass"),  # ssh-askpass
-        Match(title="branchdialog"),  # gitk
-        Match(title="pinentry"),  # GPG key password entry
-    ]
-)
 auto_fullscreen = True
 focus_on_window_activation = "smart"
 reconfigure_screens = True
-
-# If things like steam games want to auto-minimize themselves when losing
-# focus, should we respect this or not?
 auto_minimize = True
-
-# When using the Wayland backend, this can be used to configure input devices.
 wl_input_rules = None
+
 
 # XXX: Gasp! We're lying here. In fact, nobody really uses or cares about this
 # string besides java UI toolkits; you can see several discussions on the
+# mailing lists, GitHub issues, and other WM documentation that suggest setting
 # mailing lists, GitHub issues, and other WM documentation that suggest setting
 # this string if your java app doesn't work correctly. We may as well just lie
 # and say that we're a working one by default.
 #
 # We choose LG3D to maximize irony: it is a 3D non-reparenting WM written in
 # java that happens to be on java's whitelist.
-wmname = "LG3D"
+wmname = "Qtile"
