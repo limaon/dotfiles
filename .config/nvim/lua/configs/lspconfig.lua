@@ -87,8 +87,8 @@ lspconfig.tsserver.setup {
 
 lspconfig.cssls.setup { on_attach = M.on_attach, }
 lspconfig.emmet_ls.setup { on_attach = M.on_attach }
-
 lspconfig.pylsp.setup { on_attach = M.on_attach, }
+lspconfig.bashls.setup { on_attach = M.on_attach, }
 
 -- requires a file containing user's lspconfigs
 local addlsp_confs = utils.load_config().plugins.options.lspconfig.setup_lspconf

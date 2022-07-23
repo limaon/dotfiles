@@ -119,7 +119,7 @@ M.telescope = {
         ["<leader>fh"] = { "<cmd> Telescope help_tags <CR>", "  help page" },
 
         -- git
-        ["<C-p>"] = { "<cmd> Telescope git_files <CR>", "  git files" },
+        ["<leader>fg"] = { "<cmd> Telescope git_files <CR>", "  git files" },
 
     },
 }
