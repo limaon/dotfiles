@@ -1,10 +1,12 @@
 configuration {
     show-icons: true;
-    /* icon-theme: "Papirus-Dark"; */
+    font: "JetBrainsMono Nerd Font 11";
     combi-modi: [ window, drun ];
     modi: [ combi ];
     display-combi: " Open ";
     location: 0;
+    yoffset: -150;
+    drun-show-actions: true;
     max-history-size: 10;
     hide-scrollbar: true;
     fixed-num-lines: false;
@@ -12,10 +14,10 @@ configuration {
     no-lazy-grab: true;
     sort: false;
     display-file-browser-extended: "Files";
-    display-window: " Window";
-    display-drun: " Launch";
+    display-window: "  ";
+    display-drun: "  ";
     display-calc: "   ";
     display-emoji: " Select ";
 }
 
-@theme "./i3wm-theme-basic.rasi"
+@theme "./solarized_limaon.rasi"
