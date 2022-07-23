@@ -8,6 +8,7 @@ import typing
 from urllib.parse import urljoin
 config: ConfigAPI = config
 c: ConfigContainer = c
+dowmload_open_script_path = "/usr/share/qutebrowser/userscripts/open_download"
 
 
 def _debian_redir(url: QUrl) -> bool:
@@ -91,7 +92,7 @@ interceptor.register(int_fn)
 config.load_autoconfig(False)
 
 # ui
-c.fonts.default_family = ["Hack Nerd Font", "Noto Emoji"]
+c.fonts.default_family = ["JetBrainsMono Nerd Font", "JoyPixels"]
 c.fonts.default_size = "13px"
 c.colors.webpage.preferred_color_scheme = "dark"
 c.completion.shrink = True
@@ -107,14 +108,13 @@ c.tabs.width = "20%"
 c.tabs.indicator.width = 5
 c.tabs.padding = {"bottom": 1, "left": 5, "right": 5, "top": 1}
 c.url.auto_search = "dns"
-c.url.default_page = "https://searxng.tordenskjold.de/"
-c.url.start_pages = [
-    "https://searxng.tordenskjold.de/"
-]
+c.url.default_page = "https://duckduckgo.com/"
+c.url.start_pages = ["https://duckduckgo.com/"]
 c.url.start_pages.append("https://yewtu.be/feed/subscriptions")
-c.url.searchengines = {
-    "DEFAULT": "https://searxng.tordenskjold.de/search?q={}"
-}
+# c.url.searchengines = {
+#     "DEFAULT": "https://duckduckgo.com/search?q={}"
+#     "DEFAULT": "https://searxng.tordenskjold.de/search?q={}"
+# }
 
 # general
 c.editor.encoding = 'utf-8'
@@ -124,6 +124,7 @@ c.input.insert_mode.auto_load = True
 c.auto_save.session = True
 c.spellcheck.languages = ["pt-BR"]
 c.downloads.location.prompt = False
+c.downloads.open_dispatcher = dowmload_open_script_path
 c.tabs.show = "always"
 c.tabs.last_close = "close"
 c.tabs.mousewheel_switching = False
@@ -132,21 +133,23 @@ c.content.pdfjs = False  # Don't view pdf files in-browser
 c.downloads.location.directory = "~/Downloads/"
 c.downloads.location.prompt = False
 c.content.canvas_reading = False
-c.content.webgl = False
+c.content.webgl = True
 c.scrolling.smooth = False
 c.scrolling.bar = "when-searching"
+c.qt.highdpi = True
+c.qt.force_software_rendering = "qt-quick"
 c.qt.args += [
-    # "enable-gpu-rasterization",
+    "enable-gpu-rasterization",
     "blink-settings=preferredColorScheme=1",
 ]
-c.qt.force_software_rendering = "qt-quick"
 c.editor.command = ["alacritty", "-e", "nvim", "{file}"]
-# c.aliases = {'q': 'quit', 'w': 'session-save', 'wq': 'quit --save'}
+c.aliases = {'q': 'quit', 'w': 'session-save', 'wq': 'quit --save'}
 
 # Keybinds
 config.unbind('m')
 bindings = {
-    'M': 'hint links spawn nohup mpv {hint-url}',
+    'M': 'hint links spawn --userscript view_in_mpv {hint-url}',
+    'pf': 'spawn --userscript password_fill',
     'mf': 'hint all spawn -d firefox {hint-url}',
     '<f12>': 'devtools bottom',
 }
@@ -196,7 +199,7 @@ c.content.blocking.enabled = True
 c.content.blocking.hosts.lists = [
     'https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts'
 ]
-c.content.blocking.method = "hosts"
+c.content.blocking.method = "auto"
 
 # Privacity
 c.content.cookies.accept = "no-3rdparty"
