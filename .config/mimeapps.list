@@ -1,5 +1,5 @@
 [Default Applications]
-inode/directory=Alacritty.desktop
+inode/directory=xfce4-file-manager.desktop
 image/jpm=sxiv.desktop
 text/x-txt2tags=org.xfce.mousepad.desktop
 text/plain=org.xfce.mousepad.desktop
@@ -13,6 +13,8 @@ application/x-gzpdf=org.pwmt.zathura.desktop
 application/x-bzpdf=org.pwmt.zathura.desktop
 application/x-lzpdf=org.pwmt.zathura.desktop
 application/x-xzpdf=org.pwmt.zathura.desktop
+x-scheme-handler/trash=xfce4-file-manager.desktop
+application/pdf=org.pwmt.zathura.desktop
 
 [Added Associations]
 application/pdf=org.pwmt.zathura.desktop;
@@ -30,4 +32,6 @@ application/x-lzpdf=org.pwmt.zathura.desktop;
 application/x-xzpdf=org.pwmt.zathura.desktop;
 x-scheme-handler/http=xfce4-web-browser.desktop;
 x-scheme-handler/https=xfce4-web-browser.desktop;
+inode/directory=xfce4-file-manager.desktop;
+x-scheme-handler/trash=xfce4-file-manager.desktop;
 
