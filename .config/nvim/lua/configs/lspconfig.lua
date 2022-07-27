@@ -1,5 +1,6 @@
 local M = {}
 local utils = require("core.utils")
+local lspconfig = require("lspconfig")
 
 require("ui.lsp")
 
@@ -52,7 +53,6 @@ capabilities.textDocument.completion.completionItem = {
     },
 }
 
-local lspconfig = require("lspconfig")
 
 lspconfig.flow.setup {
     on_attach = M.on_attach,
@@ -80,14 +80,18 @@ lspconfig.sumneko_lua.setup {
     },
 }
 
-lspconfig.tsserver.setup {
-    on_attach = M.on_attach,
-    filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" }
-}
 
-lspconfig.cssls.setup { on_attach = M.on_attach, }
-lspconfig.emmet_ls.setup { on_attach = M.on_attach }
-lspconfig.pylsp.setup { on_attach = M.on_attach, }
+-- lspconfig.tsserver.setup {
+--     on_attach = M.on_attach,
+--     filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" }
+-- }
+
+-- lspconfig.cssls.setup { on_attach = M.on_attach, }
+-- lspconfig.emmet_ls.setup { on_attach = M.on_attach }
+lspconfig.jedi_language_server.setup {
+    on_attach = M.on_attach,
+    capabilities = capabilities,
+}
 lspconfig.bashls.setup { on_attach = M.on_attach, }
 
 -- requires a file containing user's lspconfigs

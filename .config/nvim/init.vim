@@ -5,8 +5,9 @@
 call plug#begin('~/.local/share/nvim/plugged')
 
     " Lsp
+    Plug 'williamboman/mason.nvim'
+    Plug 'williamboman/mason-lspconfig.nvim'
     Plug 'neovim/nvim-lspconfig'
-    Plug 'williamboman/nvim-lsp-installer'
 
     " Auto Complete
     Plug 'hrsh7th/nvim-cmp'
@@ -39,7 +40,7 @@ call plug#begin('~/.local/share/nvim/plugged')
     " Git integration
     Plug 'tpope/vim-fugitive'
     Plug 'tpope/vim-rhubarb'
-    "Plug 'lewis6991/gitsigns.nvim'
+    Plug 'lewis6991/gitsigns.nvim'
 
     " Web server
     Plug 'turbio/bracey.vim', {'do': 'npm install --prefix server'}

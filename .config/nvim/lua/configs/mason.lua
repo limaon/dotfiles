@@ -1,11 +1,13 @@
-local present, lsp_installer = pcall(require, "nvim-lsp-installer")
+local present, lsp_installer = pcall(require, "mason")
 
 if not present then
     return
 end
 
 local options = {
-    -- ensure_installed = { "lua" },
+    ensure_installed = {
+        "lua-language-server"
+    },
     automatic_installation = true,
 
     ui = {
@@ -25,9 +27,13 @@ local options = {
         },
     },
 
-    max_concurrent_installers = 20,
+    max_concurrent_installers = 10,
 }
 
-options = require("core.utils").load_override(options, "williamboman/nvim-lsp-installer")
+options = require("core.utils").load_override(options, "williamboman/mason.nvim")
+
+vim.api.nvim_create_user_command("MasonInstallAll", function()
+  vim.cmd("MasonInstall " .. table.concat(options.ensure_installed, " "))
+end, {})
 
 lsp_installer.setup(options)

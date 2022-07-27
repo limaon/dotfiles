@@ -1,5 +1,10 @@
 local M = {}
 
+M.general = {
+    -- Copy all
+    -- ["<C-c>"] = { "<cmd> %y+ <CR>", "  copy whole file" },
+}
+
 M.lspconfig = {
     -- See `<cmd> :help vim.lsp.*` for documentation on any of the below functions
 
@@ -34,24 +39,18 @@ M.lspconfig = {
             end,
             "   lsp signature_help",
         },
-        -- ["<leader>D"] = {
-        --    function()
-        --       vim.lsp.buf.type_definition()
-        --    end,
-        --    "   lsp definition type",
-        -- },
-        -- ["<leader>ra"] = {
-        --    function()
-        --       require("ui.renamer").open()
-        --    end,
-        --    "   lsp rename",
-        -- },
-        -- ["<leader>ca"] = {
-        --    function()
-        --       vim.lsp.buf.code_action()
-        --    end,
-        --    "   lsp code_action",
-        -- },
+        ["<leader>D"] = {
+            function()
+                vim.lsp.buf.type_definition()
+            end,
+            "   lsp definition type",
+        },
+        ["<leader>ca"] = {
+            function()
+                vim.lsp.buf.code_action()
+            end,
+            "   lsp code_action",
+        },
         ["gr"] = {
             function()
                 vim.lsp.buf.references()
@@ -63,12 +62,6 @@ M.lspconfig = {
                 vim.diagnostic.open_float()
             end,
             "   floating diagnostic",
-        },
-        ["<leader>fm"] = {
-            function()
-                vim.lsp.buf.formatting()
-            end,
-            "   lsp formatting",
         },
         ["[d"] = {
             function()
@@ -113,10 +106,10 @@ M.telescope = {
     n = {
         -- find
         ["<leader>ff"] = { "<cmd> Telescope find_files <CR>", "  find files" },
-        -- ["<leader>fa"] = { "<cmd> Telescope find_files follow=true no_ignore=true hidden=true <CR>", "  find all" },
-        ["<leader>r"] = { "<cmd> Telescope live_grep <CR>", "   live grep" },
+        ["<leader>fw"] = { "<cmd> Telescope live_grep <CR>", "   live grep" },
         ["<leader>fb"] = { "<cmd> Telescope buffers <CR>", "  find buffers" },
         ["<leader>fh"] = { "<cmd> Telescope help_tags <CR>", "  help page" },
+        ["<leader>fo"] = { "<cmd> Telescope oldfiles <CR>", "   find oldfiles" },
 
         -- git
         ["<leader>fg"] = { "<cmd> Telescope git_files <CR>", "  git files" },

@@ -7,17 +7,6 @@ end
 local option = {
     ensure_installed = {
         "lua",
-        "vim",
-        "tsx",
-        "bash",
-        "toml",
-        "php",
-        "json",
-        "html",
-        "swift",
-        "scss",
-        "python",
-        "javascript",
     },
     sync_install = false,
     highlight = {

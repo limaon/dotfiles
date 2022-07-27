@@ -32,7 +32,7 @@ local options = {
     },
 
     experimental = {
-        ghost_text = true,
+        ghost_text = false,
     },
     view = {
         -- entries = "native" -- can be "custom", "wildmenu" or "native"

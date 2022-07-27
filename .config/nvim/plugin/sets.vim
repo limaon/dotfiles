@@ -2,7 +2,6 @@
 "--- Encoding
 set encoding=utf-8
 set fileencoding=utf-8
-set ttyfast
 
 " Identacao por espacos
 set backspace=indent,eol,start
@@ -22,8 +21,7 @@ set inccommand=split    " splita a tela na hora da subistituicao
 "As demais
 set number 		" Numera as linhas
 set numberwidth=2
-" set guicursor=i-ci-v-ve:block-blinkwait700-blinkoff400-blinkon250
-set timeoutlen=600      " Tempo para quando for precionada a leader key
+set timeoutlen=500      " Tempo para quando for precionada a leader key
 set undofile
 set smartindent		
 set autoindent          " Auto-indenta
@@ -40,12 +38,13 @@ set history=10
 set nowrap 
 set splitbelow splitright
 set path+=**
+set whichwrap+=<,>,[,],h,l
 set complete+=kspell
 set splitbelow splitright
 set laststatus=3
 let &fcs='eob: '
 au BufEnter * set fo-=c fo-=r fo-=o " Disable continius comments
-" set signcolumn=yes                " Enable to gitsings
+set signcolumn=yes                " Enable to gitsings
 
 function! GitBranch()
   return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
@@ -58,7 +57,7 @@ endfunction
 
 set statusline=%f\ %h%m%r\ %{StatuslineGit()}%=%y\ \ %-14.(%l,%c%V%)\ %P\ 
 set updatetime=250
-" set colorcolumn=80                " Linha Vertical do lado direito
+set colorcolumn=80                " Linha Vertical do lado direito
 
 "" Copy/Paste/Cut
 set clipboard=unnamedplus           "permite copias com a interface grafica
