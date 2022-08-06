@@ -109,6 +109,7 @@ alias \
 
 # Confirm before overwriting something 
 alias \
+        ll="ls -lh" \
         cp="cp -iv" \
         mv="mv -iv" \
         rm="rm -vI" \
