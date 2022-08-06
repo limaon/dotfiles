@@ -59,7 +59,7 @@ def make_urgent(window):
     window.window.set_property("_NET_WM_STATE", list(new_state))
 
 
-# Theme
+# ========= Theme Colors ===========
 SOLARIZED = {"GREEN": '#00ff00',
              "ORANGE": '#ff9900',
              "RED": '#ff0000',
@@ -238,7 +238,41 @@ keys = [
         ),
 ]
 
-groups = [Group(i) for i in "123456789"]
+# ========= Define Groups ===========
+groups = [
+    Group("1", layout="columns", matches=[
+        Match(wm_class=["brave-browser"]),
+        Match(wm_class=["firefox"]),
+        Match(wm_class=["qutebrowser"])
+    ]),
+
+    Group("2", layout="monadwide", matches=[
+        Match(wm_class=["Alacritty"])]),
+
+    Group("3", layout="monadtall", matches=[
+        Match(wm_class=["anki"])]),
+
+    Group("4", layout="columns", matches=[
+        Match(wm_class=["obsidian"]),
+        Match(wm_class=["Thunderbird"]),
+    ]),
+
+    Group("5"),
+    Group("6"),
+    Group("7"),
+
+    Group("8", layout="tile", matches=[
+        Match(wm_class=["mousepad"]),
+        Match(wm_class=["thunar"]),
+        Match(wm_class=["audacity"])
+    ]),
+
+    Group("9", layout="monadtall", matches=[
+        Match(wm_class=["transmission-gtk"]),
+    ]),
+
+]
+
 
 for i in groups:
     keys.extend([
@@ -262,7 +296,7 @@ for i in groups:
 
 # DEFAULT THEME SETTINGS FOR LAYOUTS #
 lyt_theme = {"border_width": 2,
-             "margin": 2,
+             "margin": 1,
              "font": "Source Code Pro Medium",
              "font_size": 10,
              "border_focus": SOLARIZED["S_RED"],
@@ -467,15 +501,14 @@ floating_layout = layout.Floating(float_rules=[
     Match(wm_class="makebranch"),  # gitk
     Match(wm_class="maketag"),  # gitk
     Match(wm_class="ssh-askpass"),  # ssh-askpass
-    Match(wm_class="anki"),
     Match(wm_class="gufw.py"),
-    Match(wm_class="Transmission-gtk"),
     Match(wm_class="Blueman-manager"),
     Match(wm_class="Arandr"),
     Match(wm_class="Simple-scan"),
     Match(wm_class="Lxappearance"),
     Match(wm_class="pavucontrol"),
     Match(wm_class="GParted"),
+    Match(wm_class="gcr-prompter"),  # Gnome-Keyring
 
     Match(title="branchdialog"),  # gitk
     Match(title="pinentry"),  # GPG key password entry

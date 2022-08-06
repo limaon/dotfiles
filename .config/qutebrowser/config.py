@@ -51,8 +51,8 @@ REDIRECT_MAP = {
     "www.reddit.com": operator.methodcaller('setHost', 'libreddit.de'),
     "twitter.com": operator.methodcaller('setHost', 'mobile.twitter.com'),
     "www.twitter.com": operator.methodcaller('setHost', 'mobile.twitter.com'),
-    "youtube.com": operator.methodcaller('setHost', 'yt.artemislena.eu'),
-    "www.youtube.com": operator.methodcaller('setHost', 'yt.artemislena.eu'),
+    # "youtube.com": operator.methodcaller('setHost', 'yt.artemislena.eu'),
+    # "www.youtube.com": operator.methodcaller('setHost', 'yt.artemislena.eu'),
     "en.wikipedia.org": operator.methodcaller('setHost', 'wikiless.org'),
     "www.en.wikipedia.org": operator.methodcaller('setHost', 'wikiless.org'),
     "medium.com": operator.methodcaller('setHost', 'scribe.rip'),
@@ -189,10 +189,7 @@ c.content.blocking.adblock.lists = [
     "https://easylist.to/easylist/easyprivacy.txt",
     "https://secure.fanboy.co.nz/fanboy-annoyance.txt",
     "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
-    "https://easylist-downloads.adblockplus.org/antiadblockfilters.txt",
-    "https://easylist-downloads.adblockplus.org/abp-filters-anti-cv.txt",
-    "https://easylist.to/easylist/easylist.txt",
-    "https://easylist.to/easylist/easyprivacy.txt",
+    "https://easylist.to/easylist/fanboy-social.txt"
 ]
 
 c.content.blocking.enabled = True
