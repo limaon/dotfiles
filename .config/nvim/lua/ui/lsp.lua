@@ -17,6 +17,28 @@ vim.diagnostic.config {
     virtual_text = {
         prefix = "",
     },
+    float = {
+        focusable = false,
+        style = "minimal",
+        border = "rounded",
+        source = "always",
+        header = "",
+        prefix = "",
+        format = function(d)
+            local t = vim.deepcopy(d)
+            local code = d.code or (d.user_data and d.user_data.lsp.code)
+            if code then
+                t.message = string.format("%s [%s]", t.message, code):gsub("1. ", "")
+            end
+            return t.message
+        end,
+    },
+    document_highlight = true,
+    peek = {
+        max_height = 15,
+        max_width = 30,
+        context = 10,
+    },
 }
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {

@@ -14,13 +14,12 @@ call plug#begin('~/.local/share/nvim/plugged')
     Plug 'hrsh7th/cmp-nvim-lsp'
     Plug 'hrsh7th/cmp-buffer'
     Plug 'hrsh7th/cmp-path'
-
     "Plug 'glepnir/lspsaga.nvim'
 
     "Snippets
     Plug 'saadparwaiz1/cmp_luasnip'
     Plug 'L3MON4D3/LuaSnip'
-    Plug 'rafamadriz/friendly-snippets'
+    " Plug 'rafamadriz/friendly-snippets'
     
     " Nvim Telescope
     Plug 'nvim-lua/plenary.nvim'
@@ -35,7 +34,6 @@ call plug#begin('~/.local/share/nvim/plugged')
 
     Plug 'terrortylor/nvim-comment'
     "Plug 'tpope/vim-surround'
-    "Plug 'norcalli/nvim-colorizer.lua' " Cores para o css
 
     " Git integration
     Plug 'tpope/vim-fugitive'
@@ -46,6 +44,7 @@ call plug#begin('~/.local/share/nvim/plugged')
     Plug 'turbio/bracey.vim', {'do': 'npm install --prefix server'}
 
 "    Plug 'Yggdroot/indentLine' " Para mostrar linhas de indentacao
+    Plug 'nvim-lualine/lualine.nvim'
     Plug 'overcache/NeoSolarized'
     Plug 'norcalli/nvim-colorizer.lua'
 

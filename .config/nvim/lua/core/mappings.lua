@@ -33,36 +33,6 @@ M.lspconfig = {
             end,
             "   lsp implementation",
         },
-        ["<leader>ls"] = {
-            function()
-                vim.lsp.buf.signature_help()
-            end,
-            "   lsp signature_help",
-        },
-        ["<leader>D"] = {
-            function()
-                vim.lsp.buf.type_definition()
-            end,
-            "   lsp definition type",
-        },
-        ["<leader>ca"] = {
-            function()
-                vim.lsp.buf.code_action()
-            end,
-            "   lsp code_action",
-        },
-        ["gr"] = {
-            function()
-                vim.lsp.buf.references()
-            end,
-            "   lsp references",
-        },
-        ["<leader>f"] = {
-            function()
-                vim.diagnostic.open_float()
-            end,
-            "   floating diagnostic",
-        },
         ["[d"] = {
             function()
                 vim.diagnostic.goto_prev()
@@ -80,24 +50,6 @@ M.lspconfig = {
                 vim.diagnostic.setloclist()
             end,
             "   diagnostic setloclist",
-        },
-        ["<leader>wa"] = {
-            function()
-                vim.lsp.buf.add_workspace_folder()
-            end,
-            "   add workspace folder",
-        },
-        ["<leader>wr"] = {
-            function()
-                vim.lsp.buf.remove_workspace_folder()
-            end,
-            "   remove workspace folder",
-        },
-        ["<leader>wl"] = {
-            function()
-                print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-            end,
-            "   list workspace folders",
         },
     },
 }
