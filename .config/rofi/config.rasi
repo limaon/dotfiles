@@ -1,23 +1,25 @@
 configuration {
     show-icons: true;
     font: "JetBrainsMono Nerd Font 11";
+    icon-theme: "ePapirus-Dark";
     combi-modi: [ window, drun ];
     modi: [ combi ];
     display-combi: " Open ";
     location: 0;
-    yoffset: -150;
+    yoffset: -60;
     drun-show-actions: true;
     max-history-size: 10;
     hide-scrollbar: true;
-    fixed-num-lines: false;
+    fixed-num-lines: true;
     disable-history: false;
-    no-lazy-grab: true;
     sort: false;
     display-file-browser-extended: "Files";
     display-window: "  ";
     display-drun: "  ";
     display-calc: "   ";
     display-emoji: " Select ";
+    normalize-match: true;
+    steal-focus: true;
 }
 
 @theme "./solarized_limaon.rasi"
