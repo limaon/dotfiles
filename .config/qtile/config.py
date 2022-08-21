@@ -236,6 +236,7 @@ keys = [
         lazy.spawn("flameshot gui"),
         desc='Start screenshot provider'
         ),
+
 ]
 
 # ========= Define Groups ===========
@@ -253,16 +254,17 @@ groups = [
         Match(wm_class=["anki"])]),
 
     Group("4", layout="columns", matches=[
-        Match(wm_class=["obsidian"]),
         Match(wm_class=["Thunderbird"]),
     ]),
 
     Group("5"),
     Group("6"),
-    Group("7"),
+
+    Group("7", layout="columns", matches=[
+        Match(wm_class=["obsidian"]),
+    ]),
 
     Group("8", layout="tile", matches=[
-        Match(wm_class=["mousepad"]),
         Match(wm_class=["thunar"]),
         Match(wm_class=["audacity"])
     ]),
