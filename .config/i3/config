@@ -42,10 +42,16 @@ bindsym $mod+z exec --no-startup-id rofi -show emoji -modi emoji
 # wallpaper change rofi
 bindsym $mod+Shift+w exec --no-startup-id ~/.local/bin/wch.sh
 
+# Web search 
+bindsym $mod+b exec --no-startup-id ~/.local/bin/rofi-search.sh
+
+# Edit configs by rofi
+bindsym $mod+c exec --no-startup-id ~/.local/bin/rofi-edit-configs.sh
+
 # Volume Control (i3-volume from AUR)
-bindsym XF86AudioRaiseVolume exec --no-startup-id ~/.local/bin/volume up
-bindsym XF86AudioLowerVolume exec --no-startup-id ~/.local/bin/volume down
-bindsym XF86AudioMute        exec --no-startup-id ~/.local/bin/volume mute
+bindsym XF86AudioRaiseVolume exec --no-startup-id ~/.local/bin/volume high
+bindsym XF86AudioLowerVolume exec --no-startup-id ~/.local/bin/volume medium
+bindsym XF86AudioMute        exec --no-startup-id ~/.local/bin/volume muted
 
 # Player Control
 bindsym XF86AudioPlay exec --no-startup-id playerctl play
@@ -150,18 +156,14 @@ bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 bindsym $mod+Shift+0 move container to workspace $ws10
 
-# set position of floating window
-for_window [class=".*"] move position center
-
 # Set floating for apps needing it
 for_window [title="alsamixer"] floating enable border pixel 1
-for_window [class="Qalculate-gtk" instance="qalculate-gtk"] floating enable border pixel 1
+for_window [class="Qalculate-gtk" instance="qalculate-gtk"] floating enable border pixel 2
 for_window [class="Pavucontrol" instance="pavucontrol"] floating enable
 for_window [class="Rhythmbox" instance="rhythmbox"] floating enable
-for_window [class="Yt-dlg" instance="yt-dlg"] floating enable
 for_window [class="Anki" instance="anki"] floating enable border pixel 2
 for_window [class="Lxappearance"] floating enable sticky enable border normal
-for_window [class="Nitrogen"] floating enable border normal
+for_window [class="Nitrogen"] floating enable border normal 
 for_window [title="File Transfer*"] floating enable
 for_window [class="GParted"] floating enable border normal
 for_window [class="Simple-scan"] floating enable
@@ -187,16 +189,18 @@ for_window [title="Deleting"] floating enable
 for_window [title="Moving"] floating enable
 for_window [title="File Transfer*"] floating enable
 
+# set position of floating window
+for_window [class=".*"] move absolute position center
+
 # Open and focus to specific workspace
-assign [class="(?i)firefox"] $ws9
-assign [class="google-chrome"] $ws9
-assign [class="qutebrowser"] $ws9
+assign [class="(?i)firefox"] $ws1
+assign [class="Brave-browser"] $ws1
+assign [class="qutebrowser"] $ws1
+assign [class="Anki"] $ws2
+assign [class="obsidian"] $ws7
 assign [class="Thunar"] $ws8 
-assign [class="obsidian"] $ws8
-assign [class="Anki"] $ws8
-assign [class="Transmission-gtk"] $ws2
-assign [class="spotify"] $ws2
-# assign [class="Termite" instance="Ranger"] $ws4
+assign [class="audacity"] $ws8 
+assign [class="Transmission-gtk"] $ws9
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 10 x 10
@@ -235,10 +239,10 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
         font pango: Hack Nerd Font Mono 9
-        status_command i3status
+        # status_command i3status
         tray_output primary
         position top
-        status_command i3status -c ~/.config/i3/i3status.conf
+        status_command i3status-rs ~/.config/i3/i3status.toml
         strip_workspace_numbers yes
 }
 
