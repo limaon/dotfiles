@@ -102,10 +102,12 @@ alias \
 
 # Youtube
 alias \
-	yt="yt-dlp --embed-metadata -i -o '~/Videos/%(title)s.%(ext)s' -f mp4" \
-	ytautosub="yt --write-auto-subs --embed-subs" \
+	yt="yt-dlp --embed-metadata --embed-thumbnail -i -o '~/Videos/%(title)s.%(ext)s' -f mp4 --sponsorblock-remove all " \
+	ytautosub="yt --write-sub --sub-lang en --convert-subs vtt " \
 	yta="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' " \
 	mp3dl="yta --audio-quality 1 --audio-format mp3" \
+	# ytautosub="yt --write-auto-subs --embed-subs --embed-thumbnail" \
+
 
 # Confirm before overwriting something 
 alias \
@@ -130,7 +132,7 @@ alias \
         unlock="sudo rm /var/lib/pacman/db.lck" \
         autoremove="sudo pacman -Rns" \
         cleanup='sudo pacman -Rns $(pacman -Qtdq)' \
-        parsua='paru -Sua --noconfirm' \
+        parsua='paru -Sua' \
 
 # Journal
 alias \
@@ -180,3 +182,4 @@ PS4='+ '
 
 # asdf config
 . /opt/asdf-vm/asdf.sh
+. ~/.local/share/asdf/plugins/java/set-java-home.bash
