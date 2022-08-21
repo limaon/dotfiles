@@ -1,8 +1,37 @@
 local M = {}
 
 M.general = {
-    -- Copy all
-    -- ["<C-c>"] = { "<cmd> %y+ <CR>", "  copy whole file" },
+    n = {
+        -- Copy all
+        -- ["<C-c>"] = { "<cmd> %y+ <CR>", "  copy whole file" },
+
+        -- Delete a word backwork
+        ['dw'] = { 'vb"_d' },
+
+        -- Split window
+        ['ss'] = { ':split<Return> <C-w>' },
+        ['sv'] = { ':vsplit<Return> <C-w>' },
+
+        --Move window
+        ['<Space>'] = { '<C-w>w' },
+        ['sh'] = { '<C-w>h' },
+        ['sk'] = { '<C-w>k' },
+        ['sj'] = { '<C-w>j' },
+        ['sl'] = { '<C-w>l' },
+
+        -- Resize window
+        ['<C-w><left>'] = { '<C-w><' },
+        ['<C-w><right>'] = { '<C-w>>' },
+        ['<C-w><up>'] = { '<C-w>+' },
+        ['<C-w><down>'] = { '<C-w>-' },
+
+        -- Nav Buffers
+        ['<M-i>'] = { ':bp<Return>' },
+        ['<M-o>'] = { ':bn<Return>' },
+        ['<DELETE>'] = { ':bd<Return>' },
+
+
+    }
 }
 
 M.lspconfig = {
@@ -61,7 +90,6 @@ M.telescope = {
         ["<leader>fw"] = { "<cmd> Telescope live_grep <CR>", "   live grep" },
         ["<leader>fb"] = { "<cmd> Telescope buffers <CR>", "  find buffers" },
         ["<leader>fh"] = { "<cmd> Telescope help_tags <CR>", "  help page" },
-        ["<leader>fo"] = { "<cmd> Telescope oldfiles <CR>", "   find oldfiles" },
 
         -- git
         ["<leader>fg"] = { "<cmd> Telescope git_files <CR>", "  git files" },

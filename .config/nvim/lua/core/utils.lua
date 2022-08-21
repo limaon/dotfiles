@@ -52,42 +52,43 @@ end
 
 M.load_mappings = function(mappings, mapping_opt)
     -- set mapping function with/without whichkey
-    local map_func
-    local whichkey_exists, wk = pcall(require, "which-key")
+    local set_maps
 
-    if whichkey_exists then
-        map_func = function(keybind, mapping_info, opts)
-            wk.register({ [keybind] = mapping_info }, opts)
-        end
-    else
-        map_func = function(keybind, mapping_info, opts)
-            local mode = opts.mode
-            opts.mode = nil
-            vim.keymap.set(mode, keybind, mapping_info[1], opts)
-        end
+    set_maps = function(keybind, mapping_info, opts)
+        local mode = opts.mode
+        opts.mode = nil
+        vim.keymap.set(mode, keybind, mapping_info[1], opts)
     end
 
     mappings = mappings or vim.deepcopy(M.load_config().mappings)
     mappings.lspconfig = nil
 
-    for _, section_mappings in pairs(mappings) do
-        -- skip mapping this as its mapppings are loaded in lspconfig
-        for mode, mode_mappings in pairs(section_mappings) do
-            for keybind, mapping_info in pairs(mode_mappings) do
-                -- merge default + user opts
+    local mappings_tb = M.load_config().mappings
+    mappings = vim.deepcopy(type(mappings) == "string" and { mappings_tb[mappings] } or mappings_tb)
 
-                local default_opts = merge_tb("force", { mode = mode }, mapping_opt or {})
-                local opts = merge_tb("force", default_opts, mapping_info.opts or {})
+    local function set_mappings()
+        for name, section in pairs(mappings) do
+            --skip mappings section with plugin=true
+            for mode, mode_values in pairs(section) do
+                for keybind, mapping_info in pairs(mode_values) do
+                    local default_opts = merge_tb("force", { mode = mode }, mapping_opt or {})
+                    local opts = merge_tb("force", default_opts, mapping_info.opts or {})
 
-                if mapping_info.opts then
-                    mapping_info.opts = nil
+                    if mapping_info.opts then
+                        mapping_info.opts = nil
+                    end
+
+                    set_maps(keybind, mapping_info, opts)
                 end
-
-                map_func(keybind, mapping_info, opts)
             end
         end
     end
+
+    vim.defer_fn(function()
+        set_mappings()
+    end, 0)
 end
+
 
 --- ##### ---
 

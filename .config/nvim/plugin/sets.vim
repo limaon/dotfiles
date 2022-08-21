@@ -10,6 +10,7 @@ set backspace=indent,eol,start
 set tabstop=8 softtabstop=4     "Quantidade de espacos por indentacao
 set shiftwidth=4                "Quantidade de espacos por auto-indentacao
 set expandtab
+set breakindent
 
 " Busca
 set nohlsearch
@@ -36,53 +37,28 @@ set mouse=a	    	" Suporte a mouse
 set nomodeline
 set history=10
 set nowrap 
+set showcmd
 set splitbelow splitright
 set path+=**
 set whichwrap+=<,>,[,],h,l
 set complete+=kspell
 set splitbelow splitright
-set laststatus=3
+set laststatus=2
 let &fcs='eob: '
 au BufEnter * set fo-=c fo-=r fo-=o " Disable continius comments
 set signcolumn=yes                " Enable to gitsings
 
-function! GitBranch()
-  return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
-endfunction
-
-function! StatuslineGit()
-  let l:branchname = GitBranch()
-  return strlen(l:branchname) > 0?'('.l:branchname.')':''
-endfunction
-
-set statusline=%f\ %h%m%r\ %{StatuslineGit()}%=%y\ \ %-14.(%l,%c%V%)\ %P\ 
+" set statusline=%f\ %h%m%r\ %{StatuslineGit()}%=%y\ \ %-14.(%l,%c%V%)\ %P\ 
 set updatetime=250
 set colorcolumn=80                " Linha Vertical do lado direito
 
-"" Copy/Paste/Cut
+" Copy/Paste/Cut
 set clipboard=unnamedplus           "permite copias com a interface grafica
 
 set wildignore+=*.o,*.obj,*.exe,*.so,*.dll,*.pyc,*.svn,*.hg,*.bzr,**/.git/*,
     \*.sass-cache,*.class,*.scssc,*.cssc,sprockets%*,*.lessc,**/node_modules/*
 
-" Splits
-nmap ss :split<Return><C-w>w
-nmap sv :vsplit<Return><C-w>w
-
-nmap <Space> <C-w>w
-map sh <C-w>h
-map sk <C-w>k
-map sj <C-w>j
-map sl <C-w>l
-
-"" Buffer navegacao
-noremap <M-i> :bp<CR>
-noremap <M-o> :bn<CR>
-
-"" Fecha o buffer
-noremap <DELETE> :bd<CR>
-
-"" Relembrar a posicao do curso quando fechar o editor
+" Relembrar a posicao do curso quando fechar o editor
 augroup vimrc-remember-cursor-position
     autocmd!
     autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
