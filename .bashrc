@@ -8,7 +8,7 @@
 # Defautl programs
 export EDITOR="/usr/bin/nvim"
 export TERMINAL="/usr/bin/alacritty"
-export BROWSER="/usr/bin/firefox"
+export BROWSER=""
 export READER="/usr/bin/zathura"
 
 # Set language
