@@ -199,15 +199,17 @@ assign [class="qutebrowser"] $ws1
 assign [class="Anki"] $ws2
 assign [class="obsidian"] $ws7
 assign [class="Thunar"] $ws8 
-assign [class="audacity"] $ws8 
+# assign [class="Audacity"] $ws8 
+assign [class="Thunderbird"] $ws8 
 assign [class="Transmission-gtk"] $ws9
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 10 x 10
-floating_maximum_size 1078 x 650
+floating_maximum_size 1048 x 620
 
 # switch to workspace with urgent window autimaticaly
 for_window [urgent=latest] focus
+# focus_on_window_activation smart
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
