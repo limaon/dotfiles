@@ -142,13 +142,17 @@ c.qt.args += [
     "enable-gpu-rasterization",
     "blink-settings=preferredColorScheme=1",
 ]
-c.editor.command = ["alacritty", "-e", "nvim", "{file}"]
+c.editor.command = ["kitty", "-e", "nvim", "{file}"]
 c.aliases = {'q': 'quit', 'w': 'session-save', 'wq': 'quit --save'}
 
 # Keybinds
 config.unbind('m')
 bindings = {
     'M': 'hint links spawn --userscript view_in_mpv {hint-url}',
+    ';M': 'spawn kitty -e yt-dlp --embed-metadata \
+        --embed-thumbnail -i -o "~/Videos/%(title)s.%(ext)s" -f mp4 \
+        --sponsorblock-remove all --write-sub --sub-lang en \
+        --convert-subs vtt {url}',
     'pf': 'spawn --userscript password_fill',
     'mf': 'hint all spawn -d firefox {hint-url}',
     '<f12>': 'devtools bottom',
@@ -160,11 +164,11 @@ for key, bind in bindings.items():
 # Select a file to upload
 c.fileselect.handler = "external"
 c.fileselect.single_file.command = [
-    'alacritty', '--class', 'ranger,ranger', '-e',
+    'kitty', '--class', 'ranger,ranger', '-e',
     'ranger', '--choosefile', '{}'
 ]
 c.fileselect.multiple_files.command = [
-    'alacritty', '--class', 'ranger,ranger', '-e',
+    'kitty', '--class', 'ranger,ranger', '-e',
     'ranger', '--choosefiles', '{}'
 ]
 
