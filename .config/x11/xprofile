@@ -42,6 +42,7 @@ setxkbmap -option grp:alt_shift_toggle -option caps:swapescape -layout us,br -va
 
 # Mouse settings
 xinput set-prop "2.4G Mouse" "libinput Accel Speed" -1.0 &
+xinput set-prop "Compx 2.4G Receiver Mouse" "libinput Accel Speed" -1.0 &
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Natural Scrolling Enabled" 1 &
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 &
 
