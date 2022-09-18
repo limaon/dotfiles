@@ -7,7 +7,7 @@
 
 # Defautl programs
 export EDITOR="/usr/bin/nvim"
-export TERMINAL="/usr/bin/alacritty"
+export TERMINAL="/usr/bin/kitty"
 export BROWSER=""
 export READER="/usr/bin/zathura"
 
