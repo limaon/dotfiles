@@ -32,6 +32,7 @@ declare -a options=(
 " (yg)youglish - https://youglish.com/pronounce/"
 " tatoeba - https://tatoeba.org/pt-br/sentences/search?from=eng&to=por&query="
 " cm - https://codemadness.org/idiotbox/?q="
+" yy - https://yewtu.be/search?q="
 " udemy - https://www.udemy.com/courses/search/?src=ukw&q="
 "quit"
 )
@@ -47,7 +48,7 @@ done
 
 # Searching the chosen engine.
 while [ -z "$query" ]; do
-query=$(rofi -dmenu -i 20 -p "Searching $engine:") || exit
+query=$(rofi -dmenu -i 20 -p "Searching $engine ") || exit
 done
 
 # Display search results in web browser
