@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-DMEDITOR="alacritty -e nvim"
+# DMEDITOR="alacritty -e nvim"
+DMEDITOR="kitty -e nvim"
 
 declare -a options=(
 "bashrc  - $HOME/.bashrc"
@@ -8,6 +9,7 @@ declare -a options=(
 "i3  - $HOME/.config/i3/config"
 "i3status  - $HOME/.config/i3/i3status.toml"
 "alacritty  - $HOME/.config/alacritty/alacritty.yml"
+"kitty  - $HOME/.config/kitty/kitty.conf"
 "qutebrowser - $HOME/.config/qutebrowser/config.py"
 "mpv - $HOME/.config/mpv/mpv.conf"
 "mpd - $HOME/.config/mpd/mpd.conf"
