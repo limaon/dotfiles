@@ -27,6 +27,11 @@ export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
 # Others Paths
 export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
 # export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority" # This line will break some DMs
+#export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket="
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+# export PATH=$HOME/local/bin:$PATH
+#export SSH_AUTH_SOCK=${HOME}/.ssh-agent.sock
+
 export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
@@ -181,5 +186,5 @@ PS3='> '
 PS4='+ '
 
 # asdf config
-. /opt/asdf-vm/asdf.sh
-. ~/.local/share/asdf/plugins/java/set-java-home.bash
+#. /opt/asdf-vm/asdf.sh
+#. ~/.local/share/asdf/plugins/java/set-java-home.bash
