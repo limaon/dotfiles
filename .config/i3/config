@@ -237,6 +237,7 @@ mode "resize" {
     bindsym Escape mode "default"
     bindsym $mod+r mode "default"
 }
+
 bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
@@ -245,7 +246,7 @@ bar {
         # status_command i3status
         tray_output primary
         position top
-        status_command i3status-rs ~/.config/i3/i3status.toml
+        status_command i3status -c ~/.config/i3/i3status.conf
         strip_workspace_numbers yes
 }
 
