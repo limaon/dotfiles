@@ -19,7 +19,7 @@ blueman-applet &
 picom -b & disowm
 
 # Hide mouse when typing
-# xbanish &
+xbanish &
 
 # start redshift
 redshift & disowm
@@ -41,8 +41,9 @@ setxkbmap -option grp:alt_shift_toggle -option caps:swapescape -layout us,br -va
 # setxkbmap -option caps:swapescape -layout us,br &
 
 # Mouse settings
-xinput set-prop "2.4G Mouse" "libinput Accel Speed" -1.0 &
-xinput set-prop "Compx 2.4G Receiver Mouse" "libinput Accel Speed" -1.0 &
+# xinput set-prop "2.4G Mouse" "libinput Accel Speed" -1.0 &
+# xinput set-prop "Compx 2.4G Receiver Mouse" "libinput Accel Speed" -1.0 &
+xinput set-prop "DELUX Mouse" "libinput Accel Speed" -1.0
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Natural Scrolling Enabled" 1 &
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 &
 
@@ -54,3 +55,5 @@ xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 &
 
 # Strat i3
 # exec i3
+
+eval $(ssh-agent)

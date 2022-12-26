@@ -2,11 +2,11 @@ configuration {
     show-icons: true;
     font: "JetBrainsMono Nerd Font 11";
     icon-theme: "ePapirus-Dark";
-    combi-modi: [ window, drun ];
+    combi-modi: [ drun ];
     modi: [ combi ];
     display-combi: " Open ";
     location: 0;
-    yoffset: -60;
+    /*yoffset: -60;*/
     drun-show-actions: true;
     max-history-size: 10;
     hide-scrollbar: true;
@@ -22,4 +22,4 @@ configuration {
     steal-focus: true;
 }
 
-@theme "./solarized_limaon.rasi"
+@theme "./nord-oneline.rasi"
