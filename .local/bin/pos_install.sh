@@ -107,12 +107,12 @@ PROGRAMAS_PARA_INSTALAR=(
     networkmanager
     network-manager-applet
     nfs-utils
+    ntfs-3g
     nilfs-utils
     nitrogen
     openssh
-    pacman
+    pamixer
     papirus-icon-theme
-    patch
     pavucontrol
     picom
     pipewire
@@ -157,6 +157,7 @@ PROGRAMAS_PARA_INSTALAR=(
     zram-generator
     keepassxc
     x11-ssh-askpass
+    obsidian
 )
 
 # ---------------------------------------------------------------------- #
@@ -218,7 +219,7 @@ sudo systemctl enable ly.service
 systemctl --user enable --now geoclue-agent.service
 systemctl --user enable --now ssh-agent
 
-ln -s ~/.config/x11/xprofile ~/.profile
+ln -s ~/.config/x11/xprofile ~/.xprofile
 
 # -------------------------------------------------------------------------------- #
 # -------------------------------EXECUÇÃO----------------------------------------- #

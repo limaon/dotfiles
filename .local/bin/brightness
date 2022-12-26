@@ -8,11 +8,11 @@ function send_notification() {
 
 case $1 in
 up)
-    pkexec brillo -A 5 -p
+    pkexec /usr/bin/brillo -A 5 -p
     send_notification $1
     ;;
 down)
-    pkexec brillo -U 5 -p
+    pkexec /usr/bin/brillo -U 5 -p
     send_notification $1
     ;;
 esac

@@ -257,6 +257,7 @@ bindsym $mod+m bar mode toggle
 exec --no-startup-id i3-battery-popup
 exec --no-startup-id i3-layouts
 exec --no-startup-id i3status-kbd-layout
+exec_always --no-startup-id ~/.local/bin/inputDeviceSet.sh
 # exec --no-startup-id dbus-launch dunst --config ~/.config/dunst/dusntrc
 
 ###############################
@@ -316,7 +317,8 @@ set $mode_system Actions: (l)Lock, (e)Logout, (s)Suspend, (r)Reboot, (CTRL+s)Shu
 mode "$mode_system" {
     bindsym l exec --no-startup-id $i3lockscreen, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
-    bindsym s exec --no-startup-id $i3lockscreen && systemctl suspend, mode "default"
+    #bindsym s exec --no-startup-id $i3lockscreen && systemctl suspend, mode "default"
+    bindsym s exec --no-startup-id systemctl suspend, mode "default"
     bindsym h exec --no-startup-id $i3lockscreen && systemctl hibernate, mode "default"
     bindsym r exec --no-startup-id systemctl reboot, mode "default"
     bindsym Ctrl+s exec --no-startup-id systemctl poweroff -i, mode "default"
@@ -330,14 +332,14 @@ bindsym $mod+Shift+e mode "$mode_system"
 ###############################
 ### Display Config (i3wm) #####
 ###############################
-set $mode_display Config monitor resolution - My first config (d) - My second config (t)
+set $mode_display Set monitor - Hdmi(d), Notebook(t)
 
 mode "$mode_display" {
-    # bindsym d exec --no-startup-id xrandr --output VGA-1 --off --output eDP-1 --primary --mode 1600x900 --pos 0x0 --rotate normal --output HDMI-2 --off --output HDMI-1 --off --output DP-2 --off --output DP-1 --off && ~/.fehbg, mode "default"
-    # bindsym t exec --no-startup-id xrandr --output eDP-1 --primary --mode 1600x900 --pos 0x809 --rotate normal --output VGA-1 --mode 1920x1080 --pos 2800x420 --rotate normal --output DP-1 --off --output HDMI-1 --mode 1920x1200 --pos 1600x0 --rotate left --output DP-2 --off --output HDMI-2 --off
+    bindsym d exec --no-startup-id xrandr --output eDP-1 --off --output HDMI-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal, mode "default"
+    bindsym t exec --no-startup-id xrandr --output eDP-1 --primary --mode 1366x768 --pos 0x0 --rotate normal --output HDMI-1 --off, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
-# bindsym $mod+x mode "$mode_display"
+bindsym $mod+x mode "$mode_display"
