@@ -3,10 +3,10 @@
 ### Installing dotfiles
 
 ```sh
-echo 'alias dotconfig="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"' >> $HOME/.bashrc
-source ~/.bashrc
+alias dotconfig="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"' 
+echo ".dotfiles" >> .gitignore
 git clone --bare https://github.com/limaon/dotfiles.git $HOME/.dotfiles
 mv .bashrc .bashrc_old
-dotconfig checkout
-dotconfig config --local status.showUntrackedFiles no
+dot checkout
+dot config --local status.showUntrackedFiles no
 ```
