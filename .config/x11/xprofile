@@ -16,7 +16,7 @@ nm-applet &
 blueman-applet &
 
 # Compositor
-picom -b & disowm
+# picom & disowm
 
 # Hide mouse when typing
 xbanish &

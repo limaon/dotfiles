@@ -101,6 +101,7 @@ PROGRAMAS_PARA_INSTALAR=(
     m4
     man-db
     materia-gtk-theme
+    mousepad
     mlocate
     mpv
     neovim

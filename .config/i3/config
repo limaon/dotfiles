@@ -189,6 +189,7 @@ for_window [title="Copying"] floating enable
 for_window [title="Deleting"] floating enable
 for_window [title="Moving"] floating enable
 for_window [title="File Transfer*"] floating enable
+for_window [title="File Operation*"] floating enable
 
 # set position of floating window
 for_window [class=".*"] move absolute position center
