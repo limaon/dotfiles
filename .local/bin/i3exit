@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+PICTURE=/tmp/i3lock.png
+SCREENSHOT_COMMAND="maim --hidecursor $PICTURE"
+BLUR="5x4"
+
+take_screenshot() {
+  $SCREENSHOT_COMMAND
+  convert $PICTURE -blur $BLUR $PICTURE
+}
+
+lock() {
+  take_screenshot
+  sleep 0.5
+  i3lock -efn -i $PICTURE
+}
+
+dbus-send-command() {
+  local dest="$1"
+  local path="$2"
+  local method="$3"
+  shift 3
+  dbus-send --system --print-reply --dest="$dest" "$path" "$method" "$@"
+}
+
+case "$1" in
+  lock)
+    lock
+    ;;
+  logout)
+    i3-msg exit
+    ;;
+  suspend)
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Suspend" boolean:true
+    lock
+    ;;
+  hibernate)
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Hibernate" boolean:true
+    ;;
+  reboot)
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
+    ;;
+  shutdown)
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+    ;;
+  *)
+    echo "Usage: $0 {lock|logout|suspend|hibernate|reboot|shutdown}"
+    exit 2
+esac
+
+exit 0

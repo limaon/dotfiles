@@ -8,7 +8,7 @@
 # Defautl programs
 export EDITOR="/usr/bin/nvim"
 export TERMINAL="/usr/bin/kitty"
-export BROWSER="/usr/bin/firefox"
+# export BROWSER="/usr/bin/firefox"
 export READER="/usr/bin/zathura"
 
 # Set language
@@ -28,9 +28,10 @@ export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
 export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
 # export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority" # This line will break some DMs
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+export GRADLE_USER_HOME="$XDG_DATA_HOME"/gradle
 
 export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+#export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
@@ -67,14 +68,16 @@ export MOZ_USE_XINPUT2="1"		# Mozilla smooth scrolling/touchpads.
 
 # Fix QT themes on GTK Desktops
 # https://tatsumoto.neocities.org/blog/setting-up-anki.html#gtk-theme
-export QT_QPA_PLATFORMTHEME=qt6ct
+export QT_QPA_PLATFORMTHEME=qt5ct
+#export QT_QPA_PLATFORMTHEME=gtk2
 
 # Fix QT plugin path for pyqt packages installed with pip.
 # export QT_PLUGIN_PATH=/usr/lib/qt/plugins:$(find ~/.local/lib/ -type d -wholename '*/python3*/site-packages/PyQt*/plugins' | paste -s -d :)
+export QT_PLUGIN_PATH=/usr/lib/qt/plugins
 
 # Fix Java programs
 # https://wiki.archlinux.org/index.php/Java_Runtime_Environment_fonts
-export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=gasp'
+# export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=gasp'
 
 # Start graphical server on tty1 if not already running.
 # https://wiki.archlinux.org/index.php/Xinit#Autostart_X_at_login
@@ -87,16 +90,32 @@ fi
 
 # Shell options
 shopt -s nocaseglob
+shopt -s checkwinsize
+[ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
+source /usr/share/git/completion/git-prompt.sh
+source /usr/share/bash-completion/completions/git
+
+# bind to run lf file manager
+LFCD="$HOME/.config/lf/lfcd.sh"
+if [ -f "$LFCD" ]; then
+    source "$LFCD"
+fi
+bind '"\C-o":"lfcd\C-m"'
 
 # dotfiles in git
 # https://wiki.archlinux.org/index.php/Dotfiles
 alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+__git_complete dot __git_main
 
 # Colors commands
 alias \
-        ls='ls -F --color=auto --group-directories-first' \
-	diff="diff --color=auto" \
-        grep='grep --color=always' \
+        ls='ls --group-directories-first --time-style=+"%d.%m.%Y %H:%M" --color=auto' \
+        ll="ls -lvh" \
+        la="ls -lavh --ignore=.. --ignore=." \
+        dir='dir --color=auto' \
+        vdir='vdir --color=auto' \
+        diff="diff --color=auto" \
+        grep='grep --color=tty -d skip' \
         egrep='egrep --color=auto' \
         fgrep='fgrep --color=auto' \
         rmpyc='find . -name "*.pyc" -exec rm -f {} \;' \
@@ -108,12 +127,9 @@ alias \
 	ytautosub="yt --write-sub --sub-lang en --convert-subs vtt " \
 	yta="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' " \
 	mp3dl="yta --audio-quality 1 --audio-format mp3" \
-	# ytautosub="yt --write-auto-subs --embed-subs --embed-thumbnail" \
-
 
 # Confirm before overwriting something 
 alias \
-        ll="ls -lh" \
         cp="cp -iv" \
         mv="mv -iv" \
         rm="rm -vI" \
@@ -123,9 +139,9 @@ alias version="sed -n 1p /etc/os-release && sed -n 11p /etc/os-release && sed -n
 
 #Pacman Shortcuts
 alias \
-        sync="sudo pacman -Syyy" \
+        sync="sudo pacman -Sy" \
         install="sudo pacman -S" \
-        update="sudo pacman -Syyu" \
+        update="sudo pacman -Syu" \
         search="pacman -Ss" \
         search-local="pacman -Qs" \
         pkg-info="pacman -Qi" \
@@ -135,6 +151,7 @@ alias \
         autoremove="sudo pacman -Rns" \
         cleanup='sudo pacman -Rns $(pacman -Qtdq)' \
         parsua='paru -Sua' \
+        aurlist='paru -Qm' \
 
 # Journal
 alias \
@@ -151,8 +168,6 @@ alias \
 	ncclock="ncmpcpp -s clock" \
 	ncvisualizer="ncmpcpp -s visualizer" \
 	nf="clear && neofetch" \
-	kakasi_reading="kakasi -i utf8 -o utf8 -u -JH -KH" \
-
 
 # Fancy prompting colors
 red='\[\e[0;31m\]'
@@ -174,14 +189,44 @@ white='\[\e[0;37m\]'
 WHITE='\[\e[1;37m\]'
 CLEAR="\[\033[0m\]"
 
-[ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
-source /usr/share/git/completion/git-prompt.sh
 
-PS1="[$BLUE\u$CLEAR@$WHITE\h $white\W$CLEAR]$MAGENTA\$(__git_ps1 ' (%s)') $BLUE\$$CLEAR "
+force_color_prompt=yes
+if [ -n "$force_color_prompt" ]; then
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    color_prompt=yes
+  else
+    color_prompt=
+  fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+  #PS1="${RED}\342\224\214\342\224\200\$([[ \$? != 0 ]] && echo \"[${white}\342\234\227${RED}]\342\224\200\")[$(if [[ ${EUID} == 0 ]]; then echo "${RED}root${NC}${YELLOW}@${NC}${BLUE}\h${NC}"; else echo "${white}\u${NC}${YELLOW}@${NC}${BLUE}\h${NC}"; fi)${WHITE}:${NC}${green}\w${NC}${RED}]\$(__git_ps1 '\342\224\200[${CYAN}%s${NC}${RED}]${NC}')\n${RED}\342\224\224\342\225\274${NC}${YELLOW}\$${NC} "
+  PS1="${green}\u@\h${white}:${blue}\W${NC}${MAGENTA}\$(__git_ps1 ' git:(${yellow}%s${NC}${MAGENTA})')${white}\$${CLEAR} "
+else
+  PS1='┌──[\u@\h]─[\w]\n└──╼\$ '
+fi
+
 PS2='> '
 PS3='> '
 PS4='+ '
 
+# Set 'man' colors
+if [ "$color_prompt" = yes ]; then
+    man() {
+    env \
+    LESS_TERMCAP_mb=$'\e[01;31m' \
+    LESS_TERMCAP_md=$'\e[01;31m' \
+    LESS_TERMCAP_me=$'\e[0m' \
+    LESS_TERMCAP_se=$'\e[0m' \
+    LESS_TERMCAP_so=$'\e[01;44;33m' \
+    LESS_TERMCAP_ue=$'\e[0m' \
+    LESS_TERMCAP_us=$'\e[01;32m' \
+    man "$@"
+    }
+fi
+
+unset color_prompt force_color_prompt
+
 # asdf config
-#. /opt/asdf-vm/asdf.sh
-#. ~/.local/share/asdf/plugins/java/set-java-home.bash
+. /opt/asdf-vm/asdf.sh
+. ~/.local/share/asdf/plugins/java/set-java-home.bash

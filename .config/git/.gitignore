@@ -220,3 +220,6 @@ mediafiles/
 
 # local posgres files
 .pgdata
+
+#Ignore git bare for dotfiles
+.dotfiles

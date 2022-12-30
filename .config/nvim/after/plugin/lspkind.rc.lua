@@ -1,0 +1,40 @@
+local status, lspkind = pcall(require, "lspkind")
+if (not status) then return end
+
+lspkind.init({
+  mode = 'symbol',
+  preset = 'codicons',
+
+  symbol_map = {
+    Array = "󰅪",
+    Boolean = "⊨",
+    Text = "󰉿",
+    String = "󰀬",
+    Null = "NULL",
+    Method = "󰆧",
+    Function = "󰊕",
+    Constructor = "",
+    Field = "󰜢",
+    Variable = "󰀫",
+    Class = "󰌗",
+    Interface = "",
+    Module = "",
+    Property = "",
+    Package = "󰏗",
+    Unit = "󰑭",
+    Value = "󰎠",
+    Enum = "",
+    Keyword = "󰌋",
+    Snippet = "",
+    Color = "󰏘",
+    File = "󰈙",
+    Reference = "",
+    Folder = "󰉋",
+    EnumMember = "",
+    Constant = "󰏿",
+    Struct = "󰙅",
+    Event = "",
+    Operator = "󰆕",
+    TypeParameter = "󰊄",
+  },
+})

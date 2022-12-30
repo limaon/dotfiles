@@ -1,0 +1,278 @@
+# vim:ft=sh
+set shell bash
+set shellopts '-eu'
+set ifs "\n"
+set info size:time
+set sortby time
+set reverse
+set dircounts
+set period 1
+set autoquit true
+set ratios 3:2
+set scrolloff 10
+set drawbox
+set icons
+set ignorecase
+set incfilter
+set incsearch
+set cleaner "~/.config/lf/exec_cleaner"
+set previewer "~/.config/lf/exec_previewer"
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+
+# Functions
+cmd cfg_reload source ~/.config/lf/lfrc
+
+cmd open &{{
+  images=()
+  videos=()
+  audio=()
+  files=()
+  for file in $fx; do
+    mime_type=$(file --mime-type -b "$file")
+    if [[ $mime_type == image/* ]]; then
+      images+=("$file")
+    elif [[ $mime_type == video/* ]]; then
+      videos+=("$file")
+    elif [[ $mime_type == audio/* ]]; then
+      audio+=("$file")
+    else
+      files+=("$file")
+    fi
+  done
+
+  [ ${#images[@]} -gt 0 ] && sxiv "${images[@]}" &
+  [ ${#videos[@]} -gt 0 ] && mpv "${videos[@]}" &
+  [ ${#audio[@]} -gt 0 ] && mpc play "${audio[@]}" &
+  [ ${#files[@]} -gt 0 ] && xdg-open "${files[@]}" &
+
+}}
+
+cmd on-cd &{{
+  case "$PWD" in
+    ~/Downloads/*)
+      lf -remote "send $id set user_prev_sortby $lf_sortby"
+      lf -remote "send $id set sortby natural"
+      lf -remote "send $id set noreverse"
+
+      lf -remote "send $id echomsg changed sort to natural"
+      ;;
+    *)
+      # restore sorting on directory exit
+      if [[ "$lf_user_prev_sortby" != "" ]]; then
+        lf -remote "send $id set sortby $lf_user_prev_sortby"
+        lf -remote "send $id set reverse"
+
+        lf -remote "send $id echomsg restored sort to $lf_user_prev_sortby"
+        lf -remote "send $id set user_prev_sortby ''"
+      fi
+      ;;
+  esac
+}}
+on-cd
+
+cmd hard-reload &{{
+  [ -d ~/.cache/lf ] && rm -rf ~/.cache/lf
+  lf -remote "send $id reload"
+}}
+
+cmd trash ${{
+  files=$(printf "$fx" | tr '\n' ';')
+  while [ "$files" ]; do
+    file=${files%%;*}
+
+    gio trash "$(basename "$file")"
+    if [ "$files" = "$file" ]; then
+      files=''
+    else
+      files="${files#*;}"
+    fi
+  done
+}}
+
+cmd clear_trash %gio trash --empty
+
+cmd restore_trash ${{
+  gio trash --restore -- "trash:///$(basename -- "$f")"
+}}
+
+cmd yank &{{
+  case ${1} in
+    dir)  dirname "${f}" ;;
+    name) basename "${f}" ;;
+    path) printf "%s" "${f}" ;;
+  esac | xclip -rmlastnl -selection clipboard
+}}
+
+
+cmd paste &{{
+  set -- $(cat ~/.local/share/lf/files)
+  mode="$1"
+  shift
+  case "$mode" in
+    copy) cp -rn -- "$@" .;;
+    move) mv -n -- "$@" .;;
+  esac
+  rm ~/.local/share/lf/files
+  lf -remote "send clear"
+}}
+
+cmd delete ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf "%s\n" "$fx"
+	printf "Delete?[y/N]"
+	read ans
+	[ $ans = "y" ] && rm -rf -- $fx
+}}
+
+cmd extract !{{
+	if [[ $(file -b --mime-type -- "$f") == application/* ]]; then
+		clear
+		set -f
+		tmp_file=$(mktemp -- /tmp/aunpack.XXXXXXXXXX)
+		aunpack -D --save-outdir="$tmp_file" -- "$f"
+		out_dir=$(cat -- "$tmp_file")
+		rm -- "$tmp_file"
+		[[ -d $out_dir ]] && find "$out_dir" -type f -exec chmod -x -- {} \;
+	else
+		echo "Not an archive."
+	fi
+}}
+
+cmd tar ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf "Archive Name: "
+  read archive_name
+  set -f
+  tar -czvf "${archive_name}.tar.gz" -C "$(dirname "$f")" $(basename -a $fx)
+}}
+
+cmd zip ${{
+  set -f
+  printf "File name to zip: "
+  read dir
+  dir_path="$(dirname "$f")/$dir"
+  mkdir -p "$dir_path"
+  cp -r $fx "$dir_path"
+  zip -r "$dir.zip" "$dir"
+  rm -rf "$dir_path"
+  lf -remote "send clear"
+}}
+
+cmd mkfile ${{
+  printf "File Name: "
+  read ans
+  $EDITOR $ans
+}}
+
+cmd mkdir ${{
+  printf "Directory Name: "
+  read ans
+  mkdir $ans
+}}
+
+cmd chmod ${{
+  printf "Mode Bits: "
+  read ans
+  for file in "$fx"
+  do
+    chmod $ans $file
+  done
+  lf -remote 'send reload'
+}}
+
+cmd bulk-rename ${{
+    old="$(mktemp)"
+    new="$(mktemp)"
+    if [ -n "$fs" ]; then
+        fs="$(basename -a $fs)"
+    else
+        fs="$(ls)"
+    fi
+    printf '%s\n' "$fs" >"$old"
+    printf '%s\n' "$fs" >"$new"
+    $EDITOR "$new"
+    [ "$(wc -l < "$new")" -ne "$(wc -l < "$old")" ] && exit
+    paste "$old" "$new" | while IFS= read -r names; do
+        src="$(printf '%s' "$names" | cut -f1)"
+        dst="$(printf '%s' "$names" | cut -f2)"
+        if [ "$src" = "$dst" ] || [ -e "$dst" ]; then
+            continue
+        fi
+        mv -- "$src" "$dst"
+    done
+    rm -- "$old" "$new"
+    lf -remote "send $id unselect"
+}}
+
+
+# My Bindings
+map m
+map "'"
+map '"'
+map e
+map f
+map t
+map c
+map r
+map w
+
+map mf mkfile
+map md mkdir
+map cl clear
+map R :redraw; reload; recol; cfg_reload
+map r :redraw; reload; clear
+map <c-r> hard-reload
+map zp set preview!
+map zd set dirfirst!
+map sn :set sortby natural; set info size
+
+# Archive Mappins
+map xz zip
+map xt tar
+map xx extract
+
+# Open
+map <enter> open
+
+# Delete files
+map d
+map dd cut
+map dD delete
+map <delete> delete
+map dt trash
+map dc clear_trash
+map dr restore_trash
+
+map p
+map p paste
+
+map -x $chmod -x -- $fx
+map +x $chmod u+x -- $fx
+
+# Copy
+map y
+map yy copy
+map yp yank path
+map yn yank name
+map yd yank dir
+
+# Rename
+map A rename
+map ciw push A<c-u> # new rename
+map I push A<c-a> # at the very beginning
+map i push A<a-b><a-b><a-f> # before extension
+map a push A<a-b> # after extension
+map B bulk-rename
+
+
+# Movement dirs
+map gd cd ~/Desktop
+map gD cd ~/Downloads
+map gP cd ~/Pictures
+map gM cd ~/Music
+map gV cd ~/Videos
+map gC cd ~/.config
+map gL cd ~/.local
+map gR cd /run/media
+map gtr cd ~/.local/share/Trash/files
