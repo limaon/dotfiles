@@ -1,36 +1,43 @@
-#!/bin/sh
-
 # load Xresources
 xrdb -merge "${HOME}/.config/x11/Xresources"
 
 # set wallpaper
 # feh --bg-fill --randomize ~/Pictures/backgrounds/* &
-# nitrogen --set-scaled --random /home/void/Pictures/Wallpapers
+# nitrogen --set-scaled --random ~/Pictures/Wallpapers
 nitrogen --restore --set-scaled &
 
 # Network Manager Applet
-# nm-applet --indicator &
 nm-applet &
 
 # Bluetooth systray icon
 blueman-applet &
 
 # Compositor
-# picom & disowm
+picom &
 
 # Hide mouse when typing
 xbanish &
 
 # start redshift
-redshift & disowm
+redshift &
 
 # Gnome polkit
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & disowm
+/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
 # Monitor Config
 xrandr --output eDP-1 --off --output HDMI-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
 
-# zsh config dir
-# export ZDOTDIR=$HOME/.config/zsh
+# Speedy keys | Option "AutoRepeat" "300 50" on 40-libinput.conf
+xset r rate 300 50 &
+
+# no blank screen
+xset -dpms &                              
+xset s off &
+
+# Run localectl set-x11-keymap us '' '' caps:escape
+
+#Search for: Make xinput settings permanent after boot
+xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Natural Scrolling Enabled" 1 &
+xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 &
 
 eval $(ssh-agent)

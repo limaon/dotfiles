@@ -51,8 +51,8 @@ REDIRECT_MAP = {
     "www.reddit.com": operator.methodcaller('setHost', 'libreddit.de'),
     "twitter.com": operator.methodcaller('setHost', 'mobile.twitter.com'),
     "www.twitter.com": operator.methodcaller('setHost', 'mobile.twitter.com'),
-    "youtube.com": operator.methodcaller('setHost', 'yt.artemislena.eu'),
-    "www.youtube.com": operator.methodcaller('setHost', 'yt.artemislena.eu'),
+    "youtube.com": operator.methodcaller('setHost', 'vid.puffyan.us'),
+    "www.youtube.com": operator.methodcaller('setHost', 'vid.puffyan.us'),
     "en.wikipedia.org": operator.methodcaller('setHost', 'wikiless.org'),
     "www.en.wikipedia.org": operator.methodcaller('setHost', 'wikiless.org'),
     "medium.com": operator.methodcaller('setHost', 'scribe.rip'),
@@ -92,8 +92,8 @@ interceptor.register(int_fn)
 config.load_autoconfig(False)
 
 # ui
-c.fonts.default_family = ["JetBrainsMono Nerd Font", "JoyPixels"]
-c.fonts.default_size = "13px"
+c.fonts.default_family = ["TerminessTTF Nerd Font", "JoyPixels"]
+c.fonts.default_size = "14px"
 c.colors.webpage.preferred_color_scheme = "dark"
 c.completion.shrink = True
 c.completion.use_best_match = True
@@ -122,7 +122,6 @@ c.content.default_encoding = "utf-8"
 c.content.javascript.can_access_clipboard = True
 c.input.insert_mode.auto_load = True
 c.auto_save.session = True
-c.spellcheck.languages = ["pt-BR"]
 c.downloads.location.prompt = False
 c.downloads.open_dispatcher = dowmload_open_script_path
 c.tabs.show = "always"
