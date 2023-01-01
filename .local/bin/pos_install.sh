@@ -11,7 +11,6 @@
 # ----------------------------- VARIÁVEIS ----------------------------- #
 set -e
 
-
 ##DIRETÓRIOS E ARQUIVOS
 
 DIRETORIO_DOWNLOADS="$HOME/Downloads/programas"
@@ -57,6 +56,7 @@ PROGRAMAS_PARA_INSTALAR=(
     adobe-source-han-sans-kr-fonts
     archlinux-keyring
     arandr
+    acpi
     autoconf
     automake
     base
@@ -66,8 +66,8 @@ PROGRAMAS_PARA_INSTALAR=(
     bluez
     bluez-utils
     blueman
-    debugedit
     dunst
+    ffmpegthumbnailer
     efibootmgr
     efitools
     feh
@@ -122,6 +122,7 @@ PROGRAMAS_PARA_INSTALAR=(
     pipewire-pulse
     pkgconf
     ranger
+    rofi
     slurp
     smartmontools
     sxiv
@@ -137,6 +138,7 @@ PROGRAMAS_PARA_INSTALAR=(
     ttf-joypixels
     ttf-liberation
     ttf-opensans
+    ttf-terminus-nerd
     transmission-gtk
     vulkan-intel
     wget
@@ -159,15 +161,17 @@ PROGRAMAS_PARA_INSTALAR=(
     keepassxc
     x11-ssh-askpass
     obsidian
+    yt-dlp
+    fcitx5-im
+    fcitx5-mozc
+    fcitx5-anthy
 )
 
 # ---------------------------------------------------------------------- #
 
-xdg-user-dirs-update
-
 ### Install paru
-git clone https://aur.archlinux.org/paru.git $HOME/Downloads/paru
-cd $HOME/Downloads/paru
+git clone https://aur.archlinux.org/paru.git $HOME/paru
+cd $HOME/paru
 makepkg -si
 
 # ---------------------------------------------------------------------- #
@@ -192,6 +196,8 @@ echo -e "${VERDE}[INFO] - Instalando pacotes pacman do repositório${SEM_COR}"
 for nome_do_programa in ${PROGRAMAS_PARA_INSTALAR[@]}; do
     sudo pacman -S --needed "$nome_do_programa"
 done
+
+
 echo -e "${VERDE}[INFO] - AUR Packages install${SEM_COR}"
 for nome_do_programa in ${INSTALL_AUR_PACKAGES[@]}; do
     paru -S "$nome_do_programa"
@@ -210,6 +216,14 @@ system_clean(){
 }
 
 
+# -------------------------------EXECUÇÃO----------------------------------------- #
+
+testes_internet
+pacman_update
+install_pacman
+pacman_update
+system_clean
+
 # -------------------------------------------------------------------------- #
 # ----------------------------- CONFIGS EXTRAS ----------------------------- #
 
@@ -223,14 +237,6 @@ systemctl --user enable --now ssh-agent
 ln -s ~/.config/x11/xprofile ~/.xprofile
 
 # -------------------------------------------------------------------------------- #
-# -------------------------------EXECUÇÃO----------------------------------------- #
-
-
-testes_internet
-pacman_update
-install_pacman
-pacman_update
-system_clean
 
 ## finalização
   echo -e "${VERDE}[INFO] - Script finalizado, instalação concluída! :)${SEM_COR}"
