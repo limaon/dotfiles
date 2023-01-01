@@ -8,7 +8,7 @@
 # Defautl programs
 export EDITOR="/usr/bin/nvim"
 export TERMINAL="/usr/bin/kitty"
-export BROWSER="/usr/bin/firefox"
+# export BROWSER="/usr/bin/firefox"
 export READER="/usr/bin/zathura"
 
 # Set language
@@ -67,14 +67,16 @@ export MOZ_USE_XINPUT2="1"		# Mozilla smooth scrolling/touchpads.
 
 # Fix QT themes on GTK Desktops
 # https://tatsumoto.neocities.org/blog/setting-up-anki.html#gtk-theme
-export QT_QPA_PLATFORMTHEME=qt6ct
+# export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME=gtk2
 
 # Fix QT plugin path for pyqt packages installed with pip.
 # export QT_PLUGIN_PATH=/usr/lib/qt/plugins:$(find ~/.local/lib/ -type d -wholename '*/python3*/site-packages/PyQt*/plugins' | paste -s -d :)
+export QT_PLUGIN_PATH=/usr/lib/qt/plugins
 
 # Fix Java programs
 # https://wiki.archlinux.org/index.php/Java_Runtime_Environment_fonts
-export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=gasp'
+# export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=gasp'
 
 # Start graphical server on tty1 if not already running.
 # https://wiki.archlinux.org/index.php/Xinit#Autostart_X_at_login
@@ -108,12 +110,11 @@ alias \
 	ytautosub="yt --write-sub --sub-lang en --convert-subs vtt " \
 	yta="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' " \
 	mp3dl="yta --audio-quality 1 --audio-format mp3" \
-	# ytautosub="yt --write-auto-subs --embed-subs --embed-thumbnail" \
-
 
 # Confirm before overwriting something 
 alias \
         ll="ls -lh" \
+        la="ls -lah" \
         cp="cp -iv" \
         mv="mv -iv" \
         rm="rm -vI" \
@@ -151,8 +152,6 @@ alias \
 	ncclock="ncmpcpp -s clock" \
 	ncvisualizer="ncmpcpp -s visualizer" \
 	nf="clear && neofetch" \
-	kakasi_reading="kakasi -i utf8 -o utf8 -u -JH -KH" \
-
 
 # Fancy prompting colors
 red='\[\e[0;31m\]'
@@ -183,5 +182,22 @@ PS3='> '
 PS4='+ '
 
 # asdf config
-#. /opt/asdf-vm/asdf.sh
-#. ~/.local/share/asdf/plugins/java/set-java-home.bash
+. /opt/asdf-vm/asdf.sh
+. ~/.local/share/asdf/plugins/java/set-java-home.bash
+
+# To preventing nested ranger instaces
+ranger() {
+    if [ -z "$RANGER_LEVEL" ]; then
+        /usr/bin/ranger "$@"
+    else
+        exit
+    fi
+}
+
+# Config for keyboard layout
+#export GTK_IM_MODULE='fcitx'
+#export QT_IM_MODULE='fcitx'
+#export DL_IM_MODULE='fcitx'
+#export XMODIFIERS='@im=fcitx'
+## For kitty
+#export GLFW_IM_MODULE='ibus'
