@@ -203,7 +203,7 @@
     max_icon_size = 48
 
     # Paths to default icons.
-    icon_path = /usr/share/icons/ePapirus/24x24/status/:/usr/share/icons/ePapirus-Dark/24x24/actions/
+    icon_path = /usr/share/icons/Papirus/48x48/status/:/usr/share/icons/ePapirus-Dark/24x24/actions/
 
 
     ### History ###
