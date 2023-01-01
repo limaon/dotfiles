@@ -1,18 +1,15 @@
 configuration {
     show-icons: true;
-    font: "JetBrainsMono Nerd Font 11";
+    application-fallback-icon: "application-default-icon";
     icon-theme: "ePapirus-Dark";
     combi-modi: [ drun ];
     modi: [ combi ];
     display-combi: " Open ";
-    location: 0;
-    /*yoffset: -60;*/
     drun-show-actions: true;
-    max-history-size: 10;
-    hide-scrollbar: true;
+    max-history-size: 5;
     fixed-num-lines: true;
     disable-history: false;
-    sort: false;
+    sort: true;
     display-file-browser-extended: "Files";
     display-window: "  ";
     display-drun: "  ";
@@ -22,4 +19,4 @@ configuration {
     steal-focus: true;
 }
 
-@theme "./nord-oneline.rasi"
+@theme "./themes/dmenu_theme.rasi"
