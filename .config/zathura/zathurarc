@@ -20,7 +20,7 @@ set notification-error-fg       "#dc322f" # red
 set notification-warning-bg     "#586e75" # base01
 set notification-warning-fg     "#dc322f" # red
 set notification-bg             "#586e75" # base01
-set notification-fg             "#b58900" # yellow
+set notification-fg             "#F7E909" # yellow
 
 set completion-group-bg         "#002b36" # base03
 set completion-group-fg         "#839496" # base0

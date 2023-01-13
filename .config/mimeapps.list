@@ -16,9 +16,9 @@ application/x-xzpdf=org.pwmt.zathura.desktop
 x-scheme-handler/trash=xfce4-file-manager.desktop
 application/pdf=org.pwmt.zathura.desktop
 x-scheme-handler/fcade=fcade-quark.desktop
-x-scheme-handler/mailto=userapp-Thunderbird-UGE4Q1.desktop
-message/rfc822=userapp-Thunderbird-UGE4Q1.desktop
-x-scheme-handler/mid=userapp-Thunderbird-UGE4Q1.desktop
+x-scheme-handler/mailto=userapp-Thunderbird-N5YCY1.desktop
+message/rfc822=userapp-Thunderbird-N5YCY1.desktop
+x-scheme-handler/mid=userapp-Thunderbird-N5YCY1.desktop
 image/png=sxiv.desktop
 
 [Added Associations]
@@ -41,6 +41,6 @@ inode/directory=xfce4-file-manager.desktop;
 x-scheme-handler/trash=xfce4-file-manager.desktop;
 application/json=org.xfce.mousepad.desktop;
 audio/mpeg=mpv.desktop;audacity.desktop;
-x-scheme-handler/mailto=userapp-Thunderbird-UGE4Q1.desktop;
-x-scheme-handler/mid=userapp-Thunderbird-UGE4Q1.desktop;
+x-scheme-handler/mailto=userapp-Thunderbird-UGE4Q1.desktop;userapp-Thunderbird-N5YCY1.desktop;
+x-scheme-handler/mid=userapp-Thunderbird-UGE4Q1.desktop;userapp-Thunderbird-N5YCY1.desktop;
 image/gif=sxiv.desktop;feh.desktop;

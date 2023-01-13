@@ -305,8 +305,7 @@
     highlight = "#b58900"
     timeout = 6
     # Icon for notifications with low urgency, uncomment to enable
-    # default_icon = /usr/share/icons/ePapirus-Dark/24x24/status/messagebox_info.svg
-    default_icon = /usr/share/icons/ePapirus-Dark/24x24/actions/bell.svg
+    default_icon = /usr/share/icons/Papirus-Dark/24x24/actions/stock_bell.svg
 
 [urgency_normal]
     # background = "#285577"
@@ -315,8 +314,7 @@
     highlight = "#b58900"
     timeout = 6
     # Icon for notifications with normal urgency, uncomment to enable
-    # default_icon = /usr/share/icons/ePapirus-Dark/24x24/status/dialog-information.svg
-    default_icon = /usr/share/icons/ePapirus-Dark/24x24/actions/bell.svg
+    default_icon = /usr/share/icons/Papirus-Dark/24x24/actions/stock_bell.svg
 
 [urgency_critical]
     background = "#dc322f"

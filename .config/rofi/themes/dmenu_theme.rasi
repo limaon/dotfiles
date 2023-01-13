@@ -6,7 +6,7 @@
  *******************************************************************************/
 
 * {
-    font:   "TerminessTTF Nerd Font Mono 11";
+    font:   "Hack Nerd Font Mono 10";
 
     color0:     #222222;
     color1:     #3b4252;
@@ -25,6 +25,7 @@
 }
 
 window {
+    anchor:             north;
     location:           north;
     width:              100%;
     background-color:   @color0;
@@ -49,7 +50,8 @@ prompt, entry, element-text, element-icon {
 
 prompt {
     spacing:    0;
-    padding:    -2px;
+    padding:    1px;
+    margin:     0px 0px 0px -5px;
     text-color: @color5;
     background-color:   @accent-color;
 }
@@ -61,11 +63,13 @@ textbox-prompt-colon {
 }
 
 listview {
-    layout: horizontal;
+    layout:         horizontal;
+    spcacing:       5px;
+    lines:          5;
 }
 
 element {
-    padding:    1px 8px;
+    padding:    2px 8px;
     spacing:    4px;
 }
 
@@ -100,4 +104,3 @@ element-icon {
 element-text {
     text-color: inherit;
 }
-

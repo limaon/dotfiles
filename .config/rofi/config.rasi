@@ -5,12 +5,10 @@ configuration {
     combi-modi: [ drun ];
     modi: [ combi ];
     display-combi: " Open ";
-    drun-show-actions: true;
     max-history-size: 5;
     fixed-num-lines: true;
     disable-history: false;
     sort: true;
-    display-file-browser-extended: "Files";
     display-window: "  ";
     display-drun: "  ";
     display-calc: "   ";

@@ -92,8 +92,8 @@ interceptor.register(int_fn)
 config.load_autoconfig(False)
 
 # ui
-c.fonts.default_family = ["TerminessTTF Nerd Font", "JoyPixels"]
-c.fonts.default_size = "14px"
+c.fonts.default_family = ["Hack Nerd Font Mono", "JoyPixels"]
+c.fonts.default_size = "13px"
 c.colors.webpage.preferred_color_scheme = "dark"
 c.completion.shrink = True
 c.completion.use_best_match = True

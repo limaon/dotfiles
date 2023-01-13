@@ -124,9 +124,9 @@ alias version="sed -n 1p /etc/os-release && sed -n 11p /etc/os-release && sed -n
 
 #Pacman Shortcuts
 alias \
-        sync="sudo pacman -Syyy" \
+        sync="sudo pacman -Sy" \
         install="sudo pacman -S" \
-        update="sudo pacman -Syyu" \
+        update="sudo pacman -Syu" \
         search="pacman -Ss" \
         search-local="pacman -Qs" \
         pkg-info="pacman -Qi" \
@@ -136,6 +136,7 @@ alias \
         autoremove="sudo pacman -Rns" \
         cleanup='sudo pacman -Rns $(pacman -Qtdq)' \
         parsua='paru -Sua' \
+        aurlist='paru -Qm' \
 
 # Journal
 alias \
