@@ -14,7 +14,7 @@
 *cursorColor:           S_base1
 *pointerColorBackground:S_base01
 *pointerColorForeground:S_base1
-*.font: DejaVuSansMono-9:antialias=true:autohint=true;
+*.font: DejaVuSansMono-9:antialias=true:autohint=false;
 *.alpha: 0.90
 
 #define S_yellow        #b58900
@@ -60,9 +60,10 @@
 
 
 !! Applications without fontconfig support
-Xft.autohint: 0
-Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintslight
-Xft.hinting: 1
-Xft.antialias: 1
-Xft.rgba: rgb
+Xft.antialias:	1
+Xft.autohint:	0
+Xft.dpi:	96
+Xft.hinting:	1
+Xft.hintstyle:	hintslight
+Xft.lcdfilter:	lcddefault
+Xft.rgba:	none

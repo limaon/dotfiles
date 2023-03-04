@@ -2,8 +2,7 @@
 xrdb -merge "${HOME}/.config/x11/Xresources"
 
 # set wallpaper
-# feh --bg-fill --randomize ~/Pictures/backgrounds/* &
-# nitrogen --set-scaled --random ~/Pictures/Wallpapers
+# nitrogen --set-scaled --random /home/void/Pictures/Wallpapers
 nitrogen --restore --set-scaled &
 
 # Network Manager Applet
@@ -21,18 +20,18 @@ xbanish &
 # start redshift
 redshift &
 
-# Gnome polkit
-/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+# start nitification
+dunst &
 
 # Monitor Config
-xrandr --output eDP-1 --off --output HDMI-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
+xrandr --output eDP-1 --primary --mode 1366x768 --pos 0x0 --rotate normal --output HDMI-1 --off
 
 # Speedy keys | Option "AutoRepeat" "300 50" on 40-libinput.conf
-xset r rate 300 50 &
+# xset r rate 300 50 &
 
-# no blank screen
-xset -dpms &                              
-xset s off &
+# time to suspend screen
+xset s 300 300 &
+xset dpms 300 600 600 &
 
 # Run localectl set-x11-keymap us '' '' caps:escape
 
@@ -40,4 +39,4 @@ xset s off &
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Natural Scrolling Enabled" 1 &
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Tapping Enabled" 1 &
 
-eval $(ssh-agent)
+ssh-agent "${WM:-i3}"
