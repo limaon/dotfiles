@@ -27,3 +27,35 @@ muted)
     fi
     ;;
 esac
+#!/bin/bash
+
+# Função para atualizar o volume
+update_volume() {
+  volume=$(pamixer --get-volume)
+  status=$(pamixer --get-mute)
+
+  if [ "$status" = "true" ]; then
+    dunstify -u low -t 3000 -i audio-volume-muted -p "Volume: Muted"
+  else
+    dunstify -u low -t 3000 -i audio-volume-high -p "Volume: $volume%" -r $volume
+  fi
+}
+
+case "$1" in
+  "up")
+    pamixer --increase 5
+    update_volume
+    ;;
+  "down")
+    pamixer --decrease 5
+    update_volume
+    ;;
+  "toggle")
+    pamixer --toggle-mute
+    update_volume
+    ;;
+  *)
+    echo "Uso: $0 up|down|toggle"
+    exit 1
+    ;;
+esac
