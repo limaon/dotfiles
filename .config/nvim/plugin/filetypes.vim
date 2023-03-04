@@ -18,3 +18,9 @@ augroup configs_bash
     autocmd!
     autocmd BufNewFile *.sh :call append(0, '#!/usr/bin/env bash')
 augroup END
+
+" Html
+augroup config_html
+    autocmd!
+    autocmd FileType html setlocal shiftwidth=2 tabstop=8 softtabstop=2 colorcolumn=79
+augroup END
