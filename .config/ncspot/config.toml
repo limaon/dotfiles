@@ -10,7 +10,6 @@ repeat = 'playlist'
 cover_max_scale = 2
 
 [keybindings]
-## unbinded: nN, c, eE, xX
 ######################################
 # Song controls
 ######################################
@@ -61,11 +60,10 @@ cover_max_scale = 2
 ######################################
 # Sound
 ######################################
-"=" = "volup 1"
-"-" = "voldown 1"
-"[" = "volup 5"
-"]" = "voldown 5"
-
+"=" = "volup 5"
+"-" = "voldown 5"
+"]" = "volup 1"
+"[" = "voldown 1"
 
 ######################################
 # Movements
@@ -76,8 +74,10 @@ cover_max_scale = 2
 "1" = "focus queue"
 "2" = "focus library"
 "Ctrl+q" = "focus queue"
+
 # Go to the playing track
 "." = "move playing"
+
 # Navigation
 "Down" = "move down 1"
 "G" = "move bottom"
@@ -116,7 +116,6 @@ cover_max_scale = 2
 "?" = "help"
 "U" = "update"
 
-
 [theme]
 # background = "#002b36"
 primary = "#93a1a1"
@@ -133,7 +132,6 @@ statusbar_progress = "#eee8d5"
 statusbar_bg = "#93a1a1"
 cmdline = "#002b36"
 cmdline_bg = "#586e75"
-
 
 [track_format]
 left = "%saved| %duration | %title - %artists"
