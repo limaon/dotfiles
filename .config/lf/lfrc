@@ -1,0 +1,227 @@
+# Basic vars
+set shell bash
+set shellopts '-eu'
+set ifs "\n"
+set info size
+set dircounts
+set period 1
+set autoquit on
+set ratios 1:2:3
+set scrolloff 10
+set drawbox true
+set icons true
+set nohidden false
+set ignorecase true
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+set previewer '~/.config/lf/scope'
+set cleaner '~/.config/lf/cleaner'
+
+# Remove default binds
+map m
+map o
+map "'"
+map '"'
+map d
+map c
+map e
+map f
+
+# Basic funcitons
+map . set hidden!
+map dD delete
+map p paste
+map dd cut
+map yy copy
+map mf mkfile
+map md mkdir
+map ch chmod
+
+
+# Archive Mappins
+map az zip
+map at tar
+map E extract
+
+# Trash Mappins
+map dt trash
+map dc clear_trash
+map dr restore_trash
+
+map sn :set sortby natural; set info size
+map cl clear
+map cf editfile
+map cs $compiler $f
+
+map du %du -sh $f
+map R reload
+map r rename
+map <c-r> reload
+map <enter> shell
+map x $$f
+map X !$f
+map y
+map yp $echo -n "$f" | xclip -selection clipboard
+map yn $echo -n "$(basename -- "$f")" | xclip -selection clipboard
+map yf $echo "file://$(readlink -f -- "$f")" | xclip -selection clipboard -target "text/uri-list"
+map S $clear && $SHELL
+map ms mark-save
+map -x $chmod -x -- $fx
+map +x $chmod u+x -- $fx
+
+#Movement
+map gc cd ~/.config
+map gs cd ~/.local/bin
+map gtr cd ~/.local/share/Trash/files
+
+# Functions lf
+# --------------------------------------------------------------------------
+cmd open &{{
+    case $(file --mime-type -Lb $f) in
+        text/*) lf -remote "send $id \$nvim \$fx";;
+        *) for f in $fx; do $OPENER $f > /dev/null 2> /dev/null & done;;
+    esac
+}}
+
+# Open all selected
+#cmd open &{{
+#    images=()
+#    videos=()
+#    files=()
+#    for file in $fx; do
+#      if [[ `file --mime-type $file | awk '{print $NF}'` =~ "imagen/*"]]; then
+#        notify-send -u low "Open all images"
+#        images+=($file);
+#      elif [[ `file --mime-type $file | awk '{print $NF}'` =~ "video/*"]]; then
+#        notify-send -u low "Open all videos"
+#        videos+=($file);
+#      else
+#        files+=($file);
+#      fi
+#    done;
+#
+#    [ $#images -gt 0 ] && sxiv ${images[@]} &
+#    [ $#videos -gt 0 ] && mpv ${videos[@]} &
+#    [ $#files -gt 0 ] && for file in $files; do
+#      xdg-open $file &
+#    done;
+#}}
+
+cmd on-cd &{{
+    printf "\033]0; $PWD\007" > /dev/tty
+}}
+on-cd
+
+cmd extract !{{
+	if [[ $(file -b --mime-type -- "$f") == application/* ]]; then
+		clear
+		set -f
+		tmp_file=$(mktemp -- /tmp/aunpack.XXXXXXXXXX)
+		aunpack -D --save-outdir="$tmp_file" -- "$f"
+		out_dir=$(cat -- "$tmp_file")
+		rm -- "$tmp_file"
+		[[ -d $out_dir ]] && find "$out_dir" -type f -exec chmod -x -- {} \;
+	else
+		echo "Not an archive."
+	fi
+}}
+
+# move current file or selected files to trash folder
+# (also see 'man mv' for backup/overwrite options)
+# Trash cli bindings
+cmd trash ${{
+  files=$(printf "$fx" | tr '\n' ';')
+  while [ "$files" ]; do
+    # extract the substring from start of string up to delimiter.
+    # this is the first "element" of the string.
+    file=${files%%;*}
+
+    gio trash "$(basename "$file")"
+    # trash-put "$(basename "$file")"
+    # if there's only one element left, set `files` to an empty string.
+    # this causes us to exit this `while` loop.
+    # else, we delete the first "element" of the string from files, and move onto the next.
+    if [ "$files" = "$file" ]; then
+      files=''
+    else
+      files="${files#*;}"
+    fi
+  done
+}}
+
+cmd clear_trash %gio trash --empty
+
+cmd restore_trash ${{
+  gio trash --restore -- "trash:///$(basename -- "$f")"
+}}
+
+
+# define a custom 'delete' command
+cmd delete ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf "%s\n" "$fx"
+	printf "Delete?[y/N]"
+	read ans
+	[ $ans = "y" ] && rm -rf -- $fx
+}}
+
+# use '<delete>' key for either 'trash' or 'delete' command
+# map <delete> trash
+# map <delete> delete
+
+# extract the current file with the right command
+# (xkcd link: https://xkcd.com/1168/)
+cmd extract ${{
+    set -f
+    case $f in
+        *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+        *.tar.gz|*.tgz) tar xzvf $f;;
+        *.tar.xz|*.txz) tar xJvf $f;;
+        *.zip) unzip $f;;
+        *.rar) unrar x $f;;
+        *.7z) 7z x $f;;
+    esac
+}}
+
+# compress current file or selected files with tar and gunzip
+cmd tar ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    tar czf $1.tar.gz $1
+    rm -rf $1
+}}
+
+# compress current file or selected files with zip
+cmd zip ${{
+    set -f
+    mkdir $1
+    cp -r $fx $1
+    zip -r $1.zip $1
+    rm -rf $1
+}}
+
+# create a file
+cmd mkfile ${{
+  printf "File Name: "
+  read ans
+  $EDITOR $ans
+}}
+
+cmd mkdir ${{
+  printf "Directory Name: "
+  read ans
+  mkdir $ans
+}}
+
+cmd chmod ${{
+  printf "Mode Bits: "
+  read ans
+
+  for file in "$fx"
+  do
+    chmod $ans $file
+  done
+
+  lf -remote 'send reload'
+}}
