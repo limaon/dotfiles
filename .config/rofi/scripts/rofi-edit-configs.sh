@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# DMEDITOR="alacritty -e nvim"
 DMEDITOR="kitty -e nvim"
 
 declare -a options=(
@@ -19,9 +18,8 @@ declare -a options=(
 "dunst - $HOME/.config/dunst/dunstrc"
 "ncspot - $HOME/.config/ncspot/config.toml"
 "picom - $HOME/.config/picom/picom.conf"
-"qtile - $HOME/.config/qtile/config.py"
 "x11_Files - $HOME/.config/x11"
-"neovim - $HOME/.config/nvim/init.vim"
+"neovim - $HOME/.config/nvim/init.lua"
 "quit"
 )
 
