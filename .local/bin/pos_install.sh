@@ -135,7 +135,6 @@ PROGRAMAS_PARA_INSTALAR=(
     thunderbird-i18n-en-us
     tmux
     ttf-dejavu
-    ttf-joypixels
     ttf-liberation
     ttf-opensans
     ttf-terminus-nerd
