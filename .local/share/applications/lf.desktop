@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=LF File Manager
+Comment=Browse the filesystem with the file manager
+Terminal=false
+GenericName=File Manager
+Icon=system-file-manager
+Exec=i3-sensible-terminal --title lf -e lfub %f
+Categories=ConsoleOnly;System;FileTools;FileManager
+MimeType=inode/directory;
+Keywords=file manager;explorer;folders;directories

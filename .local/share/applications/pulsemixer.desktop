@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=PulseMixer
+Comment=A volume control for PulseAudio
+Exec=pulsemixer
+Icon=multimedia-volume-control
+Terminal=true
+Categories=Audio;

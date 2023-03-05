@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=ncmpcpp
+Comment=Music player for terminal
+Exec=ncmpcpp
+Icon=ncmpcpp
+Terminal=true
+Categories=Audio;
