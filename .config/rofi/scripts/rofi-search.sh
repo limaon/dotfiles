@@ -36,19 +36,17 @@ declare -a options=(
 " Udemy - https://www.udemy.com/courses/search/?src=ukw&q="
 "quit"
 )
-# 'oxford'  => Browser.new('https://www.oxfordlearnersdictionaries.com/us/spellcheck/english/?q=%s', profile: ''),
-# 'ttb'  => Browser.new('https://tatoeba.org/pt-br/sentences/search?from=eng&query=%s&to=por', profile: ''),
 
 # Picking a search engine.
 while [ -z "$engine" ]; do
-enginelist=$(printf '%s\n' "${options[@]}" | rofi -dmenu -i 20 -p ' WebSearch ') || exit
+enginelist=$(printf '%s\n' "${options[@]}" | dmenu -i -l 4 -fn "TerminessTTF Nerd Font" -p ' WebSearch ') || exit
 engineurl=$(echo "$enginelist" | awk '{print $NF}')
 engine=$(echo "$enginelist" | awk '{print $1}')
 done
 
 # Searching the chosen engine.
 while [ -z "$query" ]; do
-query=$(rofi -dmenu -i 20 -p "Searching in $engine ") || exit
+  query=$( $engine | dmenu -i -fn "TerminessTTF Nerd Font" -p "Searching in $engine") || exit
 done
 
 # Display search results in web browser
