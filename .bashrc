@@ -159,6 +159,7 @@ alias \
 	ncclock="ncmpcpp -s clock" \
 	ncvisualizer="ncmpcpp -s visualizer" \
 	nf="clear && neofetch" \
+  lf="$HOME/.local/bin/lfub" \
 
 # Fancy prompting colors
 red='\[\e[0;31m\]'
@@ -192,8 +193,8 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-  PS1="${RED}\342\224\214\342\224\200\$([[ \$? != 0 ]] && echo \"[${white}\342\234\227${RED}]\342\224\200\")[$(if [[ ${EUID} == 0 ]]; then echo "${RED}root${NC}${YELLOW}@${NC}${BLUE}\h${NC}"; else echo "${white}\u${NC}${YELLOW}@${NC}${BLUE}\h${NC}"; fi)${WHITE}:${NC}${green}\w${NC}${RED}]\$(__git_ps1 '\342\224\200[${CYAN}%s${NC}${RED}]${NC}')\n${RED}\342\224\224\342\225\274${NC}${YELLOW}\$${NC} "
-  #PS1="[${white}\u${NC}@${BLUE}\h ${white}\W${NC}]${cyan}\$(__git_ps1 '|%s|')${BLUE}\$${CLEAR} "
+  #PS1="${RED}\342\224\214\342\224\200\$([[ \$? != 0 ]] && echo \"[${white}\342\234\227${RED}]\342\224\200\")[$(if [[ ${EUID} == 0 ]]; then echo "${RED}root${NC}${YELLOW}@${NC}${BLUE}\h${NC}"; else echo "${white}\u${NC}${YELLOW}@${NC}${BLUE}\h${NC}"; fi)${WHITE}:${NC}${green}\w${NC}${RED}]\$(__git_ps1 '\342\224\200[${CYAN}%s${NC}${RED}]${NC}')\n${RED}\342\224\224\342\225\274${NC}${YELLOW}\$${NC} "
+  PS1="${green}\u@\h${white}:${blue}\W${NC}${MAGENTA}\$(__git_ps1 ' git:(${yellow}%s${NC}${MAGENTA})')${white}\$${CLEAR} "
 else
   PS1='┌──[\u@\h]─[\w]\n└──╼\$ '
 fi
