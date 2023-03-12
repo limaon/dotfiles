@@ -18,6 +18,7 @@ set $always_exec        exec_always --no-startup-id
 set $bin_path           ~/.local/bin
 
 # Remove title bar (border)
+title_align             center
 default_border          pixel 1
 default_floating_border normal
 for_window [all]        border pixel 1
@@ -45,16 +46,16 @@ bindsym $mod+Return     $execute i3-sensible-terminal
 bindsym $mod+Shift+q    kill
 
 # start dmenu (a program launcher).
-bindsym $mod+d          $execute i3-dmenu-desktop --dmenu="dmenu -i -l 4 -fn 'TerminessTTF Nerd Font' -p 'Open:'"
+bindsym $mod+d          $execute i3-dmenu-desktop --dmenu="dmenu -i -l 5 -fn 'TerminessTTF Nerd Font' -p 'Open:'"
 
 # This should only be used if a program lacks a .desktop file.
 bindsym $mod+Shift+d    $execute rofi -show run
 
 # Web search 
-bindsym $mod+b          $execute ~/.config/rofi/scripts/rofi-search.sh
+bindsym $mod+b          $execute $bin_path/websearch.sh
 
 # Edit configs by rofi
-bindsym $alt+c          $execute ~/.config/rofi/scripts/rofi-edit-configs.sh
+bindsym $alt+e          $execute $bin_path/editconfig.sh
 
 # Cabl (primary)
 bindsym $mod+c			    $execute $bin_path/cabl
@@ -356,5 +357,5 @@ bindsym XF86Explorer		    $execute i3-sensible-terminal --title 'File Manager' -
 
 
 #Brightness Control
-bindsym XF86MonBrightnessUp exec --no-startup-id $bin_path/brightness up
-bindsym XF86MonBrightnessDown exec --no-startup-id $bin_path/brightness down
+bindsym XF86MonBrightnessUp $execute $bin_path/brightness up
+bindsym XF86MonBrightnessDown $execute $bin_path/brightness down
