@@ -100,9 +100,9 @@ alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 
 # Colors commands
 alias \
-        ls='ls --group-directories-first --time-style=+"%d.%m.%Y %H:%M" --color=auto -F' \
-        ll="ls -lh" \
-        la="ls -lah" \
+        ls='ls --group-directories-first --time-style=+"%d.%m.%Y %H:%M" --color=auto' \
+        ll="ls -lvh" \
+        la="ls -lavh --ignore=.. --ignore=." \
         dir='dir --color=auto' \
         vdir='vdir --color=auto' \
         diff="diff --color=auto" \
