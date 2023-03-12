@@ -268,7 +268,6 @@ bar {
   strip_workspace_numbers yes
   tray_output primary
   position bottom
-  tray_padding 3
 }
 
 # Auto startup aplications
@@ -278,17 +277,16 @@ $always_exec xset r rate 300 50
 $always_exec nitrogen --restore
 
 ###### Power Menu (i3wm) ######
-set $i3lockscreen dm-tool lock && sleep 1
+set $i3lockscreen i3lock -n -c 000000
 set $mode_system (l)Lock, (e)Logout, (s)Suspend, (r)Reboot, (CTRL+s)Shutdown
 
 mode "$mode_system" {
 
-    bindsym l exec --no-startup-id $i3lockscreen, mode "default"
-    bindsym e exec --no-startup-id i3-msg exit, mode "default"
-    #bindsym s exec --no-startup-id $i3lockscreen && systemctl suspend, mode "default"
-    bindsym s exec --no-startup-id systemctl suspend, mode "default"
-    bindsym r exec --no-startup-id systemctl reboot -i, mode "default"
-    bindsym Ctrl+s exec --no-startup-id systemctl poweroff -i, mode "default"
+    bindsym l $execute $i3lockscreen, mode "default"
+    bindsym e exec "pkill -KILL -u $USER"
+    bindsym s $execute systemctl suspend && $i3lockscreen, mode "default"
+    bindsym r exec reboot, mode "default"
+    bindsym Ctrl+s exec poweroff, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
