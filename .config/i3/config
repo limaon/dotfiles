@@ -27,14 +27,14 @@ for_window [all]        border pixel 1
 popup_during_fullscreen smart
 
 # Hide_borders
-hide_edge_borders       smart
+# hide_edge_borders       smart
 
 # Window focus follows mouse movements by default
 focus_follows_mouse	    yes
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango:             Hack Nerd Font Mono, FontAwesome, Noto Sans Mono CJK JP 9
+font pango:             TerminessTTF Nerd Font, FontAwesome, Noto Sans Mono CJK JP 9
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier       $mod
