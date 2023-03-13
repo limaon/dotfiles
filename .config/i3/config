@@ -27,7 +27,7 @@ for_window [all]        border pixel 1
 popup_during_fullscreen smart
 
 # Hide_borders
-# hide_edge_borders       smart
+hide_edge_borders       smart
 
 # Window focus follows mouse movements by default
 focus_follows_mouse	    yes
@@ -67,7 +67,7 @@ bindsym $mod+Shift+v	  $execute $bin_path/cabl clip
 bindsym $mod+Shift+w		border toggle
 
 # workspace back and forth (with/without active container)
-workspace_auto_back_and_forth yes
+workspace_auto_back_and_forth no
 bindsym $mod+n          workspace back_and_forth
 bindsym $mod+Shift+n    move container to workspace back_and_forth; workspace back_and_forth
 
@@ -111,9 +111,6 @@ bindsym $mod+m bar mode toggle
 # Hover: move window to bottom right/left
 bindsym $mod+Shift+apostrophe	floating toggle; sticky toggle; exec --no-startup-id hover right
 bindsym $mod+Shift+semicolon	floating toggle; sticky toggle; exec --no-startup-id hover left
-
-# List open windows to switch to
-bindsym $alt+Tab		exec rofi -show window
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
@@ -188,7 +185,6 @@ for_window [class="mpv"]			                              move position center, b
 for_window [class="Nm-connection-editor"]	                  floating enable, border normal 3
 for_window [instance="qalculate-gtk"]                       floating enable, border pixel 3, resize set 400 200
 for_window [class="Pavucontrol"]		                        floating enable, border normal 3
-for_window [class="^Lx.*"]			                            floating enable, border normal 3
 for_window [class="Nitrogen"]                               floating enable, border normal 
 for_window [class="GParted"]                                floating enable, border normal
 for_window [class="System-config-printer.py"]               floating enable, resize set 480 280, border normal
@@ -224,11 +220,13 @@ for_window [title="WebP viewer"]		    floating enable, move position center
 for_window [all]                 move absolute position center
 
 # Open and focus to specific workspace
-#assign [class="(?i)firefox"]                  $ws1
-assign [class="transmission-gtk"]             $ws2
+assign [class="kitty"]                        $ws1
+assign [class="(?i)firefox"]                  $ws2
 assign [class="Thunderbird"]                  $ws2
+assign [class="transmission-gtk"]             $ws6
 assign [class="obsidian"]                     $ws7
 #assign [class="(?i)anki"]  		                $ws8
+for_window [urgent=latest] focus
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 10 x 10
@@ -271,22 +269,29 @@ bar {
 }
 
 # Auto startup aplications
-$execute fcitx5 -dr 
-$execute	thunar --daemon
+$execute dex --autostart --environment i3
+$execute /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+$execute dunst --config ~/.config/dunst/dunstrc
+$execute sleep 1 && firefox
+$execute thunar --daemon
+$execute redshift
+$execute xbanish
+$execute xset s 480 dpms 600 600 600
 $always_exec xset r rate 300 50
-$always_exec nitrogen --restore
+$always_exec nitrogen --restore --set-scaled
 
 ###### Power Menu (i3wm) ######
-set $i3lockscreen i3lock -n -c 000000
+set $i3lockscreen $bin_path/blur-lock
 set $mode_system (l)Lock, (e)Logout, (s)Suspend, (r)Reboot, (CTRL+s)Shutdown
 
 mode "$mode_system" {
 
-    bindsym l $execute $i3lockscreen, mode "default"
-    bindsym e exec "pkill -KILL -u $USER"
+    bindsym l $execute $bin_path/blur-lock, mode "default"
+    #bindsym e exec "pkill -KILL -u $USER"
+    bindsym e exec "i3-msg exit"
     bindsym s $execute systemctl suspend && $i3lockscreen, mode "default"
-    bindsym r exec reboot, mode "default"
-    bindsym Ctrl+s exec poweroff, mode "default"
+    bindsym r exec systemctl reboot, mode "default"
+    bindsym Ctrl+s exec systemctl poweroff, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
