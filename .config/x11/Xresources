@@ -14,8 +14,8 @@
 *cursorColor:           S_base1
 *pointerColorBackground:S_base01
 *pointerColorForeground:S_base1
-*.font: DejaVuSansMono-9:antialias=true:autohint=false;
-*.alpha: 0.90
+*.font:                 TerminessTTF Nerd Font:size=9:antialias=true:autohint=false;
+*.alpha:                0.80
 
 #define S_yellow        #b58900
 #define S_orange        #cb4b16
