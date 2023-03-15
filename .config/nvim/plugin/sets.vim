@@ -1,3 +1,5 @@
+syntax on
+filetype plugin indent on
 set encoding=utf-8
 set fileencoding=utf-8
 
@@ -6,7 +8,6 @@ set softtabstop=4
 set shiftwidth=2          
 set tabstop=2
 set expandtab
-set breakindent
 set smarttab
 set autoindent
 set smartindent		

@@ -109,6 +109,11 @@ _G.packer_plugins = {
     path = "/home/lima/.local/share/nvim/site/pack/packer/start/colorbuddy.nvim",
     url = "https://github.com/tjdevries/colorbuddy.nvim"
   },
+  ["commented.nvim"] = {
+    loaded = true,
+    path = "/home/lima/.local/share/nvim/site/pack/packer/start/commented.nvim",
+    url = "https://github.com/winston0410/commented.nvim"
+  },
   ["friendly-snippets"] = {
     loaded = true,
     path = "/home/lima/.local/share/nvim/site/pack/packer/start/friendly-snippets",

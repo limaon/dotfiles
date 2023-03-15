@@ -131,78 +131,7 @@ vim.diagnostic.config({
   },
 })
 
-
--- java
-
-nvim_lsp.jdtls.setup {
+nvim_lsp.pylsp.setup {
   on_attach = on_attach,
   capabilities = capabilities,
-  settings = {
-    java = {
-      eclipse = {
-        downloadSources = true,
-      },
-      configuration = {
-        updateBuildConfiguration = "interactive",
-      },
-      maven = {
-        downloadSources = true,
-      },
-      implementationsCodeLens = {
-        enabled = true,
-      },
-      referencesCodeLens = {
-        enabled = true,
-      },
-      references = {
-        includeDecompiledSources = true,
-      },
-      format = {
-        enabled = true,
-        settings = {
-          url = "/home/lima/.local/share/nvim/intellij-java-google-style.xml",
-          profile = "GoogleStyle",
-        },
-      },
-    },
-    signatureHelp = { enabled = true },
-    completion = {
-      favoriteStaticMembers = {
-        "org.hamcrest.MatcherAssert.assertThat",
-        "org.hamcrest.Matchers.*",
-        "org.hamcrest.CoreMatchers.*",
-        "org.junit.jupiter.api.Assertions.*",
-        "java.util.Objects.requireNonNull",
-        "java.util.Objects.requireNonNullElse",
-        "org.mockito.Mockito.*",
-      },
-      importOrder = {
-        "java",
-        "javax",
-        "com",
-        "org"
-      },
-    },
-    --extendedClientCapabilities = extendedClientCapabilities,
-    sources = {
-      organizeImports = {
-        starThreshold = 9999,
-        staticStarThreshold = 9999,
-      },
-    },
-    codeGeneration = {
-      toString = {
-        template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}",
-      },
-      useBlocks = true,
-    },
-  },
-
-  flags = {
-    allow_incremental_sync = true,
-  },
-  init_options = {
-    bundles = {},
-  },
-
 }

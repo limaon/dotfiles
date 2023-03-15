@@ -23,7 +23,7 @@ packer.startup(function(use)
 
   -- Installation of LSP/Debuggers/Other
   use({
-    "onsails/lspkind-nvim", -- vscode-like pictograms
+    "onsails/lspkind-nvim",
     "WhoIsSethDaniel/mason-tool-installer.nvim",
   })
 
@@ -65,6 +65,7 @@ packer.startup(function(use)
 
   --use 'nvim-lualine/lualine.nvim' -- Status line
   use 'norcalli/nvim-colorizer.lua'
+  use 'winston0410/commented.nvim'
 
   -- AutoPairs
   use({

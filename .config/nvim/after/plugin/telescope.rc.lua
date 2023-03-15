@@ -11,24 +11,22 @@ end
 telescope.setup {
   defaults = {
     mappings = {
-      n = {
-        ["q"] = actions.close
-      },
-      i = {
-        ["<Tab>"] = false,
-      },
+      n = { ["q"] = actions.close },
+      i = { ["<Tab>"] = false, },
     },
   },
+
+  pickers = {
+    find_files = {
+      find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" },
+    },
+  },
+
   extensions = {
     file_browser = {
       theme = "dropdown",
-      -- disables netrw and use telescope-file-browser in its place
-      hijack_netrw = true,
       mappings = {
-        -- your custom insert mode mappings
-        ["i"] = {
-          ["<C-w>"] = function() vim.cmd('normal vbd') end,
-        },
+            ["i"] = { ["<C-w>"] = function() vim.cmd('normal vbd') end, },
       },
     },
   },
