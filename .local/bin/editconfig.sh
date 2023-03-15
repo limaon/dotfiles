@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-DMEDITOR="kitty -e nvim"
+DEF_EDITOR="nvim"
+FONT="TerminessTTF Nerd Font:size=12"
 
 declare -a options=(
   "bashrc  - $HOME/.bashrc"
@@ -20,22 +21,14 @@ declare -a options=(
   "picom - $HOME/.config/picom/picom.conf"
   "x11_Files - $HOME/.config/x11"
   "neovim - $HOME/.config/nvim/init.lua"
-  "quit"
 )
 
-choice=$(printf '%s\n' "${options[@]}" | dmenu -l 4 -fn 'TerminessTTF Nerd Font' -p 'Config:')
+choice=$(printf '%s\n' "${options[@]}" | sort -u | dmenu -l 5 -fn "$FONT"  -p "Edit Config:")
 
-# What to do when / if we choose 'quit'
-if [[ "$choice" == "quit" ]]; then
-    echo "Program terminated." && exit 1
-
-# What to do wn if we choose a file to edit
-elif [ "$choice" ]; then
+if [ "$choice" ]; then
     cfg=$(printf '%s\n' "${choice}" | awk '{print $NF}')
-    $DMEDITOR "$cfg"
 
-# What to do if we jest escape without choosing anything.
+    kitty -e $DEF_EDITOR "$cfg"
 else
-    echo "Program Terminated." && exit 1
+    echo "Exiting..."; exit 1
 fi
-#i3-dmenu-desktop --dmenu="dmenu -i -l 4 -fn 'TerminessTTF Nerd Font' -p 'Open:'"
