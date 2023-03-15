@@ -93,8 +93,7 @@ case $1 in
       dunstify "Screenshot Taken" --icon=dialog-information
     ;;
     colorpicker)
-      xcolor -s -P 100 -f HEX
-      dunstify -u low -t 3000 -r 2593 "Color Captured" --icon=dialog-information
+      ~/.local/bin/color-pick
     ;;
     *)
       #if pidof ffmpeg 
