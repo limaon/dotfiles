@@ -226,7 +226,7 @@ assign [class="Thunderbird"]                  $ws2
 assign [class="transmission-gtk"]             $ws6
 assign [class="obsidian"]                     $ws7
 #assign [class="(?i)anki"]  		                $ws8
-for_window [urgent=latest] focus
+#for_window [urgent=latest] focus
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 10 x 10
