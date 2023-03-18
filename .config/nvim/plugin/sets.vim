@@ -9,8 +9,8 @@ set shiftwidth=2
 set tabstop=2
 set expandtab
 set smarttab
-set autoindent
 set smartindent		
+set autoindent
 set nowrap 
 set backspace=indent,eol,start
 
