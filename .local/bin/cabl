@@ -255,7 +255,9 @@ linguee() {
 wordreference() {
 	"$BROWSER" "https://www.wordreference.com/enpt/$*"
 }
-
+translate() {
+	"$BROWSER" "https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=$*"
+}
 
 # Download a streamable video through Tor
 # Enable tor - sudo systemctl start tor
@@ -343,7 +345,7 @@ fi
 
 __ask_action() {
 	declare -F | awk '!/ __.+$/ {gsub("_", " ", $3); print $3}' |
-		dmenu -l 4 -fn "TerminessTTF Nerd Font" -p "Plumb ${search_text:0:30} to?" -i 
+		dmenu -fn "TerminessTTF Nerd Font" -p "Plumb ${search_text:0:30} to?" -i 
 }
 
 __main() {
