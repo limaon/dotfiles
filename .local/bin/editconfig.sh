@@ -23,7 +23,7 @@ declare -a options=(
   "neovim - $HOME/.config/nvim/init.lua"
 )
 
-choice=$(printf '%s\n' "${options[@]}" | sort -u | dmenu -l 5 -fn "$FONT"  -p "Edit Config:")
+choice=$(printf '%s\n' "${options[@]}" | sort -u | dmenu -fn "$FONT"  -p "EditConfig:")
 
 if [ "$choice" ]; then
     cfg=$(printf '%s\n' "${choice}" | awk '{print $NF}')
