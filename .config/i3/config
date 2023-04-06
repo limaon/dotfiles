@@ -177,7 +177,7 @@ for_window [instance="scratchpad"]  move window to scratchpad, scratchpad show
 
 # Set floating for apps needing it
 for_window [instance="blueman-manager"]                     floating enable 
-for_window [title="(?i) - Anki"]                            floating enable, border pixel 2
+for_window [title="(?i) - Anki"]                            move to workspace $ws8, border pixel 2
 for_window [class="(?i)anki" title="Edit Current"]          floating enable, border pixel 1
 for_window [class="(?i)anki" title="Statistics"]            floating enable, border pixel 1
 for_window [class="(?i)anki" title="Browse"]                move to workspace $ws9, border normal 2
@@ -217,16 +217,12 @@ for_window [title="^Page Info"]			    floating enable, border normal 3
 for_window [title="WebP viewer"]		    floating enable, move position center
 
 # set position of floating window
-for_window [all]                 move absolute position center
+for_window [all]                        move absolute position center
 
 # Open and focus to specific workspace
-assign [class="kitty"]                        $ws1
-assign [class="(?i)firefox"]                  $ws2
-assign [class="Thunderbird"]                  $ws2
-assign [class="transmission-gtk"]             $ws6
-assign [class="obsidian"]                     $ws7
-#assign [class="(?i)anki"]  		                $ws8
-#for_window [urgent=latest] focus
+assign [class=(?i)firefox|qutebrowser|Thunderbird]  $ws2
+assign [class="transmission-gtk"]                   $ws6
+assign [class=obsidian]                             $ws8
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 10 x 10
@@ -272,7 +268,9 @@ bar {
 $execute dex --autostart --environment i3
 $execute /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 $execute dunst --config ~/.config/dunst/dunstrc
-$execute sleep 1 && firefox
+$execute firefox
+$execute anki
+$execute obsidian
 $execute thunar --daemon
 $execute redshift
 $execute xbanish
@@ -356,7 +354,6 @@ bindsym XF86AudioMedia		  $execute i3-sensible-terminal -e ncmpcpp
 
 # File Manager
 bindsym XF86Explorer		    $execute i3-sensible-terminal --title 'File Manager' -e $bin_path/lfub
-
 
 #Brightness Control
 bindsym XF86MonBrightnessUp $execute $bin_path/brightness up
