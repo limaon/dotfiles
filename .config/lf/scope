@@ -34,7 +34,7 @@ case "$(file --dereference --brief --mime-type -- "$1")" in
 	text/* | */xml | application/json) cat "$1" ;;
 	audio/*)
 		CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/lf/thumb.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" | sha256sum | cut -d' ' -f1)"
-		[ ! -f "$CACHE" ] && exiftool -g "$1"
+		[ ! -f "$CACHE" ] && ffprobe -select_streams v:0 -show_format -hide_banner "$1"
 		;;
 	video/* )
 		CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/lf/thumb.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" | sha256sum | cut -d' ' -f1)"
