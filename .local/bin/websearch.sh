@@ -21,7 +21,6 @@ declare -a options=(
   "Wikipedia"
   "Aur"
   "Dictionary"
-  "Youglish"
   "Tatoeba"
   "Cm"
   "Yy"
@@ -49,7 +48,6 @@ case "$choice" in
   "Wikipedia") search_url="https://en.wikipedia.org/wiki/";;
   "Aur") search_url="https://aur.archlinux.org/packages?O=0&SeB=nd&K=";;
   "Dic") search_url="https://www.collinsdictionary.com/dictionary/english/";;
-  "Youglish") search_url="https://youglish.com/pronounce/";;
   "Tatoeba") search_url="https://tatoeba.org/pt-br/sentences/search?from=eng&to=por&query=";;
   "Cm") search_url="https://codemadness.org/idiotbox/?q=";;
   "Yy") search_url="https://yewtu.be/search?q=";;
