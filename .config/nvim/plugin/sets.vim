@@ -62,3 +62,6 @@ augroup vimrc-remember-cursor-position
     autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
 augroup END
 set autoread
+
+" Set up the statusline
+set statusline=%<%f\ %h%m%r%=\ %y\ %{FugitiveStatusline()}\ (%{&encoding})\ L:%l/%L\ C:%c\ %P
