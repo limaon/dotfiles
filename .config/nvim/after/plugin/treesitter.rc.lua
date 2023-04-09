@@ -4,16 +4,14 @@ if (not status) then return end
 ts.setup {
   highlight = {
     enable = true,
-    disable = {
-    },
+    disable = {},
     additional_vim_regex_highlighting = false,
   },
   indent = {
-    enable = false,
+    enable = true,
     disable = {},
   },
   ensure_installed = {
-    "vim",
     "lua",
     "tsx",
     "javascript",
@@ -28,7 +26,7 @@ ts.setup {
 
   context_commentstring = {
     enable = true,
-    enable_autocmd = true,
+    enable_autocmd = false,
   }
 
 }
