@@ -1,5 +1,4 @@
 local keymap = vim.keymap.set
-local builtin = require("telescope.builtin")
 local opts = { noremap = true, silent = true }
 
 -- O mapleader as spacebar
@@ -23,6 +22,7 @@ keymap('n', 'td', ':tabclose<CR>', { silent = true })
 -- Buffer moves
 keymap('n', '<Tab>', ':bnext<CR>', opts)
 keymap('n', '<S-Tab>', ':bprevious<CR>', opts)
+keymap('n', '<DELETE>', ':bdelete<CR>', opts)
 
 -- Split window
 keymap('n', 'ss', ':split<Return><C-w>w<CR>', opts)
@@ -58,30 +58,3 @@ keymap('n', '<leader>e', ':Explore<CR>')
 
 -- Undotree
 keymap('n', '<leader>u', vim.cmd.UndotreeToggle, opts)
-
--- Telescope
-keymap('n', '<leader>ff',
-  function()
-    builtin.find_files({
-      no_ignore = false,
-      hidden = true
-    })
-  end)
-keymap('n', '<leader>rp', function()
-  builtin.live_grep()
-end)
-keymap('n', '<C-p>', function()
-  builtin.git_files()
-end)
-keymap('n', '<leader>fb', function()
-  builtin.buffers()
-end)
-keymap('n', '<leader>fh', function()
-  builtin.help_tags()
-end)
-keymap('n', '<leader>;', function()
-  builtin.resume()
-end)
-keymap('n', '<leader>fd', function()
-  builtin.diagnostics()
-end)
