@@ -1,10 +1,11 @@
 local status, packer = pcall(require, "packer")
-if (not status) then
-  print("Packer is not instaled")
-  return
+local install_path = vim.fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
+if (not status) then 
+  print('Installing packer...')
+  vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
 end
+vim.cmd([[packadd packer.nvim]])
 
-vim.cmd [[packadd packer.nvim]]
 
 packer.startup(function(use)
   -- Packer
@@ -54,6 +55,7 @@ packer.startup(function(use)
   -- Telescope
   use {
     'nvim-telescope/telescope.nvim',
+    -- "nvim-telescope/telescope-fzf-native.nvim", enabled = vim.fn.executable "make" == 1, build = "make",
     'nvim-lua/plenary.nvim',
     'kyazdani42/nvim-web-devicons', -- File icons
   }
@@ -63,7 +65,6 @@ packer.startup(function(use)
     run = ":TSUpdate"
   }
 
-  --use 'nvim-lualine/lualine.nvim' -- Status line
   use 'norcalli/nvim-colorizer.lua'
   use 'winston0410/commented.nvim'
 
@@ -72,7 +73,6 @@ packer.startup(function(use)
     'windwp/nvim-ts-autotag',
     'windwp/nvim-autopairs',
   })
-
 
   -- Git
   use({
