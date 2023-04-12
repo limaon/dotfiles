@@ -12,19 +12,12 @@ cmp.setup({
       luasnip.lsp_expand(args.body)
     end,
   },
-  duplicates = {
-    nvim_lsp = 1,
-    luasnip = 1,
-    cmp_tabnine = 1,
-    buffer = 1,
-    path = 1,
-  },
   mapping = cmp.mapping.preset.insert({
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-u>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
     ['<C-e>'] = cmp.mapping.close(),
-    ['<CR>'] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+    ['<CR>'] = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
@@ -50,9 +43,31 @@ cmp.setup({
     { name = 'buffer' },
     { name = 'path' },
   }),
+  window = {
+    completion = {
+      scrollbar = false,
+    },
+  },
   formatting = {
     fields = { "kind", "abbr", "menu" },
-    format = lspkind.cmp_format({ with_text = false, maxwidth = 50 })
+    format = function(entry, vim_item)
+      vim_item.kind = lspkind.presets.default[vim_item.kind]
+      vim_item.menu = ({
+        nvim_lsp = "[LSP]",
+        buffer = "[Buffer]",
+        nvim_lua = "[Lua]",
+        latex_symbols = "[Latex]",
+        path = "[Path]",
+        ultisnips = "[UltiSnips]",
+        luasnip = "[Snippet]",
+        treesitter = "[Treesitter]",
+      })[entry.source.name]
+      vim_item.abbr = lspkind.cmp_format({
+        maxwidth = 30,
+        ellipsis_char = "...",
+      })(entry, vim_item).abbr
+      return vim_item
+    end,
   }
 })
 
