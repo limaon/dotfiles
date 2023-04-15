@@ -8,8 +8,6 @@ declare -a options=(
   "Google"
   "Map"
   "DuckDuckGo"
-  "Bing"
-  "Yahoo"
   "Youtube"
   "Translate"
   "Twitter" 
@@ -20,8 +18,6 @@ declare -a options=(
   "Context"
   "Wikipedia"
   "Aur"
-  "Dictionary"
-  "Tatoeba"
   "Cm"
   "Yy"
   "Udemy"
@@ -32,10 +28,8 @@ choice=$(printf '%s\n' "${options[@]}" | sort -u | dmenu -i -fn "$FONT" -p " Web
 
 # Definindo a URL de pesquisa para cada opção
 case "$choice" in
-  "Google") search_url="https://www.google.com/search?q=";;
+  "Google") search_url="https://www.whoogle.click/search?q=";;
   "DuckDuckGo") search_url="https://duckduckgo.com/?q=";;
-  "Bing") search_url="https://www.bing.com/search?q=";;
-  "Yahoo") search_url="https://search.yahoo.com/search?p=";;
   "Map") search_url="https://www.google.com/maps/search/";;
   "Youtube") search_url="https://www.youtube.com/results?search_query=";;
   "Translate") search_url="https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=";;
@@ -47,8 +41,6 @@ case "$choice" in
   "Context") search_url="https://context.reverso.net/traducao/ingles-portugues/";;
   "Wikipedia") search_url="https://en.wikipedia.org/wiki/";;
   "Aur") search_url="https://aur.archlinux.org/packages?O=0&SeB=nd&K=";;
-  "Dic") search_url="https://www.collinsdictionary.com/dictionary/english/";;
-  "Tatoeba") search_url="https://tatoeba.org/pt-br/sentences/search?from=eng&to=por&query=";;
   "Cm") search_url="https://codemadness.org/idiotbox/?q=";;
   "Yy") search_url="https://yewtu.be/search?q=";;
   "Udemy") search_url="https://www.udemy.com/courses/search/?src=ukw&q=";;
