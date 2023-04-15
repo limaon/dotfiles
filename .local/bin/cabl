@@ -216,17 +216,12 @@ nyaa_search() {
 duckduckgo() {
 	"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=jp-jp"
 }
-brave_search() {
-	"$BROWSER" "https://search.brave.com/search?q=$*"
-}
 duckduckgo_images() {
 	"$BROWSER" "https://duckduckgo.com/?q=$*&iax=images&ia=images&kp=-2&kl=jp-jp"
 }
-brave_images() {
-	"$BROWSER" "https://search.brave.com/images?q=$*"
-}
 google_images() {
-	"$BROWSER" "https://www.google.co.jp/search?q=$*&tbm=isch"
+	# "$BROWSER" "https://www.google.co.jp/search?q=$*&tbm=isch"
+  "$BROWSER" "https://www.whoogle.click/search?q=$*&tbm=isch"
 }
 wikipedia() {
 	"$BROWSER" "https://wikiless.org/w/index.php?search=$*&lang=$locale#firstHeading"
@@ -258,6 +253,10 @@ wordreference() {
 translate() {
 	"$BROWSER" "https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=$*"
 }
+youtube() {
+	"$BROWSER" "https://www.youtube.com/results?search_query=$*"
+}
+
 
 # Download a streamable video through Tor
 # Enable tor - sudo systemctl start tor
