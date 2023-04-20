@@ -1,15 +1,33 @@
 #!/usr/bin/env bash
 
-lock() {
-  PICTURE=/tmp/i3lock.png
-  SCREENSHOT="maim --hidecursor $PICTURE"
+PICTURE=/tmp/i3lock.png
+SCREENSHOT_COMMAND="maim --hidecursor $PICTURE"
+BLUR="5x4"
 
-  BLUR="5x4"
-
-  $SCREENSHOT
+take_screenshot() {
+  $SCREENSHOT_COMMAND
   convert $PICTURE -blur $BLUR $PICTURE
-  i3lock -e -n -b -i $PICTURE
+}
+
+lock() {
+  take_screenshot
+  i3lock -efn -i $PICTURE
   rm $PICTURE
+}
+
+lock_and_suspend() {
+  take_screenshot
+  dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Suspend" boolean:true
+  i3lock -efn -i $PICTURE
+  rm $PICTURE
+}
+
+dbus-send-command() {
+  local dest="$1"
+  local path="$2"
+  local method="$3"
+  shift 3
+  dbus-send --system --print-reply --dest="$dest" "$path" "$method" "$@"
 }
 
 case "$1" in
@@ -20,16 +38,16 @@ case "$1" in
     i3-msg exit
     ;;
   suspend)
-    dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Suspend" boolean:true
+    lock_and_suspend
     ;;
   hibernate)
-    dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Hibernate" boolean:true
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Hibernate" boolean:true
     ;;
   reboot)
-    dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Reboot" boolean:true
     ;;
   shutdown)
-    dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
     ;;
   *)
     echo "Usage: $0 {lock|logout|suspend|hibernate|reboot|shutdown}"
