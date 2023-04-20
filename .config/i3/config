@@ -284,30 +284,25 @@ $always_exec nitrogen --restore --set-scaled
 set $mode_system (l)Lock, (e)Logout, (s)Suspend, (r)Reboot, (CTRL+s)Shutdown
 
 mode "$mode_system" {
-
-    bindsym l $execute $bin_path/blur-lock, mode "default"
-    #bindsym e exec "pkill -KILL -u $USER"
-    bindsym e $execute i3-msg exit, mode "default"
-    bindsym s $execute $bin_path/blur-lock && systemctl suspend, mode "default"
-    bindsym r $execute systemctl reboot -i, mode "default"
-    bindsym Ctrl+s $execute systemctl poweroff -i, mode "default"
+    bindsym l $execute $bin_path/i3exit lock, mode "default"
+    bindsym e $execute $bin_path/i3exit logout, mode "default"
+    bindsym s $execute $bin_path/i3exit suspend, mode "default"
+    bindsym r $execute $bin_path/i3exit reboot, mode "default"
+    bindsym Ctrl+s $execute $bin_path/i3exit shutdown, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
     bindsym Escape mode "default"
-
 }
 bindsym $mod+Shift+e mode "$mode_system"
 
 ### Monitor setup (i3wm) #####
-set $mode_display (d)Hdmi, (t)Notebook, (a)DMonitor, (v)DV_Monitor
+set $mode_display (d)Hdmi, (l)Laptop, (a)DMonitor
 
 mode "$mode_display" {
-
-    bindsym d $execute xrandr --output eDP-1 --off --output HDMI-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal, mode "default"
-    bindsym t $execute xrandr --output eDP-1 --primary --mode 1366x768 --pos 0x0 --rotate normal --output HDMI-1 --off, mode "default"
-    bindsym a $execute xrandr --output eDP-1 --mode 1366x768 --pos 0x0 --rotate normal --output HDMI-1 --primary --mode 1920x1080 --pos 1366x0 --rotate normal, mode "default"
-    bindsym v $execute xrandr --output eDP-1 --primary --mode 1366x768 --pos 0x280 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 1366x0 --rotate left, mode "default"
+    bindsym l $execute $bin_path/monitorset.sh -m laptop, mode "default"
+    bindsym d $execute $bin_path/monitorset.sh -m hdmi, mode "default"
+    bindsym a $execute $bin_path/monitorset.sh -m ambos, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
