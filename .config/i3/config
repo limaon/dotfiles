@@ -222,7 +222,7 @@ for_window [title="WebP viewer"]		    floating enable, move position center
 for_window [all]                        move absolute position center
 
 # Open and focus to specific workspace
-assign [class=(?i)firefox|qutebrowser|Thunderbird]  $ws2
+assign [class=(?i)firefox|qutebrowser]              $ws2
 assign [class="transmission-gtk"]                   $ws6
 assign [class=obsidian]                             $ws8
 
@@ -231,7 +231,7 @@ floating_minimum_size 10 x 10
 floating_maximum_size 1048 x 720
 
 # switch to workspace with urgent window autimaticaly
-#for_window [urgent=latest] focus
+# for_window [urgent=latest] focus
 focus_on_window_activation smart
 
 
