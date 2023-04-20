@@ -22,6 +22,7 @@ title_align             center
 default_border          pixel 1
 default_floating_border normal
 for_window [all]        border pixel 1
+for_window [all]        title_window_icon padding 5px
 
 # Ex: popup_during_fullscreen smart|ignore|leave_fullscreen
 popup_during_fullscreen smart
