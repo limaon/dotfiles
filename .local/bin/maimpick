@@ -10,7 +10,7 @@ take_screenshot() {
 }
 
 ask_command() {
-	dmenu -i -l 4 -fn "TerminessTTF Nerd Font" -p 'Screenshot which area?' <<-EOF
+	dmenu -i -fn "TerminessTTF Nerd Font" -p 'Screenshot which area?' <<-EOF
 		Selected area
 		Selected area → clipboard
 		Selected area → gimp
