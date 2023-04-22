@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+file=$1
+w=$2
+h=$3
+x=$4
+y=$5
+
+kpreview() {
+    kitty +kitten icat --silent --stdin=no --transfer-mode=file --place "${w}x${h}@${x}x${y}" "$1" < /dev/null > /dev/tty
+}
+
+TEMPDIR=$HOME/.cache
+
+file="$1"; shift
+
+file_type=$(file --mime-type "$file" | awk '{print $2}')
+case "$file_type" in
+*.tar*) tar tf "$file" | head -n 100 | sed 's/$/.../' ;;
+*.tar.gz|*.tgz) tar -ztf "$file" | head -n 100 | sed 's/$/.../' ;;
+*.tar.bz2|*.tbz2) tar -jtf "$file" | head -n 100 | sed 's/$/.../' ;;
+*.tar.xz|*.txz) tar -Jtf "$file" | head -n 100 | sed 's/$/.../' ;;
+*.zip) unzip -l "$file" | head -n 100 | sed 's/$/.../' ;;
+*.rar) unrar l "$file" | head -n 100 | sed 's/$/.../' ;;
+*.7z) 7z l "$file" | head -n 100 | sed 's/$/.../' ;;
+video/*)
+  thumbnail="$TEMPDIR/thumbnail.png"
+  ffmpeg -y -i "$file" -vframes 1 "$thumbnail"
+  convert "$thumbnail" -resize "${w}x${h}"\! "$thumbnail"
+  kpreview "$thumbnail"
+  ;;
+audio/*)
+  thumbnail="$TEMPDIR/thumbnail.txt"
+  ffprobe "$file" 2>&1 > "$thumbnail"
+  kpreview "$thumbnail"
+  ;;
+application/pdf)
+  thumbnail="$TEMPDIR/thumbnail.png"
+  pdftoppm -png -f 1 -singlefile "$file" "$TEMPDIR/preview"
+  convert "$TEMPDIR/preview.png" -resize "${w}x${h}"\! "$thumbnail"
+  kpreview "$thumbnail"
+  ;;
+image/*)
+  thumbnail="$TEMPDIR/thumbnail.png"
+  convert "$file" -resize "${w}x${h}"\! "$thumbnail"
+  kpreview "$thumbnail"
+  ;;
+*.ttf|*.otf|*.woff)
+	thumbnail="$TEMPDIR/thumbnail.png"
+	fontpreview -i "$file" -o "$thumbnail"
+	kpreview "$thumbnail"
+	;;
+*) cat -n "$file" ;;
+esac
+return 127 # nonzero retcode required for lf previews to reload
