@@ -1,6 +1,6 @@
 # Basic sets
 set previewer ~/.config/lf/lf_kitty_preview
-#set cleaner ~/.config/lf/cleaner
+set cleaner ~/.config/lf/cleaner
 set shell sh
 set shellopts '-eu'
 set ifs "\n"
