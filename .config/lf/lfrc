@@ -1,7 +1,7 @@
 # Basic sets
 set previewer ~/.config/lf/lf_kitty_preview
-set cleaner ~/.config/lf/lf_kitty_clean
-set shell bash
+#set cleaner ~/.config/lf/cleaner
+set shell sh
 set shellopts '-eu'
 set ifs "\n"
 set info size:time
@@ -9,62 +9,66 @@ set dircounts
 set period 1
 set autoquit on
 set ratios 2:3
-set scrolloff 10
-set drawbox true
-set icons true
-set nohidden false
-set ignorecase true
+set scrolloff 0
+set drawbox
+set icons
+set ignorecase
+set incfilter
+set incsearch
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+set promptfmt "\033[32;1m%u@%h\033[0m:\033[34;1m%d\033[0m"
+$[ $lf_width -le 60 ] && lf -remote "send $id :set nopreview; set ratios 1" || exit 0
 
 # Remove default binds
 map m
-map o
 map "'"
 map '"'
-map d
 map c
 map e
 map f
 map t
 
 # Basic funcitons
-map . set hidden!
-map dD delete
-map p paste
-map dd cut
-map yy copy
 map mf mkfile
 map md mkdir
-map ch chmod
+map sn :set sortby natural; set info size
+map cl clear
+map R :reload; recol; cfg_reload
+map <c-c> :redraw; reload
+map <tab> :toggle; down
+map <delete> delete
+map zp set preview!
+map zd set dirfirst!
 
+map z1 :set nopreview; set ratios 1
+map z2 :set nopreview; set ratios 1:2
+map z3 :set ratios 1:2:3; set preview
 
 # Archive Mappins
-map e quickedit
-map Eaz zip
-map Eat tar
-map Eax extract
+map xz zip
+map xt tar
+map xx extract
 
-# Trash Mappins
+# Open
+map <enter> open
+
+# Delete files
+map d
+map dd cut
+map dD delete
 map dt trash
 map dc clear_trash
 map dr restore_trash
-
-map sn :set sortby natural; set info size
-map cl clear
-map cf editfile
-map cs $compiler $f
-
-map du %du -sh $f
-map R reload
-map <enter> open
+map p
+map p paste
 
 map S $clear && $SHELL
 map -x $chmod -x -- $fx
 map +x $chmod u+x -- $fx
 
-
 # Copy
 map y
+map yy copy
 map yp $printf "%s" "$fx" | xclip -selection clipboard
 map yn $echo -n "$(basename -- "$f")" | xclip -selection clipboard
 map yf $echo "file://$(readlink -f -- "$f")" | xclip -selection clipboard -target "text/uri-list"
@@ -87,6 +91,8 @@ map gtr cd ~/.local/share/Trash/files
 
 
 # Functions
+cmd cfg_reload source ~/.config/lf/lfrc
+
 cmd open &{{
   images=()
   videos=()
@@ -106,13 +112,9 @@ cmd open &{{
   [ ${#videos[@]} -gt 0 ] && mpv "${videos[@]}" &
   [ ${#files[@]} -gt 0 ] && xdg-open "${files[@]}" &
 
-  if command -v notify-send >/dev/null 2>&1; then
-    notify-send "Files opened"
-  fi
 }}
 
 cmd on-cd %{{
-	# Sort files by time in certain folders.
 	for d in Downloads Screenshots ongoing; do
 		if [[ $(basename -- "$PWD") == "$d" ]]; then
 			lf -remote "send $id set sortby time"
@@ -147,7 +149,6 @@ cmd restore_trash ${{
   gio trash --restore -- "trash:///$(basename -- "$f")"
 }}
 
-
 cmd delete ${{
 	clear; tput cup $(($(tput lines)/3)); tput bold
 	set -f
@@ -172,25 +173,20 @@ cmd extract !{{
 }}
 
 
-# compress current file or selected files with tar and gunzip
 cmd tar ${{
-    set -f
-    mkdir $1
-    cp -r $fx $1
-    tar czf $1.tar.gz $1
-    rm -rf $1
+  dir=${f%/*}
+  dir=${dir##*/}
+  set -f
+  tar -czf "${dir}.tar.gz" $fx
 }}
 
-# compress current file or selected files with zip
 cmd zip ${{
-    set -f
-    mkdir $1
-    cp -r $fx $1
-    zip -r $1.zip $1
-    rm -rf $1
+  dir=${f%/*}
+  dir=${dir##*/}
+  set -f
+  zip -j "${dir}.zip" $fx
 }}
 
-# create a file
 cmd mkfile ${{
   printf "File Name: "
   read ans
