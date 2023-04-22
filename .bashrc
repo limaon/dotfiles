@@ -159,7 +159,6 @@ alias \
 	ncclock="ncmpcpp -s clock" \
 	ncvisualizer="ncmpcpp -s visualizer" \
 	nf="clear && neofetch" \
-  lf="$HOME/.local/bin/lfub" \
 
 # Fancy prompting colors
 red='\[\e[0;31m\]'
