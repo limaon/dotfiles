@@ -21,8 +21,7 @@ set $bin_path           ~/.local/bin
 title_align             center
 default_border          pixel 1
 default_floating_border normal
-for_window [all]        border pixel 1
-for_window [all]        title_window_icon padding 5px
+for_window [all]        border pixel 1, title_window_icon padding 5px
 
 # Ex: popup_during_fullscreen smart|ignore|leave_fullscreen
 popup_during_fullscreen smart
@@ -35,7 +34,7 @@ focus_follows_mouse	    yes
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango:             TerminessTTF Nerd Font, FontAwesome, Noto Sans Mono CJK JP 9
+font pango:             Terminess Nerd Font, FontAwesome, Noto Sans Mono CJK JP 9
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier       $mod
@@ -47,10 +46,10 @@ bindsym $mod+Return     $execute i3-sensible-terminal
 bindsym $mod+Shift+q    kill
 
 # start dmenu (a program launcher).
-bindsym $mod+d          $execute i3-dmenu-desktop --dmenu="dmenu -i -fn 'TerminessTTF Nerd Font' -p 'Open:'"
+bindsym $mod+d          $execute i3-dmenu-desktop --dmenu="dmenu -i -p 'Open:'"
 
 # This should only be used if a program lacks a .desktop file.
-bindsym $mod+Shift+d    $execute rofi -show run
+bindsym $mod+Shift+d    $execute dmenu_run -i -fn 'Terminess Nerd Font' -p 'Run:'
 
 # Web search 
 bindsym $mod+b          $execute $bin_path/websearch.sh
@@ -60,6 +59,7 @@ bindsym $alt+e          $execute $bin_path/editconfig.sh
 
 # Cabl (primary)
 bindsym $mod+c			    $execute $bin_path/cabl
+bindsym $mod+Ctrl+c		  $execute $bin_path/camtoggle
 
 # Open clipboard content with rofi dmenu
 bindsym $mod+Shift+v	  $execute $bin_path/cabl clip
@@ -69,8 +69,8 @@ bindsym $mod+Shift+w		border toggle
 
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth no
-bindsym $mod+n          workspace back_and_forth
-bindsym $mod+Shift+n    move container to workspace back_and_forth; workspace back_and_forth
+bindsym $mod+Tab          workspace back_and_forth
+bindsym $mod+Shift+Tab    move container to workspace back_and_forth; workspace back_and_forth
 
 # split in horizontal and vertical orientation
 bindsym $mod+semicolon split toggle
@@ -92,13 +92,6 @@ bindsym $mod+space      focus mode_toggle
 # Move focus to the parent/child container
 bindsym $mod+a          focus parent
 bindsym $mod+Shift+a    focus child
-
-# Move for all workspaces
-bindsym $mod+Tab workspace next
-bindsym $mod+Shift+Tab  workspace prev
-
-# Launcher tmux session
-bindsym $mod+Shift+Return	    $execute i3-sensible-terminal -e tmux
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -177,63 +170,65 @@ bindsym $mod+Shift+BackSpace	      move scratchpad
 for_window [instance="scratchpad"]  move window to scratchpad, scratchpad show
 
 # Set floating for apps needing it
-# for_window [class="(?i)Anki"]                               move to workspace $ws8, border pixel 2
-for_window [class="(?i)Anki" title="Syncing..."]            floating enable, border normal
-for_window [class="(?i)anki" title="Edit Current"]          floating enable, border pixel 1
-for_window [class="(?i)anki" title="Statistics"]            floating enable, border pixel 1
-for_window [class="(?i)anki" title="Browse"]                move to workspace $ws9, border normal 2
-for_window [class="(?i)anki" title="Preview"]               move to workspace $ws9, border normal 2
-for_window [class="mpv"]			                              move position center, border pixel 2, focus
-for_window [class="Nm-connection-editor"]	                  floating enable, border normal 3
-for_window [class="Qalculate-gtk"]                          floating enable, border normal 3, resize set 400 200
-for_window [class="Blueman-manager"]                        floating enable, border normal 3, resize set 600 600
-for_window [class="Blueman-adapters"]                       floating enable, border normal 3
-for_window [class="Pavucontrol"]		                        floating enable, border normal 3
-for_window [class="Nitrogen"]                               floating enable, border normal 
-for_window [class="GParted"]                                floating enable, border normal
-for_window [class="System-config-printer.py"]               floating enable, border normal, resize set 480 280
-for_window [class="Arandr"]                                 floating enable, border normal, resize set 600 480
-for_window [class="Polkit-gnome-authentication-agent-1"]    floating enable, sticky enable border normal
-for_window [class="transmission-gtk"]                       floating enable, border normal 2
-for_window [class="feh"]                                    floating enable, border normal
-for_window [class="fcitx5-config-qt"]                       floating enable, border pixel 3
+for_window [class="(?i)anki" title="Statistics"] floating enable, border pixel 1
+for_window [class="(?i)anki" title="Browse"] move to workspace $ws9, border normal 2
+for_window [class="(?i)anki" title="Preview"] move to workspace $ws9, border normal 2
+for_window [class="mpv"] move position center, border pixel 2, focus
+for_window [class="Nm-connection-editor"] floating enable, border normal 3
+for_window [class="Qalculate-gtk"] floating enable, border normal 3, resize set 400 200
+for_window [class="Blueman-manager"] floating enable, border normal 3, resize set 600 600
+for_window [class="Blueman-adapters"] floating enable, border normal 3
+for_window [class="Pavucontrol"] floating enable, border normal 3
+for_window [class="Nitrogen"] floating enable, border normal 
+for_window [class="GParted"] floating enable, border normal
+for_window [class="System-config-printer.py"] floating enable, border normal, resize set 480 280
+for_window [class="Arandr"] floating enable, border normal, resize set 600 480
+for_window [class="Polkit-gnome-authentication-agent-1"] floating enable, sticky enable border normal
+for_window [class="transmission-gtk"] floating enable, border normal 2
+for_window [class="fcitx5-config-qt"] floating enable, border normal
+for_window [class="mozc_tool"] floating enable, border normal
+for_window [class="Kvantum Manager"] floating enable, border normal
+for_window [class="kbd-layout-viewer"] floating enable, border normal
 
-for_window [window_role="splash"]                   floating enable
-for_window [window_type="dialog"]		                floating enable
-for_window [window_type="(?i)menu"]		              floating enable
-for_window [window_role="(?i)task_dialog"] 	        floating enable
-for_window [window_role="(?i)pop-up"]		            floating enable
-for_window [window_role="(?i)preferences"] 	        floating enable
-for_window [window_role="(?i)about"] 		            floating enable
-for_window [window_role="GtkFileChooserDialog"]     resize set 800 600
-for_window [window_role="GtkFileChooserDialog"]     move position center
+for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
+no_focus   [title="mpv Webcam"]
 
+for_window [window_role="(?i)splash"] floating enable, border normal
+for_window [window_type="(?i)dialog"] floating enable, border normal
+for_window [window_type="(?i)menu"] floating enable, border normal
+for_window [window_role="(?i)toolbox"] floating enable, border normal
+for_window [window_role="(?i)webconsole"] floating enable, border normal
+for_window [window_role="(?i)organizer"] floating enable, border normal
+for_window [window_role="(?i)task_dialog"] floating enable, border normal
+for_window [window_role="(?i)pop-up"] floating enable, border normal
+for_window [window_role="(?i)preferences"] floating enable, border normal
+for_window [window_role="GtkFileChooserDialog"] move position center, resize set 800 600
 
-for_window [title="^Preferences$"]      floating enable
-for_window [title="Copying"]            floating enable
-for_window [title="Deleting"]           floating enable
-for_window [title="Moving"]             floating enable
-for_window [title="File Transfer*"]     floating enable
-for_window [title="File Operation*"]    floating enable
-for_window [title="^Page Info"]			    floating enable, border normal 3
-for_window [title="WebP viewer"]		    floating enable, move position center
+for_window [title="^Preferences$"] floating enable
+for_window [title="Copying"] floating enable
+for_window [title="Deleting"] floating enable
+for_window [title="Moving"] floating enable
+for_window [title="File Transfer*"] floating enable
+for_window [title="File Operation*"] floating enable
+for_window [title="^Page Info"] floating enable, border normal 3
+for_window [title="WebP viewer"] floating enable, move position center
 
 # set position of floating window
-for_window [all]                        move absolute position center
+for_window [all] move absolute position center
 
 # Open and focus to specific workspace
-assign [class=(?i)firefox|qutebrowser]              $ws2
+assign [class="Thunderbird"]		                    $ws1
+assign [class=(?i)firefox|qutebrowser]              $ws1
 assign [class="transmission-gtk"]                   $ws6
 assign [class=obsidian]                             $ws8
 
 # Limitando o tamanho máximo da janela flutuante:
-floating_minimum_size 10 x 10
+floating_minimum_size 150 x 90
 floating_maximum_size 1048 x 720
 
 # switch to workspace with urgent window autimaticaly
 # for_window [urgent=latest] focus
 focus_on_window_activation smart
-
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -259,26 +254,17 @@ bindsym $mod+r      mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
+  font pango: Terminess Nerd Font, FontAwesome 9
   status_command i3status -c ~/.config/i3/i3status.conf
-  font pango: TerminessTTF Nerd Font, FontAwesome 9
   strip_workspace_numbers yes
   tray_output primary
   position bottom
 }
 
 # Auto startup aplications
-$execute dex --autostart --environment i3
-$execute /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-$execute dunst --config ~/.config/dunst/dunstrc
-$execute firefox
-$execute anki
-$execute obsidian
-$execute thunar --daemon
-$execute redshift
-$execute xbanish
-$execute xss-lock --transfer-sleep-lock -- $bin_path/blur-lock
+$execute dex --autostart
+$execute xss-lock --transfer-sleep-lock -- $bin_path/i3exit lock --nofork
 $always_exec xset r rate 300 50
-$always_exec nitrogen --restore --set-scaled
 
 ###### Power Menu (i3wm) ######
 set $mode_system (l)Lock, (e)Logout, (s)Suspend, (r)Reboot, (CTRL+s)Shutdown
@@ -297,7 +283,7 @@ mode "$mode_system" {
 bindsym $mod+Shift+e mode "$mode_system"
 
 ### Monitor setup (i3wm) #####
-set $mode_display (d)Hdmi, (l)Laptop, (a)DMonitor
+set $mode_display (d)Hdmi, (l)Laptop, (a)Both
 
 mode "$mode_display" {
     bindsym l $execute $bin_path/monitorset.sh -m laptop, mode "default"
@@ -337,9 +323,9 @@ bindsym --release Print $execute $bin_path/maimpick full
 bindsym XF86Calculator		$execute qalculate-gtk
 
 # Audio
-bindsym XF86AudioRaiseVolume $execute $bin_path/volume high
-bindsym XF86AudioLowerVolume $execute $bin_path/volume medium
-bindsym XF86AudioMute        $execute $bin_path/volume muted
+bindsym XF86AudioRaiseVolume $execute $bin_path/volume_control high
+bindsym XF86AudioLowerVolume $execute $bin_path/volume_control medium
+bindsym XF86AudioMute        $execute $bin_path/volume_control muted
 
 # Player Control
 bindsym XF86AudioPlay       $execute mpc toggle
@@ -350,7 +336,7 @@ bindsym XF86AudioPrev       $execute mpc previous
 bindsym XF86AudioMedia		  $execute i3-sensible-terminal -e ncmpcpp
 
 # File Manager
-bindsym XF86Explorer		    $execute i3-sensible-terminal --title 'File Manager' -e $bin_path/lfub
+bindsym XF86Explorer		    $execute i3-sensible-terminal --title 'File Manager' -e lf
 
 #Brightness Control
 bindsym XF86MonBrightnessUp $execute $bin_path/brightness up

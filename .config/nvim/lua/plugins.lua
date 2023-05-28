@@ -1,6 +1,6 @@
 local status, packer = pcall(require, "packer")
 local install_path = vim.fn.stdpath('data')..'/site/pack/packer/start/packer.nvim'
-if (not status) then 
+if (not status) then
   print('Installing packer...')
   vim.fn.system({'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path})
 end
@@ -14,13 +14,6 @@ packer.startup(function(use)
     'svrana/neosolarized.nvim',
     requires = { 'tjdevries/colorbuddy.nvim' }
   }
-
-  -- LSP UIs
-  use({
-    'MunifTanjim/prettier.nvim',
-    "jose-elias-alvarez/null-ls.nvim",
-    "glepnir/lspsaga.nvim",
-  })
 
   -- Installation of LSP/Debuggers/Other
   use({
@@ -80,4 +73,14 @@ packer.startup(function(use)
     'tpope/vim-fugitive',
     'mbbill/undotree',
   })
+
+  -- LSP UIs
+  --[[
+  use({
+    'MunifTanjim/prettier.nvim',
+    "jose-elias-alvarez/null-ls.nvim",
+    "glepnir/lspsaga.nvim",
+  })
+  ]]
+
 end)

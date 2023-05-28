@@ -1,32 +1,37 @@
 [alias]
-    st = status
-    llog = log --graph --name-status --pretty=format:\"%C(red)%h %C(reset)(%cd) %C(green)%an %Creset%s %C(yellow)%d%Creset\" --date=relative
-    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' 
-    hist = log --pretty=format:\"%Cgreen%h %Creset%cd %Cblue[%cn] %Creset%s%C(yellow)%d%C(reset)\" --graph --date=relative --decorate --all
+  st = status
+  llog = log --graph --name-status --pretty=format:\"%C(red)%h %C(reset)(%cd) %C(green)%an %Creset%s %C(yellow)%d%Creset\" --date=relative
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %Cgreen(%cr) -%C(yellow)%d%Creset %s'
+  hist = log --pretty=format:\"%Cgreen%h %Creset%cd %Cblue[%cn] %Creset%s%C(yellow)%d%C(reset)\" --graph --date=relative --decorate --all
+  df = diff --color-words=. --ws-error-highlight=new,old
+  dfs = diff --staged --ws-error-highlight=new,old
 [user]
-    name = Alvaro Oliveira
-    email = 51033564+limaon@users.noreply.github.com
+  name = Alvaro Oliveira
+  email = 51033564+limaon@users.noreply.github.com
 [github]
-    user = limaon
+  user = limaon
 [color]
-    status = auto
-    diff = auto
-    branch = auto
-    interactive = auto
-    grep = auto
-    ui = auto
+  status = auto
+  diff = auto
+  branch = auto
+  interactive = auto
+  grep = auto
+  ui = auto
 [core]
-    editor = nvim
-    excludesfile = ~/.config/git/.gitignore
-    precomposeUnicode = true
-    ignorecase = false
+  editor = nvim
+  excludesfile = ~/.config/git/.gitignore
+  precomposeUnicode = true
+  pager = less -R
+  ignorecase = false
 [init]
-    defaultBranch = main
+  defaultBranch = main
 [help]
-    autocorrect = 1
+  autocorrect = 1
 [log]
-    date = relative
+  date = relative
 [merge]
-    conflictstyle = diff3
+  conflictstyle = diff3
+[rebase]
+  instructionFormat = (%an <%ae>) %s
 [push]
-    default = simple
+  default = simple

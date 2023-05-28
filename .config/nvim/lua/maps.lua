@@ -26,7 +26,7 @@ keymap('n', '<DELETE>', ':bdelete<CR>', opts)
 
 -- Split window
 keymap('n', 'ss', ':split<Return><C-w>w<CR>', opts)
-keymap('n', 'sv', ':vsplit<Return><C-w>w<CR>', opts)
+keymap('n', 'sv', ':vsplit<Return><C-w>w<Return>', opts)
 
 -- Move window
 keymap('', 'sh', '<C-w>h')

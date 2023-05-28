@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 readonly BROWSER=${BROWSER:-xdg-open}
-FONT="TerminessTTF Nerd Font:size=12"
 
 # Definindo opções
 declare -a options=(
@@ -24,7 +23,7 @@ declare -a options=(
 )
 
 # Obtendo seleção do usuário
-choice=$(printf '%s\n' "${options[@]}" | sort -u | dmenu -i -fn "$FONT" -p " WebSearch:")
+choice=$(printf '%s\n' "${options[@]}" | sort -u | dmenu -i -p " WebSearch:")
 
 # Definindo a URL de pesquisa para cada opção
 case "$choice" in
@@ -48,7 +47,7 @@ case "$choice" in
 esac
 
 # Obtendo a pesquisa do usuário
-search=$(echo "<= Type here" | dmenu -i -fn "$FONT" -p "Searching in $choice:")
+search=$(echo "<= Type here" | dmenu -i -p "Searching in $choice:")
 
 # Verificando se o usuário entrou com um valor para a pesquisa
 if [ -n "$search" ]; then

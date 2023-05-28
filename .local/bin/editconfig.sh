@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DEF_EDITOR="nvim"
-FONT="TerminessTTF Nerd Font:size=12"
+FONT="Terminess Nerd Font:size=12"
 
 declare -a options=(
   "bashrc  - $HOME/.bashrc"

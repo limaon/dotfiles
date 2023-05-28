@@ -1,94 +1,23 @@
-# Basic sets
-set previewer ~/.config/lf/lf_kitty_preview
-set cleaner ~/.config/lf/cleaner
-set shell sh
+# vim:ft=sh
+set shell bash
 set shellopts '-eu'
 set ifs "\n"
 set info size:time
+set sortby time
+set reverse
 set dircounts
 set period 1
-set autoquit on
-set ratios 2:3
-set scrolloff 0
+set autoquit true
+set ratios 3:2
+set scrolloff 10
 set drawbox
 set icons
 set ignorecase
 set incfilter
 set incsearch
+set cleaner "~/.config/lf/exec_cleaner"
+set previewer "~/.config/lf/exec_previewer"
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
-set promptfmt "\033[32;1m%u@%h\033[0m:\033[34;1m%d\033[0m"
-$[ $lf_width -le 60 ] && lf -remote "send $id :set nopreview; set ratios 1" || exit 0
-
-# Remove default binds
-map m
-map "'"
-map '"'
-map c
-map e
-map f
-map t
-
-# Basic funcitons
-map mf mkfile
-map md mkdir
-map sn :set sortby natural; set info size
-map cl clear
-map R :reload; recol; cfg_reload
-map <c-c> :redraw; reload
-map <tab> :toggle; down
-map <delete> delete
-map zp set preview!
-map zd set dirfirst!
-
-map z1 :set nopreview; set ratios 1
-map z2 :set nopreview; set ratios 1:2
-map z3 :set ratios 1:2:3; set preview
-
-# Archive Mappins
-map xz zip
-map xt tar
-map xx extract
-
-# Open
-map <enter> open
-
-# Delete files
-map d
-map dd cut
-map dD delete
-map dt trash
-map dc clear_trash
-map dr restore_trash
-map p
-map p paste
-
-map S $clear && $SHELL
-map -x $chmod -x -- $fx
-map +x $chmod u+x -- $fx
-
-# Copy
-map y
-map yy copy
-map yp $printf "%s" "$fx" | xclip -selection clipboard
-map yn $echo -n "$(basename -- "$f")" | xclip -selection clipboard
-map yf $echo "file://$(readlink -f -- "$f")" | xclip -selection clipboard -target "text/uri-list"
-
-# Rename
-map r
-map rn rename-whole-file
-map rb bulk-rename
-
-# Movement dirs
-map gd cd ~/Desktop
-map gD cd ~/Downloads
-map gP cd ~/Pictures
-map gM cd ~/Music
-map gV cd ~/Videos
-map gC cd ~/.config
-map gL cd ~/.local
-map gR cd ~/run/media/
-map gtr cd ~/.local/share/Trash/files
-
 
 # Functions
 cmd cfg_reload source ~/.config/lf/lfrc
@@ -96,6 +25,7 @@ cmd cfg_reload source ~/.config/lf/lfrc
 cmd open &{{
   images=()
   videos=()
+  audio=()
   files=()
   for file in $fx; do
     mime_type=$(file --mime-type -b "$file")
@@ -103,6 +33,8 @@ cmd open &{{
       images+=("$file")
     elif [[ $mime_type == video/* ]]; then
       videos+=("$file")
+    elif [[ $mime_type == audio/* ]]; then
+      audio+=("$file")
     else
       files+=("$file")
     fi
@@ -110,23 +42,37 @@ cmd open &{{
 
   [ ${#images[@]} -gt 0 ] && sxiv "${images[@]}" &
   [ ${#videos[@]} -gt 0 ] && mpv "${videos[@]}" &
+  [ ${#audio[@]} -gt 0 ] && mpc play "${audio[@]}" &
   [ ${#files[@]} -gt 0 ] && xdg-open "${files[@]}" &
 
 }}
 
-cmd on-cd %{{
-	for d in Downloads Screenshots ongoing; do
-		if [[ $(basename -- "$PWD") == "$d" ]]; then
-			lf -remote "send $id set sortby time"
-		fi
-	done
-}}
+cmd on-cd &{{
+  case "$PWD" in
+    ~/Downloads/*)
+      lf -remote "send $id set user_prev_sortby $lf_sortby"
+      lf -remote "send $id set sortby natural"
+      lf -remote "send $id set noreverse"
 
-cmd quickedit ${{
-	case $f in
-		*.mkv|*.mp4|*.jpg|*.png|*.webp) return;;
-		*) $EDITOR $f;;
-	esac
+      lf -remote "send $id echomsg changed sort to natural"
+      ;;
+    *)
+      # restore sorting on directory exit
+      if [[ "$lf_user_prev_sortby" != "" ]]; then
+        lf -remote "send $id set sortby $lf_user_prev_sortby"
+        lf -remote "send $id set reverse"
+
+        lf -remote "send $id echomsg restored sort to $lf_user_prev_sortby"
+        lf -remote "send $id set user_prev_sortby ''"
+      fi
+      ;;
+  esac
+}}
+on-cd
+
+cmd hard-reload &{{
+  [ -d ~/.cache/lf ] && rm -rf ~/.cache/lf
+  lf -remote "send $id reload"
 }}
 
 cmd trash ${{
@@ -147,6 +93,27 @@ cmd clear_trash %gio trash --empty
 
 cmd restore_trash ${{
   gio trash --restore -- "trash:///$(basename -- "$f")"
+}}
+
+cmd yank &{{
+  case ${1} in
+    dir)  dirname "${f}" ;;
+    name) basename "${f}" ;;
+    path) printf "%s" "${f}" ;;
+  esac | xclip -rmlastnl -selection clipboard
+}}
+
+
+cmd paste &{{
+  set -- $(cat ~/.local/share/lf/files)
+  mode="$1"
+  shift
+  case "$mode" in
+    copy) cp -rn -- "$@" .;;
+    move) mv -n -- "$@" .;;
+  esac
+  rm ~/.local/share/lf/files
+  lf -remote "send clear"
 }}
 
 cmd delete ${{
@@ -172,19 +139,24 @@ cmd extract !{{
 	fi
 }}
 
-
 cmd tar ${{
-  dir=${f%/*}
-  dir=${dir##*/}
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf "Archive Name: "
+  read archive_name
   set -f
-  tar -czf "${dir}.tar.gz" $fx
+  tar -czvf "${archive_name}.tar.gz" -C "$(dirname "$f")" $(basename -a $fx)
 }}
 
 cmd zip ${{
-  dir=${f%/*}
-  dir=${dir##*/}
   set -f
-  zip -j "${dir}.zip" $fx
+  printf "File name to zip: "
+  read dir
+  dir_path="$(dirname "$f")/$dir"
+  mkdir -p "$dir_path"
+  cp -r $fx "$dir_path"
+  zip -r "$dir.zip" "$dir"
+  rm -rf "$dir_path"
+  lf -remote "send clear"
 }}
 
 cmd mkfile ${{
@@ -202,20 +174,11 @@ cmd mkdir ${{
 cmd chmod ${{
   printf "Mode Bits: "
   read ans
-
   for file in "$fx"
   do
     chmod $ans $file
   done
-
   lf -remote 'send reload'
-}}
-
-cmd rename-whole-file ${{
-	filename="${f##*/}"
-	filename="$(printf '%q' "$filename")"
-	filename="${filename// /<space>}"
-	lf -remote "send $id push :rename<space>$filename"
 }}
 
 cmd bulk-rename ${{
@@ -241,3 +204,75 @@ cmd bulk-rename ${{
     rm -- "$old" "$new"
     lf -remote "send $id unselect"
 }}
+
+
+# My Bindings
+map m
+map "'"
+map '"'
+map e
+map f
+map t
+map c
+map r
+map w
+
+map mf mkfile
+map md mkdir
+map cl clear
+map R :redraw; reload; recol; cfg_reload
+map r :redraw; reload; clear
+map <c-r> hard-reload
+map zp set preview!
+map zd set dirfirst!
+map sn :set sortby natural; set info size
+
+# Archive Mappins
+map xz zip
+map xt tar
+map xx extract
+
+# Open
+map <enter> open
+
+# Delete files
+map d
+map dd cut
+map dD delete
+map <delete> delete
+map dt trash
+map dc clear_trash
+map dr restore_trash
+
+map p
+map p paste
+
+map -x $chmod -x -- $fx
+map +x $chmod u+x -- $fx
+
+# Copy
+map y
+map yy copy
+map yp yank path
+map yn yank name
+map yd yank dir
+
+# Rename
+map A rename
+map ciw push A<c-u> # new rename
+map I push A<c-a> # at the very beginning
+map i push A<a-b><a-b><a-f> # before extension
+map a push A<a-b> # after extension
+map B bulk-rename
+
+
+# Movement dirs
+map gd cd ~/Desktop
+map gD cd ~/Downloads
+map gP cd ~/Pictures
+map gM cd ~/Music
+map gV cd ~/Videos
+map gC cd ~/.config
+map gL cd ~/.local
+map gR cd /run/media
+map gtr cd ~/.local/share/Trash/files

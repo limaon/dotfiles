@@ -10,7 +10,7 @@ take_screenshot() {
 }
 
 ask_command() {
-	dmenu -i -fn "TerminessTTF Nerd Font" -p 'Screenshot which area?' <<-EOF
+	dmenu -i -p 'Screenshot which area?' <<-EOF
 		Selected area
 		Selected area → clipboard
 		Selected area → gimp
@@ -132,7 +132,7 @@ ask_size_quality() {
 			0x350@5
 			0x0@100
 		EOF
-	} | head -10 | dmenu -i -l 4 -fn "TerminessTTF Nerd Font" -p "Size and quality"
+	} | sort -u | dmenu -i -p "Size and quality"
 }
 
 convert_image() {

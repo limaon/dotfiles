@@ -31,7 +31,7 @@ export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 export GRADLE_USER_HOME="$XDG_DATA_HOME"/gradle
 
 export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+#export GNUPGHOME="$XDG_DATA_HOME/gnupg"
 export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 export DOCKER_CONFIG="$XDG_CONFIG_HOME/docker"
@@ -93,10 +93,19 @@ shopt -s nocaseglob
 shopt -s checkwinsize
 [ -r /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
 source /usr/share/git/completion/git-prompt.sh
+source /usr/share/bash-completion/completions/git
+
+# bind to run lf file manager
+LFCD="$HOME/.config/lf/lfcd.sh"
+if [ -f "$LFCD" ]; then
+    source "$LFCD"
+fi
+bind '"\C-o":"lfcd\C-m"'
 
 # dotfiles in git
 # https://wiki.archlinux.org/index.php/Dotfiles
 alias dot='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+__git_complete dot __git_main
 
 # Colors commands
 alias \
@@ -179,7 +188,6 @@ MAGENTA='\[\e[1;35m\]'
 white='\[\e[0;37m\]'
 WHITE='\[\e[1;37m\]'
 CLEAR="\[\033[0m\]"
-
 
 
 force_color_prompt=yes

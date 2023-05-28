@@ -11,15 +11,8 @@ take_screenshot() {
 
 lock() {
   take_screenshot
+  sleep 0.5
   i3lock -efn -i $PICTURE
-  rm $PICTURE
-}
-
-lock_and_suspend() {
-  take_screenshot
-  dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Suspend" boolean:true
-  i3lock -efn -i $PICTURE
-  rm $PICTURE
 }
 
 dbus-send-command() {
@@ -38,7 +31,8 @@ case "$1" in
     i3-msg exit
     ;;
   suspend)
-    lock_and_suspend
+    dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Suspend" boolean:true
+    lock
     ;;
   hibernate)
     dbus-send-command org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.Hibernate" boolean:true

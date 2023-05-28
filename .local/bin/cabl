@@ -9,6 +9,8 @@
 
 readonly tmp_dir=/tmp/cabl && mkdir -p -- "$tmp_dir"
 readonly BROWSER=${BROWSER:-xdg-open}
+readonly ANKI_MODEL=${ANKI_MODEL:-EnglishCard}
+readonly ANKI_SENTENCE_FIELD=${ANKI_SENTENCE_FIELD:-SentEng}
 
 __strip() {
 	sed 's/^ *//; s/ *$//;'
@@ -37,6 +39,10 @@ __report_err() {
 	return 1
 }
 
+__ankiconnect_request() {
+  curl -fsS '127.0.0.1:8765' -X POST -d "$1"
+}
+
 __anki_store_file() {
 	local -r path=${1:?}
 	local -r name=${2:?}
@@ -51,7 +57,14 @@ __anki_store_file() {
 	}'
 	request=${request/<name>/$name}
 	request=${request/<path>/$path}
-	output=$(curl -fsS localhost:8765 -X POST -d "$request" 2>&1) || __report_err "$output"
+  output=$(__ankiconnect_request "$request" 2>&1) || __report_err "$output"
+}
+
+__escape_json() {
+	local text=$1
+	text=${text//'"'/'&quot;'}
+	text=${text//$'\n'/'<br>'}
+	echo "$text"
 }
 
 __convert_to_opus() {
@@ -61,17 +74,34 @@ __convert_to_opus() {
 		-vbr on -compression_level 10 -application voip "$output"
 }
 
+__find_mecab() {
+	{
+		which mecab --skip-functions --skip-alias
+		find ~/.local/share/Anki2/addons21 -type f -name mecab.lin -o -name mecab
+	} | head -1
+}
+
+__find_mecab_dicrc() {
+  find /usr/lib/mecab/ ~/.local/share/Anki2/addons21 -type f -name dicrc -print -quit
+}
+
 if [[ $locale == ja ]]; then
 	longman() { "$BROWSER" "https://www.ldoceonline.com/search/japanese-english/direct/?q=$*"; }
 	aozora_search() { "$BROWSER" "https://myokoym.net/aozorasearch/search?word=$*"; }
 	forvo() { "$BROWSER" "https://forvo.com/search/$*/"; }
 	weblio_sentences() { "$BROWSER" "https://ejje.weblio.jp/sentence/content/$*"; }
+  wadoku() { "$BROWSER" "https://www.wadoku.de/search/$*"; }
 	captionpop() { "$BROWSER" "https://www.captionpop.com/search?nl=en&tl=ja&filter=target&q=$*"; }
 	weblio() { "$BROWSER" "https://www.weblio.jp/content/$*"; }
 	weblio_synonyms() { "$BROWSER" "https://thesaurus.weblio.jp/content/$*"; }
 	kotobank() { "$BROWSER" "https://kotobank.jp/gs/?q=$*"; }
+  kanjijoho() { "$BROWSER" "https://kanjijoho.com/cat/search.html?search=part&getdata=$*"; }
 	sakuraparis() { "$BROWSER" "https://sakura-paris.org/dict/%E5%BA%83%E8%BE%9E%E8%8B%91/prefix/$*"; }
 	reverso() { "$BROWSER" "https://context.reverso.net/translation/japanese-english/$*"; }
+  tatoeba() { "$BROWSER" "https://tatoeba.org/pt-br/sentences/search?from=jpn&query=$*&to=eng"; }
+  duckduckgo() { "$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=jp-jp"; }
+  duckduckgo_images() { "$BROWSER" "https://duckduckgo.com/?q=$*&iax=images&ia=images&kp=-2&kl=jp-jp"; }
+  google_images() { "$BROWSER" "https://www.google.co.jp/search?q=$*&tbm=isch"; }
 	qolibri() { unset -f qolibri && qolibri "$@"; }
 	pronunciation() {
 		local -r searchterm="$*" format="ogg"
@@ -136,6 +166,13 @@ else
 	macmillandictionary() { "$BROWSER" "https://www.macmillandictionary.com/us/dictionary/american/$*"; }
 	merriam_webster() { "$BROWSER" "https://www.merriam-webster.com/dictionary/$*"; }
 	youglish() { "$BROWSER" "https://youglish.com/pronounce/$*/english/us"; }
+  tatoeba() { "$BROWSER" "https://tatoeba.org/pt-br/sentences/search?from=eng&to=por&query=$*"; }
+  translate() { "$BROWSER" "https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=$*"; }
+  duckduckgo() { "$BROWSER" "https://duckduckgo.com/?q=$*=ffab&ia=web"; }
+  linguee() { "$BROWSER" "https://www.linguee.com.br/portugues-ingles/search?source=auto&query=$*"; }
+  wordreference() { "$BROWSER" "https://www.wordreference.com/enpt/$*"; }
+  google_images() { "$BROWSER" "https://www.whoogle.click/search?q=$*&tbm=isch"; }
+  collinsdictionary() { "$BROWSER" "https://www.collinsdictionary.com/search/?dictCode=english&q=$*"; }
 	pronunciation() {
 		local -r searchterm="$*"
 		[[ -z "$searchterm" ]] && exit
@@ -192,7 +229,7 @@ jisho() {
 
 clip() { cabl clip; }
 
-ankisearch() {
+anki_search() {
 	local -r request='{
 		"action": "guiBrowse",
 		"version": 6,
@@ -200,10 +237,29 @@ ankisearch() {
 			"query": "<query>"
 		}
 	}'
-	local query=${*//\"/\\\"}
-	query=${query//$'\n'/ }
-	curl 'localhost:8765' -X POST -d "${request/<query>/$query}"
+  __ankiconnect_request "${request/<query>/$(__escape_json "$*")}"
 }
+
+make_anki_card() {
+	local request='{
+		"action": "guiAddCards",
+		"version": 6,
+		"params": {
+			"note": {
+				"deckName": "Default",
+				"modelName": "<anki_model>",
+				"fields": {
+					"<sentence_field>": "<sentence>"
+				}
+			}
+		}
+	}'
+	request=${request/<sentence_field>/$ANKI_SENTENCE_FIELD}
+	request=${request/<anki_model>/$ANKI_MODEL}
+	request=${request/<sentence>/$(__escape_json "$1")}
+	output=$(__ankiconnect_request "$request" 2>&1) || __report_err "$output"
+}
+
 sankaku() {
 	"$BROWSER" "https://chan.sankakucomplex.com/post/index?tags=$* order:popular"
 }
@@ -212,16 +268,6 @@ sankaku_solo() {
 }
 nyaa_search() {
 	"$BROWSER" "https://nyaa.iss.ink/?q=$*"
-}
-duckduckgo() {
-	"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=jp-jp"
-}
-duckduckgo_images() {
-	"$BROWSER" "https://duckduckgo.com/?q=$*&iax=images&ia=images&kp=-2&kl=jp-jp"
-}
-google_images() {
-	# "$BROWSER" "https://www.google.co.jp/search?q=$*&tbm=isch"
-  "$BROWSER" "https://www.whoogle.click/search?q=$*&tbm=isch"
 }
 wikipedia() {
 	"$BROWSER" "https://wikiless.org/w/index.php?search=$*&lang=$locale#firstHeading"
@@ -238,23 +284,11 @@ packages() {
 archwiki() {
 	"$BROWSER" "https://wiki.archlinux.org/index.php?search=$*"
 }
-tatoeba() {
-	"$BROWSER" "https://tatoeba.org/pt-br/sentences/search?from=eng&to=por&query=$*"
-}
-collins() {
-	"$BROWSER" "https://www.collinsdictionary.com/conjugation/english/$*"
-}
-linguee() {
-	"$BROWSER" "https://www.linguee.com.br/portugues-ingles/search?source=auto&query=$*"
-}
-wordreference() {
-	"$BROWSER" "https://www.wordreference.com/enpt/$*"
-}
-translate() {
-	"$BROWSER" "https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=$*"
-}
 youtube() {
 	"$BROWSER" "https://www.youtube.com/results?search_query=$*"
+}
+myanimelist() {
+	"$BROWSER" "https://myanimelist.net/search/all?q=$*"
 }
 
 
@@ -288,7 +322,7 @@ if echo "$search_text" | grep -Pq 'boards\.4chan(nel)?\.org'; then
 		tsp curl \
 			--parallel \
 			--parallel-immediate \
-			--parallel-max 50 \
+			--parallel-max 10 \
 			-w '%{url} %{exitcode}\n' \
 			--connect-timeout 10 --max-time 60 \
 			--retry 2 \
@@ -322,7 +356,7 @@ if echo "$search_text" | grep -q "/watch?v=\|invidious\|youtube\.com\|youtu\.be\
 	add_to_impd() { impd add "$*"; }
 fi
 
-echo "$search_text" | grep -q "instagram\.com\|nitter\|bitchute\.com\|worldstar\.com/web/video\|twitter\." &&
+echo "$search_text" | grep -Pq "instagram\.com|nitter|/status/|bitchute\.com|worldstar\.com/web/video|twitter\." &&
 	youtubedl() { tsp yt-dlp --add-metadata -ic "$@"; }
 
 if echo "$search_text" | grep -q "^.*\.[A-Za-z]\+.*"; then
@@ -344,7 +378,7 @@ fi
 
 __ask_action() {
 	declare -F | awk '!/ __.+$/ {gsub("_", " ", $3); print $3}' |
-		dmenu -fn "TerminessTTF Nerd Font" -p "Plumb ${search_text:0:30} to?" -i 
+		dmenu -i -p "Plumb ${search_text:0:30} to?" -i 
 }
 
 __main() {
@@ -358,7 +392,7 @@ __main() {
 	for pid in $(pstree -lpA "$pid" | head -1 | grep --color=never -oP '\(\K\d+(?=\))'); do
 		cd -- "$(readlink -- "/proc/$pid/cwd")" || continue
 		[[ -f "$search_text" ]] && xdg-open "$search_text" && exit
-		[[ -d "$search_text" ]] && "i3-sensible-terminal" "$search_text" && exit
+		[[ -d "$search_text" ]] && "${TERMINAL:-kitty}" -e "${FILE:-lf}" "$search_text" && exit
 	done
 
 	if [[ -n ${func:=$(__ask_action)} ]]; then

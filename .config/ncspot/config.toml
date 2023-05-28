@@ -1,6 +1,6 @@
 # Basic options
 default_keybindings = false
-use_nerdfont = true
+use_nerdfont = false
 notify = true
 gapless = true
 flip_status_indicators=true
@@ -93,7 +93,6 @@ cover_max_scale = 2
 "Ctrl+e" = "move down 1"
 "Ctrl+y" = "move up 1"
 "l" = "move right 1"
-"." = "move playing"
 "q" = "back"
 
 ######################################

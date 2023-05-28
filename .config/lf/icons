@@ -23,17 +23,17 @@
 ln             # LINK
 or             # ORPHAN
 tw      t       # STICKY_OTHER_WRITABLE
-ow             # OTHER_WRITABLE
+ow             # OTHER_WRITABLE
 st      t       # STICKY
-di             # DIR
+di             # DIR
 pi      p       # FIFO
 so      s       # SOCK
 bd      b       # BLK
 cd      c       # CHR
 su      u       # SETUID
 sg      g       # SETGID
-ex             # EXEC
-fi             # FILE
+ex             # EXEC
+fi             # FILE
 
 # file extensions (vim-devicons)
 *.styl          
@@ -63,6 +63,7 @@ fi             # FILE
 *.pyc           
 *.pyo           
 *.pyd           
+*.ipynb         
 *.coffee        
 *.mustache      
 *.hbs           
@@ -87,7 +88,7 @@ fi             # FILE
 *.cc            
 *.cp            
 *.c             
-*.cs            
+*.cs            󰌛
 *.h             
 *.hh            
 *.hpp           
@@ -97,6 +98,7 @@ fi             # FILE
 *.nix           
 *.lua           
 *.java          
+*.class         
 *.sh            
 *.fish          
 *.bash          
@@ -148,14 +150,14 @@ fi             # FILE
 *.tsx           
 *.jl            
 *.pp            
-*.vue           ﵂
+*.vue           󰡄
 *.elm           
 *.swift         
 *.xcplayground  
 *.tex           ﭨ
-*.r             ﳒ
-*.rproj         鉶
-*.sol           ﲹ
+*.r             󰟔
+*.rproj         󰗆
+*.sol           󰞻
 *.pem           
 
 # file names (vim-devicons) (case-insensitive not supported in lf)
@@ -193,7 +195,8 @@ fi             # FILE
 *gemfile                
 *makefile               
 *cmakelists.txt         
-*robots.txt             ﮧ
+*robots.txt             
+*.txt                   
 
 # file names (case-sensitive adaptations)
 *Gruntfile.coffee       
@@ -304,27 +307,27 @@ Vagrantfile             
 *.svgz  
 *.mng   
 *.pcx   
-*.mov   
-*.mpg   
+*.mov   
+*.mpg   
 *.mpeg  
 *.m2v   
-*.mkv   
-*.webm  
+*.mkv   
+*.webm  
 *.ogm   
-*.mp4   
+*.mp4   
 *.m4v   
 *.mp4v  
 *.vob   
 *.qt    
 *.nuv   
-*.wmv   
+*.wmv   
 *.asf   
 *.rm    
 *.rmvb  
 *.flc   
-*.avi   
+*.avi   
 *.fli   
-*.flv   
+*.flv   
 *.gl    
 *.dl    
 *.xcf   
@@ -336,22 +339,40 @@ Vagrantfile             
 *.ogx   
 
 # audio formats (extensions from dircolors defaults)
-*.aac   
-*.au    
-*.flac  
-*.m4a   
-*.mid   
-*.midi  
-*.mka   
-*.mp3   
-*.mpc   
-*.ogg   
-*.ra    
-*.wav   
-*.oga   
-*.opus  
-*.spx   
-*.xspf  
+*.aac   
+*.au    
+*.flac  
+*.m4a   
+*.mid   
+*.midi  
+*.mka   
+*.mp3   
+*.mpc   
+*.ogg   
+*.ra    
+*.wav   
+*.oga   
+*.opus  
+*.spx   
+*.xspf  
 
 # other formats
-*.pdf   
+*.pdf   
+*.z64	  
+*.v64  	
+*.n64	  
+*.gba	  
+*.nes	  
+*.gdi	  
+*.iso   󰻂
+*.img   󰻂
+*.torrent 
+*.part  
+*.1ℹ    
+*.nfo   
+*.info  
+*.log   󰌱
+*.csv   󰧷
+*.xls   󰈛
+*.doc   󰈬
+*.docx  󰈬

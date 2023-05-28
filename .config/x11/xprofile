@@ -1,3 +1,16 @@
+#!/bin/sh
+
+# Fcitx5
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export QT_STYLE_OVERRIDE=kvantum
+export GDK_BACKEND=x11
+export XDG_SESSION_TYPE=x11
+
+# Xresources
+[[ -f ~/.config/x11/Xresources ]] && xrdb -load "${HOME}/.config/x11/Xresources"
+
 # Run localectl set-x11-keymap us '' '' caps:escape
 #Search for: Make xinput settings permanent after boot
 xinput set-prop "06CB0301:00 06CB:CD41 Touchpad" "libinput Natural Scrolling Enabled" 1 &
