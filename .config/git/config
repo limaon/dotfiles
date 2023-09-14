@@ -1,10 +1,76 @@
 [alias]
+  aliases = !"git config --get-regexp '^alias\\.' | awk '/^alias\\./{ name = substr($1,7); print \"\\033[31;1m\" name, \"\\033[33m\" \"=\", \"\\033[;3;32m\" substr($0, index($0,$2)) \"\\033[m\" } $0!~/^alias\\./{print \"\\033[3;32m\" $0 \"\\033[m\" }'"
+  aliases- = !"f() { git aliases | tac; }; f"
   st = status
-  llog = log --graph --name-status --pretty=format:\"%C(red)%h %C(reset)(%cd) %C(green)%an %Creset%s %C(yellow)%d%Creset\" --date=relative
-  lg = log --color --graph --pretty=format:'%Cred%h%Creset %C(bold blue)<%an>%Creset %Cgreen(%cr) -%C(yellow)%d%Creset %s'
-  hist = log --pretty=format:\"%Cgreen%h %Creset%cd %Cblue[%cn] %Creset%s%C(yellow)%d%C(reset)\" --graph --date=relative --decorate --all
   df = diff --color-words=. --ws-error-highlight=new,old
   dfs = diff --staged --ws-error-highlight=new,old
+  branches = branch -a
+  tags = tag -n1 --list
+  stashes = stash list
+
+  # log aliases
+  lg = log --oneline --graph --decorate
+  lp = log --patch
+  lo = log --oneline
+  l1 = lo
+  lor = log --oneline --reverse
+  l1r = lor
+  ll = log-list
+  lll = log-list-long
+  llf = log-list --follow --
+  lfp = log --first-parent  # useful for branch that only accepts pull requests
+  lto = log --topo-order  # descendant commits are shown before their parents
+  lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
+
+  ### log-* aliases
+  log-refs = log --all --graph --decorate --oneline --simplify-by-decoration --no-merges
+  log-timeline = log --format='%h %an %ar - %s'
+  log-local = log --oneline origin..HEAD
+  log-fetched = log --oneline HEAD..origin/main
+
+  # Show log list with our preferred information, a.k.a. `ll`
+  log-list = log --graph --topo-order --date=short --abbrev-commit --decorate --all --boundary --pretty=format:'%x1b[1m%Cgreen%ad %C(red)%h%Creset -%x1b[1m%C(yellow)%d%Creset %s %x1b[1m%C(blue)[%cn] %C(magenta)%G?%Creset'
+
+  # Show log  list with our preferred information with long formats, a.k.a. `lll`
+  log-list-long = log --graph --topo-order --date=iso8601-strict --no-abbrev-commit --decorate --all --boundary --pretty=format:'%x1b[1m%C(green)%ad %Cred%h%Creset -%x1b[1m%C(yellow)%d%Creset %s %x1b[1m%Cblue[%cn <%ce>] %C(magenta)%G?%Creset'
+
+  # Show log for my own commits by my own user email
+  log-my = !git log --author $(git config user.email)
+
+  # Show log as a graph
+  log-graph = log --graph --all --oneline --decorate
+
+  # Show the date of the first (a.k.a. earliest) commit, in strict ISO 8601 format
+  log-date-first = !"git log --date-order --format=%cI | tail -1"
+
+  # Show the date of the last (a.k.a. latest) commit, in strict ISO 8601 format
+  log-date-last = log -1 --date-order --format=%cI
+
+  # Show log with the recent hour, day, week, month, year
+  log-1-hour  = log --since=1-hour-ago
+  log-1-day   = log --since=1-day-ago
+  log-1-week  = log --since=1-week-ago
+  log-1-month = log --since=1-month-ago
+  log-1-year  = log --since=1-year-ago
+
+  # Show log with my own recent hour, day, week, month, year
+  log-my-hour  = !git log --author $(git config user.email) --since=1-hour-ago
+  log-my-day   = !git log --author $(git config user.email) --since=1-day-ago
+  log-my-week  = !git log --author $(git config user.email) --since=1-week-ago
+  log-my-month = !git log --author $(git config user.email) --since=1-month-ago
+  log-my-year  = !git log --author $(git config user.email) --since=1-year-ago
+
+  ### ls-* aliases
+  ls = ls-files
+  lsd = ls-files --debug
+  lsf = ls-files --full-name
+  lso = ls-files --others --exclude-standard
+  lsio = ls-files --ignored --others --exclude-standard
+  lst = ls-tree --name-only HEAD
+  lsft = ls-tree --full-tree --name-only HEAD
+  lsftr = ls-tree --full-tree --name-only -r HEAD
+  lsT = lsftr
+
 [user]
   name = Alvaro Oliveira
   email = 51033564+limaon@users.noreply.github.com
