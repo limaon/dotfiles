@@ -1,52 +1,59 @@
+! Common
+#define S_yellow        #b58900
+#define S_orange        #cb4b16
+#define S_red           #dc322f
+#define S_magenta       #d33682
+#define S_violet        #6c71c4
+#define S_blue          #268bd2
+#define S_cyan          #2aa198
+#define S_green         #859900
+
+! Solarized Dark
+#define S_base03        #002b36
+#define S_base02        #073642
+#define S_base01        #586e75
+#define S_base00        #657b83
+#define S_base0         #839496
+#define S_base1         #93a1a1
+#define S_base2         #eee8d5
+#define S_base3         #fdf6e3
+
 *.font: Terminess Nerd Font:size=10:antialias=true:autohint=true;
 *.alpha: 0.80
 
-!! Transparency (0-1):
+!! For st terminal
 st.alpha: 0.95
 st.alphaOffset: 0.8
-
-!! Set a default font and font size as below:
 st.font: Hack Nerd Font-10;
 
-! st.termname: st-256color
-! st.borderpx: 2
+! For nsxiv
+*bar.background:          S_base1
+*bar.foreground:          S_base03
 
-! Solarized Dark
-*.background: #002b36
-*.foreground: #839496
-*.cursorColor: #839496
+*background:              S_base03
+*foreground:              S_base0
+*fading:                  40
+*fadeColor:               S_base03
+*cursorColor:             S_base1
+*pointerColorBackground:  S_base01
+*pointerColorForeground:  S_base1
 
-*.fadeColor: #002b36
-*.pointerColorBackground: #586e75
-*.pointerColorForeground: #93a1a1
-
-*.color0: #073642
-*.color8: #002b36
-
-*.color1: #dc322f
-*.color9: #cb4b16
-
-*.color2: #859900
-!*.color10: #586e75
-*.color10: #859900
-
-*.color3: #b58900
-*.color11: #657b83
-
-*.color4: #268bd2
-!*.color12: #839496
-*.color12: #268bd2
-
-*.color5: #d33682
-!*.color13: #6c71c4
-*.color13: #d33682
-
-*.color6: #2aa198
-!*.color14: #93a1a1
-*.color14: #2aa198
-
-*.color7: #eee8d5
-*.color15: #fdf6e3
+*color0:                  S_base02
+*color1:                  S_red
+*color2:                  S_green
+*color3:                  S_yellow
+*color4:                  S_blue
+*color5:                  S_magenta
+*color6:                  S_cyan
+*color7:                  S_base2
+*color9:                  S_orange
+*color8:                  S_base03
+*color10:                 S_base01
+*color11:                 S_base00
+*color12:                 S_base0
+*color13:                 S_violet
+*color14:                 S_base1
+*color15:                 S_base3
 
 !! Applications without fontconfig support
 Xft.antialias:	1
