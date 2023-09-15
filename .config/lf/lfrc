@@ -1,50 +1,66 @@
 # vim:ft=sh
-set shell bash
+set shell "bash"
 set shellopts '-eu'
 set ifs "\n"
 set info size:time
 set sortby time
-set reverse
+set reverse!
 set dircounts
 set period 1
 set autoquit true
 set ratios 3:2
-set scrolloff 10
+set scrolloff 5
 set drawbox
 set icons
 set ignorecase
 set incfilter
 set incsearch
+set tabstop 2
+set wrapscroll
+set truncatechar "…"
 set cleaner "~/.config/lf/exec_cleaner"
 set previewer "~/.config/lf/exec_previewer"
 set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+set timefmt "02/01/2006 15:04:05 "
+set infotimefmtnew '02/01 15:04'
+set infotimefmtold '02/01/06'
+set errorfmt "\033[1;31m"
+set numberfmt "\033[38;2;75;87;116m"
+set ruler 'df:acc:progress:selection:filter:ind'
+set cursorpreviewfmt "\033[7m"
 
 # Functions
 cmd cfg_reload source ~/.config/lf/lfrc
 
-cmd open &{{
-  images=()
-  videos=()
-  audio=()
-  files=()
-  for file in $fx; do
-    mime_type=$(file --mime-type -b "$file")
-    if [[ $mime_type == image/* ]]; then
-      images+=("$file")
-    elif [[ $mime_type == video/* ]]; then
-      videos+=("$file")
-    elif [[ $mime_type == audio/* ]]; then
-      audio+=("$file")
-    else
-      files+=("$file")
-    fi
-  done
+cmd open ${{
+  case "${f##*.}" in
+    kdenlive) setsid -f kdenlive "$f" >/dev/null 2>&1 ; exit ;;
+  esac
 
-  [ ${#images[@]} -gt 0 ] && sxiv "${images[@]}" &
-  [ ${#videos[@]} -gt 0 ] && mpv "${videos[@]}" &
-  [ ${#audio[@]} -gt 0 ] && mpc play "${audio[@]}" &
-  [ ${#files[@]} -gt 0 ] && xdg-open "${files[@]}" &
-
+  case $({ [ -L "$f" ] && f="$(readlink -f "$f")" ;} ; file --mime-type -b "$f") in
+    image/vnd.djvu) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    video/*) setsid -f mpv "$f" >/dev/null 2>&1 ;;
+    audio/*) setsid -f mpv --player-operation-mode=pseudo-gui "$f" ;;
+    image/x-xcf) setsid -f gimp "$f" ;;
+    image/*) imgs="$(echo "$fx" | tr "\n" "'" | sed "s/'/' '/g" | sed "s/^/'/g" | sed "s/' '$/'/g")" ; eval "setsid -f nsxiv -a $imgs >/dev/null 2>&1" ;;
+    application/octet-stream) setsid -f gpg -dq "$f" ;;
+    text/*) echo "$fx" | tr "\n" '"' | sed 's/"/" "/g' | sed 's/^/"/g' | sed 's/" "$/"/g' | xargs $EDITOR ;; text/*|application/json) echo "$fx" | tr "\n" '|' | sed -e 's/|$/"/g' -e 's/|/|-c "tabe /g' -e 's/|-c/" -c/g' -e 's/^/"/' | xargs $EDITOR ;;
+    #application/pdf) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    application/pdf) echo "$fx" | while read -r l ; do setsid -f xdg-open "$l" ; done ;;
+    application/epub+zip) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    application/x-mobipocket-ebook) setsid -f ebook-viewer "$f" > /dev/null 2>&1 ;;
+    inode/symlink) setsid -f xdg-open "$(readlink "$f")" ;;
+    #application/zip) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/zip) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/x-7z-compressed) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/x-rar) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/gzip) setsid -f xournalpp "$f" > /dev/null 2>&1 ;;
+    application/vnd.oasis.opendocument.spreadsheet) setsid -f libreoffice "$f" ;;
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document) setsid -f libreoffice "$f" ;;
+    inode/x-empty) $EDITOR "$f" ;;
+    *) for f in "$fx" ; do setsid -f xdg-open "$f" >/dev/null 2>&1 ; done ;;
+    *) setsid -f xdg-open "$f" >/dev/null 2>&1 ;;
+  esac
 }}
 
 cmd on-cd &{{
@@ -103,40 +119,55 @@ cmd yank &{{
   esac | xclip -rmlastnl -selection clipboard
 }}
 
-
 cmd paste &{{
   set -- $(cat ~/.local/share/lf/files)
   mode="$1"
   shift
   case "$mode" in
-    copy) cp -rn -- "$@" .;;
+    copy)
+      rsync -av --ignore-existing --progress -- "$@" . |
+      stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+      while IFS= read -r line; do
+        lf -remote "send $id echo $line"
+      done
+      ;;
     move) mv -n -- "$@" .;;
   esac
   rm ~/.local/share/lf/files
   lf -remote "send clear"
 }}
 
+cmd edit ${{
+  case $(file --mime-type -b "$f") in
+    text/*) setsid -f st -e $EDITOR "$fx" > /dev/null 2>&1 ;;
+    application/pdf) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    application/gzip) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    application/epub+zip) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    image/*) setsid -f gimp "$f" > /dev/null 2>&1 ;;
+  esac
+}}
+
 cmd delete ${{
-	clear; tput cup $(($(tput lines)/3)); tput bold
-	set -f
-	printf "%s\n" "$fx"
-	printf "Delete?[y/N]"
-	read ans
-	[ $ans = "y" ] && rm -rf -- $fx
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  printf "%s\n" "$fx"
+  printf "Delete?[y/N]"
+  read ans
+  [ $ans = "y" ] && rm -rf -- $fx
 }}
 
 cmd extract !{{
-	if [[ $(file -b --mime-type -- "$f") == application/* ]]; then
-		clear
-		set -f
-		tmp_file=$(mktemp -- /tmp/aunpack.XXXXXXXXXX)
-		aunpack -D --save-outdir="$tmp_file" -- "$f"
-		out_dir=$(cat -- "$tmp_file")
-		rm -- "$tmp_file"
-		[[ -d $out_dir ]] && find "$out_dir" -type f -exec chmod -x -- {} \;
-	else
-		echo "Not an archive."
-	fi
+  if [[ $(file -b --mime-type -- "$f") == application/* ]]; then
+    clear
+    set -f
+    tmp_file=$(mktemp -- /tmp/aunpack.XXXXXXXXXX)
+    aunpack -D --save-outdir="$tmp_file" -- "$f"
+    out_dir=$(cat -- "$tmp_file")
+    rm -- "$tmp_file"
+  [[ -d $out_dir ]] && find "$out_dir" -type f -exec chmod -x -- {} \;
+  else
+    echo "Not an archive."
+  fi
 }}
 
 cmd tar ${{
@@ -147,31 +178,31 @@ cmd tar ${{
   tar -czvf "${archive_name}.tar.gz" -C "$(dirname "$f")" $(basename -a $fx)
 }}
 
-cmd zip ${{
-  set -f
-  printf "File name to zip: "
-  read dir
-  dir_path="$(dirname "$f")/$dir"
-  mkdir -p "$dir_path"
-  cp -r $fx "$dir_path"
-  zip -r "$dir.zip" "$dir"
-  rm -rf "$dir_path"
-  lf -remote "send clear"
+cmd zip-files ${{
+  printf "Enter zip archive name: "
+  read name
+  unset files
+  echo "$fx" | while read -r l ; do { file="$(echo "$l" | rev | cut -d '/' -f 1 | rev)" ; zip -r "$name" "$file" ;} ; done
+  clear
 }}
 
-cmd mkfile ${{
-  printf "File Name: "
-  read ans
-  $EDITOR $ans
+cmd touch-file ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf "File name: "
+  read name
+  touch "$name"
+  clear
 }}
 
 cmd mkdir ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
   printf "Directory Name: "
   read ans
   mkdir $ans
 }}
 
 cmd chmod ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
   printf "Mode Bits: "
   read ans
   for file in "$fx"
@@ -181,59 +212,79 @@ cmd chmod ${{
   lf -remote 'send reload'
 }}
 
-cmd bulk-rename ${{
-    old="$(mktemp)"
-    new="$(mktemp)"
-    if [ -n "$fs" ]; then
-        fs="$(basename -a $fs)"
-    else
-        fs="$(ls)"
-    fi
-    printf '%s\n' "$fs" >"$old"
-    printf '%s\n' "$fs" >"$new"
-    $EDITOR "$new"
-    [ "$(wc -l < "$new")" -ne "$(wc -l < "$old")" ] && exit
-    paste "$old" "$new" | while IFS= read -r names; do
-        src="$(printf '%s' "$names" | cut -f1)"
-        dst="$(printf '%s' "$names" | cut -f2)"
-        if [ "$src" = "$dst" ] || [ -e "$dst" ]; then
-            continue
-        fi
-        mv -- "$src" "$dst"
-    done
-    rm -- "$old" "$new"
-    lf -remote "send $id unselect"
+cmd file-type ${{
+  file -i "$f" ; read a
+  clear
 }}
 
+cmd bulk-rename ${{
+  old="$(mktemp)"
+  new="$(mktemp)"
+  if [ -n "$fs" ]; then
+    fs="$(basename -a $fs)"
+  else
+    fs="$(ls)"
+  fi
+  printf '%s\n' "$fs" >"$old"
+  printf '%s\n' "$fs" >"$new"
+  $EDITOR "$new"
+  [ "$(wc -l < "$new")" -ne "$(wc -l < "$old")" ] && exit
+  paste "$old" "$new" | while IFS= read -r names; do
+  src="$(printf '%s' "$names" | cut -f1)"
+  dst="$(printf '%s' "$names" | cut -f2)"
+  if [ "$src" = "$dst" ] || [ -e "$dst" ]; then
+    continue
+  fi
+  mv -- "$src" "$dst"
+  done
+  rm -- "$old" "$new"
+  lf -remote "send $id unselect"
+}}
 
-# My Bindings
+cmd stop ${{
+  kill -TSTP $(ps -p $$ -o 'ppid=')
+}}
+
+cmd setbg "$1"
+
+# Key maps
+#---------
+
 map m
 map "'"
 map '"'
-map e
-map f
 map t
 map c
 map r
 map w
+map o
 
-map mf mkfile
+# Search
+map f
+map ff find
+map fF find-back
+map -  search
+map _  search-back
+
+#General maps
+map Km maps  # List normal mode mappings
+map Kc cmaps  # List command mode mappings
+map mf touch-file
 map md mkdir
-map cl clear
 map R :redraw; reload; recol; cfg_reload
-map r :redraw; reload; clear
+map r :redraw; reload; clear;
 map <c-r> hard-reload
 map zp set preview!
 map zd set dirfirst!
-map sn :set sortby natural; set info size
+map sn :set sortby natural; set reverse!; set info size
+# map V glob-select *
+# map U glob-unselect *
+map edit
 
 # Archive Mappins
-map xz zip
+map xz zip-files
 map xt tar
 map xx extract
-
-# Open
-map <enter> open
 
 # Delete files
 map d
@@ -256,6 +307,7 @@ map yy copy
 map yp yank path
 map yn yank name
 map yd yank dir
+map Y file-type
 
 # Rename
 map A rename
@@ -265,6 +317,10 @@ map i push A<a-b><a-b><a-f> # before extension
 map a push A<a-b> # after extension
 map B bulk-rename
 
+# Some movements
+map { half-up
+map } half-down
+map <enter> shell
 
 # Movement dirs
 map gd cd ~/Desktop
