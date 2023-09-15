@@ -1,0 +1,37 @@
+set default-fg "#93a1a1"      # Base0 (Base02)
+set default-bg "#002b36"      # Base03
+
+set completion-bg "#073642"   # Base02
+set completion-fg "#93a1a1"   # Base0 (Base02)
+set completion-highlight-bg "#586e75"   # Base01
+set completion-highlight-fg "#93a1a1"   # Base0 (Base02)
+set completion-group-bg "#073642"   # Base02
+set completion-group-fg "#268bd2"   # Blue
+
+set statusbar-fg "#93a1a1"    # Base0 (Base02)
+set statusbar-bg "#073642"    # Base02
+
+set notification-bg "#073642"    # Base02
+set notification-fg "#93a1a1"    # Base0 (Base02)
+set notification-error-bg "#073642"    # Base02
+set notification-error-fg "#dc322f"    # Red
+set notification-warning-bg "#073642"  # Base02
+set notification-warning-fg "#b58900"  # Yellow
+
+set inputbar-fg "#93a1a1"     # Base0 (Base02)
+set inputbar-bg "#073642"     # Base02
+
+set recolor-lightcolor "#002b36"     # Base03
+set recolor-darkcolor "#93a1a1"      # Base0 (Base02)
+
+set index-fg "#93a1a1"        # Base0 (Base02)
+set index-bg "#002b36"        # Base03
+set index-active-fg "#93a1a1"     # Base0 (Base02)
+set index-active-bg "#073642"     # Base02
+
+set render-loading-bg "#002b36"    # Base03
+set render-loading-fg "#93a1a1"    # Base0 (Base02)
+
+set highlight-color "#586e75"      # Base01
+set highlight-fg "#d33682"         # Magenta
+set highlight-active-color "#d33682"   # Magenta
