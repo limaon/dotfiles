@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# This script sends a notification about the battery status (charging or discharging) along with the current battery level.
+
+# Export necessary environment variables
+export XAUTHORITY=/home/lima/.Xauthority
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+# Function to get the battery level
+get_battery_level() {
+  acpi -b | grep "Battery 0" | grep -P -o '[0-9]+(?=%)'
+}
+
+# Function to send notification
+send_notification() {
+  local status=$1
+  local icon=$2
+  local battery_level=$(get_battery_level)
+
+  if [ -z "$battery_level" ]; then
+    notify-send "Battery Status" "Unable to retrieve battery level." -u critical -i "dialog-warning" -t 5000 -r 9991
+  else
+    notify-send "$status" "${battery_level}% of battery remaining." -u low -i "$icon" -t 5000 -r 9991
+  fi
+}
+
+# Check the input argument and send the appropriate notification
+if [ "$1" -eq 1 ]; then
+  send_notification "Charging" "battery-good-charging"
+elif [ "$1" -eq 0 ]; then
+  send_notification "Discharging" "battery-good"
+else
+  echo "Usage: $0 [1|0] (1 for charging, 0 for discharging)"
+  exit 1
+fi
