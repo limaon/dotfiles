@@ -5,6 +5,7 @@ Comment=Browse the filesystem with the file manager
 Terminal=false
 GenericName=File Manager
 Icon=system-file-manager
+# Exec=i3-sensible-terminal --title lf -e lf %f
 Exec=i3-sensible-terminal --title lf -e lf %f
 Categories=ConsoleOnly;System;FileTools;FileManager
 MimeType=inode/directory;
