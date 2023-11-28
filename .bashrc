@@ -146,16 +146,17 @@ remorphans() {
   fi
 }
 
-lfcd () {
-  tmp="$(mktemp)"
+lf() {
+  \umask 077
+  tmp="$(command mktemp)"
   command lf -last-dir-path="$tmp" "$@"
   if [ -f "$tmp" ]; then
-    dir="$(cat "$tmp")"
-    rm -f "$tmp"
-    if [ -d "$dir" ]; then
-      if [ "$dir" != "$(pwd)" ]; then
-        cd "$dir"
-      fi
-    fi
+    dir="$(command cat "$tmp")"
+    command rm -f "$tmp"
+  else
+    \return 1
+  fi
+  if [ -d "$dir" ] && [ "$dir" != "$(pwd)" ]; then
+    \cd "$dir" || \return 1
   fi
 }

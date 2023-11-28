@@ -45,7 +45,6 @@ alias \
 
 # Other alias
 alias \
-  lf="lfcd" \
   update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg" \
   genpasswd="openssl rand -base64 21" \
   trim="sudo fstrim -v / && sudo fstrim -v /home" \
