@@ -31,7 +31,7 @@ alias \
 alias \
   yt="yt-dlp --embed-metadata --embed-thumbnail -i -o '~/Videos/%(title)s.%(ext)s' -f mp4 --sponsorblock-remove all " \
   ytautosub="yt --write-sub --sub-lang en --convert-subs vtt " \
-  yta="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' " \
+  ytaudio="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' --audio-format opus" \
   mp3dl="yta --audio-quality 1 --audio-format mp3" \
   ytt="yt-dlp --skip-download --write-thumbnail -o '~/Pictures/%(title)s.%(ext)s'" \
 
