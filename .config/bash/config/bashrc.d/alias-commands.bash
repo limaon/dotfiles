@@ -1,0 +1,164 @@
+###
+### Command Aliases
+###
+########################
+
+
+
+# Use $XINITRC variable if file exists.
+[ -f "$XINITRC" ] && alias startx="startx $XINITRC"
+
+
+## Defaults
+alias du='du -d1 -h'
+alias info='info --vi-keys'
+alias less='less --IGNORE-CASE --tabs=4 --status-column --LONG-PROMPT --line-numbers --RAW-CONTROL-CHARS'
+alias mkdir='mkdir -p -v'
+alias mount='mount | column -t'
+alias wget='wget -c'
+alias ssh="env TERM=xterm-256color ssh"
+alias su='su -l'
+alias tmux="tmux -2 -u"
+alias ta="tmux -2 -u attach"
+
+
+
+# Confirm before overwriting something
+alias cp='cp -iv'
+alias ln='ln -i'
+alias mv='mv -iv'
+alias rm='rm -vI'
+alias rsync='rsync -vrPlu'
+alias pstree='pstree -npTC age'
+
+
+
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias diff='diff --color=auto'
+alias grep='grep --color=auto -d skip --binary-file=without-match'
+alias ggrep="grep --exclude-dir=.git"
+alias egrep='egrep --color=auto --binary-file=without-match'
+alias fgrep='fgrep --color=auto --binary-file=without-match'
+alias rgrep='rgrep --color=auto --binary-file=without-match'
+alias rmpyc='find . -name "*.pyc" -exec rm -f {} \;'
+alias ping='ping -c 5'
+alias ip="ip -color=auto"
+
+
+
+## Geek aliase
+alias fuck='sudo $(history -p \!\!)' # Redo last command as root
+alias fake="cat /dev/urandom | hexdump -C | grep 'ca fe'"
+
+
+## Youtube
+alias yt="yt-dlp --embed-metadata --embed-thumbnail -i -o '~/Videos/%(title)s.%(ext)s' -f mp4 --sponsorblock-remove all"
+alias ytautosub="yt --write-sub --sub-lang en --convert-subs vtt "
+alias ytaudio="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' --audio-format opus"
+alias mp3dl="yta --audio-quality 1 --audio-format mp3"
+alias ytt="yt-dlp --skip-download --write-thumbnail -o '~/Pictures/%(title)s.%(ext)s'"
+
+
+#Display ISO version and distribution information in short
+alias version="sed -n 1p /etc/os-release && sed -n 11p /etc/os-release && sed -n 12p /etc/os-release"
+
+
+# Journal
+alias journal="journalctl --since '3 day ago'"
+alias errors="journalctl -p err..alert -b -e"
+
+
+# Other alias
+alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias genpasswd="openssl rand -base64 21"
+alias trim="sudo fstrim -v / && sudo fstrim -v /home"
+
+
+# Applications
+alias clock="ncmpcpp -s clock"
+alias visualizer="ncmpcpp -s visualizer"
+alias nf="clear && neofetch"
+
+
+# dotfiles in git
+# https://wiki.archlinux.org/index.php/Dotfiles
+alias dot='git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/ --work-tree=$HOME'
+
+
+# Pacman / System
+alias lsp="pacman -Qett --color=always | less"
+alias trimlogs='sudo journalctl --vacuum-size=150M'
+alias pacclean="remorphans && sudo pacman -Sc && trimlogs"
+alias whathaveidone="tail -500 /var/log/pacman.log | grep -i 'installed\|removed\|graded' --color=never"
+alias unlock="sudo rm /var/lib/pacman/db.lck"
+alias autoremove="sudo pacman -Rns"
+alias parsua="paru -Sua"
+alias aurlist="pacman -Qm"
+alias refl="sudo reflector --verbose --country Brazil --latest 10 --sort rate --save /etc/pacman.d/mirrorlist"
+# alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
+
+
+## ls defaults
+if command -v gls >/dev/null 2>&1; then # Gnu ls (gls via: brew install coreutils)
+    alias  l='gls --color=always --group-directories-first --classify -l'
+    alias ll='gls --color=always --group-directories-first --classify -al'
+    alias ls='gls --color=always --group-directories-first --classify'
+    alias la='gls --color=always --group-directories-first --classify -a'
+
+    alias  l.='gls --color=always --group-directories-first --classify -l -d .*'
+    alias la.='gls --color=always --group-directories-first --classify -d .*'
+
+    # sort by time
+    alias  lt='gls --color=always --classify -lt'
+    alias llt='gls --color=always --classify -alt'
+    alias lst='gls --color=always --classify -t'
+    alias lat='gls --color=always --classify -at'
+
+    alias  lt.='gls --color=always --classify -lt -d .*'
+    alias lat.='gls --color=always --classify -t -d .*'
+
+    alias lsg='gls --color=always --group-directories-first --classify -al | grep'
+
+elif [ "$(uname)" == "Linux" ]; then # Gnu ls (Linux)
+
+    alias ls="ls --color=always --group-directories-first --time-style=+'%d.%m.%Y %H:%M' --classify"
+    alias ll='ls --color=always --group-directories-first --classify -lvh'
+    alias la='ls --color=always --group-directories-first --ignore=.. --ignore=. --classify -lvha'
+
+    alias ls.='ls --color=always --group-directories-first --classify -l -d .*'
+    alias la.='ls --color=always --group-directories-first --classify -d .*'
+
+    # sort by time
+    alias  lt='ls --color=always --classify -lt'
+    alias llt='ls --color=always --classify -alt'
+    alias lst='ls --color=always --classify -t'
+    alias lat='ls --color=always --classify -at'
+
+    alias  lt.='ls --color=always --classify -lt -d .*'
+    alias lat.='ls --color=always --classify -t -d .*'
+
+    alias llg='ls --color=always --group-directories-first --classify -al | grep'
+
+else # Posix ls (OSX/FreeBSD)
+
+    alias  l='ls -oFl'
+    alias ll='ls -oFal'
+    alias ls='ls -F'
+    alias la='ls -Fa'
+
+    alias  l.='ls -oFl -d .*'
+    alias la.='ls -F -d .*'
+
+    # sort by time
+    alias  lt='ls -olFt'
+    alias lat='ls -aFt'
+    alias llt='ls -laFt'
+    alias lst='ls -Ft'
+
+    alias  lt.='ls -oFlt -d .*'
+    alias lat.='ls -Ft -d .*'
+
+    alias llg='ls -oFal | grep'
+
+fi
