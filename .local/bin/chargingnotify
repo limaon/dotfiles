@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
-# This script sends a notification about the battery status (charging or discharging) along with the current battery level.
+# This script sends a notification about the battery status (charging or discharging) 
+# along with the current battery level.
+
+# Create a file "90-battery-notify.rules" on "/etc/udev/rules.d/"
+# and put thesse lines:
+# ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", ENV{DISPLAY}=":0", ENV{XAUTHORITY}="/home/lima/.Xauthority", RUN+="/usr/bin/su {PUT_THE_DEFAULT_USER} -c '{PATH_TO_SCRIPT}/chargingnotify 1'"
+# ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", ENV{DISPLAY}=":0", ENV{XAUTHORITY}="/home/lima/.Xauthority", RUN+="/usr/bin/su {PUT_THE_DEFAULT_USER} -c '{PATH_TO_SCRIPT}/chargingnotify 0'"
+# and run "sudo udevadm control --reload-rules; sudo udevadm trigger"
 
 # Export necessary environment variables
-export XAUTHORITY=/home/lima/.Xauthority
 export DISPLAY=:0
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
 
@@ -16,7 +22,8 @@ get_battery_level() {
 send_notification() {
   local status=$1
   local icon=$2
-  local battery_level=$(get_battery_level)
+  local battery_level
+  battery_level=$(get_battery_level)
 
   if [ -z "$battery_level" ]; then
     notify-send "Battery Status" "Unable to retrieve battery level." -u critical -i "dialog-warning" -t 5000 -r 9991
