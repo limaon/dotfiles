@@ -15,7 +15,7 @@ The configuration files and scripts that I utilize for my daily tasks.
 - **Web Browser** - [firefox](https://wiki.archlinux.org/title/Firefox)
 - **Email Client** - [thunderbird](https://wiki.archlinux.org/title/Thunderbird)
 - **CLI File Manager** - [lf](https://github.com/gokcehan/lf)
-- **GUI File Manager** - [thunar](https://docs.xfce.org/xfce/thunar/start)
+- **GUI File Manager** - [pcmanfm](https://wiki.archlinux.org/title/PCManFM)
 - **Image Viewer** - [sxiv](https://nsxiv.codeberg.page/)(`nsxiv`)
 - **Document Viewer** - [zathura](https://wiki.archlinux.org/title/Zathura)
 - **Video player** - [mpv](https://mpv.io/)
@@ -24,9 +24,7 @@ The configuration files and scripts that I utilize for my daily tasks.
 - **Text Editor** - [neovim](https://neovim.io/)
 - **Youtube Downloader** - [yt-dlp (youtube-dl fork)](https://archlinux.org/packages/extra/any/yt-dlp/)
 - **Shell** - [bash](https://www.gnu.org/software/bash/bash.html)
-- **Completion** - [bash Completion](https://archlinux.org/packages/extra/any/bash-completion/)
 - **Scripts** - [~/.local/bin/](https://github.com/limaon/dotfiles/tree/main/.local/bin)
-- **Alias and Functions** - [.bash_aliases](https://github.com/limaon/dotfiles/tree/main/.bash_aliases)
 - **Fonts**
   - [cantarell-fonts](https://archlinux.org/packages/extra/any/cantarell-fonts/)
   - [noto-fonts](https://archlinux.org/packages/extra/any/noto-fonts/)
@@ -56,24 +54,25 @@ The configuration files and scripts that I utilize for my daily tasks.
 1. Run the following commands in order.
 
 ```sh
-git clone --depth=1 --bare "https://github.com/limaon/dotfiles.git" ~/.config/dotfiles
-alias dot="git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/ --work-tree=$HOME"
-dot config --local status.showUntrackedFiles no
-mv .bashrc .bashrc_old
-dot checkout
+  git clone --depth=1 --bare "https://github.com/limaon/dotfiles.git" ~/.config/dotfiles
+  alias dot="git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/ --work-tree=$HOME"
+  dot config --local status.showUntrackedFiles no
+  mv .bashrc .bashrc_old
+  dot checkout
 ```
 
 2. To install the packages from the AUR first install [paru](https://github.com/Morganamilo/paru)
 
 ```sh
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
+  sudo pacman -S --needed base-devel
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
+  makepkg -si
 ```
 and run
+
 ```sh
-paru -S --needed - < /.local/foreignpkglist.txt
+  paru -S --needed - < /.local/foreignpkglist.txt
 ```
 
 
