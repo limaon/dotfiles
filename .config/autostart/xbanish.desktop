@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=/usr/bin/xbanish -i all -t 5
+Name=xbanish
+Comment=hide the X11 mouse cursor when a key is pr...
+Type=Application

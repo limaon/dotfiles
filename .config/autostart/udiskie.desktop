@@ -1,0 +1,4 @@
+[Desktop Entry]
+Exec=/usr/bin/udiskie -t
+Name=udiskie
+Type=Application

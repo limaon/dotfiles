@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=/usr/bin/redshift
+Name=redshift
+Comment=set color temperature of display according...
+Type=Application
