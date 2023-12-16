@@ -1,5 +1,5 @@
 [Default Applications]
-inode/directory=thunar.desktop
+inode/directory=pcmanfm.desktop
 inode/mount-point=lf.desktop;xfce4-file-manager.desktop;
 text/x-txt2tags=org.xfce.mousepad.desktop
 text/plain=nvim.desktop;org.xfce.mousepad.desktop
@@ -20,7 +20,7 @@ image/jpm=sxiv.desktop
 image/png=sxiv.desktop
 image/avif=firefox.desktop;sxiv.desktop;
 image/gif=nsxiv.desktop
-image/jpeg=sxiv.desktop;
+image/jpeg=nsxiv.desktop
 image/webp=sxiv.desktop;vwebp.desktop;
 x-scheme-handler/http=firefox.desktop
 x-scheme-handler/https=firefox.desktop
@@ -29,7 +29,7 @@ x-scheme-handler/about=firefox.desktop
 x-scheme-handler/unknown=firefox.desktop
 x-scheme-handler/mailto=userapp-Thunderbird-N5YCY1.desktop
 x-scheme-handler/mid=userapp-Thunderbird-N5YCY1.desktop
-x-scheme-handler/tg=org.telegram.desktop.desktop;
+x-scheme-handler/tg=org.telegram.desktop.desktop
 x-scheme-handler/trash=xfce4-file-manager.desktop
 audio/x-ms-wma=mpv.desktop;
 audio/aac=mpv.desktop;
@@ -45,7 +45,7 @@ application/rss+xml=geany.desktop;
 application/x-bittorrent=transmission-gtk.desktop;
 application/xml=geany.desktop;
 application/x-shellscript=geany.desktop;
-application/x-xdg-protocol-tg=telegram.desktop.desktop;
+application/x-xdg-protocol-tg=org.telegram.desktop.desktop
 application/x-xpinstall=org.gnome.FileRoller.desktop;
 application/epub+zip=org.pwmt.zathura.desktop;
 application/x-gzpdf=org.pwmt.zathura.desktop
@@ -58,13 +58,15 @@ application/zip=xarchiver.desktop
 message/rfc822=userapp-Thunderbird-N5YCY1.desktop
 application/x-compressed-tar=org.gnome.FileRoller.desktop
 x-scheme-handler/notion=notion-app.desktop
+x-scheme-handler/postman=Postman.desktop
+application/x-java-archive=xarchiver.desktop
 
 [Added Associations]
 inode/directory=lf.desktop;
 image/png=nsxiv.desktop;sxiv.desktop;
-image/jpeg=nsxiv.desktop;sxiv.desktop;
+image/jpeg=vimiv.desktop;nsxiv.desktop;sxiv.desktop;
 image/jpm=sxiv.desktop;
-image/webp=sxiv.desktop;
+image/webp=nsxiv.desktop;sxiv.desktop;
 image/svg+xml=sxiv.desktop;
 image/gif=sxiv.desktop;nsxiv.desktop;
 text/html=firefox.desktop
@@ -97,3 +99,8 @@ audio/x-ms-wma=mpv.desktop
 video/mp4=nvim.desktop;mpv.desktop;
 application/x-compressed-tar=org.gnome.FileRoller.desktop;
 text/x-lua=nvim.desktop;org.xfce.mousepad.desktop;
+application/x-java-archive=xarchiver.desktop;userapp-java -jar-A88YC2.desktop;userapp-java -jar %f-0XCTC2.desktop;userapp-java -jar-QHOIC2.desktop;
+application/xml=nvim.desktop;
+
+[Removed Associations]
+application/x-executable=userapp-%f-GMEGD2.desktop;userapp-%f-WJ4BD2.desktop;userapp-%f-CDLGD2.desktop;
