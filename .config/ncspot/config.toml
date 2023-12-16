@@ -1,19 +1,23 @@
 # Basic options
 default_keybindings = false
-use_nerdfont = false
-notify = true
+use_nerdfont = true
 gapless = true
-flip_status_indicators=true
+flip_status_indicators = true
 shuffle = false
 repeat = 'playlist'
-# bitrate = 320
+volnorm = false
 cover_max_scale = 2
+# notify = true
+# bitrate = 320
+
+[notification_format]
+title = "%title"
+body = "%artists"
+
+[audio]
+backend = "pipewire"
 
 [keybindings]
-######################################
-# Song controls
-######################################
-
 ##################
 # Fast forward / rewind
 ##################
@@ -38,7 +42,7 @@ cover_max_scale = 2
 "z" = "shuffle"
 "D" = "delete"
 "S" = "save"
-# Open context menu
+
 "O" = "open current"
 "o" = "open selected"
 "A" = "goto artist"
@@ -133,6 +137,6 @@ cmdline = "#002b36"
 cmdline_bg = "#586e75"
 
 [track_format]
-left = "%saved| %duration | %title - %artists"
+left = "%saved | %duration | %title - %artists"
 center = ""
 right = "%album"
