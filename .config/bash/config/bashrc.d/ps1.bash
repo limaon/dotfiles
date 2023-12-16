@@ -4,79 +4,76 @@
 ########################
 
 
-# Reset
+# Color Codes
 Clear="\[\033[0m\]"
+Black='\[\e[0;30m\]'
+Red='\[\e[0;31m\]'
+Green='\[\e[0;32m\]'
+Yellow='\[\e[0;33m\]'
+Blue='\[\e[0;34m\]'
+Purple='\[\e[0;35m\]'
+Cyan='\[\e[0;36m\]'
+White='\[\e[0;37m\]'
 
-
-# Regular Colors
-Black=$'\e[0;30m'       # Black
-Red=$'\e[0;31m'		# Red
-Green=$'\e[0;32m'	# Green
-Yellow=$'\e[0;33m'	# Yellow
-Blue=$'\e[0;34m'	# Blue
-Purple=$'\e[0;35m'	# Purple
-Cyan=$'\e[0;36m'	# Cyan
-White=$'\e[0;37m'	# White
-
-# Bold
-BBlack='\e[1;30m'	# Black
-BRed='\e[1;31m'		# Red
-BGreen='\e[1;32m'	# Green
-BYellow='\e[1;33m'	# Yellow
-BBlue='\e[1;34m'	# Blue
-BPurple='\e[1;35m'	# Purple
-BCyan='\e[1;36m'	# Cyan
-BWhite='\e[1;37m'	# White
+# Bold Colors
+BBlack='\[\e[1;30m\]'
+BRed='\[\e[1;31m\]'
+BGreen='\[\e[1;32m\]'
+BYellow='\[\e[1;33m\]'
+BBlue='\[\e[1;34m\]'
+BPurple='\[\e[1;35m\]'
+BCyan='\[\e[1;36m\]'
+BWhite='\[\e[1;37m\]'
 
 # Underline
-UBlack='\e[4;30m'	# Black
-URed='\e[4;31m'		# Red
-UGreen='\e[4;32m'	# Green
-UYellow='\e[4;33m'	# Yellow
-UBlue='\e[4;34m'	# Blue
-UPurple='\e[4;35m'	# Purple
-UCyan='\e[4;36m'	# Cyan
-UWhite='\e[4;37m'	# White
+BUBlack='\[\e[1;4;30m\]'
+BURed='\[\e[1;4;31m\]'
+BUGreen='\[\e[1;4;32m\]'
+BUYellow='\[\e[1;4;33m\]'
+BUBlue='\[\e[1;4;34m\]'
+BUPurple='\[\e[1;4;35m\]'
+BUCyan='\[\e[1;4;36m\]'
+BUWhite='\[\e[1;4;37m\]'
 
 # Background
-On_Black='\e[40m'	# Black
-On_Red='\e[41m'		# Red
-On_Green='\e[42m'	# Green
-On_Yellow='\e[43m'	# Yellow
-On_Blue='\e[44m'	# Blue
-On_Purple='\e[45m'	# Purple
-On_Cyan='\e[46m'	# Cyan
-On_White='\e[47m'	# White
+BOn_Black='\[\e[1;40m\]'
+BOn_Red='\[\e[1;41m\]'
+BOn_Green='\[\e[1;42m\]'
+BOn_Yellow='\[\e[1;43m\]'
+BOn_Blue='\[\e[1;44m\]'
+BOn_Purple='\[\e[1;45m\]'
+BOn_Cyan='\[\e[1;46m\]'
+BOn_White='\[\e[1;47m\]'
 
 # High Intensity
-IBlack='\e[0;90m'	# Black
-IRed='\e[0;91m'		# Red
-IGreen='\e[0;92m'	# Green
-IYellow='\e[0;93m'	# Yellow
-IBlue='\e[0;94m'	# Blue
-IPurple='\e[0;95m'	# Purple
-ICyan='\e[0;96m'	# Cyan
-IWhite='\e[0;97m'	# White
+BIBlack='\[\e[1;90m\]'
+BIRed='\[\e[1;91m\]'
+BIGreen='\[\e[1;92m\]'
+BIYellow='\[\e[1;93m\]'
+BIBlue='\[\e[1;94m\]'
+BIPurple='\[\e[1;95m\]'
+BICyan='\[\e[1;96m\]'
+BIWhite='\[\e[1;97m\]'
 
 # Bold High Intensity
-BIBlack='\e[1;90m'	# Black
-BIRed='\e[1;91m'	# Red
-BIGreen='\e[1;92m'	# Green
-BIYellow='\e[1;93m'	# Yellow
-BIBlue='\e[1;94m'	# Blue
-BIPurple='\e[1;95m'	# Purple
-BICyan='\e[1;96m'	# Cyan
-BIWhite='\e[1;97m'	# White
+BIBlack='\[\e[1;4;90m\]'
+BIRed='\[\e[1;4;91m\]'
+BIGreen='\[\e[1;4;92m\]'
+BIYellow='\[\e[1;4;93m\]'
+BIBlue='\[\e[1;4;94m\]'
+BIPurple='\[\e[1;4;95m\]'
+BICyan='\[\e[1;4;96m\]'
+BIWhite='\[\e[1;4;97m\]'
 
 # High Intensity backgrounds
-On_IBlack='\e[0;100m'	# Black
-On_IRed='\e[0;101m'	# Red
-On_IGreen='\e[0;102m'	# Green
-On_IYellow='\e[0;103m'	# Yellow
-On_IBlue='\e[0;104m'	# Blue
-On_IPurple='\e[0;105m'	# Purple
-On_ICyan='\e[0;106m'	# Cyan
-On_IWhite='\e[0;107m'	# White
+BOn_IBlack='\[\e[1;100m\]'
+BOn_IRed='\[\e[1;101m\]'
+BOn_IGreen='\[\e[1;102m\]'
+BOn_IYellow='\[\e[1;103m\]'
+BOn_IBlue='\[\e[1;104m\]'
+BOn_IPurple='\[\e[1;105m\]'
+BOn_ICyan='\[\e[1;106m\]'
+BOn_IWhite='\[\e[1;107m\]'
 
 
 
@@ -247,4 +244,4 @@ PS1_GO="${post/#sh>urxvt>/}"
 
 # Set the final PS1
 # export PS1="${PS1_SUCCESS}\n${PS1_HIST} ${Purple}\u ${Clear}at ${Yellow}\h ${Clear}in ${Green}\w${PS1_GIT}${PS1_SVN}${Clear}\n${PS1_GO} "
-export PS1="${Green}\u@\h${Clear}:${Blue}\W${Clear}${PS1_GIT}${PS1_SVN}${White}\$${Clear} "
+export PS1="${PS1_SUCCESS}${Green}\u@\h${Clear}:${Blue}\W${Clear}${White}\$${Clear} "
