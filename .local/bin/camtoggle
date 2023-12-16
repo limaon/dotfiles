@@ -68,10 +68,10 @@ done
 
 # Run mpv command with the specified settings
 mpv --no-osc --no-osd-bar --input-conf=/dev/null \
-  --geometry=-0-0 --autofit=${WIDTH}x${HEIGHT} --title="${TITLE}" \
+  --geometry=-0-0 --autofit="${WIDTH}"x"${HEIGHT}" --title="${TITLE}" \
   --profile=low-latency --untimed --no-cache --no-border \
   --no-correct-pts --no-demuxer-thread --demuxer-lavf-format=video4linux2 \
-  --demuxer-lavf-o=video_size=${WIDTH}x${HEIGHT} \
+  --demuxer-lavf-o=video_size="${WIDTH}"x"${HEIGHT}" \
   --demuxer-lavf-o=fps="${FRAMERATE}" \
   --demuxer-lavf-o=format=mjpeg \
-  av://v4l2:${DEVICE}
+  av://v4l2:"${DEVICE}"
