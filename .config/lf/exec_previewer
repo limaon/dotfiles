@@ -53,8 +53,8 @@ function preview_font() {
 
 function preview_audio() {
   if [ "$(command -v ffprobe)" ]; then
-    # ffprobe -hide_banner -show_format -show_streams "$1"
-    exiftool "$1"
+    ffprobe -hide_banner -show_format -show_streams "$1"
+    # exiftool "$1"
   else
     echo "Audio file preview is not supported."
     echo "You can use a media player or audio editor to inspect the audio."
@@ -86,6 +86,8 @@ function main() {
     audio/*) preview_audio "$@" ;;
     *pdf) preview pdf "$@" ;;
     */*office* | */*document*) preview office "$@" || pistol "$@" ;;
+    application/x-iso9660-image) 
+      iso-info --no-header -l "$1" ;;
     application/x-gtar|application/gtar|application/x-tar|application/tar)
       preview_tar "$@" ;;
     application/x-gzip|application/gzip)
