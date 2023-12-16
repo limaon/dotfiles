@@ -204,13 +204,13 @@
     # Scale small icons up to this size, set to 0 to disable. Helpful
     # for e.g. small files or high-dpi screens. In case of conflict,
     # max_icon_size takes precedence over this.
-    min_icon_size = 16
+    min_icon_size = 24
 
     # Scale larger icons down to this size, set to 0 to disable
     max_icon_size = 48
 
     # Paths to default icons (only neccesary when not using recursive icon lookup)
-    icon_path = /usr/share/icons/Papirus/16x16/status/:/usr/share/icons/Papirus/48x48/status/:/usr/share/icons/Papirus/16x16/actions/
+    icon_path = /usr/share/icons/Papirus-Dark/24x24/:/usr/share/icons/Papirus-Dark/48x48/
 
     ### History ###
 
@@ -259,7 +259,7 @@
     # layer = top
 
     # Set this to true to use X11 output on Wayland.
-    force_xwayland = false
+    force_xwayland = true
 
     ### Legacy
 
@@ -271,7 +271,7 @@
     # By enabling this setting dunst will not be able to detect when a monitor
     # is connected or disconnected which might break follow mode if the screen
     # layout changes.
-    force_xinerama = false
+    force_xinerama = true
 
     ### mouse
 
