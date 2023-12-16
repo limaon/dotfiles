@@ -1,28 +1,34 @@
-# i3 config file
-# This is our mod Key. Currently it is set to the Windows Key.
+# In case you are on an apple Notebook/Keyboard
+# you can simply swap Mod1 and Mod4 to get the same
+# behaviour
+# Mod4 = Super key
+# Mod1 = Alt key
 set $alt Mod1
-set $super Mod4
 set $mod Mod4
+set $control Control
 
-# Variables for directions
+
+# use these keys for focus, movement, and resize directions when reaching for
+# the arrows is not convenient
 set $up k
 set $down j
 set $left h
 set $right l
 
-# Exec vars
-set $execute exec --no-startup-id
-set $always_exec exec_always --no-startup-id
-
 # Scripts path
 set $bin_path ~/.local/bin
 
-# Remove title bar (border)
+# Set title bar (border)
 title_align left
+new_window pixel 1
 default_border pixel 1
-default_floating_border normal
-for_window [all] border pixel 1 padding 5px
-for_window [all]        border pixel 1 title_window_icon padding 5px
+default_floating_border normal 1
+for_window [all] border normal 1
+# for_window [all] border pixel 1 title_window_icon padding 5px
+
+# Gaps specific
+gaps inner 0
+gaps outer 0
 
 # Ex: popup_during_fullscreen smart|ignore|leave_fullscreen
 popup_during_fullscreen smart
@@ -41,27 +47,28 @@ font pango: Terminess Nerd Font, FontAwesome, Noto Sans Mono CJK JP 9
 floating_modifier $mod
 
 # start a terminal and avoid many instances when i hold bind. I use kitty.
-bindsym --release $mod+Return $execute i3-sensible-terminal
+bindsym --release $mod+Return exec --no-startup-id i3-sensible-terminal --title "kitty terminal"
+bindsym $mod+Shift+Return exec --no-startup-id i3-sensible-terminal --name "floating_kitty"
 
 # kill focused window
-#bindsym $mod+Shift+q    kill
-bindsym $mod+q --release kill
+bindsym $mod+q    kill
 
 # start dmenu (a program launcher).
-bindsym $mod+d $execute i3-dmenu-desktop --dmenu="dmenu -i -p 'Open:'"
-
-# This should only be used if a program lacks a .desktop file.
-bindsym $mod+Shift+d $execute dmenu_run -i -fn 'Terminess Nerd Font' -p 'Run:'
+bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -i -p 'Open:'"
 
 # Web search 
-bindsym $mod+b $execute $bin_path/websearch
+bindsym $mod+b exec --no-startup-id $bin_path/websearch
 
 # Cabl (primary)
-bindsym $mod+c $execute $bin_path/cabl
-bindsym $mod+Ctrl+c $execute $bin_path/camtoggle
+bindsym $mod+c exec --no-startup-id $bin_path/cabl
+bindsym $mod+Ctrl+c exec --no-startup-id $bin_path/camtoggle
 
 # Open clipboard content dmenu
-bindsym $mod+Shift+v $execute $bin_path/cabl clip
+bindsym $mod+Shift+v exec --no-startup-id $bin_path/cabl clip
+
+# Start start htop / start calcurse
+bindsym $mod+t exec --no-startup-id i3-sensible-terminal -e htop
+bindsym $mod+Shift+g exec --no-startup-id i3-sensible-terminal -e calcurse -D ~/.config/calcurse
 
 # Toggle window border
 bindsym $mod+Shift+w border toggle
@@ -83,7 +90,7 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
-bindsym $mod+Shift+space floating toggle, resize set 670 600, move position center
+bindsym $mod+Shift+space floating toggle, resize set 700 610, move position center
 
 # change focus between tiling / floating windows
 bindsym $mod+space focus mode_toggle
@@ -169,60 +176,41 @@ bindsym $mod+Shift+BackSpace move scratchpad
 for_window [instance="scratchpad"] move window to scratchpad, scratchpad show
 
 # Set floating for apps needing it
-for_window [class="(?i)anki" title="^((?!- Anki).)*$"] border normal
-for_window [class="(?i)anki" title="Statistics"] floating enable
-for_window [class="(?i)anki" title="Browse"] move to workspace $ws9
-for_window [class="(?i)thunar" title="^((?!Thunar).)*$"] border normal
-for_window [class="Nm-connection-editor"] floating enable, border normal 3
-for_window [class="Qalculate-gtk"] floating enable, border normal 3, resize set 400 200
-for_window [class="Blueman-manager"] floating enable, border normal 3
-for_window [class="Blueman-adapters"] floating enable, border normal 3
-for_window [class="Nitrogen"] floating enable, border normal 
-for_window [class="GParted"] floating enable, border normal
-for_window [class="System-config-printer.py"] floating enable, border normal
-for_window [class="Arandr"] floating enable, border normal
-for_window [class="Polkit-gnome-authentication-agent-1"] floating enable, sticky enable border normal
-for_window [class="transmission"] floating enable, border normal 2
-for_window [class="Lxappearance"] floating enable, border normal 2
-for_window [class="fcitx5-config-qt"] floating enable, border normal
-for_window [class="Fcitx-config-gtk3"] floating enable, border normal
-for_window [class="mozc_tool"] floating enable, border normal
-for_window [class="Kvantum Manager"] floating enable, border normal
-for_window [class="kbd-layout-viewer"] floating enable, border normal
-for_window [class="(?i)xarchiver"] floating enable, border normal
-for_window [class="mpv"] floating enable, border pixel 2, focus
-for_window [class="Mathpix Snipping Tool"] floating enable, border normal, focus
+for_window [class="(?i)anki" title=".*- Anki.*"] border pixel, layout tabbed
+for_window [class="(?i)anki" title="Preview"] floating disable, move right
+for_window [class="(?i)anki" title="Add"] floating disable
+for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
+for_window [class="Qalculate-gtk"] floating enable
+for_window [class="Mousepad"] floating enable, sticky enable, resize set 300 200
+for_window [window_role=browser] border pixel
+for_window [class=obsidian|kitty] border pixel
+for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
+for_window [title="Save File"] floating enable
+for_window [class="kitty" instance="floating_kitty$"] floating toggle
 
-for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
+# Set floating mode for generated windows
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="bubble"] floating enable
+for_window [window_role="dialog"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_type="menu"] floating enable
+for_window [window_role="GtkFileChooserDialog"] resize set 600 400, move position center
+for_window [window_role="Preferences"] floating enable
+for_window [title="(?:Open|Save) (?:File|Folder|As)"] floating enable
+for_window [title="(?:Open|Save) (?:File|Folder|As)"] resize set 600 400
+for_window [title=About|Preferences|htop|calcurse] floating enable, border normal, resize set 700 540, move position center
+for_window [class="mpv"] floating enable move position center
+for_window [title="mpv Webcam"] floating enable move position center sticky enable border pixel 2
 no_focus   [title="mpv Webcam"]
 
-for_window [window_role="(?i)splash"] floating enable, border normal
-for_window [window_type="(?i)dialog"] floating enable, border normal
-for_window [window_type="(?i)menu"] floating enable, border normal
-for_window [window_role="(?i)toolbox"] floating enable, border normal
-for_window [window_role="(?i)webconsole"] floating enable, border normal
-for_window [window_role="(?i)organizer"] floating enable, border normal
-for_window [window_role="(?i)task_dialog"] floating enable, border normal
-for_window [window_role="(?i)pop-up"] floating enable, border normal
-for_window [window_role="(?i)preferences"] floating enable, border normal
-for_window [window_role="GtkFileChooserDialog"] move position center, resize set 800 600
-
-for_window [title="^Preferences$"] floating enable, border normal
-for_window [title="About"] floating enable, border normal
-for_window [title="Copying"] floating enable, border normal
-for_window [title="Deleting"] floating enable, border normal
-for_window [title="Moving"] floating enable, border normal
-for_window [title="File Transfer*"] floating enable, border normal
-for_window [title="File Operation*"] floating enable, border normal
-for_window [title="^Page Info"] floating enable, border normal 3
-for_window [title="WebP viewer"] floating enable, border normal, move position center
-
-# set position of floating window
+# Set position of floating window
 for_window [all] move absolute position center
 
 # Open and focus to specific workspace
-assign [class=(?i)firefox|qutebrowser]  $ws1
-assign [class="transmission" title="^Transmission$"] $ws7
+assign [window_role=browser] $ws1
+assign [class="transmission"] $ws7
+assign [class="(?i)anki"] $ws9
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 150 x 90
@@ -257,39 +245,45 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
   font pango: Terminess Nerd Font, FontAwesome 9
-  status_command i3status -c ~/.config/i3/i3status.conf
+  # status_command i3status -c ~/.config/i3/i3status.conf
+  status_command "exec i3blocks -c ~/.config/i3/i3blocks.conf"
   strip_workspace_numbers yes
   tray_output primary
   position bottom
+  mode dock
 }
 
-# Auto startup aplications
-$execute dex --autostart
-$execute xss-lock --transfer-sleep-lock -- $bin_path/i3exit lock --nofork
 
-###### Power Menu (i3wm) ######
-set $mode_system (l)Lock  (e)Logout  (s)Suspend  (r)Reboot  (CTRL+s)Shutdown
+# Autostart
+exec --no-startup-id dex --autostart --environment i3
+exec --no-startup-id xss-lock --transfer-sleep-lock -- $bin_path/xlock -s 25
 
+
+# Exit i3 (logs you out of your X session)
+bindsym $mod+Shift+e mode "$mode_system"
+
+# Lock, Logout, Suspend, Hibernat, Reboot, Poweroff
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (p) poweroff
 mode "$mode_system" {
-  bindsym l $execute $bin_path/i3exit lock, mode "default"
-  bindsym e $execute $bin_path/i3exit logout, mode "default"
-  bindsym s $execute $bin_path/i3exit suspend, mode "default"
-  bindsym r $execute $bin_path/i3exit reboot, mode "default"
-  bindsym Ctrl+s $execute $bin_path/i3exit shutdown, mode "default"
+  bindsym l exec --no-startup-id $bin_path/xlock -m -s 25, mode "default"
+  bindsym e exec --no-startup-id i3-msg exit, mode "default"
+  bindsym s exec --no-startup-id "$bin_path/xlock -b -m; $bin_path/system-suspend", mode "default"
+  bindsym h exec --no-startup-id "$bin_path/xlock -b -m; $bin_path/system-hibernate", mode "default"
+  bindsym r exec --no-startup-id $bin_path/system-reboot, mode "default"
+  bindsym p exec --no-startup-id $bin_path/system-shutdown,  mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
   bindsym Escape mode "default"
 }
-bindsym $mod+Shift+e mode "$mode_system"
+
 
 ### Monitor setup (i3wm) #####
 set $mode_display (d)Hdmi  (l)Laptop  (a)Both
-
 mode "$mode_display" {
-  bindsym l $execute $bin_path/monitorset -m laptop, mode "default"
-  bindsym d $execute $bin_path/monitorset -m hdmi, mode "default"
-  bindsym a $execute $bin_path/monitorset -m ambos, mode "default"
+  bindsym l exec --no-startup-id $bin_path/monitorset -m laptop, mode "default"
+  bindsym d exec --no-startup-id $bin_path/monitorset -m hdmi, mode "default"
+  bindsym a exec --no-startup-id $bin_path/monitorset -m ambos, mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -298,14 +292,14 @@ mode "$mode_display" {
 bindsym $mod+x mode "$mode_display"
 
 ### Get attachments (i3wm) ###
-set $share_attach  (q)   (w)RecMedia  (e)AudioAnki  (r)SentAnki  (t)ShotAnki
+set $share_attach  (q)ColorPick   (w)RecMedia  (e)AudioAnki  (r)SentAnki  (t)ShotAnki
 
 mode "$share_attach" {
-  bindsym q --release $execute $bin_path/color-pick, mode "default"
-  bindsym w $execute $bin_path/dmenurecord, mode "default"
-  bindsym e $execute ~/.local/bin/ames.sh -r
-  bindsym r $execute ~/.local/bin/ames.sh -c, mode "default"
-  bindsym t $execute ~/.local/bin/ames.sh -s, mode "default"
+  bindsym q --release exec --no-startup-id $bin_path/color-pick, mode "default"
+  bindsym w exec --no-startup-id $bin_path/dmenurecord, mode "default"
+  bindsym e exec --no-startup-id ~/.local/bin/ames.sh -r
+  bindsym r exec --no-startup-id ~/.local/bin/ames.sh -c, mode "default"
+  bindsym t exec --no-startup-id ~/.local/bin/ames.sh -s, mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -314,33 +308,30 @@ mode "$share_attach" {
 bindsym $mod+Insert mode "$share_attach"
 bindsym $mod+F12 mode "$share_attach"
 
-# Stop ffmpeg
-bindsym $mod+Delete $execute $bin_path/mediaExtractor.sh
-
 # ScreenShot menu
-bindsym --release $mod+Pause $execute $bin_path/maimpick
-bindsym --release Print $execute $bin_path/maimpick
-#bindsym --release Print $execute $bin_path/maimpick full
+bindsym --release $mod+Pause exec --no-startup-id $bin_path/maimpick
+bindsym --release Print exec --no-startup-id $bin_path/maimpick
+# bindsym --release Print exec --no-startup-id $bin_path/maimpick full
 
 # Open Calculator
-bindsym XF86Calculator $execute qalculate-gtk
+bindsym XF86Calculator exec --no-startup-id qalculate-gtk
 
 # Audio
-bindsym XF86AudioRaiseVolume $execute $bin_path/volume_control high
-bindsym XF86AudioLowerVolume $execute $bin_path/volume_control medium
-bindsym XF86AudioMute $execute $bin_path/volume_control muted
+bindsym XF86AudioRaiseVolume exec --no-startup-id $bin_path/xf86-control volume_up
+bindsym XF86AudioLowerVolume exec --no-startup-id $bin_path/xf86-control volume_down
+bindsym XF86AudioMute exec --no-startup-id $bin_path/xf86-control volume_mute
 
 # Player Control
-bindsym XF86AudioPlay $execute mpc toggle
-bindsym XF86AudioPause $execute mpc pause
-bindsym XF86AudioStop $execute mpc stop
-bindsym XF86AudioNext $execute mpc next
-bindsym XF86AudioPrev $execute mpc previous
-bindsym XF86AudioMedia $execute i3-sensible-terminal -e ncmpcpp
+bindsym XF86AudioPlay exec --no-startup-id $bin_path/xf86-control play_pause
+bindsym XF86AudioPause exec --no-startup-id $bin_path/xf86-control play_pause
+bindsym XF86AudioNext exec --no-startup-id $bin_path/xf86-control next_track
+bindsym XF86AudioPrev exec --no-startup-id $bin_path/xf86-control prev_track
+bindsym XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
+bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
 # File Manager
-bindsym XF86Explorer $execute i3-sensible-terminal --title 'File Manager' -e lf
+bindsym XF86Explorer exec --no-startup-id i3-sensible-terminal --title 'File Manager' -e lf
 
-#Brightness Control
-bindsym XF86MonBrightnessUp $execute $bin_path/brightness up
-bindsym XF86MonBrightnessDown $execute $bin_path/brightness down
+# Brightness Control
+bindsym XF86MonBrightnessUp exec --no-startup-id $bin_path/xf86-control brightness_up
+bindsym XF86MonBrightnessDown exec --no-startup-id $bin_path/xf86-control brightness_down
