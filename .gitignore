@@ -222,4 +222,6 @@ mediafiles/
 .pgdata
 
 #Ignore git bare for dotfiles
-.dotfiles
+/.config/dotfiles
+
+lazy-lock.json
