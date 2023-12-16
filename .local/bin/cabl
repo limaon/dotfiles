@@ -13,7 +13,7 @@ readonly ANKI_MODEL=${ANKI_MODEL:-Japanese sentences}
 readonly ANKI_SENTENCE_FIELD=${ANKI_SENTENCE_FIELD:-SentKanji}
 
 __strip() {
-  sed 's/^ *//; s/ *$//;'
+  sed -e 's/^ *//; s/ *$//;' -e 's/▼//g' -e 's/△//g'
 }
 
 # If you run `cabl clip`, reads from the clipboard instead.
@@ -160,10 +160,10 @@ if [[ $locale == ja ]]; then
   youreijp() { "$BROWSER" "http://yourei.jp/$*"; }
   gooexamples() { "$BROWSER" "https://dictionary.goo.ne.jp/word/$*/example/"; }
   massif() { "$BROWSER" "https://massif.la/ja/search?q=$*"; }
-  simplytranslate() { "$BROWSER" "https://simplytranslate.vern.cc/?engine=google&text=$*&sl=ja&tl=en"; }
+  libretranslate() { "$BROWSER" "https://libretranslate.com/?source=ja&target=en&q=$*"; }
   most_common_spelling() {
     # rankspellings is an external script from my dotfiles.
-    IFS='▼▽ ,.・、。' read -r -a args <<<"$*"
+    IFS='|▼▽ ,.・、。' read -r -a args <<<"$*"
     if [[ ${#args[@]} -ge 0 ]]; then
       result=$(rankspellings -g "${args[@]}")
       echo "$result" | cut -f1 | head -1 | tr -d '\n' | xclip -selection clipboard
@@ -177,15 +177,17 @@ else
   elsa() { "$BROWSER" "https://elsaspeak.com/en/learn-english/how-to-pronounce/$*"; }
   reverso() { "$BROWSER" "https://context.reverso.net/translation/english-portuguese/$*"; }
   another_word_for() { "$BROWSER" "https://www.wordhippo.com/what-is/another-word-for/$*.html"; }
+  sentence-word() { "$BROWSER" "https://www.wordhippo.com/what-is/sentences-with-the-word/$*.html"; }
   longman() { "$BROWSER" "https://www.ldoceonline.com/dictionary/$*"; }
   cambridge() { "$BROWSER" "https://dictionary.cambridge.org/us/dictionary/english/$*"; }
   merriam_webster() { "$BROWSER" "https://www.merriam-webster.com/dictionary/$*"; }
   youglish() { "$BROWSER" "https://youglish.com/pronounce/$*/english?"; }
   tatoeba() { "$BROWSER" "https://tatoeba.org/pt-br/sentences/search?from=eng&to=por&query=$*"; }
-  simplytranslate() { "$BROWSER" "https://simplytranslate.vern.cc/?engine=google&text=$*&sl=en&tl=pt"; }
+  libretranslate() { "$BROWSER" "https://libretranslate.com/?source=en&target=pt&q=$*"; }
   linguee() { "$BROWSER" "https://www.linguee.com.br/portugues-ingles/search?source=auto&query=$*"; }
   wordreference() { "$BROWSER" "https://www.wordreference.com/enpt/$*"; }
   collinsdictionary() { "$BROWSER" "https://www.collinsdictionary.com/search/?dictCode=english&q=$*"; }
+  oxford() { "$BROWSER" "https://www.oxfordlearnersdictionaries.com/us/definition/english/$*"; }
   pronunciation() {
     local -r searchterm="$*"
     [[ -z "$searchterm" ]] && exit
@@ -287,11 +289,8 @@ nyaa_search() {
 duckduckgo_images() {
   "$BROWSER" "https://duckduckgo.com/?t=ffab&q=$*&iax=images&ia=images";
 }
-brave_images() {
-  "$BROWSER" "https://search.brave.com/images?q=$*&tbm=isch"
-}
-yandex_images() {
-  "$BROWSER" "https://yandex.com/images/search?text=$*"
+libre_images() {
+  "$BROWSER" "https://librex.zzls.xyz/search.php?q=$*&p=0&t=1"
 }
 duckduckgo() { 
   "$BROWSER" "https://duckduckgo.com/?q=$*&ia=web"; 
@@ -321,7 +320,7 @@ youtube() {
   "$BROWSER" "https://www.youtube.com/results?search_query=$*"
 }
 invidious() {
-  "$BROWSER" "https://vid.puffyan.us/search?q=$*"
+  "$BROWSER" "https://yewtu.be/search?q=$*"
 }
 piped() {
   "$BROWSER" "https://piped.video/results?search_query=$*"
@@ -400,7 +399,8 @@ fi
 
 echo "$search_text" | grep -Pq "instagram\.com|nitter|/status/|bitchute\.com|worldstar\.com/web/video|twitter\." &&
   youtubedl() {
-    local url=$(sed -E 's|/nitter(\.\w+)+|/twitter.com|g' <<< "$*")
+    local url
+    url=$(sed -E 's|/nitter(\.\w+)+|/twitter.com|g' <<< "$*")
     tsp yt-dlp --proxy 'socks5://127.0.0.1:9050/' --add-metadata -ic "$url";
   }
 
