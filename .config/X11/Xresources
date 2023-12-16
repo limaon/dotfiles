@@ -18,13 +18,14 @@
 #define S_base2         #eee8d5
 #define S_base3         #fdf6e3
 
-*.font: Terminess Nerd Font:size=10:antialias=true:autohint=true;
+*.font: Terminess Nerd Font:size=10:antialias=true:autohint=false;
 *.alpha: 0.80
 
 !! For st terminal
-st.alpha: 0.95
+st.alpha: 0.96
 st.alphaOffset: 0.8
-st.font: Hack Nerd Font-10;
+st.font: JetBrainsMono Nerd Font-10:antialias=true:autohint=true;
+
 
 ! For nsxiv
 *bar.background:          S_base1
@@ -55,11 +56,15 @@ st.font: Hack Nerd Font-10;
 *color14:                 S_base1
 *color15:                 S_base3
 
+
 !! Applications without fontconfig support
-Xft.antialias:	1
-Xft.autohint:	0
+Xft.antialias:	true
+Xft.autohint:	false
 Xft.dpi:	96
-Xft.hinting:	1
+Xft.hinting:	true
 Xft.hintstyle:	hintslight
 Xft.lcdfilter:	lcddefault
 Xft.rgba:	none
+
+
+! vim: ff=unix ft=xdefaults ts=4 ss=4 noet

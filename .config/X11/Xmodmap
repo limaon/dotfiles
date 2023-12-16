@@ -1,0 +1,5 @@
+! .Xmodmap
+
+! Map Caps Lock to Escape
+remove Lock = Caps_Lock
+keysym Caps_Lock = Escape
