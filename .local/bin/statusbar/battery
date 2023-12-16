@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# Colors for different battery levels
+COLOR_GREEN="#00FF00"
+COLOR_YELLOW="#F5F6FA"
+COLOR_ORANGE="#FFA500"
+COLOR_ORANGERED="#FF4500"
+COLOR_RED="#FF0000"
+COLOR_BLUE="#4D4DFF"
+COLOR_GRAY="#808080"
+
+# Returns color based on capacity
+get_color_for_capacity() {
+  local -r capacity=$1
+  if ((capacity >= 90)); then
+    echo "$COLOR_GREEN"
+  elif ((capacity >= 50)); then
+    echo "$COLOR_YELLOW"
+  elif ((capacity >= 15)); then
+    echo "$COLOR_ORANGE"
+  elif ((capacity >= 10)); then
+    echo "$COLOR_ORANGERED"
+  else
+    echo "$COLOR_RED"
+  fi
+}
+
+# Returns the status of the battery
+get_discharging_status() {
+  local -r battery=$1
+  local -r capacity=$(cat -- "$battery/capacity" 2>&1)
+  local -r color=$(get_color_for_capacity "$capacity")
+  echo "<span color='$color'>BAT:</span>"
+}
+
+# Returns the general battery status
+get_battery_status() {
+  local -r battery=$1
+  local -r status=$(cat -- "$battery/status" 2>&1)
+  local -r capacity=$(cat -- "$battery/capacity" 2>&1)
+  local -r color=$(get_color_for_capacity "$capacity")
+
+  case $status in
+    "Full") echo "<span color='$COLOR_GREEN'>FULL:</span>" ;;
+    "Charging") echo "<span color='$COLOR_BLUE'>CHR:</span>" ;;
+    "Not charging") echo "<span color='$COLOR_GRAY'>NC:</span>" ;;
+    "Unknown") echo "<span color='$COLOR_GRAY'>UNK:</span>" ;;
+    "Discharging") get_discharging_status "$battery" ;;
+    *) echo ERR ;;
+  esac
+}
+
+# Returns the brightness
+get_screen_brightness() {
+  brillo -G | awk '{printf "%.1f",$0}'
+}
+
+handle_i3blocks_actions() {
+  case $BLOCK_BUTTON in
+    1) notify-send -r 9991 --urgency=low -i "brightness-systray" "Screen brightness" "$(get_screen_brightness)%" ;;
+    3) notify-send -r 9991 --urgency=low -i "icon" "Battery module:" \
+        " <b>NC</b>: not charging<br>\ <b>UNK</b>: stagnant charge<br>\ <b>CHR</b>: charging<br>\ <b>FULL</b>: charged<br>\ - Scroll to change adjust brightness." ;;
+    4) pkexec brillo -U 2 ;;
+    5) pkexec brillo -A 2 ;;
+    6) "$TERMINAL" -e "$EDITOR" "$0" ;;
+  esac
+}
+
+handle_i3blocks_actions
+
+# Print information about battery
+for battery in /sys/class/power_supply/BAT?*; do
+  if [[ -d $battery ]]; then
+    CAPACITY=$(cat -- "$battery/capacity" 2>&1)
+    COLOR=$(get_color_for_capacity "$CAPACITY")
+    printf -- '%s<span color="%s">%d%%</span>' \
+      "$(get_battery_status "$battery")" "$COLOR" "$CAPACITY"
+  fi
+done | sed 's/ *$/\n/'

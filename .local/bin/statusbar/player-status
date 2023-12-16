@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+start_mpd_mpris() {
+  systemctl --user start mpd-mpris.service
+}
+
+stop_mpd_mpris() {
+  systemctl --user stop mpd.service
+  systemctl --user stop mpd-mpris.service
+}
+
+is_ncmpcpp_running() {
+  pgrep -x ncmpcpp >/dev/null
+}
+
+update_mpd_mpris() {
+  if is_ncmpcpp_running; then
+    if ! systemctl --user is-active --quiet mpd-mpris.service; then
+      start_mpd_mpris
+    fi
+  else
+    if systemctl --user is-active --quiet mpd-mpris.service; then
+      stop_mpd_mpris
+    fi
+  fi
+}
+
+filter() {
+  status="$(playerctl status)"
+
+  case "$status" in
+    "Playing")
+      echo "<span color=\"#4bc87f\"> Playing</span>"
+      ;;
+    "Paused")
+      echo "<span color=\"#fd0\" font_style=\"italic\">󰏤 Paused</span>"
+      ;;
+    "Stopped")
+      echo "<span color=\"#e70000\" font_style=\"italic\"> Stopped</span>"
+      ;;
+    *)
+      echo "<span color=\"gray\">󰝛 None</span>"
+      ;;
+  esac
+}
+
+case $BLOCK_BUTTON in
+  1) # left click, toggle play/pause and open ncmpcpp
+    playerctl play-pause | filter
+    update_mpd_mpris
+    ;;
+  2) # left click, toggle play/pause and open ncmpcpp
+    i3-msg -q exec "i3-sensible-terminal --title=ncmpcpp -e ncmpcpp -s playlist"
+    update_mpd_mpris
+    ;;
+  3) # right click, pause/unpause
+    playerctl play-pause | filter
+    update_mpd_mpris
+    ;;
+  4) # scroll up, previous track
+    playerctl previous | filter
+    update_mpd_mpris
+    ;;
+  5) # scroll down, next track
+    playerctl next | filter
+    update_mpd_mpris
+    ;;
+  6) # edit script
+    i3-msg -q exec "i3-sensible-terminal -e \"$EDITOR $0\""
+    ;;
+  *)
+    systemctl --user start mpd.service
+    playerctl status | filter
+    update_mpd_mpris
+    ;;
+esac
