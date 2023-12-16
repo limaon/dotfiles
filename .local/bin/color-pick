@@ -17,7 +17,7 @@ command -v xclip >/dev/null 2>&1 || { echo >&2 "xclip command not found. Please 
 command -v dunstify >/dev/null 2>&1 || { echo >&2 "dunstify command not found. Please install it first."; exit 1; }
 
 # Default values
-FORMAT="hex"
+FORMAT="HEX"
 
 # Parse command-line options
 while getopts "f:h" OPTION; do
@@ -37,13 +37,13 @@ done
 # Function to pick and copy color
 main() {
   local color
-  color=$(xcolor -P 100 -f $FORMAT!)
+  color=$(xcolor -P 100 -f "$FORMAT"!)
 
   if [[ "$color" ]]; then
     # Copy color code to clipboard
     echo "$color" | tr -d "\n" | xclip -selection clipboard
     # Notify about it
-    dunstify -u low --replace=69 -i "notification-symbolic" "$color, copied to clipboard."
+    dunstify -u low --replace=69 -i "colorgrab" "$color, copied to clipboard."
   else
     echo "Failed to pick color."
     exit 1
