@@ -33,7 +33,7 @@ send_notifications() {
     notify-send "Battery Charged" "Battery is fully charged." -i "battery-full-charged" -r 9991
     touch $full_file
   elif [ "$battery_level" -le $warning_level ] && [ "$battery_discharging" -eq 1 ] && [ ! -f $empty_file ]; then
-    notify-send "Low Battery" "${battery_level}% of battery remaining." -u critical -i "notification-battery-000.svg" -r 9991
+    notify-send "Low Battery" "${battery_level}% of battery remaining." -u critical -i "battery-low" -r 9991
     touch $empty_file
   fi
 }
