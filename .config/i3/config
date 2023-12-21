@@ -15,9 +15,6 @@ set $down j
 set $left h
 set $right l
 
-# Scripts path
-set $bin_path ~/.local/bin
-
 # Set title bar (border)
 title_align left
 new_window pixel 1
@@ -57,14 +54,14 @@ bindsym $mod+q    kill
 bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -i -p 'Open:'"
 
 # Web search 
-bindsym $mod+b exec --no-startup-id $bin_path/websearch
+bindsym $mod+b exec --no-startup-id websearch
 
 # Cabl (primary)
-bindsym $mod+c exec --no-startup-id $bin_path/cabl
-bindsym $mod+Ctrl+c exec --no-startup-id $bin_path/camtoggle
+bindsym $mod+c exec --no-startup-id cabl
+bindsym $mod+Ctrl+c exec --no-startup-id camtoggle
 
 # Open clipboard content dmenu
-bindsym $mod+Shift+v exec --no-startup-id $bin_path/cabl clip
+bindsym $mod+Shift+v exec --no-startup-id cabl clip
 
 # Start start htop / start calcurse
 bindsym $mod+t exec --no-startup-id i3-sensible-terminal -e htop
@@ -256,7 +253,7 @@ bar {
 
 # Autostart
 exec --no-startup-id dex --autostart --environment i3
-exec --no-startup-id xss-lock --transfer-sleep-lock -- $bin_path/xlock -s 25
+exec --no-startup-id xss-lock --transfer-sleep-lock -- xlock -s 30
 
 
 # Exit i3 (logs you out of your X session)
@@ -265,12 +262,12 @@ bindsym $mod+Shift+e mode "$mode_system"
 # Lock, Logout, Suspend, Hibernat, Reboot, Poweroff
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (p) poweroff
 mode "$mode_system" {
-  bindsym l exec --no-startup-id $bin_path/xlock -m -s 25, mode "default"
+  bindsym l exec --no-startup-id xlock -m -s 25, mode "default"
   bindsym e exec --no-startup-id i3-msg exit, mode "default"
-  bindsym s exec --no-startup-id "$bin_path/xlock -b -m; $bin_path/system-suspend", mode "default"
-  bindsym h exec --no-startup-id "$bin_path/xlock -b -m; $bin_path/system-hibernate", mode "default"
-  bindsym r exec --no-startup-id $bin_path/system-reboot, mode "default"
-  bindsym p exec --no-startup-id $bin_path/system-shutdown,  mode "default"
+  bindsym s exec --no-startup-id "xlock -b -m; system-suspend", mode "default"
+  bindsym h exec --no-startup-id "xlock -b -m; system-hibernate", mode "default"
+  bindsym r exec --no-startup-id system-reboot, mode "default"
+  bindsym p exec --no-startup-id system-shutdown,  mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -281,9 +278,9 @@ mode "$mode_system" {
 ### Monitor setup (i3wm) #####
 set $mode_display (d)Hdmi  (l)Laptop  (a)Both
 mode "$mode_display" {
-  bindsym l exec --no-startup-id $bin_path/monitorset -m laptop, mode "default"
-  bindsym d exec --no-startup-id $bin_path/monitorset -m hdmi, mode "default"
-  bindsym a exec --no-startup-id $bin_path/monitorset -m ambos, mode "default"
+  bindsym l exec --no-startup-id monitorset -m laptop, mode "default"
+  bindsym d exec --no-startup-id monitorset -m hdmi, mode "default"
+  bindsym a exec --no-startup-id monitorset -m ambos, mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -295,11 +292,11 @@ bindsym $mod+x mode "$mode_display"
 set $share_attach  (q)ColorPick   (w)RecMedia  (e)AudioAnki  (r)SentAnki  (t)ShotAnki
 
 mode "$share_attach" {
-  bindsym q --release exec --no-startup-id $bin_path/color-pick, mode "default"
-  bindsym w exec --no-startup-id $bin_path/dmenurecord, mode "default"
-  bindsym e exec --no-startup-id ~/.local/bin/ames.sh -r
-  bindsym r exec --no-startup-id ~/.local/bin/ames.sh -c, mode "default"
-  bindsym t exec --no-startup-id ~/.local/bin/ames.sh -s, mode "default"
+  bindsym q --release exec --no-startup-id color-pick, mode "default"
+  bindsym w exec --no-startup-id dmenurecord, mode "default"
+  bindsym e exec --no-startup-id ames.sh -r
+  bindsym r exec --no-startup-id ames.sh -c, mode "default"
+  bindsym t exec --no-startup-id ames.sh -s, mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -309,23 +306,24 @@ bindsym $mod+Insert mode "$share_attach"
 bindsym $mod+F12 mode "$share_attach"
 
 # ScreenShot menu
-bindsym --release $mod+Pause exec --no-startup-id $bin_path/maimpick
-bindsym --release Print exec --no-startup-id $bin_path/maimpick
-# bindsym --release Print exec --no-startup-id $bin_path/maimpick full
+bindsym --release $mod+Pause exec --no-startup-id maimpick
+bindsym --release Print exec --no-startup-id maimpick
+bindsym --release $mod+o exec --no-startup-id maimocr
+# bindsym --release Print exec --no-startup-id maimpick full
 
 # Open Calculator
 bindsym XF86Calculator exec --no-startup-id qalculate-gtk
 
 # Audio
-bindsym XF86AudioRaiseVolume exec --no-startup-id $bin_path/xf86-control volume_up
-bindsym XF86AudioLowerVolume exec --no-startup-id $bin_path/xf86-control volume_down
-bindsym XF86AudioMute exec --no-startup-id $bin_path/xf86-control volume_mute
+bindsym XF86AudioRaiseVolume exec --no-startup-id xf86-control volume_up
+bindsym XF86AudioLowerVolume exec --no-startup-id xf86-control volume_down
+bindsym XF86AudioMute exec --no-startup-id xf86-control volume_mute
 
 # Player Control
-bindsym XF86AudioPlay exec --no-startup-id $bin_path/xf86-control play_pause
-bindsym XF86AudioPause exec --no-startup-id $bin_path/xf86-control play_pause
-bindsym XF86AudioNext exec --no-startup-id $bin_path/xf86-control next_track
-bindsym XF86AudioPrev exec --no-startup-id $bin_path/xf86-control prev_track
+bindsym XF86AudioPlay exec --no-startup-id xf86-control play_pause
+bindsym XF86AudioPause exec --no-startup-id xf86-control play_pause
+bindsym XF86AudioNext exec --no-startup-id xf86-control next_track
+bindsym XF86AudioPrev exec --no-startup-id xf86-control prev_track
 bindsym XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
 bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
@@ -333,5 +331,5 @@ bindsym XF86AudioStop exec --no-startup-id playerctl stop
 bindsym XF86Explorer exec --no-startup-id i3-sensible-terminal --title 'File Manager' -e lf
 
 # Brightness Control
-bindsym XF86MonBrightnessUp exec --no-startup-id $bin_path/xf86-control brightness_up
-bindsym XF86MonBrightnessDown exec --no-startup-id $bin_path/xf86-control brightness_down
+bindsym XF86MonBrightnessUp exec --no-startup-id xf86-control brightness_up
+bindsym XF86MonBrightnessDown exec --no-startup-id xf86-control brightness_down

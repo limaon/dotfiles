@@ -283,8 +283,7 @@ sankaku_solo() {
   "$BROWSER" "https://chan.sankakucomplex.com/post/index?tags=$* order:popular solo rating:safe"
 }
 nyaa_search() {
-  "$BROWSER" "https://nyaa.iss.ink/?q=$*"
-  # "$BROWSER" "https://nyaa.si/?q=$*"
+  "$BROWSER" "https://nyaa.si/?f=0&c=0_0&q=$*"
 }
 duckduckgo_images() {
   "$BROWSER" "https://duckduckgo.com/?t=ffab&q=$*&iax=images&ia=images";
