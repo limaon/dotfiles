@@ -29,6 +29,7 @@ alias ln='ln -i'
 alias mv='mv -iv'
 alias rm='rm -vI'
 alias rsync='rsync -vrPlu'
+alias rsync-keep='rsync -avzru --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r'
 alias pstree='pstree -npTC age'
 
 
