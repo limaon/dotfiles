@@ -1,5 +1,0 @@
-[Desktop Entry]
-Exec=/usr/bin/pcmanfm --daemon-mode
-Name=pcmanfm
-Comment=File Manager for Desktop Environment
-Type=Application
