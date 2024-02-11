@@ -1,5 +1,0 @@
-[Desktop Entry]
-Exec=/usr/bin/nitrogen --restore --set-scaled
-Name=nitrogen
-Comment=X11 background previewer and setter
-Type=Application
