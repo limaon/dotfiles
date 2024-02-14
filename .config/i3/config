@@ -38,30 +38,31 @@ focus_follows_mouse yes
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango: Terminess Nerd Font, FontAwesome, Noto Sans Mono CJK JP 9
+font pango: Terminus, FontAwesome, Noto Sans Mono CJK JP 9
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # start a terminal and avoid many instances when i hold bind. I use kitty.
-bindsym --release $mod+Return exec --no-startup-id i3-sensible-terminal --title "kitty terminal"
-bindsym $mod+Shift+Return exec --no-startup-id i3-sensible-terminal --name "floating_kitty"
+bindsym --release $mod+Return exec --no-startup-id i3-sensible-terminal
 
 # kill focused window
-bindsym $mod+q    kill
+bindsym $mod+q kill
+bindsym --release --border button2 kill
 
 # start dmenu (a program launcher).
-bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -i -p 'Open:'"
+# bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu="dmenu -i -p 'Open:'"
+bindsym $mod+d exec --no-startup-id rofi -show drun
 
 # Web search 
 bindsym $mod+b exec --no-startup-id websearch
 
 # Cabl (primary)
-bindsym $mod+c exec --no-startup-id cabl
+bindsym $mod+c exec --no-startup-id ~/.local/bin/cabl
 bindsym $mod+Ctrl+c exec --no-startup-id camtoggle
 
 # Open clipboard content dmenu
-bindsym $mod+Shift+v exec --no-startup-id cabl clip
+bindsym $mod+Shift+v exec --no-startup-id ~/.local/bin/cabl clip
 
 # Start start htop / start calcurse
 bindsym $mod+t exec --no-startup-id i3-sensible-terminal -e htop
@@ -176,16 +177,24 @@ for_window [instance="scratchpad"] move window to scratchpad, scratchpad show
 for_window [class="(?i)anki" title=".*- Anki.*"] border pixel, layout tabbed
 for_window [class="(?i)anki" title="Preview"] floating disable, move right
 for_window [class="(?i)anki" title="Add"] floating disable
-for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
+for_window [class="Gufw.py"] floating enable
+for_window [class="Blueman-manager"] floating enable
+for_window [class="Nm-connection-editor"] floating enable
+for_window [class="Lightdm-settings"] floating enable
+for_window [class="Ayatana-settings"] floating enable
+for_window [class="Kvantum Manager"] floating enable
+for_window [class="Mate-control-center"] floating enable
 for_window [class="Qalculate-gtk"] floating enable
-for_window [class="Mousepad"] floating enable, sticky enable, resize set 300 200
+for_window [class="KeePassXC"] floating enable
+for_window [class="Pluma"] floating enable, sticky disable
+for_window [class="Eom"] floating enable
 for_window [window_role=browser] border pixel
 for_window [class=obsidian|kitty] border pixel
 for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 for_window [title="Save File"] floating enable
-for_window [class="kitty" instance="floating_kitty$"] floating toggle
 
 # Set floating mode for generated windows
+for_window [window_type="normal"] border normal
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="bubble"] floating enable
 for_window [window_role="dialog"] floating enable
@@ -241,9 +250,9 @@ bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
-  font pango: Terminess Nerd Font, FontAwesome 9
+  font pango: Terminus, FontAwesome 9
   # status_command i3status -c ~/.config/i3/i3status.conf
-  status_command "exec i3blocks -c ~/.config/i3/i3blocks.conf"
+  status_command "exec i3status -c ~/.config/i3/i3status.conf"
   strip_workspace_numbers yes
   tray_output primary
   position bottom
@@ -252,84 +261,89 @@ bar {
 
 
 # Autostart
-exec --no-startup-id dex --autostart --environment i3
-exec --no-startup-id xss-lock --transfer-sleep-lock -- xlock -s 30
+# exec --no-startup-id dex --autostart --environment i3
+# exec --no-startup-id xss-lock --transfer-sleep-lock -- xlock -s 30
 
 
 # Exit i3 (logs you out of your X session)
-bindsym $mod+Shift+e mode "$mode_system"
 
 # Lock, Logout, Suspend, Hibernat, Reboot, Poweroff
-set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (p) poweroff
-mode "$mode_system" {
-  bindsym l exec --no-startup-id xlock -m -s 25, mode "default"
-  bindsym e exec --no-startup-id i3-msg exit, mode "default"
-  bindsym s exec --no-startup-id "xlock -b -m; system-suspend", mode "default"
-  bindsym h exec --no-startup-id "xlock -b -m; system-hibernate", mode "default"
-  bindsym r exec --no-startup-id system-reboot, mode "default"
-  bindsym p exec --no-startup-id system-shutdown,  mode "default"
-
-  # back to normal: Enter or Escape
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-}
+# set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (p) poweroff
+# mode "$mode_system" {
+#   bindsym l exec --no-startup-id xlock -m -s 25, mode "default"
+#   bindsym e exec --no-startup-id i3-msg exit, mode "default"
+#   bindsym s exec --no-startup-id "xlock -b -m; system-suspend", mode "default"
+#   bindsym h exec --no-startup-id "xlock -b -m; system-hibernate", mode "default"
+#   bindsym r exec --no-startup-id system-reboot, mode "default"
+#   bindsym p exec --no-startup-id system-shutdown,  mode "default"
+# 
+#   # back to normal: Enter or Escape
+#   bindsym Return mode "default"
+#   bindsym Escape mode "default"
+# }
+# bindsym $mod+Shift+e mode "$mode_system"
+# bindsym $mod+Shift+e exec --no-startup-id "mate-session-save --logout-dialog"
+bindsym $mod+Shift+e exec --no-startup-id "mate-session-save --shutdown-dialog"
 
 
 ### Monitor setup (i3wm) #####
-set $mode_display (d)Hdmi  (l)Laptop  (a)Both
-mode "$mode_display" {
-  bindsym l exec --no-startup-id monitorset -m laptop, mode "default"
-  bindsym d exec --no-startup-id monitorset -m hdmi, mode "default"
-  bindsym a exec --no-startup-id monitorset -m ambos, mode "default"
-
-  # back to normal: Enter or Escape
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-}
-bindsym $mod+x mode "$mode_display"
+# set $mode_display (d)Hdmi  (l)Laptop  (a)Both
+# mode "$mode_display" {
+#   bindsym l exec --no-startup-id monitorset -m laptop, mode "default"
+#   bindsym d exec --no-startup-id monitorset -m hdmi, mode "default"
+#   bindsym a exec --no-startup-id monitorset -m ambos, mode "default"
+# 
+#   # back to normal: Enter or Escape
+#   bindsym Return mode "default"
+#   bindsym Escape mode "default"
+# }
+# bindsym $mod+x mode "$mode_display"
 
 ### Get attachments (i3wm) ###
-set $share_attach  (q)ColorPick   (w)RecMedia  (e)AudioAnki  (r)SentAnki  (t)ShotAnki
-
-mode "$share_attach" {
-  bindsym q --release exec --no-startup-id color-pick, mode "default"
-  bindsym w exec --no-startup-id dmenurecord, mode "default"
-  bindsym e exec --no-startup-id ames.sh -r
-  bindsym r exec --no-startup-id ames.sh -c, mode "default"
-  bindsym t exec --no-startup-id ames.sh -s, mode "default"
-
-  # back to normal: Enter or Escape
-  bindsym Return mode "default"
-  bindsym Escape mode "default"
-}
-bindsym $mod+Insert mode "$share_attach"
-bindsym $mod+F12 mode "$share_attach"
+# set $share_attach  (q)ColorPick   (w)RecMedia  (e)AudioAnki  (r)SentAnki  (t)ShotAnki
+# 
+# mode "$share_attach" {
+#   bindsym q --release exec --no-startup-id color-pick, mode "default"
+#   bindsym w exec --no-startup-id dmenurecord, mode "default"
+#   bindsym e exec --no-startup-id ames.sh -r
+#   bindsym r exec --no-startup-id ames.sh -c, mode "default"
+#   bindsym t exec --no-startup-id ames.sh -s, mode "default"
+# 
+#   # back to normal: Enter or Escape
+#   bindsym Return mode "default"
+#   bindsym Escape mode "default"
+# }
+# bindsym $mod+Insert mode "$share_attach"
+# bindsym $mod+F12 mode "$share_attach"
 
 # ScreenShot menu
-bindsym --release $mod+Pause exec --no-startup-id maimpick
-bindsym --release Print exec --no-startup-id maimpick
-bindsym --release $mod+o exec --no-startup-id maimocr
+# bindsym --release $mod+Pause exec --no-startup-id maimpick
+# bindsym --release Print exec --no-startup-id maimpick
+# bindsym --release $mod+o exec --no-startup-id maimocr
 # bindsym --release Print exec --no-startup-id maimpick full
+bindsym --release Print exec --no-startup-id mate-screenshot
+bindsym --release $mod+Print exec --no-startup-id mate-screenshot -a
+
 
 # Open Calculator
-bindsym XF86Calculator exec --no-startup-id qalculate-gtk
+# bindsym XF86Calculator exec --no-startup-id qalculate-gtk
 
 # Audio
-bindsym XF86AudioRaiseVolume exec --no-startup-id xf86-control volume_up
-bindsym XF86AudioLowerVolume exec --no-startup-id xf86-control volume_down
-bindsym XF86AudioMute exec --no-startup-id xf86-control volume_mute
+# bindsym XF86AudioRaiseVolume exec --no-startup-id xf86-control volume_up
+# bindsym XF86AudioLowerVolume exec --no-startup-id xf86-control volume_down
+# bindsym XF86AudioMute exec --no-startup-id xf86-control volume_mute
 
 # Player Control
-bindsym XF86AudioPlay exec --no-startup-id xf86-control play_pause
-bindsym XF86AudioPause exec --no-startup-id xf86-control play_pause
-bindsym XF86AudioNext exec --no-startup-id xf86-control next_track
-bindsym XF86AudioPrev exec --no-startup-id xf86-control prev_track
-bindsym XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
-bindsym XF86AudioStop exec --no-startup-id playerctl stop
+# bindsym XF86AudioPlay exec --no-startup-id xf86-control play_pause
+# bindsym XF86AudioPause exec --no-startup-id xf86-control play_pause
+# bindsym XF86AudioNext exec --no-startup-id xf86-control next_track
+# bindsym XF86AudioPrev exec --no-startup-id xf86-control prev_track
+# bindsym XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
+# bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
 # File Manager
-bindsym XF86Explorer exec --no-startup-id i3-sensible-terminal --title 'File Manager' -e lf
+# bindsym XF86Explorer exec --no-startup-id i3-sensible-terminal --title 'File Manager' -e lf
 
 # Brightness Control
-bindsym XF86MonBrightnessUp exec --no-startup-id xf86-control brightness_up
-bindsym XF86MonBrightnessDown exec --no-startup-id xf86-control brightness_down
+# bindsym XF86MonBrightnessUp exec --no-startup-id xf86-control brightness_up
+# bindsym XF86MonBrightnessDown exec --no-startup-id xf86-control brightness_down

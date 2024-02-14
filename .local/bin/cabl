@@ -3,7 +3,7 @@
 # Cabl for AJATTers.
 # Original concept: https://odysee.com/@Luke:7/plumbing-in-linux-la-plan-9-from-bell:e
 
-# Dependencies are wl-clipboard and jq.
+# Dependencies are xclip and xorg-xprop.
 # qrencode required for qrcode generation.
 # groff/zathura required for man pages.
 
@@ -18,9 +18,9 @@ __strip() {
 
 # If you run `cabl clip`, reads from the clipboard instead.
 if [[ $1 == clip* ]]; then
-	search_text="$(wl-paste --no-newline -p | __strip)"
+	search_text="$(xclip -o -selection clipboard | __strip)"
 else
-	search_text="$( { wl-paste -o -p || wl-paste --no-newline -p; } | __strip)"
+	search_text="$( { xclip -o || xclip -o -selection clipboard; } | __strip)"
 fi
 readonly search_text
 
@@ -135,7 +135,7 @@ forvodl() {
 		notify-send "${0##*/} - ${FUNCNAME[0]}" "Couldn't find anything matching $searchterm." &
 		return 1
 	else
-		echo -n "$audiofiles" | wl-copy -p
+		echo -n "$audiofiles" | xclip -selection clipboard
 		notify-send "${0##*/} - ${FUNCNAME[0]}" "File(s) added to Anki collection. Codes are copied to the clipboard." &
 	fi
 }
@@ -151,8 +151,8 @@ if [[ $locale == ja ]]; then
 			--unk-format='\n' <<< "$*" |
 			sed '/^ *$/d' |
 			{ rofi -dmenu || echo "$*" ;} |
-			tee >(wl-copy) |
-			wl-copy -p
+			tee >(xclip) |
+			xclip -selection clipboard
 	}
 	longman() { "$BROWSER" "https://www.ldoceonline.com/search/japanese-english/direct/?q=$*"; }
 	aozora_search() { "$BROWSER" "https://myokoym.net/aozorasearch/search?word=$*"; }
@@ -177,7 +177,7 @@ if [[ $locale == ja ]]; then
 		IFS='|▼▽ ,.・、。' read -r -a args <<<"$*"
 		if [[ ${#args[@]} -ge 0 ]]; then
 			result=$(rankspellings -g "${args[@]}")
-			echo "$result" | cut -f1 | head -1 | tr -d '\n' | wl-copy -p
+			echo "$result" | cut -f1 | head -1 | tr -d '\n' | xclip -selection clipboard
 			notify-send "${0##*/} - ${FUNCNAME[0]}" "$result" &
 		fi
 	}
@@ -223,7 +223,7 @@ else
 			notify-send "${0##*/} - ${FUNCNAME[0]}" "Couldn't find anything matching $searchterm." &
 			return 1
 		else
-			echo -n "$audiofiles" | wl-copy -p
+			echo -n "$audiofiles" | xclip -selection clipboard
 			notify-send "${0##*/} - ${FUNCNAME[0]}" "File(s) added to Anki collection. Codes are copied to the clipboard." &
 		fi
 	}
@@ -332,6 +332,17 @@ mangadex() {
 	"$BROWSER" "https://mangadex.org/search?q=$*"
 }
 
+invidius() {
+	"$BROWSER" "https://yewtu.be/search?q=$*"
+}
+
+youtube() {
+	"$BROWSER" "https://www.youtube.com/results?search_query=$*"
+}
+
+
+
+
 # Download a streamable video through Tor
 # Enable tor - sudo systemctl start tor
 echo "$search_text" | grep -Fq "streamable.com" &&
@@ -382,7 +393,7 @@ command -v qrencode >/dev/null &&
 	qrcode() {
 		local -r img_path=/tmp/qr.png
 		qrencode "$@" -s 10 -o "$img_path" &&
-			wl-copy < "$img_path" && xdg-open "$img_path"
+			xclip -sel c -target image/png "$img_path" && xdg-open "$img_path"
 	}
 
 if echo "$search_text" | grep -q "/watch?v=\|invidious\|youtube\.com\|youtu\.be\|twitch\.tv/video"; then
@@ -421,34 +432,28 @@ if [[ $search_text =~ twitter\.com/[^/]*/status/ ]]; then
 fi
 
 __ask_action() {
-    declare -F | awk '!/ __.+$/ {gsub("_", " ", $3); print $3}' |
-        rofi -dmenu -p "Plumb ${search_text:0:30} to?" -i
+	declare -F | awk '!/ __.+$/ {gsub("_", " ", $3); print $3}' |
+		rofi -dmenu -p "Plumb ${search_text:0:30} to?" -i -l 10
 }
 
 __main() {
-    local pid func
+	local pid func
 
-    if [[ -z "$search_text" ]]; then
-        echo "Clipboard is empty." >&2 && exit 1
-    fi
+	if [[ -z "$search_text" ]]; then
+		echo "Clipboard is empty." >&2 && exit 1
+	fi
 
-    # Get active window ID using swaymsg
-    pid=$(swaymsg -t get_tree | jq -r '.. | objects | select(.focused == true).pid')
+	pid=$(xprop -id "$(xprop -root | awk '/_NET_ACTIVE_WINDOW\(WINDOW\)/{print $NF}')" | grep -m 1 PID | cut -d " " -f 3)
+	for pid in $(pstree -lpA "$pid" | head -1 | grep --color=never -oP '\(\K\d+(?=\))'); do
+		cd -- "$(readlink -- "/proc/$pid/cwd")" || continue
+		[[ -f "$search_text" ]] && xdg-open "$search_text" && exit
+		[[ -d "$search_text" ]] && "${TERMINAL:-alacritty}" -e "${FILE:-lf}" "$search_text" && exit
+	done
 
-    for pid in $(pstree -lpA "$pid" | head -1 | grep --color=never -oP '\(\K\d+(?=\))'); do
-        cd -- "$(readlink -- "/proc/$pid/cwd")" || continue
-
-        # Check if the text is a file and open it
-        [[ -f "$search_text" ]] && xdg-open "$search_text" && exit
-
-		# Check if the text is a directory and open it with the terminal
-        [[ -d "$search_text" ]] && "${TERMINAL:-alacritty}" -e "${FILE:-lf}" "$search_text" && exit
-    done
-
-	# If the file or directory could not be found, ask the user what action to take
-    if [[ -n ${func:=$(__ask_action)} ]]; then
-        "${func// /_}" "$search_text"
-    fi
+	if [[ -n ${func:=$(__ask_action)} ]]; then
+		"${func// /_}" "$search_text"
+	fi
+	rm -rf -- "$tmp_dir"
 }
 
 __main
