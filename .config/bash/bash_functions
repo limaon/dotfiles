@@ -1,12 +1,35 @@
-###
-### FZF Aliases
-###
-########################
+# Uninstall all packages no longer required as dependencies (orphans)
+remorphans() {
+  local packages=()
+
+  for package in $(pacman -Qdtq); do
+    packages+=("$package")
+  done
+
+  echo "Found ${#packages[*]} orphans."
+  if ! [[ ${#packages[*]} -eq 0 ]]; then
+    sudo pacman -Rns "${packages[@]}"
+  fi
+}
+
+lf() {
+  \umask 077
+  tmp="$(command mktemp)"
+  command lf -last-dir-path="$tmp" "$@"
+  if [ -f "$tmp" ]; then
+    dir="$(command cat "$tmp")"
+    command rm -f "$tmp"
+  else
+    \return 1
+  fi
+  if [ -d "$dir" ] && [ "$dir" != "$(pwd)" ]; then
+    \cd "$dir" || \return 1
+  fi
+}
 
 
-###
-### locate
-###
+### FZF functions
+## locate
 fall() {
     local file
     dir="$(pwd)"
@@ -14,9 +37,7 @@ fall() {
 }
 
 
-###
 ### Edit file
-###
 fe() {
     local file
 
@@ -41,9 +62,7 @@ fe() {
 }
 
 
-###
 ### Goto directory
-###
 fd() {
     local dir
     dir=$(find . \
@@ -56,25 +75,22 @@ fd() {
 }
 
 
-###
 ### kill process
-###
 fkill() {
     ps -ef | sed 1d | fzf -m | awk '{print $2}' | xargs kill -${1:-9}
 }
 
 
-###
 ### Show process
-###
 fps() {
     ps aux | sed 1d | fzf -m
 }
 
 
-###
 ### History search
-###
 fh() {
     eval "$(history | fzf +s --tac | awk '{$1=""; print $0}' | sed 's/^[ \t]*//')"
 }
+
+
+# vim:ft=bash

@@ -1,11 +1,10 @@
-# The  personal initialization file, executed for login shells.
 # ~/.bashrc: executed by bash(1) for non-login shells.
 
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
 # If not running interactively, don't do anything
-case $- in
-    *i*) ;;
-    *) exit;;
-esac
+[ -z "$PS1" ] && return
 
 
 # Global tab size
@@ -15,50 +14,384 @@ esac
 tabs -4 > /dev/null
 
 
-# Shell options
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+export HISTCONTROL="ignorespace:ignoredups:erasedups"
+
+## Set the history timestamp format to include date and time with seconds
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S: "
+
+# append to the history file, don't overwrite it (shell options)
+shopt -s histappend
 shopt -s nocaseglob 
-shopt -s checkwinsize
 shopt -s autocd
 shopt -s cdspell
-shopt -s globstar
-shopt -s histappend
 shopt -s extglob
 shopt -s dotglob
 shopt -s direxpand
 shopt -s histverify
 shopt -s lithist
 shopt -s cmdhist
-
 complete -cf doas
 set -o noclobber
 
-#
-# Enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if ! shopt -oq posix; then
-    if [ -f /usr/share/bash-completion/bash_completion ]; then
-        source /usr/share/bash-completion/bash_completion
-    elif [ -f /etc/bash_completion ]; then
-        source /etc/bash_completion
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=10000
+HISTFILESIZE=20000
+
+##########################
+# Not sure what these do #
+##########################
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# Make VIM the global editor
+export VISUAL=nvim
+export EDITOR="$VISUAL"
+export SYSTEMD_EDITOR="$VISUAL"
+export SUDO_EDITOR="$VISUAL"
+
+## Login terminal type
+export TERM="xterm-256color"
+export TERMINAL="/usr/bin/kitty"
+export TERMINAL_PROG="$TERMINAL"
+export COLORTERM=truecolor
+
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+### Default XDG path end clean up ${HOME}
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_CACHE_HOME="${HOME}/.cache"
+export XDG_STATE_HOME="${HOME}/.local/state"
+if [ -f ${XDG_CONFIG_HOME}/user-dirs.dirs ]; then
+    . ${XDG_CONFIG_HOME}/user-dirs.dirs
+    export XDG_DESKTOP_DIR
+    export XDG_DOWNLOAD_DIR
+    export XDG_TEMPLATES_DIR
+    export XDG_PUBLICSHARE_DIR
+    export XDG_DOCUMENTS_DIR
+    export XDG_MUSIC_DIR
+    export XDG_PICTURES_DIR
+    export XDG_VIDEOS_DIR
+fi
+
+# FZF default options
+export FZF_DEFAULT_OPTS="--layout=reverse --height 40%"
+
+# Limits recursive functions, see 'man bash'
+[[ -z "$FUNCNEST" ]] && export FUNCNEST=100
+
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (assumes that anything connected that supports x-term can support color...)
+case "$TERM" in
+    xterm*) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
     fi
 fi
 
-
-
-###
-### Includes
-###
-########################
-
-##
-## Source non-login shell config files
-if [ -d "${XDG_CONFIG_HOME}/bash/config/bashrc.d/" ]; then
-    for f in ${XDG_CONFIG_HOME}/bash/config/bashrc.d/*.bash ; do
-        source "${f}"
-    done
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
 fi
 
+# If git isn't installed yet... these should not fail
+if [ "$(which git)" ]; then
+    export GIT_PS1_SHOWDIRTYSTATE=1
+    export GIT_PS1_SHOWSTASHSTATE=1
+    export GIT_PS1_SHOWUNTRACKEDFILES=1
+fi
+
+set_bash_prompt()
+{
+    # Se este for um terminal xterm, define o título para usuário (diretório)
+    case "$TERM" in
+        xterm*|rxvt*)
+            echo -ne "\033]0;${USER} ( ${PWD} )\007"
+            ;;
+        *)
+            ;;
+    esac
+
+    # Carrega as funções do Git para o prompt, se disponíveis
+    if [[ -f "/usr/share/git/git-prompt.sh" ]]
+    then
+        source /usr/share/git/git-prompt.sh
+    fi
+
+    # Configura o prompt com ou sem cores
+    if [ "$color_prompt" = yes ]; then
+        RESET='\[\e[0m\]'
+        C11='\[\e[1;32m\]'
+        C13='\[\e[1;34m\]'
+        export GIT_PS1_SHOWCOLORHINTS=1
+        PS1="${debian_chroot:+($debian_chroot)}$C11\u@\h$RESET $C13\w$RESET$(__git_ps1 ' (%s)')$RESET\$ "
+    else
+        PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1 ':(%s)')\$ "
+    fi
+}
+
+# Isso diz ao bash para reinterpretar PS1 após cada comando, que precisamos porque
+# __git_ps1 pode estar gerando códigos de cores
+PROMPT_COMMAND=set_bash_prompt
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls -F --color=auto --group-directories-first'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+	alias diff='diff --color=auto'
+
+    alias grep='grep --color=auto -d skip --binary-file=without-match'
+    alias fgrep='fgrep --color=auto --binary-file=without-match'
+    alias egrep='egrep --color=auto --binary-file=without-match'
+fi
+
+# Enable application term colors
+export CLICOLOR=1
+export GREP_COLORS='0;31'
+export COLORFGBG="default;default"
+
+# Getting man page colors
+export LESS_TERMCAP_mb=$'\E[1;31m'              # begin blinking
+export LESS_TERMCAP_md=$'\E[1;31m'              # begin bold
+export LESS_TERMCAP_me=$'\E[0m'	                # end mode
+export LESS_TERMCAP_se=$'\E[0m'	                # end standout-mode
+export LESS_TERMCAP_so=$'\E[01;33;40m'          # begin standout-mode - info box
+export LESS_TERMCAP_ue=$'\E[0m'	                # end underline
+export LESS_TERMCAP_us=$'\E[1;32m'              # begin underline
+export LESS='-F -i -J -M -R -W -x4 -X -z-4'
+export GROFF_NO_SGR=1
+
+# Getting ls for files colors
+export LS_COLORS="\
+ln=01;36:or=31;01:tw=38;5;47:ow=38;5;47:st=01;34:di=01;34:\
+pi=33:so=01;35:bd=33;01:cd=33;01:su=01;32:sg=01;32:ex=01;32:fi=00:\
+*.tar=00;38;5;61:*.tgz=01;38;5;61:*.arc=01;38;5;61:*.arj=01;38;5;61:*.taz=01;38;5;61:\
+*.lha=01;38;5;61:*.lz4=01;38;5;61:*.lzh=01;38;5;61:*.lzma=01;38;5;61:*.tlz=01;38;5;61:\
+*.txz=01;38;5;61:*.tzo=01;38;5;61:*.t7z=01;38;5;61:*.zip=01;38;5;61:*.z=01;38;5;61:\
+*.dz=01;38;5;61:*.gz=01;38;5;61:*.lrz=01;38;5;61:*.lz=01;38;5;61:*.lzo=01;38;5;61:\
+*.xz=01;38;5;61:*.zst=01;38;5;61:*.tzst=01;38;5;61:*.bz2=01;38;5;61:*.bz=01;38;5;61:\
+*.tbz=01;38;5;61:*.tbz2=01;38;5;61:*.tz=01;38;5;61:*.deb=01;38;5;61:*.rpm=01;38;5;61:\
+*.jar=01;38;5;61:*.war=01;38;5;61:*.ear=01;38;5;61:*.sar=01;38;5;61:*.rar=01;38;5;61:\
+*.alz=01;38;5;61:*.ace=01;38;5;61:*.zoo=01;38;5;61:*.cpio=01;38;5;61:*.7z=01;38;5;61:\
+*.rz=01;38;5;61:*.cab=01;38;5;61:*.wim=01;38;5;61:*.swm=01;38;5;61:*.dwm=01;38;5;61:\
+*.esd=01;38;5;61:*.jpg=00;38;5;136:*.JPG=00;38;5;136:*.jpeg=00;38;5;136:*.mjpg=00;38;5;136:\
+*.mjpeg=00;38;5;136:*.webp=00;38;5;136:*.gif=00;38;5;136:*.bmp=00;38;5;136:*.pbm=00;38;5;136:\
+*.pgm=00;38;5;136:*.ppm=00;38;5;136:*.tga=00;38;5;136:*.xbm=00;38;5;136:*.xpm=00;38;5;136:\
+*.tif=00;38;5;136:*.tiff=00;38;5;136:*.png=00;38;5;136:*.svg=00;38;5;136:*.svgz=00;38;5;136:\
+*.mng=00;38;5;136:*.odg=00;38;5;136:*.pcx=38;2;218;8;255:*.mov=38;2;218;8;255:\
+*.mpg=38;2;218;8;255:*.mpeg=38;2;218;8;255:*.m2v=38;2;218;8;255:\
+*.mkv=38;2;218;8;255:*.webm=38;2;218;8;255:*.ogm=38;2;218;8;255:\
+*.mp4=38;2;218;8;255:*.m4v=38;2;218;8;255:*.mp4v=38;2;218;8;255:\
+*.vob=38;2;218;8;255:*.qt=38;2;218;8;255:*.nuv=38;2;218;8;255:\
+*.wmv=38;2;218;8;255:*.asf=38;2;218;8;255:*.rm=38;2;218;8;255:\
+*.rmvb=38;2;218;8;255:*.flc=38;2;218;8;255:*.avi=38;2;218;8;255:\
+*.fli=38;2;218;8;255:*.flv=38;2;218;8;255:*.gl=38;2;218;8;255:\
+*.dl=38;2;218;8;255:*.xcf=38;2;218;8;255:*.xwd=38;2;218;8;255:\
+*.yuv=38;2;218;8;255:*.cgm=38;2;218;8;255:*.emf=38;2;218;8;255:\
+*.ogv=38;2;218;8;255:*.ogx=38;2;218;8;255:*.aac=00;38;5;166:*.au=00;38;5;166:\
+*.flac=00;38;5;166:*.m4a=00;38;5;166:*.mid=00;38;5;166:*.midi=00;38;5;166:\
+*.mka=00;38;5;166:*.mp3=00;38;5;166:*.mpc=00;38;5;166:*.ogg=00;38;5;166:\
+*.ra=00;38;5;166:*.wav=00;38;5;166:*.oga=00;38;5;166:*.opus=00;38;5;166:\
+*.spx=00;38;5;166:*.xspf=00;38;5;166:*.pdf=00;38;5;124:*.PDF=00;38;5;124:\
+*.ps=38;2;249;46;73:*.epub=38;2;249;46;73:*.mobi=38;2;249;46;73:*.ods=92:\
+*.xls=92:*.XLS=92:*.xlsx=92:*.XLSX=92:*.odt=94:*.doc=38;5;27:*.DOC=38;5;27:\
+*.docx=38;5;27:*.DOCX=38;5;27:*.odp=38;2;249;62;0:\
+*.ppt=38;2;249;62;0:*.PPT=38;2;249;62;0:*.pptx=38;2;249;62;0:\
+*.PPTX=38;2;249;62;0:*.iso=38;5;221:*.img=38;5;221:*.py=38;5;178:\
+*.lua=38;5;129:*.js=38;5;226:*.json=38;5;220:*.htm=38;5;136:*.html=38;5;136:\
+*.shtml=38;5;136:*.xhtml=38;5;136:*.css=38;5;45:*.go=38;5;39:\
+*.php=38;5;75:*.tex=38;5;36:*.c=38;2;121;168;244:*.cpp=38;2;141;116;244:\
+*.cs=38;2;203;121;244:*.r=38;5;39:*.R=38;5;39:*.rs=38;2;225;105;0:\
+*.pl=38;2;0;115;255:*.raku=38;2;225;0;221:*.m=38;2;225;43;7:\
+*.java=38;2;225;136;0:*.scala=38;5;196:*.vim=32:*.rb=38;5;39:\
+*.sql=38;5;249:*.sqlite=38;5;249:*.db=38;5;249:*.odb=38;5;249:\
+*.apk=38;5;82:*.apk=38;5;82:*.jl=38;5;147:*.hs=38;5;133:\
+*.lhs=38;5;133:*.blend=38;5;208:*.torrent=01;38;5;245:*.md=01;38;5;245:\
+*.ini=01;38;5;245:*.conf=01;38;5;245:\
+"
+
+# Exports to clean my home directory
+export USERXSESSION="${XDG_CACHE_HOME}/.cache/X11/xsession"
+export USERXSESSIONRC="${XDG_CACHE_HOME}/.cache/X11/xsessionrc"
+export ERRFILE="${XDG_CACHE_HOME}/X11/xsession-errors"
+export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
+export ASDF_DATA_DIR="${XDG_DATA_HOME}/asdf"
+export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/pip/default-python-packages"
+export ASDF_NPM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/npm/default-npm-packages"
+export ASDF_GEM_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/gem/default-gems"
+export CARGO_HOME="${XDG_DATA_HOME}/cargo"
+export ELECTRUMDIR="${XDG_DATA_HOME}/electrum"
+export GEM_HOME="$(ruby -e 'puts Gem.user_dir' 2>/dev/null)"
+export ATOM_HOME="${XDG_DATA_HOME}/atom"
+export AZURE_CONFIG_DIR="${XDG_DATA_HOME}/azure"
+export CONDARC="${XDG_CONFIG_HOME}/conda/condarc"
+export LYNX_CFG="${XDG_CONFIG_HOME}/lynx/lynxrc"
+export LYNX_LSS="${XDG_CONFIG_HOME}/lynx/lynx.lss"
+export DOCKER_CONFIG="${XDG_CONFIG_HOME}/docker"
+export DOT_SAGE="${XDG_CONFIG_HOME}/sage"
+export EM_CONFIG="${XDG_CONFIG_HOME}/emscripten/config"
+export EM_CACHE="${XDG_CACHE_HOME}/emscripten/cache"
+export EM_PORTS="${XDG_DATA_HOME}/emscripten/cache"
+export GEM_SPEC_CACHE="${XDG_CACHE_HOME}/gem"
+export GRADLE_USER_HOME="${XDG_DATA_HOME}/gradle"
+export GRIPHOME="${XDG_CONFIG_HOME}/grip"
+export GTK_RC_FILES="${XDG_CONFIG_HOME}/gtk-1.0/gtkrc"
+export GTK2_RC_FILES="${XDG_CONFIG_HOME}/gtk-2.0/gtkrc"
+export XCURSOR_PATH="/usr/share/icons:$XDG_DATA_HOME/icons"
+export ICEAUTHORITY="${XDG_CACHE_HOME}/ICEauthority"
+export IMAPFILTER_HOME="${XDG_CONFIG_HOME}/imapfilter"
+export IPYTHONDIR="${XDG_CONFIG_HOME}/jupyter"
+export IRBRC="${XDG_CONFIG_HOME}/irb/irbrc"
+export JUPYTER_CONFIG_DIR="${XDG_CONFIG_HOME}/jupyter"
+export KDEHOME="${XDG_CONFIG_HOME}/kde4"
+export KODI_DATA="${XDG_DATA_HOME}/kodi"
+export LEIN_HOME="${XDG_DATA_HOME}/lein"
+export MACHINE_STORAGE_PATH="${XDG_DATA_HOME}/docker-machine"
+export MATHEMATICA_USERBASE="${XDG_CONFIG_HOME}/mathematica"
+export MAXIMA_USERDIR="${XDG_CONFIG_HOME}/maxima"
+export MEDNAFEN_HOME="${XDG_CONFIG_HOME}/mednafen"
+export MOST_INITFILE="${XDG_CONFIG_HOME}/mostrc"
+export MPLAYER_HOME="${XDG_CONFIG_HOME}/mplayer"
+export NODE_REPL_HISTORY="${XDG_DATA_HOME}/node_repl_history"
+export NOTMUCH_CONFIG="${XDG_CONFIG_HOME}/notmuch/notmuchrc"
+export INPUTRC="${XDG_CONFIG_HOME}/readline/inputr"
+export NMBGIT="${XDG_DATA_HOME}/notmuch/nmbug"
+export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/npmrc"
+export NUGET_PACKAGES="${XDG_CACHE_HOME}/NuGetPackages"
+export PARALLEL_HOME="${XDG_CONFIG_HOME}/parallel"
+export PSQLRC="${XDG_CONFIG_HOME}/pg/psqlrc"
+export PSQL_HISTORY="${XDG_CACHE_HOME}/pg/psql_history"
+export PGPASSFILE="${XDG_CONFIG_HOME}/pg/pgpass"
+export PGSERVICEFILE="${XDG_CONFIG_HOME}/pg/pg_service.conf"
+export PYTHON_EGG_CACHE="${XDG_CACHE_HOME}/python-eggs"
+export PYLINTHOME="${XDG_CACHE_HOME}/pylint"
+export PLTUSERHOME="${XDG_DATA_HOME}/racket"
+export RLWRAP_HOME="${XDG_DATA_HOME}/rlwrap"
+export RUSTUP_HOME="${XDG_DATA_HOME}/rustup"
+export RXVT_SOCKET="${XDG_RUNTIME_DIR}/urxvtd"
+export SCREENRC="${XDG_CONFIG_HOME}/screen/screenrc"
+export SPACEMACSDIR="${XDG_CONFIG_HOME}/spacemacs"
+export STACK_ROOT="${XDG_DATA_HOME}/stack"
+export TASKDATA="${XDG_DATA_HOME}/task"
+export TASKRC="${XDG_CONFIG_HOME}/task/taskrc"
+export TERMINFO="${XDG_DATA_HOME}/terminfo"
+export TEXMFHOME="${XDG_DATA_HOME}/texmf"
+export TEXMFVAR="${XDG_CACHE_HOME}/texlive/texmf-var"
+export TEXMFCONFIG="${XDG_CONFIG_HOME}/texlive/texmf-config"
+export UNCRUSTIFY_CONFIG="${XDG_CONFIG_HOME}/uncrustify/uncrustify.cfg"
+export ANSIBLE_CONFIG="${XDG_CONFIG_HOME}/ansible/ansible.cfg"
+export UNISON="${XDG_DATA_HOME}/unison"
+export VAGRANT_HOME="${XDG_DATA_HOME}/vagrant"
+export VAGRANT_ALIAS_FILE="${XDG_DATA_HOME}/vagrant/aliases"
+export VSCODE_PORTABLE="${XDG_DATA_HOME}/vscode"
+export WEECHAT_HOME="${XDG_CONFIG_HOME}/weechat"
+export WORKON_HOME="${XDG_DATA_HOME}/virtualenvs"
+export WGETRC="${XDG_CONFIG_HOME}/wget/wgetrc"
+export WINEPREFIX="${XDG_DATA_HOME}/wineprefixes/default"
+export MYSQL_HISTFILE="${XDG_DATA_HOME}/mysql_history"
+export ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
+export TMUX_TMPDIR="${XDG_RUNTIME_DIR}"
+export ANDROID_SDK_HOME="${XDG_CONFIG_HOME}/android"
+export GOPATH="${XDG_DATA_HOME}/go"
+export GOMODCACHE="${XDG_CACHE_HOME}/go/mod"
+export ANSIBLE_CONFIG="${XDG_CONFIG_HOME}/ansible/ansible.cfg"
+export MBSYNCRC="${XDG_CONFIG_HOME}/mbsync/config"
+export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/pythonrc"
+export PYTHONHISTORY="${XDG_CACHE_HOME}/python/history"
+export SQLITE_HISTORY="${XDG_DATA_HOME}/sqlite_history"
+export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+export PASSWORD_STORE_DIR="${XDG_DATA_HOME}/password-store"
+export GDK_SCALE=1
+export GDK_DPI_SCALE=1
+
+
+# Enable Git autocompletion
+if [ -f /usr/share/git/completion/git-completion.bash ]; then
+    source /usr/share/git/completion/git-completion.bash
+fi
+
+# --------------------------- References to other files---------------------------
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+# General bash aliases
+if [ -f ~/.config/bash/bash_aliases ]; then
+    . ~/.config/bash/bash_aliases
+fi
+
+# General bash functions
+if [ -f ~/.config/bash/bash_functions ]; then
+    . ~/.config/bash/bash_functions
+fi
+
+# Task warrior commands to make using it more efficient
+if [ -f ~/.bash_taskwarrior ]; then
+    . ~/.bash_taskwarrior
+fi
+
+# A fun welcome screen for when you open a terminal :)
+if [ -f ~/.bash_welcome ]; then
+    . ~/.bash_welcome
+fi
+
+# Source some local only settings
+if [ -f ~/.bash_personal ]; then
+    . ~/.bash_personal
+fi
+
+# Add all directories in `~/.local/bin` to $PATH
+if [[ -d "$HOME/.local/bin/" ]]; then
+	PATH="$PATH:$(find ~/.local/bin -type d | paste -sd ':' -)"
+fi
+
+
+## Source asdf-vm settings
+[[ -f "/opt/asdf-vm/asdf.sh" ]] && source /opt/asdf-vm/asdf.sh
+
+
+## Java setup for asdf
+export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=gasp -Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java"
+if [[ -f "${HOME}/.local/share/asdf/plugins/java/set-java-home.bash" ]]; then
+    source "${HOME}/.local/share/asdf/plugins/java/set-java-home.bash"
+fi
+
+
+[ -f /usr/share/fzf/completion.bash ] && source /usr/share/fzf/completion.bash
 
 ###
 ### TMUX
@@ -78,3 +411,9 @@ fi
 #         exec tmux -2 -u attach-session -t "${SESS_ID}"
 #     fi
 # fi
+
+
+# -------------------------------- From Server -------------------------------
+
+
+

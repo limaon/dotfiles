@@ -1,15 +1,11 @@
-###
 ### Command Aliases
-###
-########################
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 
-
-# Use $XINITRC variable if file exists.
-[ -f "$XINITRC" ] && alias startx="startx $XINITRC"
-
-
-## Defaults
+## Defaults for basic commands
 alias du='du -d1 -h'
 alias info='info --vi-keys'
 alias less='less --IGNORE-CASE --tabs=4 --status-column --LONG-PROMPT --line-numbers --RAW-CONTROL-CHARS'
@@ -22,30 +18,23 @@ alias tmux="tmux -2 -u"
 alias ta="tmux -2 -u attach"
 
 
+# Startup files
+alias rc='nvim ~/.bashrc'
+alias rcs='nvim ~/.bashrc && source ~/.bashrc'
+
 
 # Confirm before overwriting something
 alias cp='cp -iv'
 alias ln='ln -i'
 alias mv='mv -iv'
 alias rm='rm -vI'
+
 alias rsync='rsync -vrPlu'
 alias rsync-keep='rsync -avzru --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r'
 alias pstree='pstree -npTC age'
-
-
-
-alias dir='dir --color=auto'
-alias vdir='vdir --color=auto'
-alias diff='diff --color=auto'
-alias grep='grep --color=auto -d skip --binary-file=without-match'
-alias ggrep="grep --exclude-dir=.git"
-alias egrep='egrep --color=auto --binary-file=without-match'
-alias fgrep='fgrep --color=auto --binary-file=without-match'
-alias rgrep='rgrep --color=auto --binary-file=without-match'
 alias rmpyc='find . -name "*.pyc" -exec rm -f {} \;'
 alias ping='ping -c 5'
 alias ip="ip -color=auto"
-
 
 
 ## Geek aliase
@@ -53,7 +42,7 @@ alias fuck='sudo $(history -p \!\!)' # Redo last command as root
 alias fake="cat /dev/urandom | hexdump -C | grep 'ca fe'"
 
 
-## Youtube
+## Youtube (yt-dlp)
 alias yt="yt-dlp --embed-metadata --embed-thumbnail -i -o '~/Videos/%(title)s.%(ext)s' -f mp4 --sponsorblock-remove all"
 alias ytautosub="yt --write-sub --sub-lang en --convert-subs vtt "
 alias ytaudio="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' --audio-format opus"
@@ -66,11 +55,11 @@ alias version="sed -n 1p /etc/os-release && sed -n 11p /etc/os-release && sed -n
 
 
 # Journal
-alias journal="journalctl --since '3 day ago'"
+alias journal="journalctl --since '3 day ago' --reverse"
 alias errors="journalctl -p err..alert -b -e"
 
 
-# Other alias
+# Utils alias
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias genpasswd="openssl rand -base64 21"
 alias trim="sudo fstrim -v / && sudo fstrim -v /home"
@@ -163,3 +152,6 @@ else # Posix ls (OSX/FreeBSD)
     alias llg='ls -oFal | grep'
 
 fi
+
+
+# vim:ft=bash
