@@ -24,7 +24,7 @@ urlencode() {
 prompt() {
   local prompt="$1"
   shift
-  printf '%s\n' "$@" | dmenu -i -p "$prompt"
+  printf '%s\n' "$@" | rofi -dmenu -i -p "$prompt"
 }
 
 # Defining options
@@ -74,7 +74,7 @@ case "$choice" in
 esac
 
 # Getting the user's search term
-search=$(prompt "Searching in $choice:" "<= Type here")
+search=$(prompt "Searching in $choice:" "Now type what yout want.")
 
 # Verifying if the user entered a value for the search
 if [ -n "$search" ]; then

@@ -192,6 +192,7 @@ else
 	collinsdictionary() { "$BROWSER" "https://www.collinsdictionary.com/search/?dictCode=english&q=$*"; }
 	merriam_webster() { "$BROWSER" "https://www.merriam-webster.com/dictionary/$*"; }
 	youglish() { "$BROWSER" "https://youglish.com/pronounce/$*/english/us"; }
+	simplytranslate() { "$BROWSER" "https://simplytranslate.vern.cc/?engine=google&text=$*&sl=en&tl=pt"; }
 	pronunciation() {
 		local -r searchterm="$*"
 		[[ -z "$searchterm" ]] && exit
@@ -339,8 +340,6 @@ invidius() {
 youtube() {
 	"$BROWSER" "https://www.youtube.com/results?search_query=$*"
 }
-
-
 
 
 # Download a streamable video through Tor

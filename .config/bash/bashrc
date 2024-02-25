@@ -156,7 +156,7 @@ set_bash_prompt()
         C11='\[\e[1;32m\]'
         C13='\[\e[1;34m\]'
         export GIT_PS1_SHOWCOLORHINTS=1
-        PS1="${debian_chroot:+($debian_chroot)}$C11\u@\h$RESET $C13\w$RESET$(__git_ps1 ' (%s)')$RESET\$ "
+        PS1="${debian_chroot:+($debian_chroot)}$C11\u@\h$RESET:$C13\w$RESET$(__git_ps1 ' (%s)')$RESET\$ "
     else
         PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1 ':(%s)')\$ "
     fi
@@ -333,7 +333,8 @@ export MBSYNCRC="${XDG_CONFIG_HOME}/mbsync/config"
 export PYTHONSTARTUP="${XDG_CONFIG_HOME}/python/pythonrc"
 export PYTHONHISTORY="${XDG_CACHE_HOME}/python/history"
 export SQLITE_HISTORY="${XDG_DATA_HOME}/sqlite_history"
-export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+# export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/gcr/ssh"
 export PASSWORD_STORE_DIR="${XDG_DATA_HOME}/password-store"
 export GDK_SCALE=1
 export GDK_DPI_SCALE=1

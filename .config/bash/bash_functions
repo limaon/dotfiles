@@ -45,8 +45,14 @@ fe() {
         -type f \
         -not \( \
             -path "*/.git*" -o \
+            -path "*/.cache*" -o \
+            -path "*/.cargo*" -o \
+            -path "*/.yarn*" -o \
+            -path "*/chromium*" -o \
             -path "*/.svn*" -o \
             -path "*.png" -o \
+            -path "*.mp4" -o \
+            -path "*.mp3" -o \
             -path "*.jpg" -o \
             -path "*.jpeg" -o \
             -path "*.bin" -o \

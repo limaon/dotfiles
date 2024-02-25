@@ -24,8 +24,8 @@ for_window [all] border normal 1
 # for_window [all] border pixel 1 title_window_icon padding 5px
 
 # Gaps specific
-gaps inner 0
-gaps outer 0
+gaps inner 8
+gaps outer 10
 
 # Ex: popup_during_fullscreen smart|ignore|leave_fullscreen
 popup_during_fullscreen smart
@@ -63,10 +63,6 @@ bindsym $mod+Ctrl+c exec --no-startup-id camtoggle
 
 # Open clipboard content dmenu
 bindsym $mod+Shift+v exec --no-startup-id ~/.local/bin/cabl clip
-
-# Start start htop / start calcurse
-bindsym $mod+t exec --no-startup-id i3-sensible-terminal -e htop
-bindsym $mod+Shift+g exec --no-startup-id i3-sensible-terminal -e calcurse -D ~/.config/calcurse
 
 # Toggle window border
 bindsym $mod+Shift+w border toggle
@@ -184,8 +180,10 @@ for_window [class="Lightdm-settings"] floating enable
 for_window [class="Ayatana-settings"] floating enable
 for_window [class="Kvantum Manager"] floating enable
 for_window [class="Mate-control-center"] floating enable
+for_window [class="System-config-printer.py"] floating enable
 for_window [class="Qalculate-gtk"] floating enable
 for_window [class="KeePassXC"] floating enable
+for_window [class="Pluma"] floating enable, sticky disable
 for_window [class="Pluma"] floating enable, sticky disable
 for_window [class="Eom"] floating enable
 for_window [window_role=browser] border pixel
@@ -205,7 +203,7 @@ for_window [window_role="GtkFileChooserDialog"] resize set 600 400, move positio
 for_window [window_role="Preferences"] floating enable
 for_window [title="(?:Open|Save) (?:File|Folder|As)"] floating enable
 for_window [title="(?:Open|Save) (?:File|Folder|As)"] resize set 600 400
-for_window [title=About|Preferences|htop|calcurse] floating enable, border normal, resize set 700 540, move position center
+for_window [title=About|Preferences|calcurse] floating enable, border normal, resize set 700 540, move position center
 for_window [class="mpv"] floating enable move position center
 for_window [title="mpv Webcam"] floating enable move position center sticky enable border pixel 2
 no_focus   [title="mpv Webcam"]
