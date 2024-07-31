@@ -1,21 +1,121 @@
 configuration {
-    show-icons: true;
-    /* icon-theme: "Papirus-Dark"; */
-    combi-modi: [ window, drun ];
-    modi: [ combi ];
-    display-combi: " Open ";
-    location: 0;
-    max-history-size: 10;
-    hide-scrollbar: true;
-    fixed-num-lines: false;
-    disable-history: false;
-    no-lazy-grab: true;
-    sort: false;
-    display-file-browser-extended: "Files";
-    display-window: " Window";
-    display-drun: " Launch";
-    display-calc: "   ";
-    display-emoji: " Select ";
+  show-icons:         true;
+  sidebar-mode:       false;
+  fixed-num-lines:    true;
+  font:               "UbuntuMono 14";
+  icon-theme:         "Papirus-Dark";
+  modi:               "drun,run,combi,window";
+  combi-modi:         "drun,run,ssh";
+  terminal:           "kitty";
+  matching:           "fuzzy";
+
+  /* Unbind keys that are going to be used in the next section */
+	kb-remove-char-back:    "BackSpace,Shift+BackSpace";
+	kb-accept-entry:        "Control+m,Return,KP_Enter";
+	kb-remove-to-eol:       "";
+	kb-mode-complete:       "";
+
+	/* Vim-like bindings */
+	kb-row-up:              "Control+k,Up,Control+p";
+	kb-row-down:            "Control+j,Down,Control+n";
+	kb-mode-next:           "Control+l,Shift+Right,Control+Tab";
+	kb-mode-previous:       "Control+h,Shift+Left";
+
 }
 
-@theme "./i3wm-theme-basic.rasi"
+
+/**
+ * ROFI Color theme inspired by Ubuntu's Yaru-Sage-Dark
+ */
+
+* {
+    background:                  #252526; /* Dark background */
+    foreground:                  #d3dae3; /* Light foreground text */
+    bordercolor:                 #0050A0; /* Sálvia green borders */
+    separatorcolor:              #3a6e57; /* Sálvia green separators */
+    spacing:                     2; /* Spacing between elements */
+    border-radius:  2px;
+
+    /* Normal state */
+    normal-background:           @background;
+    normal-foreground:           @foreground;
+    alternate-normal-background: #2d2d2e; /* Slightly lighter dark background for alternating rows */
+
+    /* Selected state */
+    selected-normal-background:  #0050A0; /* Sálvia green background */
+    selected-normal-foreground:  #f5f5f5; /* White text for contrast */
+
+    /* Urgent state */
+    urgent-background:           #cc0000; /* Red background for urgency */
+    urgent-foreground:           @foreground;
+    selected-urgent-background:  #a50000; /* Darker red for selected urgent items */
+    selected-urgent-foreground:  @selected-normal-foreground;
+
+    /* Active window */
+    active-background:           #252526;
+    active-foreground:           #81a1c1; /* Light blue for active items */
+    selected-active-background:  #0050A0;
+    selected-active-foreground:  @selected-normal-foreground;
+
+    /* Alternate rows */
+    alternate-urgent-background: @urgent-background;
+    alternate-urgent-foreground: @urgent-foreground;
+    alternate-active-background: @active-background;
+    alternate-active-foreground: @active-foreground;
+}
+
+window {
+    background-color: @background;
+    border:           1px;
+    padding:          5px;
+    width:    750px;
+}
+
+listview {
+    fixed-height:   true;
+    lines:          10;
+    border:         1px solid;
+    border-color:   @bordercolor;
+    border-radius:  2px;
+    spacing:        2px;
+    scrollbar:      false;
+}
+
+mainbox {
+	children: [ horibox, listview, mode-switcher ];
+}
+
+horibox {
+	expand: false;
+	orientation: horizontal;
+	children:   [ prompt, entry ];
+}
+
+prompt {
+	padding: 2px 6px 2px 6px;
+	margin: 0px 6px 0px 0px;
+	background-color: @bordercolor;
+	text-color: @foreground;
+}
+
+entry {
+	margin: 4px;
+}
+
+element {
+    border:  0;
+    padding: 1px;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+scrollbar {
+    width:        4px;
+    handle-width: 8px;
+}
+
+
+/* vim:ft=css

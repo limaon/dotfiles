@@ -1,0 +1,125 @@
+#!/bin/sh
+
+delete_file() {
+        if gio trash -- "$file" || trash-put -- "$file"; then
+		echo " '${file##*/}' moved to trash."
+	elif [ -f "$file" ] && [ "$(printf -- 'No\nYes' | dmenu -i -p "Really delete '$file'?")" = "Yes" ]; then
+		if rm -- "$file"; then
+			echo " '${file##*/}' deleted." &
+		else
+			echo " '${file##*/}' wasn't deleted."
+		fi
+	fi
+}
+
+copy_file() {
+	if cp -- "$file" "$destdir"; then
+		echo " '${file##*/}' copied to $destdir."
+	else
+		echo " '${file##*/}' wasn't copied to $destdir."
+	fi
+}
+
+move_file() {
+	if mv -- "$file" "$destdir"; then
+		echo " '${file##*/}' moved to $destdir."
+	else
+		echo " '${file##*/}' wasn't moved to $destdir."
+	fi
+}
+
+ask_dir() {
+	destdir="$(listmarks dirs | dmenu -l 20 -i -p "$1 file(s) to where?")"
+	[ -z "$destdir" ] && notify-send "${0##*/}" "Nothing selected, cancelled." && exit
+	[ ! -d "$destdir" ] && notify-send "${0##*/}" "'$destdir' is not a directory, cancelled." && exit
+}
+
+notify_do() {
+	result=$(
+		while read -r file; do
+			if [ -f "$file" ]; then
+				"$@"
+			else
+				echo "󰈸 '${file##*/}' does not exist."
+			fi
+		done
+	)
+	notify-send "${0##*/} processed $(echo "$result" | wc -l) files" "$result" &
+}
+
+first_file() {
+	while read -r file; do echo "$file"; return; done
+}
+
+case "$1" in
+"d")
+	# Trash or remove all selected files.
+	notify_do delete_file
+	;;
+"c")
+	# Copy all selected files to a selected directory.
+	ask_dir Copy
+	notify_do copy_file
+	;;
+"m")
+	# Move all selected files to a selected directory.
+	ask_dir Move
+	notify_do move_file
+	;;
+"w")
+	# Set the current file as a desktop background image.
+	nitrogen --set-scaled "$(first_file)"
+	;;
+"W")
+	# Convert the current file to webp.
+	file=$(first_file)
+	cwebp "$file" -sns 100 -sharp_yuv -f 100 -pass 10 -af -mt -m 6 -o "${file%.*}.webp" &
+	;;
+"r")
+	# Rotate the current file by 90 degrees.
+	file=$(first_file)
+	convert -rotate 90 "$file" "$file"
+	;;
+"R")
+	# Rotate the current file by -90 degrees.
+	file=$(first_file)
+	convert -rotate -90 "$file" "$file"
+	;;
+"f")
+	# Flop the current file.
+	file=$(first_file)
+	convert -flop "$file" "$file"
+	;;
+"I")
+	# Negate the current file.
+	file=$(first_file)
+	convert "$file" -channel RGB -negate "$file"
+	;;
+"y")
+	# Copy file name to the clipboard.
+	file=$(first_file)
+	printf -- "%s" "$file" | tr -d '\n' | xclip -selection clipboard &&
+		notify-send -i "$file" "$file copied to clipboard" &
+	;;
+"Y")
+	# Copy file path to the clipboard.
+	file=$(first_file)
+	readlink -f -- "$file" | tr -d '\n' | xclip -selection clipboard &&
+		notify-send -i "$file" "${0##*/}" "$(readlink -f -- "$file") copied to clipboard" &
+	;;
+"g")
+	# Edit the current file in gimp.
+	ifinstalled gimp && setsid -f gimp "$(first_file)"
+	;;
+"t")
+	# Tag the current file using lf. E.g, the last read manga page.
+	# When sxiv is launched as a child of lf, the 'id' vairable must be set.
+	if [ -n "$id" ] && ifinstalled lf; then
+		 lf -remote "send $id select  \"$(first_file)\"  "
+		 lf -remote "send $id tag x"
+	fi
+	;;
+*)
+	notify-send "${0##*/}" "$1 is not bound." &
+	;;
+esac

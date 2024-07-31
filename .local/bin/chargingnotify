@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# This script sends a notification about the battery status (charging or discharging) 
+# along with the current battery level.
+
+# Create a file "90-battery-notify.rules" on "/etc/udev/rules.d/"
+# and put thesse lines:
+# ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", ENV{DISPLAY}=":0", ENV{XAUTHORITY}="/home/lima/.Xauthority", RUN+="/usr/bin/su {PUT_THE_DEFAULT_USER} -c '{PATH_TO_SCRIPT}/chargingnotify 1'"
+# ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="0", ENV{DISPLAY}=":0", ENV{XAUTHORITY}="/home/lima/.Xauthority", RUN+="/usr/bin/su {PUT_THE_DEFAULT_USER} -c '{PATH_TO_SCRIPT}/chargingnotify 0'"
+# and run "sudo udevadm control --reload-rules; sudo udevadm trigger"
+
+# Export necessary environment variables
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+# Function to get the battery level
+get_battery_level() {
+  acpi -b | grep "Battery 0" | grep -P -o '[0-9]+(?=%)'
+}
+
+# Function to send notification
+send_notification() {
+  local status=$1
+  local icon=$2
+  local battery_level
+  battery_level=$(get_battery_level)
+
+  if [ -z "$battery_level" ]; then
+    notify-send "Battery Status" "Unable to retrieve battery level." -u critical -i "dialog-warning" -t 5000 -r 9991
+  else
+    notify-send "$status" "${battery_level}% of battery remaining." -u low -i "$icon" -t 5000 -r 9991
+  fi
+}
+
+# Check the input argument and send the appropriate notification
+if [ "$1" -eq 1 ]; then
+  send_notification "Charging" "battery-good-charging"
+elif [ "$1" -eq 0 ]; then
+  send_notification "Discharging" "battery-good"
+else
+  echo "Usage: $0 [1|0] (1 for charging, 0 for discharging)"
+  exit 1
+fi

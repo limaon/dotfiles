@@ -1,0 +1,142 @@
+# Basic options
+default_keybindings = false
+use_nerdfont = true
+gapless = true
+flip_status_indicators = true
+shuffle = false
+repeat = 'playlist'
+volnorm = false
+cover_max_scale = 2
+# notify = true
+# bitrate = 320
+
+[notification_format]
+title = "%title"
+body = "%artists"
+
+[audio]
+backend = "pipewire"
+
+[keybindings]
+##################
+# Fast forward / rewind
+##################
+"b" = "seek -1000"
+"f" = "seek +1000"
+"B" = "seek -10000"
+"F" = "seek +10000"
+
+##################
+# Play / pause
+##################
+"p" = "playpause"
+"Enter" = "play"
+"s" = "stop"
+
+##################
+# Track manipulation
+##################
+"H" = "previous"
+"L" = "next"
+"r" = "repeat"
+"z" = "shuffle"
+"D" = "delete"
+"S" = "save"
+
+"O" = "open current"
+"o" = "open selected"
+"A" = "goto artist"
+"a" = "goto album"
+
+##################
+# Queue
+##################
+# Add to queue
+" " = "queue"
+"Ctrl+s" = "save queue"
+# Move selected song up/down in the queue
+"J" = "shift down 1"
+"K" = "shift up 1"
+"C" = "clear"
+# Open the context menu for a Spotify link in the clipboard
+"Ctrl+v" = "insert"
+
+######################################
+# Sound
+######################################
+"=" = "volup 5"
+"-" = "voldown 5"
+"]" = "volup 1"
+"[" = "voldown 1"
+
+######################################
+# Movements
+######################################
+"F1" = "focus queue"
+"F2" = "focus library"
+"F3" = "focus search"
+"1" = "focus queue"
+"2" = "focus library"
+"Ctrl+q" = "focus queue"
+
+# Go to the playing track
+"." = "move playing"
+
+# Navigation
+"Down" = "move down 1"
+"G" = "move bottom"
+"g" = "move top"
+"Left" = "move left 1"
+"Right" = "move right 1"
+"Ctrl+d" = "move down 5"
+"Ctrl+u" = "move up 5"
+"Up" = "move up 1"
+"h" = "move left 1"
+"j" = "move down 1"
+"k" = "move up 1"
+"Ctrl+e" = "move down 1"
+"Ctrl+y" = "move up 1"
+"l" = "move right 1"
+"q" = "back"
+
+######################################
+# Sorting
+######################################
+"t" = "sort added d"
+"T" = "sort title a"
+
+######################################
+# Sharing
+######################################
+"Y" = "share selected"
+"y" = "share current"
+
+######################################
+# Other
+######################################
+"Q" = "quit"
+"Z" = "quit"
+"?" = "help"
+"U" = "update"
+
+[theme]
+# background = "#002b36"
+primary = "#93a1a1"
+secondary = "#93a1a1"
+title = "#859900"
+playing = "#b58900"
+# playing_bg = "#586e75"
+highlight = "#fdf6e3"
+highlight_bg = "#002b36"
+error = "#002b36"
+error_bg = "#dc322f"
+statusbar = "#002b36"
+statusbar_progress = "#eee8d5"
+statusbar_bg = "#93a1a1"
+cmdline = "#002b36"
+cmdline_bg = "#586e75"
+
+[track_format]
+left = "%saved | %duration | %title - %artists"
+center = ""
+right = "%album"

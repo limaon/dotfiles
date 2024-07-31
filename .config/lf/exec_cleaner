@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+
+if hash kitty 2>/dev/null; then
+  kitty +kitten icat --clear --stdin no --silent --transfer-mode file < /dev/null > /dev/tty
+fi

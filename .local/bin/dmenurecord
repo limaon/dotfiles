@@ -1,0 +1,225 @@
+#!/usr/bin/env bash
+
+# Usage:
+# `$0`: Ask for recording type via dmenu
+# `$0 screencast`: Record both audio and screen
+# `$0 video`: Record only screen
+# `$0 audio`: Record only audio
+# `$0 kill`: Kill existing recording
+#
+# If there is already a running instance, user will be prompted to end it.
+# https://trac.ffmpeg.org/wiki/Encode/H.264
+
+screen_resolution() {
+	# first monitor only
+	xrandr | grep -Po 'connected primary \K[^ ]*?(?=\+)'
+}
+
+getdim() { xrandr | grep -oP '(?<=current ).*(?=,)' | tr -d ' ' ;}
+
+notify_end() { notify-send "$(basename "$0")" "Stopped recording."; }
+
+updateicon() {
+	echo "$1" >/tmp/recordingicon
+	pkill -RTMIN+9 "${STATUSBAR:-i3blocks}"
+}
+
+timestamp() {
+	date -u '+%Y-%b-%d_%H-%M-%S'
+}
+
+killrecording() {
+	recpid="$(cat /tmp/recordingpid)"
+	# kill with SIGTERM, allowing finishing touches.
+	kill -15 "$recpid" && notify_end
+	rm -f /tmp/recordingpid
+	updateicon ""
+	# even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+	sleep 3
+	kill -9 "$recpid" && notify_end
+	exit
+}
+
+__ffmpeg() {
+	local -r input=${1:?}
+	local -r video_resolution=${2:?}
+	local -r output=${3:?}
+
+	exec ffmpeg -y \
+		-f x11grab \
+		-framerate 30 \
+		-s "$video_resolution" \
+		-i "$input" \
+		-use_wallclock_as_timestamps 1 \
+		-f alsa \
+		-thread_queue_size 1024 \
+		-i default \
+		-r 30 \
+		-c:v libx264 \
+		-crf 10 \
+		-preset ultrafast \
+		-c:a aac \
+		-b:a 256k \
+		-ac 2 \
+		-qp 0 \
+		-profile:v baseline \
+		-movflags +faststart \
+		-pix_fmt yuv420p \
+		-vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" \
+		"$output"
+}
+
+screen_offset() {
+	xrandr | grep -Po 'connected primary [^ ]*?\+\K[^ ]*' | sed 's/+/,/'
+}
+
+screencast() {
+	__ffmpeg "$DISPLAY+$(screen_offset)" "$(screen_resolution)" "$HOME/Videos/screencast-$(timestamp).mp4" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC  "
+}
+
+selected_area() {
+	set -x
+	read -r X Y W H <<<"$(slop -f "%x %y %w %h")"
+	__ffmpeg "${DISPLAY}+${X},${Y}" "${W}x${H}" "$HOME/Videos/screencast-area-$(timestamp).mp4" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC  "
+
+}
+
+video() {
+	ffmpeg -an \
+		-f x11grab \
+		-framerate 30 \
+		-s "$(screen_resolution)" \
+		-i "$DISPLAY" \
+		-c:v libx264 \
+		-qp 0 \
+		-r 30 \
+		-pix_fmt yuv420p \
+		-vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" \
+		-movflags +faststart \
+		-profile:v baseline "${HOME}/Videos/video-$(timestamp).mkv" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC "
+}
+
+webcamhidef() {
+	ffmpeg \
+		-f v4l2 \
+		-i /dev/video0 \
+		-s 1920x1080 \
+		"$HOME/Videos/webcam-$(timestamp).mkv" &
+	echo $! >/tmp/recordingpid
+	updateicon "  REC "
+}
+
+webcam() {
+	ffmpeg \
+		-f v4l2 \
+		-i /dev/video0 \
+		-s 640x480 \
+		"$HOME/Videos/webcam-$(timestamp).mkv" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC "
+}
+
+audio() {
+	FILE_PATH="$HOME/Music/audio-$(timestamp).flac"
+	ffmpeg \
+		-f alsa -i default \
+		-c:a flac \
+		"${FILE_PATH:?}" &
+	echo $! >/tmp/recordingpid
+	updateicon "  REC "
+}
+
+audio_anki() {
+	ankiconnect_request() {
+		curl --silent localhost:8765 -X POST -d "${1:?}"
+	}
+	store_file() {
+		local -r path=${1:?} name=${2:?}
+		local request='{
+			"action": "storeMediaFile",
+			"version": 6,
+			"params": {
+				"filename": "<name>",
+				"path": "<path>"
+			}
+		}'
+		request=${request/<name>/$name}
+		request=${request/<path>/$path}
+		ankiconnect_request "$request"
+	}
+	workdir="/tmp/audacity"
+
+	mkdir "$workdir"
+	cd "$workdir" || return 1
+
+	audio
+
+	# While ffmpeg is running...
+	wait
+
+	audacity "${FILE_PATH:?}"
+
+	! ls ./*.* && return
+	cm ftogg
+
+	local audiofiles bn path
+	for file in ./*.ogg; do
+		bn=$(basename -- "$file")
+		path=$(readlink -f -- "$file")
+		audiofiles="${audiofiles}[sound:$bn]"
+		store_file "$path" "$bn"
+	done
+	rm -rf -- "$workdir"
+	printf "%s" "$audiofiles" | xclip -selection clipboard
+	rm -- "${FILE_PATH:?}"
+}
+
+askrecording() {
+	local -r choice=$(
+		cat <<-EOF | rofi -dmenu -i -p "Select recording style:"
+			screencast
+			video
+			audio
+			audio+add to anki
+			webcam
+			webcam (hi-def)
+			selected area
+		EOF
+	)
+	case "$choice" in
+	'screencast') screencast ;;
+	'video') video ;;
+	'audio') audio ;;
+	'audio+add to anki') audio_anki ;;
+	'webcam') webcam ;;
+	'webcam (hi-def)') webcamhidef ;;
+	'selected area') selected_area ;;
+	esac
+}
+
+asktoend() {
+	local -r response=$(printf "No\\nYes" | rofi -dmenu -i -p "Recording still active. End recording?")
+	[ "$response" = "Yes" ] && killrecording
+}
+
+case "$1" in
+screencast) screencast ;;
+audio) audio ;;
+video) video ;;
+selected*) selected_area ;;
+kill) killrecording ;;
+*)
+	if [[ -f /tmp/recordingpid ]]; then
+		asktoend
+		exit
+	else
+		askrecording
+	fi
+	;;
+esac

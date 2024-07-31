@@ -1,0 +1,394 @@
+# vim:ft=sh
+
+set shell "bash"
+set shellopts '-eu'
+set ifs "\n"
+set info size:time
+set sortby time
+set reverse!
+set dircounts
+set period 1
+set autoquit true
+set ratios 3:2
+set scrolloff 5
+set drawbox
+set icons
+set ignorecase
+set incfilter
+set incsearch
+set tabstop 2
+set wrapscroll
+set truncatechar "…"
+set cleaner "~/.config/lf/exec_cleaner"
+set previewer "~/.config/lf/exec_previewer"
+set hiddenfiles ".*:*.aux:*.log:*.bbl:*.bcf:*.blg:*.run.xml"
+set timefmt "02/01/2006 15:04:05 "
+set infotimefmtnew '02/01 15:04'
+set infotimefmtold '02/01/06'
+set errorfmt "\033[1;31m"
+set numberfmt "\033[38;2;75;87;116m"
+set rulerfmt 'df:acc:progress:selection:filter:ind'
+set cursorpreviewfmt "\033[7m"
+
+# Functions
+cmd cfg_reload source ~/.config/lf/lfrc
+
+cmd open ${{
+  case "${f##*.}" in
+    kdenlive) setsid -f kdenlive "$f" >/dev/null 2>&1 ; exit ;;
+  esac
+
+  case $({ [ -L "$f" ] && f="$(readlink -f "$f")" ;} ; file --mime-type -b "$f") in
+    image/vnd.djvu) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    video/*) setsid -f mpv "$f" >/dev/null 2>&1 ;;
+    audio/*) setsid -f mpv --player-operation-mode=pseudo-gui "$f" ;;
+    image/x-xcf) setsid -f gimp "$f" ;;
+    image/*) imgs="$(echo "$fx" | tr "\n" "'" | sed "s/'/' '/g" | sed "s/^/'/g" | sed "s/' '$/'/g")" ; eval "setsid -f nsxiv -a $imgs >/dev/null 2>&1" ;;
+    application/octet-stream) setsid -f gpg -dq "$f" ;;
+    text/*) echo "$fx" | tr "\n" '"' | sed 's/"/" "/g' | sed 's/^/"/g' | sed 's/" "$/"/g' | xargs $EDITOR ;; 
+    text/*|application/json) echo "$fx" | tr "\n" '|' | sed -e 's/|$/"/g' -e 's/|/|-c "tabe /g' -e 's/|-c/" -c/g' -e 's/^/"/' | xargs $EDITOR ;;
+    #application/pdf) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    application/pdf) echo "$fx" | while read -r l ; do setsid -f xdg-open "$l" ; done ;;
+    application/epub+zip) setsid -f zathura "$f" > /dev/null 2>&1 ;;
+    application/x-mobipocket-ebook) setsid -f ebook-viewer "$f" > /dev/null 2>&1 ;;
+    inode/symlink) setsid -f xdg-open "$(readlink "$f")" ;;
+    application/zip) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/x-7z-compressed) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/x-rar) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
+    application/gzip) setsid -f xarchiver "$f" > /dev/null 2>&1 ;;
+    application/vnd.oasis.opendocument.spreadsheet) setsid -f libreoffice "$f" ;;
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document) setsid -f libreoffice "$f" ;;
+    inode/x-empty) $EDITOR "$f" ;;
+    *) for f in "$fx" ; do setsid -f xdg-open "$f" >/dev/null 2>&1 ; done ;;
+    *) setsid -f xdg-open "$f" >/dev/null 2>&1 ;;
+  esac
+}}
+
+cmd on-cd &{{
+  case "$PWD" in
+    ~/Downloads/*)
+      lf -remote "send $id set user_prev_sortby $lf_sortby"
+      lf -remote "send $id set sortby natural"
+      lf -remote "send $id set noreverse"
+
+      lf -remote "send $id echomsg changed sort to natural"
+      ;;
+    *)
+      # restore sorting on directory exit
+      if [[ "$lf_user_prev_sortby" != "" ]]; then
+        lf -remote "send $id set sortby $lf_user_prev_sortby"
+        lf -remote "send $id set reverse"
+
+        lf -remote "send $id echomsg restored sort to $lf_user_prev_sortby"
+        lf -remote "send $id set user_prev_sortby ''"
+      fi
+      ;;
+  esac
+}}
+on-cd
+
+cmd hard-reload &{{
+  [ -d ~/.cache/lf ] && rm -rf ~/.cache/lf
+  lf -remote "send $id reload"
+}}
+
+cmd yank &{{
+  case ${1} in
+    dir)  dirname "${f}" ;;
+    name) basename "${f}" ;;
+    path) printf "%s" "${f}" ;;
+  esac | xclip -rmlastnl -selection clipboard
+}}
+
+cmd paste &{{
+  set -- $(cat ~/.local/share/lf/files)
+  mode="$1"
+  shift
+  case "$mode" in
+    copy)
+      rsync -av --ignore-existing --progress -- "$@" . |
+      stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+      while IFS= read -r line; do
+        lf -remote "send $id echo $line"
+      done
+      ;;
+    move) mv -n -- "$@" .;;
+  esac
+  rm ~/.local/share/lf/files
+  lf -remote "send clear"
+}}
+
+cmd copyto ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  clear; echo "Copy to where?"
+  dest="$(find $HOME -maxdepth 4 -type d | fzf --reverse --header='Copy to' | sed 's|~|$HOME|' )" &&
+  for x in $fx; do
+    eval cp -ivr \"$x\" \"$dest\"
+  done &&
+  notify-send "󰆏  File(s) copied." "File(s) copies to $dest."
+  lf -remote 'send clear'
+}}
+
+cmd moveto ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  clear; echo "Move to where?"
+  # dest="$(find $HOME $WORK -maxdepth 4 -type d | fzf --reverse --header='Move to' | sed 's|~|$HOME|' )" &&
+  dest="$(find $HOME -maxdepth 4 -type d | fzf --reverse --header='Move to' | sed 's|~|$HOME|' )" &&
+  for x in $fx; do
+    eval mv -iv \"$x\" \"$dest\"
+  done &&
+  notify-send " File(s) moved." "File(s) moved to $dest."
+  lf -remote 'send clear'
+}}
+
+# Delete / Trash
+# ------------------
+cmd delete ${{
+    clear; tput cup $(($(tput lines)/3)); tput bold
+    set -f
+    printf "%s\n\t" "$fx"
+    printf "Permenantly delete?[y/N]"
+    read ans
+    if [ $ans = "y" ] && rm -rf -- $fx; then
+    notify-send " File(s) deleted." "$fx"
+  fi
+}}
+
+cmd trash ${{
+  files=$(printf "$fx" | tr '\n' ';')
+  while [ "$files" ]; do
+    file=${files%%;*}
+
+    gio trash "$(basename "$file")"
+    if [ "$files" = "$file" ]; then
+      files=''
+    else
+      files="${files#*;}"
+    fi
+  done
+}}
+
+cmd clear_trash %gio trash --empty
+
+cmd restore_trash ${{
+  gio trash --restore -- "trash:///$(basename -- "$f")"
+}}
+
+# Extract / Tar / Zip
+# -----------------------
+cmd extract ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  printf "%s\n\t" "$fx"
+  printf "extract?[y/N]"
+  read ans
+  [ $ans = "y" ] &&
+  case $f in
+    *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
+    *.tar.gz|*.tgz) tar xzvf $f;;
+    *.tar.xz|*.txz) tar xJvf $f;;
+    *.zip) unzip $f;;
+    *.rar) unrar x $f;;
+    *.7z) 7z x $f;;
+  esac
+}}
+
+cmd tar ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf "Archive Name: "
+  read archive_name
+  set -f
+  tar -czvf "${archive_name}.tar.gz" -C "$(dirname "$f")" $(basename -a $fx)
+}}
+
+cmd zip-files ${{
+  printf "Enter zip archive name: "
+  read name
+  unset files
+  echo "$fx" | while read -r l ; do { file="$(echo "$l" | rev | cut -d '/' -f 1 | rev)" ; zip -r "$name" "$file" ;} ; done
+  clear
+}}
+
+cmd touch-file ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf "File name: "
+  read name
+  touch "$name"
+  clear
+}}
+
+cmd mkdir ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  printf "%s\n\t" "$fx"
+  printf "Folder name: "
+  read newd
+  mkdir -- "$newd"
+  # mv -- $fx "$newd"
+}}
+
+cmd fzf_jump ${{
+  res="$(find . 2>/dev/null -maxdepth 6 | fzf --bind tab:down,shift-tab:up --reverse --header='Jump to location')"
+  if [ -f "$res" ]; then
+    cmd="select"
+  elif [ -d "$res" ]; then
+    cmd="cd"
+  fi
+  lf -remote "send $id $cmd \"$res\""
+}}
+
+# | Permissions (chmod/chown) |
+# -----------------------------
+cmd chmod ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  printf "%s\n\t" "$fx"
+  printf "chmod: "
+  read ans
+
+  for file in "$fx"; do
+    chmod $ans $file
+  done
+
+  lf -remote 'send reload'
+  lf -remote 'send clear'
+}}
+
+cmd chown ${{
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  set -f
+  printf "%s\n\t" "$fx"
+  printf "chown: "
+  read ans
+
+  for file in "$fx"; do
+    sudo chown $ans $file
+  done
+
+  lf -remote 'send reload'
+  lf -remote 'send clear'
+}}
+
+cmd file-type ${{
+  file -i "$f" ; read a
+  clear
+}}
+
+cmd bulk-rename ${{
+  old="$(mktemp)"
+  new="$(mktemp)"
+  if [ -n "$fs" ]; then
+    fs="$(basename -a $fs)"
+  else
+    fs="$(ls)"
+  fi
+  printf '%s\n' "$fs" >"$old"
+  printf '%s\n' "$fs" >"$new"
+  $EDITOR "$new"
+  [ "$(wc -l < "$new")" -ne "$(wc -l < "$old")" ] && exit
+  paste "$old" "$new" | while IFS= read -r names; do
+  src="$(printf '%s' "$names" | cut -f1)"
+  dst="$(printf '%s' "$names" | cut -f2)"
+  if [ "$src" = "$dst" ] || [ -e "$dst" ]; then
+    continue
+  fi
+  mv -- "$src" "$dst"
+  done
+  rm -- "$old" "$new"
+  lf -remote "send $id unselect"
+}}
+
+cmd stop ${{
+  kill -TSTP $(ps -p $$ -o 'ppid=')
+}}
+
+cmd setbg "$1"
+
+# Key maps
+#---------
+
+map m
+map "'"
+map '"'
+map t
+map c
+map r
+map w
+map o
+
+# Search
+map f
+map ff find
+map fb find-back
+map fF :fzf_jump 
+
+#General maps
+map Km maps  # List normal mode mappings
+map Kc cmaps  # List command mode mappings
+map mf touch-file
+map md mkdir
+map R :redraw; reload; recol; cfg_reload
+map r :redraw; reload; clear;
+map <esc> :redraw; reload; clear;
+map <c-r> hard-reload
+map zp set preview!
+map zd set dirfirst!
+map sn :set sortby natural; set reverse!; set info size
+# map V glob-select *
+# map U glob-unselect *
+
+# Archive Mappins
+map xz zip-files
+map xt tar
+map xx extract
+
+# Delete files
+map d
+map dd cut
+map df moveto
+map dD delete
+map <delete> delete
+map dt trash
+map dc clear_trash
+map dr restore_trash
+
+map p
+map p paste
+
+map chmod chmod
+map chown chown
+
+# Copy
+map y
+map yy copy
+map yf copyto
+map yp yank path
+map yn yank name
+map yd yank dir
+map Y file-type
+
+# Rename
+map <f-2> rename
+map A rename
+map i push A<c-u>
+map I push A<c-a>
+map a push A<a-b>
+map B bulk-rename
+
+# Some movements
+map { half-up
+map } half-down
+map <enter> open
+
+# Movement dirs
+map gd cd ~/Desktop
+map gD cd ~/Downloads
+map gP cd ~/Pictures
+map gM cd ~/Music
+map gV cd ~/Videos
+map gC cd ~/.config
+map gL cd ~/.local
+map gR cd /run/media
+map gtr cd ~/.local/share/Trash/files

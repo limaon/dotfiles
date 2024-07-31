@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+CACHEDIR="${XDG_CACHE_HOME:-$HOME/.cache}/lf"
+CACHE="$CACHEDIR/thumbnail.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" | sha256sum | awk '{print $1}')"
+
+filetype="$(file -Lb --mime-type "$1")"
+
+function image() {
+  if hash kitty 2>/dev/null; then
+    kitten icat --transfer-mode=memory --stdin=no --place="$(($2 - 2))x$(($3 - 4))@${4}x$(($5 + 2))" "$1" </dev/null >/dev/tty
+    exit 69
+  else
+    chafa -s "$(($2 - 2))x$(($3 - 2))" -f symbols "$1"
+  fi
+}
+
+function preview_tar() {
+  tar tf "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_gzip() {
+  tar -ztf "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_bzip2() {
+  tar -jtf "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_xz() {
+  tar -Jtf "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_zip() {
+  unzip -l "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_rar() {
+  unrar l "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_zstd() {
+  tar --use-compress-program=zstd -tf "$1" | head -n 50 | sed 's/$/.../'
+}
+
+function preview_font() {
+  if [ "$(command -v fc-query)" ]; then
+    fc-query -f "%{family}\n%{fullname}\n%{style}\n%{weight}\n%{file}\n" "$1"
+  else
+    echo "Font file preview is not supported."
+    echo "You can use a font viewer or text editor to inspect the font."
+  fi
+}
+
+function preview_audio() {
+  if [ "$(command -v ffprobe)" ]; then
+    ffprobe -hide_banner -show_format -show_streams "$1"
+    # exiftool "$1"
+  else
+    echo "Audio file preview is not supported."
+    echo "You can use a media player or audio editor to inspect the audio."
+  fi
+}
+
+function preview() {
+  [ ! -d "$CACHEDIR" ] && mkdir -p "$CACHEDIR"
+
+  if [ ! -f "${CACHE}.jpg" ]; then
+    case "$1" in
+      video) ffmpegthumbnailer -m -s0 -i "$2" -o "${CACHE}.jpg" ;;
+      pdf) pdftoppm -jpeg -f 1 -singlefile "$2" "$CACHE" ;;
+      office)
+        libreoffice --convert-to jpg "$2" --outdir "$CACHEDIR/${2%/*}" &>/dev/null
+        filename="$(basename "$2" | cut -d. -f1)"
+        mv "$CACHEDIR/${2%/*}/$filename.jpg" "$CACHE.jpg"
+        ;;
+    esac
+  fi
+
+  image "${CACHE}.jpg" "$3" "$4" "$5" "$6"
+}
+
+function main() {
+  case "$filetype" in
+    image/*) image "$@" ;;
+    video/*) preview video "$@" ;;
+    audio/*) preview_audio "$@" ;;
+    *pdf) preview pdf "$@" ;;
+    */*office* | */*document*) preview office "$@" || pistol "$@" ;;
+    application/x-iso9660-image) 
+      iso-info --no-header -l "$1" ;;
+    application/x-gtar|application/gtar|application/x-tar|application/tar)
+      preview_tar "$@" ;;
+    application/x-gzip|application/gzip)
+      preview_gzip "$@" ;;
+    application/x-bzip2|application/bzip2)
+      preview_bzip2 "$@" ;;
+    application/x-xz|application/x-7z-compressed|application/x-zstd)
+      preview_xz "$@" ;;
+    application/zip)
+      preview_zip "$@" ;;
+    application/x-rar|application/rar)
+      preview_rar "$@" ;;
+    application/zstd)
+      preview_zstd "$@" ;;
+    application/font-*|font/*)
+        preview_font "$@" ;;
+    *) cat -n "$@" ;;
+  esac
+}
+
+main "$@"

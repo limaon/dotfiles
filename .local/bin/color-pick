@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Simple Script to pick color quickly
+
+# Function to display usage message
+usage() {
+  echo "Usage: $0 [options]"
+  echo "Options:"
+  echo "  -f FORMAT   Set the color format (default: hex)"
+  echo "  -h          Display this help message"
+  exit 1
+}
+
+# Check if necessary commands are available
+command -v xcolor >/dev/null 2>&1 || { echo >&2 "xcolor command not found. Please install it first."; exit 1; }
+command -v xclip >/dev/null 2>&1 || { echo >&2 "xclip command not found. Please install it first."; exit 1; }
+command -v dunstify >/dev/null 2>&1 || { echo >&2 "dunstify command not found. Please install it first."; exit 1; }
+
+# Default values
+FORMAT="HEX"
+
+# Parse command-line options
+while getopts "f:h" OPTION; do
+  case $OPTION in
+    f)
+      FORMAT=$OPTARG
+      ;;
+    h)
+      usage
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+# Function to pick and copy color
+main() {
+  local color
+  color=$(xcolor -P 100 -f "$FORMAT"!)
+
+  if [[ "$color" ]]; then
+    # Copy color code to clipboard
+    echo "$color" | tr -d "\n" | xclip -selection clipboard
+    # Notify about it
+    dunstify -u low --replace=69 -i "colorgrab" "$color, copied to clipboard."
+  else
+    echo "Failed to pick color."
+    exit 1
+  fi
+}
+
+# Run the script
+main

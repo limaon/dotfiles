@@ -1,0 +1,158 @@
+# Usage: indirect_expand PATH -> $PATH
+indirect_expand() {
+    env |sed -n "s/^$1=//p"
+}
+
+# Usage: pathremove /path/to/bin [PATH]
+# Eg, to remove ~/bin from $PATH
+#     pathremove ~/bin PATH
+pathremove() {
+    local IFS=':'
+    local newpath
+    local dir
+    local var=${2:-PATH}
+    # Bash has ${!var}, but this is not portable.
+    for dir in `indirect_expand "$var"`; do
+        IFS=''
+        if [ "$dir" != "$1" ]; then
+            newpath=$newpath:$dir
+        fi
+    done
+    export $var=${newpath#:}
+}
+
+# Usage: pathprepend /path/to/bin [PATH]
+# Eg, to prepend ~/bin to $PATH
+#     pathprepend ~/bin PATH
+pathprepend() {
+    # if the path is already in the variable,
+    # remove it so we can move it to the front
+    pathremove "$1" "$2"
+    #[ -d "${1}" ] || return
+    local var="${2:-PATH}"
+    local value=`indirect_expand "$var"`
+    export ${var}="${1}${value:+:${value}}"
+}
+
+# Usage: pathappend /path/to/bin [PATH]
+# Eg, to append ~/bin to $PATH
+#     pathappend ~/bin PATH
+pathappend() {
+    pathremove "${1}" "${2}"
+    #[ -d "${1}" ] || return
+    local var=${2:-PATH}
+    local value=`indirect_expand "$var"`
+    export $var="${value:+${value}:}${1}"
+}
+
+# Usage: ssource filename
+ssource() {
+    if [ -r "$1" ]; then
+        . "$1"
+    fi
+}
+
+
+# Uninstall all packages no longer required as dependencies (orphans)
+remorphans() {
+  local packages=()
+
+  for package in $(pacman -Qdtq); do
+    packages+=("$package")
+  done
+
+  echo "Found ${#packages[*]} orphans."
+  if ! [[ ${#packages[*]} -eq 0 ]]; then
+    sudo pacman -Rns "${packages[@]}"
+  fi
+}
+
+
+# Getting in the folder after exit lf file manager
+lf() {
+  \umask 077
+  tmp="$(command mktemp)"
+  command lf -last-dir-path="$tmp" "$@"
+  if [ -f "$tmp" ]; then
+    dir="$(command cat "$tmp")"
+    command rm -f "$tmp"
+  else
+    \return 1
+  fi
+  if [ -d "$dir" ] && [ "$dir" != "$(pwd)" ]; then
+    \cd "$dir" || \return 1
+  fi
+}
+
+### FZF functions
+## locate
+fall() {
+    local file
+    dir="$(pwd)"
+    file=$(locate "${dir}/" 2>/dev/null | fzf +m) && if [ -d "$file" ]; then cd "$file"; else ${EDITOR:-vim} "$file"; fi
+}
+
+
+### Edit file
+fe() {
+    local file
+
+    file="$( find . \
+        -type f \
+        -not \( \
+            -path "*/.git*" -o \
+            -path "*/.cache*" -o \
+            -path "*/.cargo*" -o \
+            -path "*/.yarn*" -o \
+            -path "*/chromium*" -o \
+            -path "*/.svn*" -o \
+            -path "*.png" -o \
+            -path "*.mp4" -o \
+            -path "*.mp3" -o \
+            -path "*.jpg" -o \
+            -path "*.jpeg" -o \
+            -path "*.bin" -o \
+            -path "*.svg" -o \
+            -path "*.gz" -o \
+            -path "*.tar" -o \
+            -path "*.tgz" -o \
+            -path "*.zip" \
+        \) \
+        ! -size 0 \
+        -print 2> /dev/null | fzf +m)" &&
+    ${EDITOR:-vim} "$file"
+}
+
+
+### Goto directory
+fd() {
+    local dir
+    dir=$(find . \
+        -not \( -path "*/.*" -prune \) \
+            -not \( -path "*/Library/*" -prune \) \
+            -not \( -path "*/Applications/*" -prune \) \
+            -not \( -ipath "*/cache/*" -prune \) \
+        -type d -print 2> /dev/null | fzf +m) &&
+    cd "$dir"
+}
+
+
+### kill process
+fkill() {
+    ps -ef | sed 1d | fzf -m | awk '{print $2}' | xargs kill -${1:-9}
+}
+
+
+### Show process
+fps() {
+    ps aux | sed 1d | fzf -m
+}
+
+
+### History search
+fh() {
+    eval "$(history | fzf +s --tac | awk '{$1=""; print $0}' | sed 's/^[ \t]*//')"
+}
+
+
+# vim:ft=sh

@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+readonly BROWSER=${BROWSER:-xdg-open}
+
+# URL encode function
+urlencode() {
+  local string="$1"
+  local strlen=${#string}
+  local encoded=""
+  local pos c o
+
+  for (( pos=0; pos<strlen; pos++ )); do
+    c=${string:$pos:1}
+    case "$c" in
+      [-_.~a-zA-Z0-9] ) o="${c}" ;;
+      * )               printf -v o '%%%02x' "'$c"
+    esac
+    encoded+="${o}"
+  done
+  echo "$encoded"
+}
+
+# Prompt function using dmenu
+prompt() {
+  local prompt="$1"
+  shift
+  printf '%s\n' "$@" | dmenu_alt -i -p "$prompt"
+}
+
+# Defining options
+declare -a options=(
+  "Google"
+  "BlackBox"
+  "Map"
+  "DuckDuckGo"
+  "Youtube"
+  "Translate"
+  "Twitter" 
+  "Googleimages"
+  "Github"
+  "Gitlab"
+  "Letterboxd"
+  "Wikipedia"
+  "Aur"
+  "CodeMadness"
+  "Invidius"
+  "Piped"
+  "Udemy"
+)
+
+# Getting user's choice
+choice=$(prompt "WebSearch:" "${options[@]}")
+
+# Defining the search URL for each option
+case "$choice" in
+  "Google") search_url="https://www.whoogle.click/search?q=";;
+  "BlackBox") search_url="https://www.useblackbox.io/chat?q=";;
+  "DuckDuckGo") search_url="https://duckduckgo.com/?q=";;
+  "Map") search_url="https://www.google.com/maps/search/";;
+  "Youtube") search_url="https://www.youtube.com/results?search_query=";;
+  "Translate") search_url="https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=";;
+  "Twitter") search_url="https://twitter.com/search?q=";;
+  "Googleimages") search_url="https://www.google.com/search?hl=en&tbm=isch&q=";;
+  "Github") search_url="https://github.com/search?q=";;
+  "Gitlab") search_url="https://gitlab.com/search?search=";;
+  "Letterboxd") search_url="https://letterboxd.com/search/";;
+  "Wikipedia") search_url="https://en.wikipedia.org/wiki/";;
+  "Aur") search_url="https://aur.archlinux.org/packages?O=0&SeB=nd&K=";;
+  "CodeMadness") search_url="https://codemadness.org/idiotbox/?q=";;
+  "Invidius") search_url="https://yewtu.be/search?q=";;
+  "Piped") search_url="https://piped.video/results?search_query=";;
+  "Udemy") search_url="https://www.udemy.com/courses/search/?src=ukw&q=";;
+  *) exit 1;;
+esac
+
+# Getting the user's search term
+search=$(prompt "Searching in $choice:" "Now type it.")
+
+# Verifying if the user entered a value for the search
+if [ -n "$search" ]; then
+  # Opening the default browser with the search URL and the search term
+  $BROWSER "${search_url}$(urlencode "$search")"
+fi

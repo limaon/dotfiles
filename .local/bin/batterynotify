@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# This script sends a notification when the battery is fully charged or low.
+# It is intended to be run as a cron job and checks the battery status every 5 minutes.
+# Set '*/5 * * * * $HOME/.local/bin/batterynotify' in your crontab to use this script.
+
+# Set necessary environment variables for cron
+export XAUTHORITY="$HOME/.Xauthority"
+export DISPLAY=:0
+export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+
+# Define the warning level and get the current battery status
+warning_level=15
+battery_discharging=$(acpi -b | grep "Battery 0" | grep -c "Discharging")
+battery_level=$(acpi -b | grep "Battery 0" | grep -P -o '[0-9]+(?=%)')
+
+# Define file paths for notification status
+empty_file="/tmp/batteryempty"
+full_file="/tmp/batteryfull"
+
+# Function to reset notification status if the charging state changes
+reset_notifications() {
+  if [ "$battery_discharging" -eq 1 ] && [ -f $full_file ]; then
+    rm $full_file
+  elif [ "$battery_discharging" -eq 0 ] && [ -f $empty_file ]; then
+    rm $empty_file
+  fi
+}
+
+# Function to send notifications based on battery status
+send_notifications() {
+  if [ "$battery_level" -gt 95 ] && [ "$battery_discharging" -eq 0 ] && [ ! -f $full_file ]; then
+    notify-send "Battery Charged" "Battery is fully charged." -i "battery-full-charged" -r 9991
+    touch $full_file
+  elif [ "$battery_level" -le $warning_level ] && [ "$battery_discharging" -eq 1 ] && [ ! -f $empty_file ]; then
+    notify-send "Low Battery" "${battery_level}% of battery remaining." -u critical -i "battery-low" -r 9991
+    touch $empty_file
+  fi
+}
+
+# Main script execution
+reset_notifications
+send_notifications

@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+clear
+
+# Find all "main" files in the current directory with recognized extensions
+files=$(find . -maxdepth 1 -name "main.*")
+
+if [ -z "$files" ]; then
+  echo "No 'main' file found in the current directory."
+  exit 1
+fi
+
+# Count the number of found files
+count=$(echo "$files" | wc -l)
+
+if [ $count -eq 1 ]; then
+  file="$files"
+elif [ $count -gt 1 ]; then
+  PS3="Choose a file to execute: "
+  select file in $files; do
+    if [ -n "$file" ]; then
+      break
+    else
+      echo "Invalid option. Please select a valid number."
+    fi
+  done
+fi
+
+extension=$(echo "$file" | sed 's/.*\.//')
+
+case $extension in
+  "c")
+    gcc -g -lm main.c -o main && ./main
+    ;;
+  "cpp")
+    # g++ -g -lm "$file" -o main && ./main
+    g++ -g -lm *.cpp -o main && ./main
+    ;;
+  "py")
+    python "$file"
+    ;;
+  "java")
+    javac "$file" && java "${file%.*}"
+    ;;
+  *)
+    echo "Unsupported extension: $extension"
+    exit 1
+    ;;
+esac

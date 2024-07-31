@@ -1,0 +1,14 @@
+# Path to the bash it configuration
+# export BASH_IT=~/.config/bash_it
+
+# Theme (from ~/.bash_it/themes/)
+# export BASH_IT_THEME=flowblok
+
+# Set vcprompt executable path for scm advance info in prompt
+# https://github.com/xvzf/vcprompt
+#export VCPROMPT_EXECUTABLE=~/.vcprompt/bin/vcprompt
+
+# Load Bash It
+# . $BASH_IT/bash_it.sh
+
+. ~/.config/shell/interactive

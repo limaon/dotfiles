@@ -1,0 +1,21 @@
+. ~/.config/shell/login
+
+export HISTCONTROL="ignorespace:ignoredups:erasedups"
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S: "
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTFILE="${HOME}/.local/share/bash_history"
+
+shopt -s histappend
+shopt -s nocaseglob 
+shopt -s autocd
+shopt -s cdspell
+shopt -s extglob
+shopt -s dotglob
+shopt -s direxpand
+shopt -s histverify
+shopt -s lithist
+shopt -s cmdhist
+shopt -s checkwinsize
+complete -cf doas
+set -o noclobber

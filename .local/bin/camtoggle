@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+# This script allows the user to view their webcam feed using mpv with various configurable settings.
+
+# Function to find the webcam device
+find_webcam_device() {
+  for device in /dev/video*; do
+    if [[ -c "${device}" ]]; then
+      echo "${device}"
+      return
+    fi
+  done
+  echo ""
+}
+
+# Function to display an error message and exit
+error_exit() {
+  notify-send "Camtoggle" "$1"
+  exit 1
+}
+
+# Function to display usage information
+display_usage() {
+  echo "Usage: $0 [OPTIONS]"
+  echo
+  echo "Options:"
+  echo "  -w, --width       Set the width of the video (default: 250)"
+  echo "  -h, --height      Set the height of the video (default: 250)"
+  echo "  -f, --framerate   Set the framerate of the video (default: 30)"
+  echo "  --help            Display this help message"
+  exit 0
+}
+
+# Default settings
+DEVICE=$(find_webcam_device)
+WIDTH="250"
+HEIGHT="250"
+FRAMERATE="30"
+TITLE="mpv Webcam"
+
+# Check if any device is found
+[[ -z "${DEVICE}" ]] && error_exit "Failed. Webcam not detected."
+
+# Parse parameters
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case $key in
+    -w|--width)
+    WIDTH="$2"
+    shift; shift
+    ;;
+    -h|--height)
+    HEIGHT="$2"
+    shift; shift
+    ;;
+    -f|--framerate)
+    FRAMERATE="$2"
+    shift; shift
+    ;;
+    --help)
+    display_usage
+    ;;
+    *)
+    shift
+    ;;
+  esac
+done
+
+# Run mpv command with the specified settings
+mpv --no-osc --no-osd-bar --input-conf=/dev/null \
+  --geometry=-0-0 --autofit="${WIDTH}"x"${HEIGHT}" --title="${TITLE}" \
+  --profile=low-latency --untimed --no-cache --no-border \
+  --no-correct-pts --no-demuxer-thread --demuxer-lavf-format=video4linux2 \
+  --demuxer-lavf-o=video_size="${WIDTH}"x"${HEIGHT}" \
+  --demuxer-lavf-o=fps="${FRAMERATE}" \
+  --demuxer-lavf-o=format=mjpeg \
+  av://v4l2:"${DEVICE}"

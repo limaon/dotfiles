@@ -1,0 +1,35 @@
+set mark-symlinked-directories on
+# set editing-mode vi
+
+set blink-matching-paren on
+
+# Ctrl Left
+"\e[1;5D": backward-word
+# Ctrl Right
+"\e[1;5C": forward-word
+# Alt-Left
+"\e[1;3D": beginning-of-line
+# Alt-Right
+"\e[1;3C": end-of-line
+
+# Ctrl L
+"\C-l": clear-screen
+
+# Page Up
+"\e[5~": beginning-of-history
+# Page Down
+"\e[6~": end-of-history
+# Delete
+"\e[3~": delete-char
+# Insert
+"\e[2~": quoted-insert
+
+# Home
+"\eOH": beginning-of-line
+"\e[H": beginning-of-line
+"\e[1~": beginning-of-line
+#
+# End
+"\eOF": end-of-line
+"\e[F": end-of-line
+"\e[4~": end-of-line
