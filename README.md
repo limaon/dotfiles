@@ -1,6 +1,6 @@
 # Dotfiles setup
 
-The configuration files and scripts that I utilize for my daily tasks.
+This repository contains my personal configuration files (dotfiles) and scripts tailored for use on Arch Linux. These configurations streamline my development environment, ensuring consistency across all my projects and enhancing productivity.
 
 ## Details
 
@@ -15,7 +15,7 @@ The configuration files and scripts that I utilize for my daily tasks.
 - **Web Browser** - [firefox](https://wiki.archlinux.org/title/Firefox)
 - **Email Client** - [thunderbird](https://wiki.archlinux.org/title/Thunderbird)
 - **CLI File Manager** - [lf](https://github.com/gokcehan/lf)
-- **GUI File Manager** - [pcmanfm](https://wiki.archlinux.org/title/PCManFM)
+- **GUI File Manager** - [thunar](https://wiki.archlinux.org/title/Thunar)
 - **Image Viewer** - [sxiv](https://nsxiv.codeberg.page/)(`nsxiv`)
 - **Document Viewer** - [zathura](https://wiki.archlinux.org/title/Zathura)
 - **Video player** - [mpv](https://mpv.io/)
@@ -39,19 +39,20 @@ The configuration files and scripts that I utilize for my daily tasks.
 1. Run the following commands in order.
 
 ```sh
-    git clone --depth 1 "https://github.com/limaon/dotfiles.git" ~/dots
-    cp -rfT ~/dots ~/
-    cp -rf ~/.git ~/.config/dotfiles
-    rm -rf -- ~/dots ~/.git
+git clone --depth 1 "https://github.com/limaon/dotfiles.git" ~/dots
+cp -rfT ~/dots ~/
+cp -rf ~/.git ~/.config/dotfiles
+rm -rf -- ~/dots ~/.git
+dot config --local status.showUntrackedFiles no
 ```
 
 2. To install the packages from the AUR first install [paru](https://github.com/Morganamilo/paru)
 
 ```sh
-    sudo pacman -S --needed base-devel
-    git clone https://aur.archlinux.org/paru.git
-    cd paru
-    makepkg -si
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
 ```
 
 ## Main Keybindings
