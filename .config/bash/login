@@ -19,3 +19,5 @@ shopt -s cmdhist
 shopt -s checkwinsize
 complete -cf doas
 set -o noclobber
+
+# vim:ft=sh

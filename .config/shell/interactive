@@ -13,7 +13,7 @@ alias less='less --IGNORE-CASE --tabs=4 --status-column --LONG-PROMPT --line-num
 alias mkdir='mkdir -p -v'
 alias mount='mount | column -t'
 alias wget='wget -c'
-alias ssh="env TERM=xterm-256color ssh"
+alias ssh='env TERM=xterm-256color ssh'
 alias su='su -l'
 alias tmux="tmux -2 -u"
 alias ta="tmux -2 -u attach"
@@ -34,8 +34,7 @@ alias rsync='rsync -vrPlu'
 alias rsync-keep='rsync -avzru --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r'
 alias pstree='pstree -npTC age'
 alias rmpyc='find . -name "*.pyc" -exec rm -f {} \;'
-alias ping='ping -c 5'
-alias ip="ip -color=auto"
+alias ip='ip -color=auto'
 
 
 ## Geek aliase
@@ -61,7 +60,7 @@ alias errors="journalctl -p err..alert -b -e"
 
 
 # Utils alias
-alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias updatr-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias genpasswd="openssl rand -base64 21"
 alias trim="sudo fstrim -v / && sudo fstrim -v /home"
 
@@ -78,81 +77,51 @@ alias dot='git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/ --work-tree
 
 
 # Pacman / System
-alias lsp="pacman -Qett --color=always | less"
+alias lsp='pacman -Qett --color=always | less'
 alias trimlogs='sudo journalctl --vacuum-size=150M'
-alias pacclean="remorphans && sudo pacman -Sc && trimlogs"
+alias pacclean='remorphans && sudo pacman -Sc && trimlogs'
 alias whathaveidone="tail -500 /var/log/pacman.log | grep -i 'installed\|removed\|graded' --color=never"
-alias unlock="sudo rm /var/lib/pacman/db.lck"
-alias autoremove="sudo pacman -Rns"
-alias parsua="paru -Sua"
-alias aurlist="pacman -Qm"
-alias refl="sudo reflector --verbose --country Brazil --latest 10 --sort rate --save /etc/pacman.d/mirrorlist"
+alias unlock='sudo rm /var/lib/pacman/db.lck'
+alias autoremove='sudo pacman -Rns'
+alias parsua='paru -Sua'
+alias aurlist='pacman -Qm'
+alias refl='sudo reflector --verbose --country Brazil --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
 # alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
 
 
 ## ls defaults
-if command -v gls >/dev/null 2>&1; then # Gnu ls (gls via: brew install coreutils)
-    alias  l='gls --color=always --group-directories-first --classify -l'
-    alias ll='gls --color=always --group-directories-first --classify -al'
-    alias ls='gls --color=always --group-directories-first --classify'
-    alias la='gls --color=always --group-directories-first --classify -a'
+alias ls="ls --color=always --group-directories-first --time-style=+'%d.%m.%Y %H:%M' --classify"
+alias ll='ls --color=always --group-directories-first --classify -lvh'
+alias la='ls --color=always --group-directories-first --ignore=.. --ignore=. --classify -lvha'
 
-    alias  l.='gls --color=always --group-directories-first --classify -l -d .*'
-    alias la.='gls --color=always --group-directories-first --classify -d .*'
+alias ls.='ls --color=always --group-directories-first --classify -l -d .*'
+alias la.='ls --color=always --group-directories-first --classify -d .*'
 
-    # sort by time
-    alias  lt='gls --color=always --classify -lt'
-    alias llt='gls --color=always --classify -alt'
-    alias lst='gls --color=always --classify -t'
-    alias lat='gls --color=always --classify -at'
+# sort by time
+alias  lt='ls --color=always --classify -lt'
+alias llt='ls --color=always --classify -alt'
+alias lst='ls --color=always --classify -t'
+alias lat='ls --color=always --classify -at'
 
-    alias  lt.='gls --color=always --classify -lt -d .*'
-    alias lat.='gls --color=always --classify -t -d .*'
+alias  lt.='ls --color=always --classify -lt -d .*'
+alias lat.='ls --color=always --classify -t -d .*'
 
-    alias lsg='gls --color=always --group-directories-first --classify -al | grep'
+alias llg='ls --color=always --group-directories-first --classify -al | grep'
 
-elif [ "$(uname)" == "Linux" ]; then # Gnu ls (Linux)
 
-    alias ls="ls --color=always --group-directories-first --time-style=+'%d.%m.%Y %H:%M' --classify"
-    alias ll='ls --color=always --group-directories-first --classify -lvh'
-    alias la='ls --color=always --group-directories-first --ignore=.. --ignore=. --classify -lvha'
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls -F --color=auto --group-directories-first'
+    alias dir='dir --color=auto'
+    alias vdir='vdir --color=auto'
+	alias diff='diff --color=auto'
 
-    alias ls.='ls --color=always --group-directories-first --classify -l -d .*'
-    alias la.='ls --color=always --group-directories-first --classify -d .*'
-
-    # sort by time
-    alias  lt='ls --color=always --classify -lt'
-    alias llt='ls --color=always --classify -alt'
-    alias lst='ls --color=always --classify -t'
-    alias lat='ls --color=always --classify -at'
-
-    alias  lt.='ls --color=always --classify -lt -d .*'
-    alias lat.='ls --color=always --classify -t -d .*'
-
-    alias llg='ls --color=always --group-directories-first --classify -al | grep'
-
-else # Posix ls (OSX/FreeBSD)
-
-    alias  l='ls -oFl'
-    alias ll='ls -oFal'
-    alias ls='ls -F'
-    alias la='ls -Fa'
-
-    alias  l.='ls -oFl -d .*'
-    alias la.='ls -F -d .*'
-
-    # sort by time
-    alias  lt='ls -olFt'
-    alias lat='ls -aFt'
-    alias llt='ls -laFt'
-    alias lst='ls -Ft'
-
-    alias  lt.='ls -oFlt -d .*'
-    alias lat.='ls -Ft -d .*'
-
-    alias llg='ls -oFal | grep'
-
+    alias grep='grep --color=auto -d skip --binary-file=without-match'
+    alias fgrep='fgrep --color=auto --binary-file=without-match'
+    alias egrep='egrep --color=auto --binary-file=without-match'
 fi
+
 
 function mcd () {
     mkdir -p "$1"
@@ -192,95 +161,6 @@ fi
 ssource /etc/profile.d/vte.sh
 
 ssource ~/.config/shell/interactive_local
-
-# set a fancy prompt (assumes that anything connected that supports x-term can support color...)
-case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
-esac
-
-# uncomment for a colored prompt, if the terminal has the capability; turned
-# off by default to not distract the user: the focus in a terminal window
-# should be on the output of commands, not on the prompt
-force_color_prompt=yes
-
-if [ -n "$force_color_prompt" ]; then
-    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
-    else
-	color_prompt=
-    fi
-fi
-
-
-# enable programmable completion features (you don't need to enable
-# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
-# sources /etc/bash.bashrc).
-if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
-    . /etc/bash_completion
-fi
-
-# If git isn't installed yet... these should not fail
-if [ "$(which git)" ]; then
-    export GIT_PS1_SHOWDIRTYSTATE=1
-    export GIT_PS1_SHOWSTASHSTATE=1
-    export GIT_PS1_SHOWUNTRACKEDFILES=1
-fi
-
-set_bash_prompt()
-{
-    # Se este for um terminal xterm, define o título para usuário (diretório)
-    case "$TERM" in
-        xterm*|rxvt*)
-            echo -ne "\033]0;${USER} ( ${PWD} )\007"
-            ;;
-        *)
-            ;;
-    esac
-
-    # Carrega as funções do Git para o prompt, se disponíveis
-    if [[ -f "/usr/share/git/git-prompt.sh" ]]
-    then
-        source /usr/share/git/git-prompt.sh
-    fi
-
-    # Configura o prompt com ou sem cores
-    if [ "$color_prompt" = yes ]; then
-        RESET='\[\e[0m\]'
-        C11='\[\e[1;32m\]'
-        C13='\[\e[1;34m\]'
-        export GIT_PS1_SHOWCOLORHINTS=1
-        PS1="${debian_chroot:+($debian_chroot)}$C11\u@\h$RESET:$C13\w$RESET$(__git_ps1 ' (%s)')$RESET\$ "
-    else
-        PS1="${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1 ':(%s)')\$ "
-    fi
-}
-
-# Isso diz ao bash para reinterpretar PS1 após cada comando, que precisamos porque
-# __git_ps1 pode estar gerando códigos de cores
-PROMPT_COMMAND=set_bash_prompt
-
-
-# enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls -F --color=auto --group-directories-first'
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
-	alias diff='diff --color=auto'
-
-    alias grep='grep --color=auto -d skip --binary-file=without-match'
-    alias fgrep='fgrep --color=auto --binary-file=without-match'
-    alias egrep='egrep --color=auto --binary-file=without-match'
-fi
-
-
-# Enable Git autocompletion
-if [ -f /usr/share/git/completion/git-completion.bash ]; then
-    source /usr/share/git/completion/git-completion.bash
-fi
 
 
 # vim:ft=sh
