@@ -187,12 +187,14 @@ fi
 
 ## Source asdf-vm settings
 [[ -f "/opt/asdf-vm/asdf.sh" ]] && source /opt/asdf-vm/asdf.sh
+[[ -f "${ASDF_DATA_DIR}/asdf.sh" ]] && source ${ASDF_DATA_DIR}/asdf.sh
+[[ -f "${ASDF_DATA_DIR}/completions/asdf.bash" ]] && source ${ASDF_DATA_DIR}/completions/asdf.bash
 
 
 ## Java setup for asdf
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=gasp -Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java"
-if [[ -f "${HOME}/.local/share/asdf/plugins/java/set-java-home.bash" ]]; then
-    source "${HOME}/.local/share/asdf/plugins/java/set-java-home.bash"
+if [[ -f "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash" ]]; then
+    source "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash"
 fi
 
 # source fzf completion file

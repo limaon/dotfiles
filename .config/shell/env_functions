@@ -1,6 +1,6 @@
 # Usage: indirect_expand PATH -> $PATH
 indirect_expand() {
-    env |sed -n "s/^$1=//p"
+    env | sed -n "s/^$1=//p"
 }
 
 # Usage: pathremove /path/to/bin [PATH]
@@ -50,6 +50,13 @@ ssource() {
     if [ -r "$1" ]; then
         . "$1"
     fi
+}
+
+
+# Create and enter into folder
+mcd () {
+    mkdir -p "$1"
+    cd "$1"
 }
 
 
