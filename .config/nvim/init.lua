@@ -63,6 +63,7 @@ vim.schedule(function()
 end)
 vim.opt.breakindent = true
 vim.opt.undofile = true
+vim.opt.swapfile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.signcolumn = "no"
@@ -191,6 +192,14 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	pattern = "*",
 	callback = function()
 		vim.cmd("%s/\\s\\+$//e")
+	end,
+})
+
+-- Autoclose Netrw buffer
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "netrw",
+	callback = function()
+		vim.opt_local.bufhidden = "wipe"
 	end,
 })
 
@@ -489,6 +498,7 @@ require("lazy").setup({
 						"%.jpg",
 						"%.jpeg",
 						"%.png",
+						"%.svg",
 						"%.otf",
 						"%.ttf",
 						"%.zip",
@@ -515,14 +525,6 @@ require("lazy").setup({
 						height = function(_, _, max_lines)
 							return math.min(max_lines, 30)
 						end,
-						horizontal = {
-							preview_cutoff = 120,
-							preview_width = 0.6,
-						},
-						vertical = {
-							preview_cutoff = 120,
-							preview_height = 0.7,
-						},
 					},
 				},
 				pickers = {
@@ -817,13 +819,6 @@ require("lazy").setup({
 			--  - yinq - [Y]ank [I]nside [N]ext [Q]uote
 			--  - ci'  - [C]hange [I]nside [']quote
 			require("mini.ai").setup({ n_lines = 500 })
-
-			-- Add/delete/replace surroundings (brackets, quotes, etc.)
-			--
-			-- - saiw) - [S]urround [A]dd [I]nner [W]ord [)]Paren
-			-- - sd'   - [S]urround [D]elete [']quotes
-			-- - sr)'  - [S]urround [R]eplace [)] [']
-			require("mini.surround").setup()
 
 			-- Simple and easy statusline.
 			--  You could remove this setup call if you don't like it,
