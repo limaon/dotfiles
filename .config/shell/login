@@ -55,7 +55,7 @@ export LESSEDIT="$EDITOR ?lm+%lm. %f"
 export QT_QPA_PLATFORMTHEME=qt5ct
 
 # enable the X Compose key in GTK
-export GTK_IM_MODULE=xim
+# export GTK_IM_MODULE=xim
 
 
 # Limits recursive functions, see 'man bash'
@@ -182,7 +182,7 @@ ssource ~/.cofing/shell/login_local
 
 # Add all directories in `~/.local/bin` to $PATH
 if [[ -d "$HOME/.local/bin" ]]; then
-	export PATH="$PATH:$(find ~/.local/bin -type d | paste -sd ':' -)"
+    export PATH="$PATH:$(find ~/.local/bin -type d | paste -sd ':' -)"
 fi
 
 ## Source asdf-vm settings

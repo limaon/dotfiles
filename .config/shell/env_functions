@@ -1,11 +1,13 @@
-# Usage: indirect_expand PATH -> $PATH
+# Usage: indirect_expand VARIABLE_NAME
+# Expands the value of the specified environment variable indirectly.
+# Example: indirect_expand PATH
 indirect_expand() {
     env | sed -n "s/^$1=//p"
 }
 
-# Usage: pathremove /path/to/bin [PATH]
-# Eg, to remove ~/bin from $PATH
-#     pathremove ~/bin PATH
+# Usage: pathremove /path/to/bin [VARIABLE_NAME]
+# Removes the specified directory from the given PATH variable (default is PATH).
+# Example: pathremove ~/bin PATH
 pathremove() {
     local IFS=':'
     local newpath
@@ -21,22 +23,21 @@ pathremove() {
     export $var=${newpath#:}
 }
 
-# Usage: pathprepend /path/to/bin [PATH]
-# Eg, to prepend ~/bin to $PATH
-#     pathprepend ~/bin PATH
+# Usage: pathprepend /path/to/bin [VARIABLE_NAME]
+# Prepends the specified directory to the given PATH variable (default is PATH).
+# Example: pathprepend ~/bin PATH
 pathprepend() {
-    # if the path is already in the variable,
-    # remove it so we can move it to the front
+    # Remove the path if it already exists to move it to the front
     pathremove "$1" "$2"
-    #[ -d "${1}" ] || return
+    # [ -d "${1}" ] || return
     local var="${2:-PATH}"
     local value=`indirect_expand "$var"`
     export ${var}="${1}${value:+:${value}}"
 }
 
-# Usage: pathappend /path/to/bin [PATH]
-# Eg, to append ~/bin to $PATH
-#     pathappend ~/bin PATH
+# Usage: pathappend /path/to/bin [VARIABLE_NAME]
+# Appends the specified directory to the given PATH variable (default is PATH).
+# Example: pathappend ~/bin PATH
 pathappend() {
     pathremove "${1}" "${2}"
     #[ -d "${1}" ] || return
@@ -46,53 +47,58 @@ pathappend() {
 }
 
 # Usage: ssource filename
+# Sources the specified file if it is readable.
+# Example: ssource myscript.sh
 ssource() {
     if [ -r "$1" ]; then
         . "$1"
     fi
 }
 
-
-# Create and enter into folder
-mcd () {
+# Usage: mkcd directory_name
+# Creates a directory and changes into it.
+# Example: mkcd new_folder
+mkcd() {
     mkdir -p "$1"
     cd "$1"
 }
 
-
-# Uninstall all packages no longer required as dependencies (orphans)
+# Usage: remorphans
+# Uninstalls all orphaned packages (packages no longer required as dependencies).
 remorphans() {
-  local packages=()
+    local packages=()
 
-  for package in $(pacman -Qdtq); do
-    packages+=("$package")
-  done
+    for package in $(pacman -Qdtq); do
+        packages+=("$package")
+    done
 
-  echo "Found ${#packages[*]} orphans."
-  if ! [[ ${#packages[*]} -eq 0 ]]; then
-    sudo pacman -Rns "${packages[@]}"
-  fi
+    echo "Found ${#packages[*]} orphans."
+    if ! [[ ${#packages[*]} -eq 0 ]]; then
+        sudo pacman -Rns "${packages[@]}"
+    fi
 }
 
-
-# Getting in the folder after exit lf file manager
+# Usage: lf [options]
+# Launches the lf file manager and returns to the last visited directory after exit.
 lf() {
-  \umask 077
-  tmp="$(command mktemp)"
-  command lf -last-dir-path="$tmp" "$@"
-  if [ -f "$tmp" ]; then
-    dir="$(command cat "$tmp")"
-    command rm -f "$tmp"
-  else
-    \return 1
-  fi
-  if [ -d "$dir" ] && [ "$dir" != "$(pwd)" ]; then
-    \cd "$dir" || \return 1
-  fi
+    \umask 077
+    tmp="$(command mktemp)"
+    command lf -last-dir-path="$tmp" "$@"
+    if [ -f "$tmp" ]; then
+        dir="$(command cat "$tmp")"
+        command rm -f "$tmp"
+    else
+        \return 1
+    fi
+    if [ -d "$dir" ] && [ "$dir" != "$(pwd)" ]; then
+        \cd "$dir" || \return 1
+    fi
 }
 
 ### FZF functions
-## locate
+
+# Usage: locatefall
+# Uses fzf to locate a file in the current directory and changes into it if it's a directory, or opens it in the editor if it's a file.
 fall() {
     local file
     dir="$(pwd)"
@@ -100,7 +106,8 @@ fall() {
 }
 
 
-### Edit file
+# Usage: fe
+# Finds and edits a file in the current directory, excluding certain paths and file types.
 fe() {
     local file
 
@@ -130,9 +137,9 @@ fe() {
     ${EDITOR:-vim} "$file"
 }
 
-
-### Goto directory
-fd() {
+# Usage: fcd
+# Changes to a directory selected via fzf, excluding certain paths.
+fcd() {
     local dir
     dir=$(find . \
         -not \( -path "*/.*" -prune \) \
@@ -143,22 +150,27 @@ fd() {
     cd "$dir"
 }
 
-
-### kill process
+# Usage: fkill [signal]
+# Kills processes selected via fzf. Default signal is SIGKILL (9).
 fkill() {
     ps -ef | sed 1d | fzf -m | awk '{print $2}' | xargs kill -${1:-9}
 }
 
-
-### Show process
+# Usage: fps
+# Displays currently running processes using fzf for selection.
 fps() {
     ps aux | sed 1d | fzf -m
 }
 
-
-### History search
-fh() {
-    eval "$(history | fzf +s --tac | awk '{$1=""; print $0}' | sed 's/^[ \t]*//')"
+# Usage: fh
+# Searches command history using fzf and executes the selected command.
+fhist() {
+    local selected_cmd
+    selected_cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+ [0-9:]+[ \t]*/, ""); print}' | fzf +s --tac)
+    if [[ -n "$selected_cmd" ]]; then
+        echo "$selected_cmd"
+        eval "$selected_cmd"
+    fi
 }
 
 

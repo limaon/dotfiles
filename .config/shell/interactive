@@ -10,13 +10,10 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 alias du='du -d1 -h'
 alias info='info --vi-keys'
 alias less='less --IGNORE-CASE --tabs=4 --status-column --LONG-PROMPT --line-numbers --RAW-CONTROL-CHARS'
-alias mkdir='mkdir -p -v'
 alias mount='mount | column -t'
 alias wget='wget -c'
 alias ssh='env TERM=xterm-256color ssh'
 alias su='su -l'
-alias tmux="tmux -2 -u"
-alias ta="tmux -2 -u attach"
 
 
 # Startup files
@@ -38,7 +35,6 @@ alias ip='ip -color=auto'
 
 
 ## Geek aliase
-alias fuck='sudo $(history -p \!\!)' # Redo last command as root
 alias fake="cat /dev/urandom | hexdump -C | grep 'ca fe'"
 
 
@@ -60,7 +56,7 @@ alias errors="journalctl -p err..alert -b -e"
 
 
 # Utils alias
-alias updatr-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias genpasswd="openssl rand -base64 21"
 alias trim="sudo fstrim -v / && sudo fstrim -v /home"
 
@@ -119,40 +115,19 @@ if [ -x /usr/bin/dircolors ]; then
     alias ls='ls -F --color=auto --group-directories-first'
     alias dir='dir --color=auto'
     alias vdir='vdir --color=auto'
-	alias diff='diff --color=auto'
+    alias diff='diff --color=auto'
 
     alias grep='grep --color=auto -d skip --binary-file=without-match'
     alias fgrep='fgrep --color=auto --binary-file=without-match'
     alias egrep='egrep --color=auto --binary-file=without-match'
 fi
 
-
-# if in a terminal
-if [ -t 0 ]; then
-    # other users shouldn't be able to message by default
-    mesg n
-
-    # enable colours
-    if [ `tput colors` -ge 8 ]; then
-        export GREP_COLOR='37;45'
-		export GROFF_NO_SGR=1
-		export CLICOLOR=1
-		export GREP_COLORS='mt=37;45'
-		export COLORFGBG="default;default"
-
-        export LESS_TERMCAP_mb=$'\E[01;31m'      # begin blinking
-        export LESS_TERMCAP_md=$'\E[01;31m'      # begin bold
-        export LESS_TERMCAP_me=$'\E[0m'          # end mode
-        export LESS_TERMCAP_se=$'\E[0m'          # end standout-mode
-        export LESS_TERMCAP_so=$'\E[00;47;30m'   # begin standout-mode
-        export LESS_TERMCAP_ue=$'\E[0m'          # end underline
-        export LESS_TERMCAP_us=$'\E[01;32m'      # begin underline
-    fi
-fi
+export GROFF_NO_SGR=1
+export CLICOLOR=1
+export COLORFGBG="default;default"
 
 # gnome-terminal doesn't advertise its 256 colour support.
 if [ "$COLORTERM" = gnome-terminal -a "$TERM" = xterm ]; then
-#    export TERM=gnome-256color
     export TERM=xterm-256color
 fi
 

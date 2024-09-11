@@ -8,23 +8,19 @@ if [ ! -d "$BASH_IT" ]; then
     # Clone the repository with a depth of 1 (to save bandwidth)
     git clone --depth=1 https://github.com/Bash-it/bash-it.git ${BASH_IT}
 fi
-
 export BASH_IT=~/.config/bash_it
 
 
 # Theme (from ~/.bash_it/themes/)
-# export BASH_IT_THEME="metal"
-# export BASH_IT_THEME="cupcake"
-# export BASH_IT_THEME="robbyrussell"
-export BASH_IT_THEME="bira"
+export BASH_IT_THEME="robbyrussell"
 
 # Set vcprompt executable path for scm advance info in prompt
 # https://github.com/xvzf/vcprompt
 #export VCPROMPT_EXECUTABLE=~/.vcprompt/bin/vcprompt
 
+
 # Load Bash It
 . ${BASH_IT}/bash_it.sh
-
 . ~/.config/shell/interactive
 
 # vim:ft=sh
