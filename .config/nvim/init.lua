@@ -242,21 +242,15 @@ vim.api.nvim_create_autocmd("InsertLeave", {
 	command = "set nopaste",
 })
 
--- Helper function to set buffer options
-local function set_buffer_options(opts_autocmd)
-	for k, v in pairs(opts_autocmd) do
-		vim.bo[k] = v
-	end
-end
-
 -- Create autocommand groups
 local function create_augroup(name, autocmds)
 	local group = vim.api.nvim_create_augroup(name, { clear = true })
-	for _, autocmd in ipairs(autocmds) do
-		local event = autocmd[1]
-		local opts_autocmd = autocmd[2]
-		opts_autocmd.group = group
-		vim.api.nvim_create_autocmd(event, opts_autocmd)
+	for _, def in ipairs(autocmds) do
+		vim.api.nvim_create_autocmd(def[1], {
+			group = group,
+			pattern = def[2].pattern,
+			callback = def[2].callback,
+		})
 	end
 end
 
@@ -348,14 +342,50 @@ create_augroup("make_cmake_settings", {
 -- Language-specific settings
 local language_settings = {
 	python = {
-		expandtab = true,
-		shiftwidth = 4,
-		tabstop = 8,
-		formatoptions = "croq",
-		softtabstop = 4,
-		cinwords = "if,elif,else,for,while,try,except,finally,def,class,with",
+		buffer = {
+			expandtab = true,
+			shiftwidth = 4,
+			tabstop = 8,
+			formatoptions = "croq",
+			softtabstop = 4,
+			cinwords = "if,elif,else,for,while,try,except,finally,def,class,with",
+		},
+		window = {},
 	},
-	javascript = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
+	markdown = {
+		buffer = {
+			expandtab = true,
+			shiftwidth = 4,
+			tabstop = 4,
+			softtabstop = 4,
+			formatoptions = "jcroql",
+		},
+		window = {
+			wrap = true,
+			linebreak = true,
+			spell = true,
+			conceallevel = 0,
+		},
+	},
+	tex = {
+		buffer = {
+			expandtab = true,
+			shiftwidth = 4,
+			tabstop = 4,
+			softtabstop = 4,
+			formatoptions = "jcroql",
+		},
+		window = {
+			wrap = true,
+			linebreak = true,
+			spell = true,
+			conceallevel = 0,
+		},
+	},
+	javascript = {
+		buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
+		window = {},
+	},
 	typescript = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
 	java = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
 	c = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
@@ -367,8 +397,6 @@ local language_settings = {
 	json = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
 	xml = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
 	yaml = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	-- markdown = { wrap = true, linebreak = true },
-	tex = { wrap = true, linebreak = true },
 	vim = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
 	toml = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
 	sh = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
@@ -383,8 +411,18 @@ create_augroup("language_settings", {
 			pattern = vim.tbl_keys(language_settings),
 			callback = function()
 				local ft = vim.bo.filetype
-				if language_settings[ft] then
-					set_buffer_options(language_settings[ft])
+				local settings = language_settings[ft]
+				if settings then
+					if settings.buffer then
+						for option, value in pairs(settings.buffer) do
+							vim.bo[option] = value
+						end
+					end
+					if settings.window then
+						for option, value in pairs(settings.window) do
+							vim.wo[option] = value
+						end
+					end
 				end
 			end,
 		},
@@ -611,6 +649,21 @@ require("lazy").setup({
 	{ "Bilal2453/luvit-meta", lazy = true },
 
 	{
+		"lervag/vimtex",
+		ft = "tex",
+		config = function()
+			vim.g.vimtex_view_method = "zathura"
+			vim.g.vimtex_compiler_method = "latexmk"
+
+			vim.g.vimtex_quickfix_mode = 0
+			vim.g.vimtex_view_general_options = "--unique file:@pdf#src:@line@tex"
+			vim.g.vimtex_format_enabled = 1
+			vim.g.vimtex_compiler_autowatch = 1
+		end,
+		dependencies = {},
+	},
+
+	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
 			{ "williamboman/mason.nvim", config = true },
@@ -658,6 +711,19 @@ require("lazy").setup({
 			-- Enable the following language servers
 			local servers = {
 				clangd = {},
+
+				texlab = {
+					build = {
+						executable = "latexmk",
+						args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
+						on_save = true,
+					},
+					forwardSearch = {
+						executable = "zathura", -- Substitua pelo seu visualizador de PDF preferido
+						args = { "--synctex-forward", "%l:1:%f", "%p" },
+					},
+				},
+
 				lua_ls = {
 					settings = {
 						Lua = {
@@ -862,11 +928,13 @@ require("lazy").setup({
 			require("mini.trailspace").setup()
 		end,
 	},
+
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		opts = {
 			ensure_installed = {
+				"latex",
 				"bash",
 				"c",
 				"diff",
