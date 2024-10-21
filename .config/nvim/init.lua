@@ -180,164 +180,141 @@ keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Alternate wrap option" })
 -- [[ Basic Autocommands ]] {{{
 --  See `:help lua-guide-autocommands`
 
--- Resize windows when terminal changes size
-vim.api.nvim_create_autocmd("VimResized", {
-	callback = function()
-		vim.cmd("wincmd =")
-	end,
-})
-
--- Remove trailing whitespaces
-vim.api.nvim_create_autocmd("BufWritePre", {
-	pattern = "*",
-	callback = function()
-		vim.cmd("%s/\\s\\+$//e")
-	end,
-})
-
--- Autoclose Netrw buffer
-vim.api.nvim_create_autocmd("FileType", {
-	pattern = "netrw",
-	callback = function()
-		vim.opt_local.bufhidden = "wipe"
-	end,
-})
-
--- Autocommand to enter insert mode when opening the terminal
-local terminal_group = vim.api.nvim_create_augroup("TerminalGroup", { clear = true })
-vim.api.nvim_create_autocmd("TermOpen", {
-	group = terminal_group,
-	pattern = "*",
-	callback = function()
-		vim.cmd("startinsert")
-	end,
-})
-
--- Opens non-text files in the default program instead of in Neovim
-local augroup_open_files = vim.api.nvim_create_augroup("openFile", {})
-vim.api.nvim_create_autocmd("BufReadPost", {
-	group = augroup_open_files,
-	pattern = { "*.jpeg", "*.jpg", "*.pdf", "*.png", "*.svg" },
-	callback = function(ev)
-		vim.fn.system("open '" .. vim.fn.expand("%") .. "'")
-		vim.api.nvim_buf_delete(ev.buf, {})
-	end,
-	desc = "Open File",
-})
-
--- automatically regenerate spell file after editing dictionary
-local augroup_reg_spell_file = vim.api.nvim_create_augroup("RegenerateSpellFile", {})
-vim.api.nvim_create_autocmd("BufWritePost", {
-	group = augroup_reg_spell_file,
-	pattern = "*/spell/*.add",
-	callback = function()
-		vim.cmd("mkspell! %")
-	end,
-	desc = "Regenerate spell file",
-})
-
--- Turn off paste mode when leaving insert
-vim.api.nvim_create_autocmd("InsertLeave", {
-	pattern = "*",
-	command = "set nopaste",
-})
-
--- Create autocommand groups
+-- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
-	local group = vim.api.nvim_create_augroup(name, { clear = true })
-	for _, def in ipairs(autocmds) do
-		vim.api.nvim_create_autocmd(def[1], {
-			group = group,
-			pattern = def[2].pattern,
-			callback = def[2].callback,
-		})
-	end
+	return vim.api.nvim_create_augroup(name, { clear = true }), autocmds or {}
 end
 
--- Disable concealing in specific file types
-create_augroup("disable_concealing", {
-	{
-		"FileType",
-		{
-			pattern = { "json", "jsonc", "markdown" },
-			callback = function()
-				vim.opt.conceallevel = 0
-			end,
-		},
-	},
-})
+-- Utility function to create autocommands
+local function create_autocmd(event, group, pattern, callback, desc)
+	vim.api.nvim_create_autocmd(event, {
+		group = group,
+		pattern = pattern,
+		callback = callback,
+		desc = desc,
+	})
+end
 
--- Highlight on yank
-create_augroup("highlight_yank", {
-	{
-		"TextYankPost",
-		{
-			desc = "Highlight when yanking (copying) text",
-			callback = function()
-				vim.highlight.on_yank()
-			end,
-		},
-	},
-})
+-- Grouping all basic autocommands
+local basic_group = create_augroup("BasicAutocommands")
+
+-- Resize windows when Vim is resized
+create_autocmd("VimResized", basic_group, "*", function()
+	vim.cmd("wincmd =")
+end, "Resize all windows equally when Vim is resized")
+
+-- Remove trailing whitespaces before saving
+create_autocmd("BufWritePre", basic_group, "*", function()
+	vim.cmd([[%s/\s\+$//e]])
+end, "Remove trailing whitespaces before saving")
+
+-- Autoclose Netrw buffer
+create_autocmd("FileType", basic_group, "netrw", function()
+	vim.opt_local.bufhidden = "wipe"
+end, "Automatically close the Netrw buffer")
+
+-- Enter insert mode when opening the terminal
+create_autocmd("TermOpen", basic_group, "*", function()
+	vim.cmd("startinsert")
+end, "Enter insert mode when opening the terminal")
+
+-- Turn off paste mode when leaving insert mode
+create_autocmd("InsertLeave", basic_group, "*", function()
+	vim.opt.paste = false
+end, "Disable paste mode when exiting insert mode")
+
+-- Autocommands to open non-textual files externally
+local openExternalFile = function()
+	local file = vim.fn.expand("%")
+	local command = nil
+
+	-- Detect the operating system and set the appropriate command
+	if vim.fn.has("mac") == 1 then
+		command = { "open", file }
+	elseif vim.fn.has("unix") == 1 then
+		command = { "xdg-open", file }
+	elseif vim.fn.has("win32") == 1 then
+		command = { "cmd", "/c", "start", "", file }
+	else
+		vim.notify("Operating system not supported for opening files externally.", vim.log.levels.ERROR)
+		return
+	end
+
+	-- Execute the command asynchronously
+	vim.loop.spawn(command[1], { args = { unpack(command, 2) } }, function(return_code)
+		if return_code ~= 0 then
+			vim.schedule(function()
+				vim.notify("Failed to open file: " .. file, vim.log.levels.ERROR)
+			end)
+		end
+	end)
+
+	-- Close the current buffer without saving changes
+	vim.api.nvim_buf_delete(0, { force = true })
+end
+
+local external_group = create_augroup("OpenExternalFiles")
+local external_patterns = { "*.jpeg", "*.jpg", "*.pdf", "*.png", "*.svg" }
+
+create_autocmd(
+	"BufReadPost",
+	external_group,
+	external_patterns,
+	openExternalFile,
+	"Open non-textual files externally and close the buffer"
+)
+
+-- Automatically regenerate spell file after editing dictionary
+create_autocmd("BufWritePost", basic_group, "*/spell/*.add", function()
+	vim.cmd("mkspell! %")
+end, "Regenerate spell file after editing the dictionary")
+
+-- Disable concealing in specific file types
+local concealing_group = create_augroup("DisableConcealing")
+local conceal_types = { "json", "jsonc", "markdown" }
+
+create_autocmd("FileType", concealing_group, conceal_types, function()
+	vim.opt.conceallevel = 0
+end, "Disable concealing for specific file types")
+
+-- Highlight on yank (copying) text
+local yank_group = create_augroup("HighlightYank")
+create_autocmd("TextYankPost", yank_group, "*", function()
+	vim.highlight.on_yank()
+end, "Highlight text when yanked")
 
 -- Sync syntax highlighting
-create_augroup("sync_syntax", {
-	{ "BufEnter", {
-		callback = function()
-			vim.cmd("syntax sync maxlines=100")
-		end,
-	} },
-})
+local syntax_group = create_augroup("SyncSyntax")
+create_autocmd("BufEnter", syntax_group, "*", function()
+	vim.cmd("syntax sync maxlines=100")
+end, "Synchronize syntax highlighting with a line limit")
 
--- Remember cursor position
-create_augroup("remember_cursor_position", {
-	{
-		"BufReadPost",
-		{
-			callback = function()
-				local last_line = vim.fn.line("$")
-				local cursor_line = vim.fn.line("'\"")
-				if cursor_line > 1 and cursor_line <= last_line then
-					vim.cmd('normal! g`"')
-				end
-			end,
-		},
-	},
-})
+-- Remember cursor position when reopening files
+local cursor_group = create_augroup("RememberCursorPosition")
+create_autocmd("BufReadPost", cursor_group, "*", function()
+	local pos = vim.fn.line("'\"")
+	if pos > 1 and pos <= vim.fn.line("$") then
+		vim.cmd('normal! g`"')
+	end
+end, "Remember cursor position when reopening files")
 
--- Text file settings
-create_augroup("text_file_settings", {
-	{
-		{ "BufRead", "BufNewFile" },
-		{
-			pattern = "*.txt",
-			callback = function()
-				vim.opt.wrap = true
-				vim.opt.wrapmargin = 2
-				vim.opt.textwidth = 79
-			end,
-		},
-	},
-})
+-- Settings for text file types
+local text_group = create_augroup("TextFileSettings")
+create_autocmd({ "BufRead", "BufNewFile" }, text_group, "*.txt", function()
+	vim.opt_local.wrap = true
+	vim.opt_local.wrapmargin = 2
+	vim.opt_local.textwidth = 79
+end, "Settings for text files")
 
--- Makefile and CMakeLists.txt settings
-create_augroup("make_cmake_settings", {
-	{ "FileType", {
-		pattern = "make",
-		callback = function()
-			vim.bo.expandtab = false
-		end,
-	} },
-	{
-		{ "BufNewFile", "BufRead" },
-		{
-			pattern = "CMakeLists.txt",
-			callback = function()
-				vim.bo.filetype = "cmake"
-			end,
-		},
-	},
-})
+-- Settings for Makefile and CMakeLists.txt
+local make_group = create_augroup("MakeCMakeSettings")
+create_autocmd("FileType", make_group, "make", function()
+	vim.bo.expandtab = false
+end, "Disable expandtab for Makefiles")
+
+create_autocmd({ "BufNewFile", "BufRead" }, make_group, "CMakeLists.txt", function()
+	vim.bo.filetype = "cmake"
+end, "Set filetype to cmake for CMakeLists.txt")
 
 -- Language-specific settings
 local language_settings = {
@@ -350,7 +327,6 @@ local language_settings = {
 			softtabstop = 4,
 			cinwords = "if,elif,else,for,while,try,except,finally,def,class,with",
 		},
-		window = {},
 	},
 	markdown = {
 		buffer = {
@@ -382,52 +358,42 @@ local language_settings = {
 			conceallevel = 0,
 		},
 	},
-	javascript = {
-		buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-		window = {},
-	},
-	typescript = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	java = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	c = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	cpp = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	ruby = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	go = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	html = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	css = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	json = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	xml = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	yaml = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 },
-	vim = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	toml = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	sh = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 },
-	asm = { expandtab = false, tabstop = 8, shiftwidth = 8, softtabstop = 8 },
-	make = { expandtab = false },
+	javascript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	typescript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	java = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	c = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	cpp = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	ruby = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	go = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	html = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	css = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	json = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	xml = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	yaml = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	vim = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	toml = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	sh = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
+	asm = { buffer = { expandtab = false, tabstop = 8, shiftwidth = 8, softtabstop = 8 } },
+	make = { buffer = { expandtab = false } },
 }
 
-create_augroup("language_settings", {
-	{
-		"FileType",
-		{
-			pattern = vim.tbl_keys(language_settings),
-			callback = function()
-				local ft = vim.bo.filetype
-				local settings = language_settings[ft]
-				if settings then
-					if settings.buffer then
-						for option, value in pairs(settings.buffer) do
-							vim.bo[option] = value
-						end
-					end
-					if settings.window then
-						for option, value in pairs(settings.window) do
-							vim.wo[option] = value
-						end
-					end
-				end
-			end,
-		},
-	},
-})
+local lang_group = create_augroup("LanguageSettings")
+create_autocmd("FileType", lang_group, vim.tbl_keys(language_settings), function()
+	local ft = vim.bo.filetype
+	local settings = language_settings[ft]
+	if settings then
+		if settings.buffer then
+			for option, value in pairs(settings.buffer) do
+				vim.bo[option] = value
+			end
+		end
+		if settings.window then
+			for option, value in pairs(settings.window) do
+				vim.wo[option] = value
+			end
+		end
+	end
+end, "Language-specific settings")
 
 -- }}}
 
@@ -719,7 +685,7 @@ require("lazy").setup({
 						on_save = true,
 					},
 					forwardSearch = {
-						executable = "zathura", -- Substitua pelo seu visualizador de PDF preferido
+						executable = "zathura",
 						args = { "--synctex-forward", "%l:1:%f", "%p" },
 					},
 				},
