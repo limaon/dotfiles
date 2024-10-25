@@ -66,7 +66,7 @@ vim.opt.undofile = true
 vim.opt.swapfile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.signcolumn = "no"
+-- vim.opt.signcolumn = "no"
 vim.opt.updatetime = 500
 vim.opt.timeoutlen = 500
 vim.opt.splitright = true
@@ -91,66 +91,66 @@ local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
 -- TIP: Disable arrow keys in normal mode
-keymap("n", "<left>", '<cmd>echo "Use h to move!!"<CR>')
-keymap("n", "<right>", '<cmd>echo "Use l to move!!"<CR>')
-keymap("n", "<up>", '<cmd>echo "Use k to move!!"<CR>')
-keymap("n", "<down>", '<cmd>echo "Use j to move!!"<CR>')
+keymap("n", "<left>", '<cmd>echo "Use h to move!!"<cr>')
+keymap("n", "<right>", '<cmd>echo "Use l to move!!"<cr>')
+keymap("n", "<up>", '<cmd>echo "Use k to move!!"<cr>')
+keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
 
 -- Select all
 keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
 
 -- Native tabs
 keymap("n", "te", ":tabedit ", { silent = false })
-keymap("n", "tt", "<Cmd>tabnew<CR>", opts)
-keymap("n", "tn", "<Cmd>tabnext<CR>", opts)
-keymap("n", "tp", "<Cmd>tabprevious<CR>", opts)
-keymap("n", "td", "<Cmd>tabclose<CR>", opts)
+keymap("n", "tt", "<cmd>tabnew<cr>", opts)
+keymap("n", "tn", "<cmd>tabnext<cr>", opts)
+keymap("n", "tp", "<cmd>tabprevious<cr>", opts)
+keymap("n", "td", "<cmd>tabclose<cr>", opts)
 
 -- Buffer
-keymap("n", "<Tab>", "<Cmd>bnext<CR>", { desc = "Next buffer" })
-keymap("n", "<S-Tab>", "<Cmd>bprevious<CR>", { desc = "Preivous buffer" })
-keymap("n", "<DELETE>", "<Cmd>bdelete!<CR>", { desc = "Close current" })
+keymap("n", "<tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+keymap("n", "<s-tab>", "<cmd>bprevious<cr>", { desc = "Preivous buffer" })
+keymap("n", "<delete>", "<cmd>bdelete!<cr>", { desc = "Close current" })
 
 -- Split window
-keymap("n", "ss", "<C-W>s", { desc = "Split below" })
-keymap("n", "sv", "<C-W>v", { desc = "Split right" })
+keymap("n", "ss", "<c-w>s", { desc = "Split below" })
+keymap("n", "sv", "<c-w>v", { desc = "Split right" })
 
 -- Move to window
-keymap("n", "sh", "<C-w>h", { desc = "Go to left window" })
-keymap("n", "sk", "<C-w>k", { desc = "Go to upper window" })
-keymap("n", "sj", "<C-w>j", { desc = "Go to lower window" })
-keymap("n", "sl", "<C-w>l", { desc = "Go to right window" })
+keymap("n", "sh", "<c-w>h", { desc = "Go to left window" })
+keymap("n", "sk", "<c-w>k", { desc = "Go to upper window" })
+keymap("n", "sj", "<c-w>j", { desc = "Go to lower window" })
+keymap("n", "sl", "<c-w>l", { desc = "Go to right window" })
 
 -- Resize window
-keymap("n", "<M-Up>", "<Cmd>resize -2<CR>", { desc = "Increase window height" })
-keymap("n", "<M-Down>", "<Cmd>resize +2<CR>", { desc = "Decrease window height" })
-keymap("n", "<M-Left>", "<Cmd>vertical resize +2<CR>", { desc = "Increase window width" })
-keymap("n", "<M-Right>", "<Cmd>vertical resize -2<CR>", { desc = "Decrease window width" })
+keymap("n", "<m-up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
+keymap("n", "<m-down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" })
+keymap("n", "<m-left>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
+keymap("n", "<m-right>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
 
 keymap("v", ">", ">gv", { desc = "Visual shifting" })
 keymap("v", "<", "<gv", { desc = "Visual shifting" })
 
 -- Keep cursor in the middle of the screen
-keymap("n", "<C-d>", "<C-d>zz", { desc = "Scroll down" })
-keymap("n", "<C-u>", "<C-u>zz", { desc = "Scroll up" })
+keymap("n", "<c-d>", "<c-d>zz", { desc = "Scroll down" })
+keymap("n", "<c-u>", "<c-u>zz", { desc = "Scroll up" })
 
 -- Keeping search centered
 keymap("n", "n", "nzzzv", { desc = "Next search result" })
 keymap("n", "N", "Nzzzv", { desc = "Prev search result" })
 
 -- Clear search with <esc>
-keymap({ "i", "n" }, "<Esc>", "<Cmd>nohlsearch<CR><Esc>", { desc = "Escape and clear hlsearch" })
+keymap({ "i", "n" }, "<esc>", "<Cmd>nohlsearch<CR><Esc>", { desc = "Escape and clear hlsearch" })
 keymap("n", "/", "zn/", { desc = "Search & Pause Folds" })
 
 -- Better UP / DOWN
-keymap("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move lines up" })
-keymap("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move lines down" })
+keymap("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move lines up" })
+keymap("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move lines down" })
 
 -- Keep cursor in place
 keymap("n", "J", "mzJ`z", { desc = "Join lines" })
 
 -- Open File browser
-keymap("n", "<leader>e", "<Cmd>Explore<CR>", { desc = "Open Netrw" })
+keymap("n", "<leader>e", "<cmd>Explore<cr>", { desc = "Open Netrw" })
 
 -- Undotree
 keymap("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Open undotree for git" })
@@ -159,7 +159,7 @@ keymap("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Open undotree for git
 keymap(
 	"n",
 	"<leader>s",
-	":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<Left><Left><Left>",
+	":%s/\\<<c-r><c-w>\\>/<c-r><c-w>/gI<left><left><left>",
 	{ silent = false, desc = "Replace word" }
 )
 keymap("n", "<leader>x", "<cmd>!chmod u+x %<CR>", { desc = "Excutable file" })
@@ -167,7 +167,7 @@ keymap("n", "<leader>x", "<cmd>!chmod u+x %<CR>", { desc = "Excutable file" })
 -- Get terminal
 keymap("n", "<leader>tt", "<cmd>split term://bash<cr>", { silent = false, desc = "Horizontal terminal" })
 keymap("n", "<leader>tv", "<cmd>vsplit term://bash<cr>", { silent = false, desc = "Vertical terminal" })
-keymap("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
+keymap("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Exit terminal mode" })
 keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
 -- Function keys
@@ -458,6 +458,9 @@ require("lazy").setup({
 
 	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
 		"lewis6991/gitsigns.nvim",
+		dependencies = {
+			"mbbill/undotree",
+		},
 		opts = {
 			signs = {
 				add = { text = "+" },
@@ -466,7 +469,101 @@ require("lazy").setup({
 				topdelete = { text = "‾" },
 				changedelete = { text = "~" },
 			},
+			signs_staged = {
+				add = { text = "|" },
+				change = { text = "|" },
+				delete = { text = "_" },
+				topdelete = { text = "‾" },
+				changedelete = { text = "~" },
+				untracked = { text = "┆" },
+			},
+			signs_staged_enable = true,
+			signcolumn = true,
+			numhl = false,
+			linehl = false,
+			word_diff = false,
+			watch_gitdir = {
+				follow_files = true,
+			},
+			auto_attach = true,
+			attach_to_untracked = false,
+			current_line_blame = false,
+			current_line_blame_opts = {
+				virt_text = false,
+				virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
+				delay = 1000,
+				ignore_whitespace = false,
+				virt_text_priority = 100,
+				use_focus = true,
+			},
+			current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
+			sign_priority = 6,
+			update_debounce = 100,
+			status_formatter = nil,
+			max_file_length = 40000,
+			preview_config = {
+				border = "single",
+				style = "minimal",
+				relative = "cursor",
+				row = 0,
+				col = 1,
+			},
+			on_attach = function(bufnr)
+				local gitsigns = require("gitsigns")
+
+				local function map(mode, lhs, rhs, desc)
+					vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
+				end
+
+				map("n", "]c", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "]c", bang = true })
+					else
+						gitsigns.next_hunk()
+						gitsigns.preview_hunk()
+					end
+				end, "Next Hunk")
+
+				map("n", "[c", function()
+					if vim.wo.diff then
+						vim.cmd.normal({ "[c", bang = true })
+					else
+						gitsigns.prev_hunk()
+						gitsigns.preview_hunk()
+					end
+				end, "Previous Hunk")
+
+				map("n", "<leader>ghs", gitsigns.stage_hunk, "Stage Hunk")
+				map("n", "<leader>ghr", gitsigns.reset_hunk, "Reset Hunk")
+				map("v", "<leader>ghs", function()
+					gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+				end, "Stage Hunk Visual")
+				map("v", "<leader>ghr", function()
+					gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+				end, "Reset Hunk Visual")
+				map("n", "<leader>ghb", function()
+					gitsigns.blame_line({ full = true })
+				end, "Blame Line")
+			end,
 		},
+	},
+
+	{ -- Plugin vim-fugitive to git integration
+		"tpope/vim-fugitive",
+		config = function()
+			local function map(mode, lhs, rhs, desc)
+				vim.keymap.set(mode, lhs, rhs, { desc = desc })
+			end
+
+			map("n", "<leader>gs", "<cmd>Git<cr>", "Git Status")
+			map("n", "<leader>gc", "<cmd>Git commit<cr>", "Git Commit")
+			map("n", "<leader>gp", "<cmd>Git push<cr>", "Git Push")
+			map("n", "<leader>gl", "<cmd>Git pull<cr>", "Git Pull")
+			map("n", "<leader>gb", "<cmd>Git blame<cr>", "Git Blame")
+			map("n", "<leader>gd", "<cmd>Git diff<cr>", "Git Diff")
+			map("n", "<leader>gg", "<cmd>Git<CR>", "Git")
+			map("n", "<leader>gP", "<cmd>Git push -u origin HEAD<cr>", "Git Push Upstream")
+		end,
 	},
 
 	{ -- Fuzzy Finder (files, lsp, etc)
