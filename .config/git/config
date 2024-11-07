@@ -1,93 +1,96 @@
 [alias]
-  aliases = !"git config --get-regexp '^alias\\.' | awk '/^alias\\./{ name = substr($1,7); print \"\\033[31;1m\" name, \"\\033[33m\" \"=\", \"\\033[;3;32m\" substr($0, index($0,$2)) \"\\033[m\" } $0!~/^alias\\./{print \"\\033[3;32m\" $0 \"\\033[m\" }'"
+  # Aliases for listing aliases with colors
+  aliases = !"git config --get-regexp '^alias\\.'"
   aliases- = !"f() { git aliases | tac; }; f"
+
+  # Simplification and optimization of common aliases
   st = status
   df = diff --color-words=. --ws-error-highlight=new,old
   dfs = diff --staged --ws-error-highlight=new,old
-  branches = branch -a
-  tags = tag -n1 --list
-  stashes = stash list
+  br = branch -a
+  tg = tag -n1 --list
+  stsh = stash list
 
-# log aliases
+  # Log aliases
   lg = log --oneline --graph --decorate
+  ll = log-list
+  lll = log-list-long
   lp = log --patch
   lo = log --oneline
   l1 = lo
   lor = log --oneline --reverse
   l1r = lor
-  ll = log-list
-  lll = log-list-long
   llf = log-list --follow --
   lfp = log --first-parent  # useful for branch that only accepts pull requests
   lto = log --topo-order  # descendant commits are shown before their parents
   lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
 
-### log-* aliases
+  ### Log-* aliases
   log-refs = log --all --graph --decorate --oneline --simplify-by-decoration --no-merges
-  log-timeline = log --format='%h %an %ar - %s'
+  log-timeline = log --color=always --format='%C(cyan)%h %C(green)%an %C(yellow)%ar - %s%C(reset)'
   log-local = log --oneline origin..HEAD
   log-fetched = log --oneline HEAD..origin/main
-
-# Show log list with our preferred information, a.k.a. `ll`
   log-list = log --graph --topo-order --date=short --abbrev-commit --decorate --all --boundary --pretty=format:'%x1b[1m%Cgreen%ad %C(red)%h%Creset -%x1b[1m%C(yellow)%d%Creset %s %x1b[1m%C(blue)[%cn] %C(magenta)%G?%Creset'
-
-# Show log  list with our preferred information with long formats, a.k.a. `lll`
   log-list-long = log --graph --topo-order --date=iso8601-strict --no-abbrev-commit --decorate --all --boundary --pretty=format:'%x1b[1m%C(green)%ad %Cred%h%Creset -%x1b[1m%C(yellow)%d%Creset %s %x1b[1m%Cblue[%cn <%ce>] %C(magenta)%G?%Creset'
-
-# Show log for my own commits by my own user email
   log-my = !git log --author $(git config user.email)
 
-# Show log as a graph
-  log-graph = log --graph --all --oneline --decorate
-
-# Show the date of the first (a.k.a. earliest) commit, in strict ISO 8601 format
-  log-date-first = !"git log --date-order --format=%cI | tail -1"
-
-# Show the date of the last (a.k.a. latest) commit, in strict ISO 8601 format
-  log-date-last = log -1 --date-order --format=%cI
 [user]
   name = Alvaro Oliveira
   email = 51033564+limaon@users.noreply.github.com
+
 [core]
   editor = nvim
   excludesfile = .gitignore
   precomposeUnicode = true
   pager = less -R
   ignorecase = false
+
 [credential]
-  helper = cache
+  helper = "cache --timeout=3600"
+
 [diff]
   compactionHeuristic = true
   algorithm = patience
   tool = nvimdiff
-[github]
-  user = limaon
-[color]
-  status = auto
-  diff = auto
-  branch = auto
-  interactive = auto
-  grep = auto
-  ui = auto
-[init]
-  defaultBranch = main
-[help]
-  autocorrect = 1
-[log]
-  date = relative
+
 [difftool "nvimdiff"]
-  cmd = nvim -d \"$LOCAL\" \"$REMOTE\" -c \"wincmd w\" -c \"wincmd L\"
+  cmd = nvim -d "$LOCAL" "$REMOTE" -c "wincmd w" -c "wincmd L"
+
 [merge]
   tool = nvimdiff4
   prompt = false
   conflictstyle = diff3
+
 [merge "nvimdiff4"]
-  cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+  cmd = nvim -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd w' -c 'wincmd J'
+
+[color]
+  ui = auto
+  status = always
+  branch = always
+  diff = always
+  grep = always
+
+[github]
+  user = limaon
+
+[init]
+  defaultBranch = main
+
+[help]
+  autocorrect = 1
+
+[log]
+  date = relative
+
 [commit]
   verbose = true
+
 [pull]
   rebase = false
+
 [rebase]
   instructionFormat = (%an <%ae>) %s
+
 [push]
   default = simple
