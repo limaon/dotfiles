@@ -174,6 +174,8 @@ keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q
 keymap("n", "<F1>", "<cmd>set rnu!<cr>", { desc = "Set relative number" })
 keymap("n", "<F2>", "<cmd>set spell!<cr>", { desc = "Spell language" })
 keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Alternate wrap option" })
+keymap("n", "<F4>", "z=", { desc = "Select a correct word" })
+keymap("i", "<F5>", "<c-x><c-s>", { desc = "Suggests a list of correct word" })
 
 -- }}}
 
@@ -557,11 +559,11 @@ require("lazy").setup({
 
 			map("n", "<leader>gs", "<cmd>Git<cr>", "Git Status")
 			map("n", "<leader>gc", "<cmd>Git commit<cr>", "Git Commit")
-			map("n", "<leader>gp", "<cmd>Git push<cr>", "Git Push")
-			map("n", "<leader>gl", "<cmd>Git pull<cr>", "Git Pull")
+			map("n", "<leader>gps", "<cmd>Git push<cr>", "Git Push")
+			map("n", "<leader>gpl", "<cmd>Git pull<cr>", "Git Pull")
 			map("n", "<leader>gb", "<cmd>Git blame<cr>", "Git Blame")
 			map("n", "<leader>gd", "<cmd>Git diff<cr>", "Git Diff")
-			map("n", "<leader>gg", "<cmd>Git<CR>", "Git")
+			map("n", "<leader>gl", "<cmd>Git log<cr>", "Git Log")
 			map("n", "<leader>gP", "<cmd>Git push -u origin HEAD<cr>", "Git Push Upstream")
 		end,
 	},
