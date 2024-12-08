@@ -838,13 +838,13 @@ require("lazy").setup({
 
 		opts = {
 			notify_on_error = false,
-			format_on_save = function(bufnr)
-				local disable_filetypes = { c = true, cpp = true }
-				return {
-					timeout_ms = 600,
-					lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-				}
-			end,
+			-- format_on_save = function(bufnr)
+			-- 	local disable_filetypes = { c = true, cpp = true, rust = true }
+			-- 	return {
+			-- 		timeout_ms = 600,
+			-- 		lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+			-- 	}
+			-- end,
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "isort", "black" },
@@ -893,12 +893,36 @@ require("lazy").setup({
 					end,
 				},
 				completion = { completeopt = "menu,menuone,noinsert" },
+				view = {
+					entries = {
+						name = "custom",
+						selection_order = "near_cursor",
+						follow_cursor = true,
+					},
+				},
 				formatting = {
 					expandable_indicator = true,
+					fields = { "abbr", "kind", "menu" },
+					format = function(entry, vim_item)
+						vim_item.kind = string.format("[%s]", vim_item.kind)
+						vim_item.menu = ({
+							buffer = "[Buffer]",
+							nvim_lsp = "[LSP]",
+							luasnip = "[Snippet]",
+							path = "[Path]",
+						})[entry.source.name] or ""
+						return vim_item
+					end,
+					maxwidth = 20,
+					ellipsis_char = "...",
+					before = function(entry, vim_item)
+						return vim_item
+					end,
 				},
 				window = {
 					completion = {
-						col_offset = 2,
+						col_offset = 1,
+						side_padding = 1,
 						winhighlight = "NormalFloat:TelescopeNormal,FloatBorder:TelescopeBorder",
 					},
 					documentation = {
