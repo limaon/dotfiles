@@ -1,4 +1,0 @@
-. ~/.config/shell/env
-. ~/.config/shell/login
-
-setxkbmap -option $(gsettings get org.gnome.desktop.input-sources xkb-options | tr -d "[]' ")

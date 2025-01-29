@@ -1,0 +1,68 @@
+! vim: ft=xdefaults
+! To make changes take effect, run xrdb -load $xresources_path
+! Type xrdb -q to ensure the settings are loaded properly.
+! It is possible to import colors using #include "/path/to/file"
+! * If using gdm, edit the /etc/gdm/Xsession file and remove the -nocpp option
+!   from the command that loads .Xresources ($userresources section)
+! * If using GNOME on Wayland, uncomment the WaylandEnable=false in
+!   /etc/gdm/custom.conf so that the resources will be loaded.
+
+! Solarized Dark color definitions
+#define base03        #002b36
+#define base02        #073642
+#define base01        #586e75
+#define base00        #657b83
+#define base0         #839496
+#define base1         #93a1a1
+#define base2         #eee8d5
+#define base3         #fdf6e3
+#define yellow        #b58900
+#define orange        #cb4b16
+#define red           #dc322f
+#define magenta       #d33682
+#define violet        #6c71c4
+#define blue          #268bd2
+#define cyan          #2aa198
+#define green         #859900
+
+*background:            base03
+*foreground:            base0
+*cursorColor:           base1
+
+! Terminal colors
+*color0:                base02
+*color1:                red
+*color2:                green
+*color3:                yellow
+*color4:                blue
+*color5:                magenta
+*color6:                cyan
+*color7:                base2
+*color8:                base03
+*color9:                orange
+*color10:               base01
+*color11:               base00
+*color12:               base0
+*color13:               violet
+*color14:               base1
+*color15:               base3
+
+! Cursor settings
+Xcursor.theme:          Adwaita
+Xcursor.size:           24
+
+! Font settings
+Xft.antialias:          1
+Xft.autohint:           0
+Xft.dpi:                96
+Xft.hinting:            1
+Xft.hintstyle:          hintslight
+Xft.lcdfilter:          lcddefault
+Xft.rgba:               none
+
+
+!! Transparency (0-1):
+*.alpha: 0.8
+
+!! Set a default font and font size as below:
+*.font: Terminus:size=12

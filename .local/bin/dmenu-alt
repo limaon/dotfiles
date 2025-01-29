@@ -1,0 +1,3 @@
+#!/bin/sh
+
+dmenu -i -fn 'xos4 Terminus-14' -p "Open:" "$@"
