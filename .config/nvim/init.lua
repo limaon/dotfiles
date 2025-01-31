@@ -1027,7 +1027,7 @@ require("lazy").setup({
 		build = ":TSUpdate",
 		opts = {
 			ensure_installed = {
-				"latex",
+				-- "latex",
 				"bash",
 				"c",
 				"diff",

@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# System control script via command line
+
+WM="${WM:-i3}"
+
+ctl() {
+    # Determines the appropriate control command for system power operations
+    case $(readlink -f /sbin/init) in
+        *systemd*) echo systemctl ;;
+        *) echo loginctl ;;
+    esac
+}
+
+display_off() {
+    xset dpms force off
+}
+
+lock_screen() {
+    local PICTURE="/tmp/i3lock.png"
+    local BLUR="10x8"
+
+    # Pause music player (if applicable)
+    mpc pause >/dev/null 2>&1 || true
+    sleep 0.33
+
+    # Capture and process the screen image
+    if maim --hidecursor --format=png --quality 10 "$PICTURE"; then
+        magick "$PICTURE" -blur "$BLUR" "$PICTURE"
+        i3lock -i "$PICTURE"
+    else
+        # Fallback to a solid color if the screenshot fails
+        local fallback_color="${1:-1d2021}"
+        i3lock -e -f -c "$fallback_color"
+    fi
+
+    # Turn off the monitor and clean up
+    sleep 8
+    display_off
+    rm -f "$PICTURE"
+}
+
+cleanup() {
+    # Closes specific applications before shutting down
+    for app in qbittorrent goldendict; do
+        pkill -x "$app" >/dev/null 2>&1
+    done
+    sleep 0.33
+}
+
+print_help() {
+    echo "Usage: $0 [option]"
+    echo "Options:"
+    echo "  lock         Lock the screen with a blur effect"
+    echo "  leave        Exit the window manager ($WM)"
+    echo "  renew        Restart the window manager ($WM)"
+    echo "  reboot       Reboot the system"
+    echo "  shutdown     Shutdown the system"
+    echo "  sleep        Suspend the system"
+    echo "  hibernate    Hibernate the system"
+    echo "  display-off  Turn off the monitor"
+    echo "  help         Show this help message"
+}
+
+main() {
+    local action="${1:-help}"
+
+    case "$action" in
+        lock|screenlock)
+            lock_screen
+            ;;
+        leave|exit|quit)
+            if [[ "$WM" == "i3" ]]; then
+                i3-msg -q exit
+            else
+                kill -TERM "$(pgrep -u "$USER" "\bdwm$")" >/dev/null 2>&1
+            fi
+            ;;
+        renew|restart|reload)
+            if [[ "$WM" == "i3" ]]; then
+                i3-msg -q restart
+            else
+                kill -HUP "$(pgrep -u "$USER" "\bdwm$")" >/dev/null 2>&1
+            fi
+            ;;
+        hibernate|hib)
+            lock_screen ee4b2b
+            $(ctl) hibernate
+            ;;
+        sleep|suspend)
+            lock_screen ee4b2b
+            $(ctl) suspend
+            ;;
+        reboot|restart)
+            cleanup
+            $(ctl) reboot -i
+            ;;
+        shutdown|poweroff|off)
+            cleanup
+            $(ctl) poweroff -i
+            ;;
+        display-off|monitor-off)
+            display_off
+            ;;
+        help|-h|--help)
+            print_help
+            ;;
+        *)
+            echo "Error: Invalid option '$action'"
+            print_help
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
