@@ -24,18 +24,17 @@ urlencode() {
 prompt() {
   local prompt="$1"
   shift
-  printf '%s\n' "$@" | dmenu_alt -i -p "$prompt"
+  printf '%s\n' "$@" | dmenu-alt -i -p "$prompt"
 }
 
 # Defining options
 declare -a options=(
-  "Google"
-  "BlackBox"
-  "Map"
   "DuckDuckGo"
+  "ChatGPT"
+  "Maps"
   "Youtube"
   "Translate"
-  "Twitter" 
+  "Twitter"
   "Googleimages"
   "Github"
   "Gitlab"
@@ -53,10 +52,9 @@ choice=$(prompt "WebSearch:" "${options[@]}")
 
 # Defining the search URL for each option
 case "$choice" in
-  "Google") search_url="https://www.whoogle.click/search?q=";;
-  "BlackBox") search_url="https://www.useblackbox.io/chat?q=";;
   "DuckDuckGo") search_url="https://duckduckgo.com/?q=";;
-  "Map") search_url="https://www.google.com/maps/search/";;
+  "ChatGPT") search_url="https://chatgpt.com/?temporary-chat=true&model=gpt-4o&q=";;
+  "Maps") search_url="https://www.google.com/maps/search/";;
   "Youtube") search_url="https://www.youtube.com/results?search_query=";;
   "Translate") search_url="https://www.reverso.net/tradu%C3%A7%C3%A3o-texto#sl=eng&tl=por&text=";;
   "Twitter") search_url="https://twitter.com/search?q=";;

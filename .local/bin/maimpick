@@ -10,7 +10,7 @@ take_screenshot() {
 }
 
 ask_command() {
-	dmenu -i -p 'Screenshot which area?' <<-EOF
+	dmenu-alt -i -p 'Screenshot which area?' <<-EOF
 		selected area
 		selected area → clipboard
 		selected area → gimp
@@ -135,7 +135,7 @@ ask_size_quality() {
 			0x350@5
 			0x0@100
 		EOF
-	} | sort -u | head -10 | dmenu -i -p "Size and quality"
+	} | sort -u | head -10 | dmenu-alt -i -p "Size and quality"
 }
 
 convert_image() {

@@ -150,7 +150,7 @@ if [[ $locale == ja ]]; then
 			--eos-format='\n' \
 			--unk-format='\n' <<< "$*" |
 			sed '/^ *$/d' |
-			{ dmenu_alt || echo "$*" ;} |
+			{ dmenu-alt || echo "$*" ;} |
 			tee >(xclip) |
 			xclip -selection clipboard
 	}
@@ -341,6 +341,14 @@ youtube() {
 	"$BROWSER" "https://www.youtube.com/results?search_query=$*"
 }
 
+conjugacao() {
+	"$BROWSER" "https://www.conjugacao.com.br/verbo-$*"
+}
+
+dicio() {
+	"$BROWSER" "https://www.dicio.com.br/$*"
+}
+
 
 # Download a streamable video through Tor
 # Enable tor - sudo systemctl start tor
@@ -432,7 +440,7 @@ fi
 
 __ask_action() {
 	declare -F | awk '!/ __.+$/ {gsub("_", " ", $3); print $3}' |
-		dmenu_alt -p "Plumb ${search_text:0:30} to?" -i
+		dmenu-alt -p "Plumb ${search_text:0:30} to?" -i
 }
 
 __main() {
