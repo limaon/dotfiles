@@ -20,11 +20,12 @@ new_window pixel 1
 default_border pixel 1
 default_floating_border normal 1
 # for_window [all] border normal 1
-for_window [all] border pixel 1 title_window_icon padding 5px
+# for_window [all] border pixel 1 title_window_icon padding 5px
+for_window [all] border pixel 1 title_window_icon no
 
 # Gaps specific
-gaps inner 8
-gaps outer 10
+gaps inner 2
+gaps outer 2
 
 # Ex: popup_during_fullscreen smart|ignore|leave_fullscreen
 popup_during_fullscreen smart
@@ -37,23 +38,24 @@ focus_follows_mouse yes
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango: Terminess Nerd Font, FontAwesome, Noto Sans Mono CJK JP 9
+font pango: Terminess Nerd Font, Terminus, FontAwesome, Noto Sans Mono CJK JP 12
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # start a terminal and avoid many instances when i hold bind. I use kitty.
-bindsym --release $mod+Return exec --no-startup-id i3-sensible-terminal --title "kitty terminal"
-bindsym $mod+Shift+Return exec --no-startup-id i3-sensible-terminal --name "floating_kitty"
+bindsym --release $mod+Return exec --no-startup-id i3-sensible-terminal
+bindsym $mod+Shift+Return exec --no-startup-id i3-sensible-terminal --name "floating_terminal"
 
 # kill focused window
 bindsym $mod+q kill
 
 # start dmenu (a program launcher).
-bindsym $mod+d exec --no-startup-id dmenu-desktop
+# bindsym $mod+d exec --no-startup-id dmenu-desktop
+bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu='dmenu-alt'
 
-# Web search 
-bindsym $mod+b exec --no-startup-id dmenu_websearch
+# Web search
+bindsym $mod+b exec --no-startup-id dmenu-websearch
 
 # Cabl (primary)
 bindsym $mod+c exec --no-startup-id cabl
@@ -71,8 +73,8 @@ bindsym $mod+Shift+w border toggle
 
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth no
-bindsym $mod+Tab workspace back_and_forth
-bindsym $mod+Shift+Tab move container to workspace back_and_forth; workspace back_and_forth
+bindsym --release $mod+Tab workspace back_and_forth
+bindsym --release $mod+Shift+Tab move container to workspace back_and_forth; workspace back_and_forth
 
 # split in horizontal and vertical orientation
 bindsym $mod+semicolon split toggle
@@ -216,7 +218,7 @@ floating_maximum_size 1048 x 720
 
 # switch to workspace with urgent window autimaticaly
 for_window [urgent=latest] focus
-focus_on_window_activation smart
+focus_on_window_activation focus
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -242,24 +244,20 @@ bindsym $mod+r mode "resize"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
-  font pango: Terminess Nerd Font, FontAwesome 9
   status_command i3status -c ~/.config/i3/i3status.conf
-  # status_command "exec i3blocks -c ~/.config/i3/i3blocks.conf"
-  strip_workspace_numbers yes
-  tray_output primary
   position bottom
   mode dock
+
+  strip_workspace_numbers yes
+  workspace_buttons yes
+  modifier None
+  # tray_output primary
 }
 
 
-# Autostart
-exec --no-startup-id dex --autostart --environment i3
+# Autostarts services
 exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock -s 30
-exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec --no-startup-id ibus-daemon -drx
-exec_always --no-startup-id setbg
-exec_always --no-startup-id autotiling
-
+exec --no-startup-id systemctl start --user xautocfg.service
 
 
 # Exit i3 (logs you out of your X session)
@@ -268,16 +266,13 @@ bindsym $mod+Shift+e mode "$mode_system"
 # Logout menu
 set $mode_system  [L]OCK  LOG[O]UT  [S]USPEND  [R]EBOOT  [P]OWEROFF  RESTART[I]3
 mode "$mode_system" {
-	bindsym l exec --no-startup-id sysact lock, mode "default"
-	bindsym s exec --no-startup-id sysact suspend, mode "default"
-	bindsym r exec --no-startup-id sysact reboot, mode "default"
-	bindsym p exec --no-startup-id sysact poweroff, mode "default"
-	# bindsym h exec --no-startup-id sysact hibernate, mode "default"
-
-    # Exit/Reload/Restart i3
-    bindsym o exit, mode "default"
-    bindsym i reload, mode "default"
-    bindsym Shift+i restart, mode "default"
+    bindsym l exec --no-startup-id sysact lock, mode "default"
+    bindsym s exec --no-startup-id sysact sleep, mode "default"
+    bindsym r exec --no-startup-id sysact reboot, mode "default"
+    bindsym p exec --no-startup-id sysact poweroff, mode "default"
+    bindsym h exec --no-startup-id sysact hibernate, mode "default"
+    bindsym i exec --no-startup-id sysact renew, mode "default"
+    bindsym o exec --no-startup-id sysact leave, mode "default"
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"

@@ -7,49 +7,59 @@
 ! * If using GNOME on Wayland, uncomment the WaylandEnable=false in
 !   /etc/gdm/custom.conf so that the resources will be loaded.
 
-! Solarized Dark color definitions
-#define base03        #002b36
-#define base02        #073642
-#define base01        #586e75
-#define base00        #657b83
-#define base0         #839496
-#define base1         #93a1a1
-#define base2         #eee8d5
-#define base3         #fdf6e3
-#define yellow        #b58900
-#define orange        #cb4b16
-#define red           #dc322f
-#define magenta       #d33682
-#define violet        #6c71c4
-#define blue          #268bd2
-#define cyan          #2aa198
-#define green         #859900
-
-*background:            base03
-*foreground:            base0
-*cursorColor:           base1
+#define base03        #001e26
+#define base02        #002731
+#define base01        #708183
+#define base00        #52676f
+#define base0         #708183
+#define base1         #81908f
+#define base2         #e9e2cb
+#define base3         #fcf4dc
+#define yellow        #a57705
+#define orange        #bd3612
+#define red           #d01b24
+#define magenta       #c61b6e
+#define violet        #5856b9
+#define blue          #2075c7
+#define cyan          #259185
+#define green         #728905
 
 ! Terminal colors
-*color0:                base02
-*color1:                red
-*color2:                green
-*color3:                yellow
-*color4:                blue
-*color5:                magenta
-*color6:                cyan
-*color7:                base2
-*color8:                base03
-*color9:                orange
-*color10:               base01
-*color11:               base00
-*color12:               base0
-*color13:               violet
-*color14:               base1
-*color15:               base3
+*background:            base03
+*foreground:            base01
+*cursorColor:           base01
+
+*.color0:                base02
+*.color1:                red
+*.color2:                green
+*.color3:                yellow
+*.color4:                blue
+*.color5:                magenta
+*.color6:                cyan
+*.color7:                base2
+*.color8:                base03
+*.color9:                orange
+*.color10:               base01
+*.color11:               base00
+*.color12:               base0
+*.color13:               violet
+*.color14:               base1
+*.color15:               base3
+
+*highlightColor:        base02
+*highlightTextColor:    base03
+*.selectionColor: base01
+*.barBackground: white
+*.font: Terminus-12
+*.mark.background: yellow
+*.bar.background: base01
+*.bar.foreground: base03
+
 
 ! Cursor settings
-Xcursor.theme:          Adwaita
-Xcursor.size:           24
+Xcursor.theme: Pop
+Xcursor.size: 24
+
 
 ! Font settings
 Xft.antialias:          1
@@ -63,6 +73,91 @@ Xft.rgba:               none
 
 !! Transparency (0-1):
 *.alpha: 0.8
+*.fading: 35
+*.fadeColor: base03
 
-!! Set a default font and font size as below:
-*.font: Terminus:size=12
+! Colorscheme (XTerm/UXTerm)
+?.vt100*background: base03
+?.vt100*foreground: base0
+?.vt100*cursorColor: base1
+?.vt100*color0: base02
+?.vt100*color1: red
+?.vt100*color2: green
+?.vt100*color3: yellow
+?.vt100*color4: blue
+?.vt100*color5: magenta
+?.vt100*color6: cyan
+?.vt100*color7: base2
+?.vt100*color8: base03
+?.vt100*color9: orange
+?.vt100*color10: base01
+?.vt100*color11: base00
+?.vt100*color12: base0
+?.vt100*color13: violet
+?.vt100*color14: base1
+?.vt100*color15: base3
+
+
+! XTerm settings
+?.vt100.termName: xterm-256color
+?.vt100.locale: false
+?.vt100.utf8: true
+?.vt100.bellIsUrgent: true
+?.vt100*geometry: 130x50
+?.vt100.colorMode: on
+?.scaleHeight: 1.01
+?.internalBorder: 15
+?.*cursorBlink: true
+?.*cursorOnTime: 600
+?.*cursorOffTime: 600
+
+! Every shell is a login shell by default (for inclusion of all necessary environment variables)
+?.vt100.loginshell: true
+
+! Typeface
+?.vt100.faceName: xft:UbuntuMono:size=15:antialias=true
+?.vt100.faceNameBold: xft:UbuntuMono:bold:style=Bold:size=15:antialias=true
+?.vt100.faceNameDoublesize: Noto Sans CJK
+?.vt100*allow_bold: true
+?.vt100.renderFont: true
+?.vt100.colorBDMode: true
+?.vt100.colorBD: rgb:82/a4/d3
+?.vt100.colorULMode: true
+?.vt100.colorUL: rgb:e4/e4/e4
+?.*boldMode: false
+
+
+! Scrollbar
+?.vt100.scrollBar: false
+?.*mouseWheelScrollPage: true
+?.vt100.saveLines: 16384
+?.*rightScrollBar: true
+?.vt100.scrollbar.width: 6
+?.*scrollBarTtyOutput: false
+?.*scrollTtyKeypress: true
+?.letterSpace: 0
+
+
+! Double-click to select whole URLs
+?.charClass: 33:48,35:48,37:48,43:48,45-47:48,64:48,95:48,126:48
+
+
+! Make alt keys
+?.vt100.metaSendsEscape: true
+?.vt100.backarrowKey: false
+?.ttyModes: erase ^?
+?.*eightBitInput: false
+?.*eightBitOutput:  true
+
+! terminal transparent setup
+?.*transparent: true
+?.*opacity: 0.8
+
+! Copy-paste
+?.vt100.selectToClipboard: true
+?.vt100*translations: #override \
+        Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+        Ctrl Shift <Key>V: insert-selection(CLIPBOARD) \n\
+        Ctrl <Key> minus: smaller-vt-font() \n\
+        Ctrl <Key> plus: larger-vt-font() \n\
+        Ctrl <Key> 0: set-vt-font(d)
