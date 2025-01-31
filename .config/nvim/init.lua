@@ -100,7 +100,7 @@ keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
 keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
 
 -- Native tabs
-keymap("n", "te", ":tabedit ", { silent = false })
+keymap("n", "te", ":tabfind ", { noremap = true, silent = false })
 keymap("n", "tt", "<cmd>tabnew<cr>", opts)
 keymap("n", "tn", "<cmd>tabnext<cr>", opts)
 keymap("n", "tp", "<cmd>tabprevious<cr>", opts)
@@ -256,7 +256,7 @@ local openExternalFile = function()
 end
 
 local external_group = create_augroup("OpenExternalFiles")
-local external_patterns = { "*.jpeg", "*.jpg", "*.pdf", "*.png", "*.svg" }
+local external_patterns = { "*.jpeg", "*.jpg", "*.pdf", "*.png", "*.svg", "*.ico" }
 
 create_autocmd(
 	"BufReadPost",
@@ -424,34 +424,43 @@ require("lazy").setup({
 		end,
 		config = function()
 			require("solarized-osaka").setup({
-				transparent = true,
+				style = "storm",
+				light_style = "day",
 				terminal_colors = true,
 				styles = {
 					comments = { italic = false },
 					keywords = { italic = false },
+					sidebars = "normal",
+					floats = "normal",
 				},
-				sidebars = { "qf", "vista_kind", "packer" },
-				day_brightness = 0.9,
-				dim_inactive = true,
-				on_highlights = function(hl, c)
-					hl.TelescopeNormal = {
-						bg = c.bg,
-						-- fg = c.base04,
+				sidebars = { "qf", "vista_kind", "terminal", "packer", "help" },
+				dim_inactive = false,
+				hide_inactive_statusline = false,
+				day_brightness = 0.6,
+
+				on_highlights = function(highlights, colors)
+					highlights.TelescopeNormal = {
+						bg = colors.bg,
+						fg = colors.base0,
 					}
-					hl.TelescopeBorder = {
-						bg = c.bg,
-						fg = c.fg,
+					highlights.TelescopeBorder = {
+						bg = colors.bg,
+						fg = colors.base01,
 					}
-					hl.TelescopePromptNormal = {
-						bg = c.bg,
+					highlights.TelescopePromptNormal = {
+						bg = colors.bg,
 					}
-					hl.TelescopePromptBorder = {
-						bg = c.bg,
-						fg = c.fg,
+					highlights.TelescopePromptBorder = {
+						bg = colors.bg,
+						fg = colors.fg,
 					}
-					hl.TelescopePromptTitle = {
-						bg = c.bg,
-						fg = c.fg,
+					highlights.TelescopePromptTitle = {
+						bg = colors.bg,
+						fg = colors.fg,
+					}
+					highlights.TelescopeResultsTitle = {
+						bg = colors.bg,
+						fg = colors.fg,
 					}
 				end,
 			})
@@ -562,7 +571,7 @@ require("lazy").setup({
 			map("n", "<leader>gps", "<cmd>Git push<cr>", "Git Push")
 			map("n", "<leader>gpl", "<cmd>Git pull<cr>", "Git Pull")
 			map("n", "<leader>gb", "<cmd>Git blame<cr>", "Git Blame")
-			map("n", "<leader>gd", "<cmd>Git diff<cr>", "Git Diff")
+			map("n", "<leader>gdf", "<cmd>Git diff<cr>", "Git Diff")
 			map("n", "<leader>gl", "<cmd>Git log<cr>", "Git Log")
 			map("n", "<leader>gP", "<cmd>Git push -u origin HEAD<cr>", "Git Push Upstream")
 		end,
@@ -588,7 +597,6 @@ require("lazy").setup({
 			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
 		},
 		config = function()
-			-- [[ Configure Telescope ]]
 			require("telescope").setup({
 				defaults = {
 					winblend = 10,
@@ -620,14 +628,6 @@ require("lazy").setup({
 						"package-lock.json",
 						"yarn.lock",
 						"pnpm-lock.yaml",
-					},
-					layout_config = {
-						width = function(_, max_columns, _)
-							return math.min(max_columns, 80)
-						end,
-						height = function(_, _, max_lines)
-							return math.min(max_lines, 30)
-						end,
 					},
 				},
 				pickers = {
@@ -737,6 +737,11 @@ require("lazy").setup({
 			"hrsh7th/cmp-nvim-lsp",
 		},
 		config = function()
+			local handlers = {
+				["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
+				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
+			}
+
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
 				callback = function(event)
@@ -758,10 +763,8 @@ require("lazy").setup({
 					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
-					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-					-- This may be unwanted, since they displace some of your code
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
 						map("<leader>th", function()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
@@ -814,6 +817,7 @@ require("lazy").setup({
 					function(server_name)
 						local server = servers[server_name] or {}
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+						server.handlers = handlers
 						require("lspconfig")[server_name].setup(server)
 					end,
 				},
