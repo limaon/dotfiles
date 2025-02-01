@@ -69,10 +69,6 @@ export MOZ_USE_XINPUT2=1
 [[ -z "$FUNCNEST" ]] && export FUNCNEST=100
 
 
-# FZF default options
-export FZF_DEFAULT_OPTS="--layout=reverse --height 40%"
-
-
 # Exports to clean my home directory
 export USERXSESSION="${XDG_CACHE_HOME}/.cache/X11/xsession"
 export USERXSESSIONRC="${XDG_CACHE_HOME}/.cache/X11/xsessionrc"
