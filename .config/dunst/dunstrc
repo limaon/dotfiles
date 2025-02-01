@@ -424,16 +424,23 @@
 #    summary = "foobar"
 #    skip_display = yes
 
-#[signed_on]
-#    appname = Pidgin
-#    summary = "*signed on*"
-#    urgency = low
-#
-#[signed_off]
-#    appname = Pidgin
-#    summary = *signed off*
-#    urgency = low
-#
+[signed_on]
+    appname = Pidgin
+    summary = "*signed on*"
+    urgency = low
+
+[signed_off]
+    appname = Pidgin
+    summary = *signed off*
+    urgency = low
+
+
+[music]
+    appname = ncspot
+    summary = "Now playing"
+    urgency = low
+
+
 #[says]
 #    appname = Pidgin
 #    summary = *says*
