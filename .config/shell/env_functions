@@ -95,14 +95,16 @@ lf() {
     fi
 }
 
-### FZF functions
+### FZF functions and options
+export FZF_DEFAULT_COMMAND='find . -type f'
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
 # Usage: locatefall
 # Uses fzf to locate a file in the current directory and changes into it if it's a directory, or opens it in the editor if it's a file.
 fall() {
     local file
     dir="$(pwd)"
-    file=$(locate "${dir}/" 2>/dev/null | fzf +m) && if [ -d "$file" ]; then cd "$file"; else ${EDITOR:-vim} "$file"; fi
+    file=$(locate "${dir}/" 2>/dev/null | fzf-tmux -p +m) && if [ -d "$file" ]; then cd "$file"; else ${EDITOR:-vim} "$file"; fi
 }
 
 
@@ -133,9 +135,10 @@ fe() {
             -path "*.zip" \
         \) \
         ! -size 0 \
-        -print 2> /dev/null | fzf +m)" &&
+        -print 2> /dev/null | fzf-tmux -p +m)" &&
     ${EDITOR:-vim} "$file"
 }
+
 
 # Usage: fcd
 # Changes to a directory selected via fzf, excluding certain paths.
@@ -146,32 +149,45 @@ fcd() {
             -not \( -path "*/Library/*" -prune \) \
             -not \( -path "*/Applications/*" -prune \) \
             -not \( -ipath "*/cache/*" -prune \) \
-        -type d -print 2> /dev/null | fzf +m) &&
+        -type d -print 2> /dev/null | fzf-tmux -p +m) &&
     cd "$dir"
 }
 
 # Usage: fkill [signal]
 # Kills processes selected via fzf. Default signal is SIGKILL (9).
 fkill() {
-    ps -ef | sed 1d | fzf -m | awk '{print $2}' | xargs kill -${1:-9}
+    ps -ef | sed 1d | fzf-tmux -p -m | awk '{print $2}' | xargs kill -${1:-9}
 }
 
 # Usage: fps
 # Displays currently running processes using fzf for selection.
 fps() {
-    ps aux | sed 1d | fzf -m
+    ps aux | sed 1d | fzf-tmux -p -m
 }
 
 # Usage: fh
 # Searches command history using fzf and executes the selected command.
 fhist() {
     local selected_cmd
-    selected_cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+ [0-9:]+[ \t]*/, ""); print}' | fzf +s --tac)
+    selected_cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+ [0-9:]+[ \t]*/, ""); print}' | fzf-tmux -p +s --tac)
     if [[ -n "$selected_cmd" ]]; then
-        echo "$selected_cmd"
+        echo "$: $selected_cmd"
         eval "$selected_cmd"
     fi
 }
+[[ $- == *i* ]] && bind -x '"\C-r": fhist'
 
+_replace_slash_with_semicolon() {
+    local line=${READLINE_LINE}
+    local pos=${READLINE_POINT}
+    if [ $pos -gt 0 ] && [ "${line:$((pos-1)):1}" = "/" ]; then
+        READLINE_LINE="${line:0:pos-1};${line:pos}"
+        READLINE_POINT=$((pos))
+    else
+        READLINE_LINE="${line:0:pos};${line:pos}"
+        READLINE_POINT=$((pos+1))
+    fi
+}
+[[ $- == *i* ]] && bind -x '"\;": _replace_slash_with_semicolon'
 
 # vim:ft=sh

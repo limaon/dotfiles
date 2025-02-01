@@ -11,6 +11,7 @@ shopt -s nocaseglob
 shopt -s autocd
 shopt -s cdspell
 shopt -s extglob
+shopt -s globstar
 shopt -s dotglob
 shopt -s direxpand
 shopt -s histverify

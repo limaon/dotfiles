@@ -85,9 +85,9 @@ alias refl='sudo reflector --verbose --country Brazil --latest 10 --sort rate --
 # alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
 
 # A.I defaults
-alias ddgo="tgpt -w --disable-input-limit --provider duckduckgo"
-alias clever="tgpt -w --disable-input-limit --provider koboldai"
-alias bbai="tgpt -w --disable-input-limit --provider blackboxai"
+alias ddgo="tgpt -w --provider duckduckgo"
+alias clever="tgpt -w --provider koboldai"
+alias bbai="tgpt -w --provider blackboxai"
 
 ## ls defaults
 alias ls="ls --color=always --group-directories-first --time-style=+'%d.%m.%Y %H:%M' --classify"
