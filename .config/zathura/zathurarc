@@ -11,13 +11,13 @@ set statusbar -v-padding 0
 set statusbar-basename
 set page-padding 2
 set selection-clipboard "clipboard"
-set font "Hack Nerd Font 9"
+set font "Terminus 12"
 
 # Binds
 map K zoom in
 map J zoom out
 map i recolor
-map p print 
+map p print
 
 unmap <F11>
 map f toggle_fullscreen

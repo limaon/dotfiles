@@ -51,7 +51,7 @@ TERM screen.rxvt
 TERM screen.linux
 TERM terminator
 TERM vt100
-TERM xterm
+TERM XTerm
 TERM xterm-16color
 TERM xterm-256color
 TERM xterm-88color

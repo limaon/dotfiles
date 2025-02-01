@@ -3,8 +3,9 @@ export NAME='Alvaro Oliveira'
 export EMAIL='alvarolima1103@outlook.com'
 
 # Preferred programs
-export PAGER=less
-export EDITOR=nvim
+export PAGER="less"
+export MAIL="thunderbird"
+export EDITOR="nvim"
 export VISUAL=$EDITOR
 export SYSTEMD_EDITOR=$EDITOR
 export SUDO_EDITOR=$EDITOR
@@ -18,9 +19,9 @@ export LC_ALL=$LANG
 export LC_COLLATE=$LANG
 export LC_CTYPE=$LANG
 export LC_MESSAGES=$LANG
-export LC_MONETARY=$LANG
 export LC_NUMERIC=$LANG
 export LC_TIME=$LANG
+export LC_MONETARY=$LANG
 
 ### Default XDG path end clean up ${HOME}
 export XDG_CONFIG_HOME="${HOME}/.config"
@@ -45,17 +46,23 @@ export PYTHONSTARTUP=$HOME/.config/python/pythonrc
 
 
 # Less
-# export LESS='-F -g -i -M -R -S -w -X -z-4'
 export LESS='FRXQ'
 export LESSCHARSET='UTF-8'
 export LESSHISTFILE='-'
 export LESSEDIT="$EDITOR ?lm+%lm. %f"
 
-# Fix QT themes on GTK Desktops
-export QT_QPA_PLATFORMTHEME=qt5ct
 
-# enable the X Compose key in GTK
-# export GTK_IM_MODULE=xim
+# Fix QT themes on GTK Desktops
+export QT_QPA_PLATFORMTHEME="qt5ct"
+# export QT_STYLE_OVERRIDE=kvantum
+
+
+# Other program settings:
+export _JAVA_AWT_WM_NONREPARENTING=1
+export TDESKTOP_USE_GTK_FILE_DIALOG=1
+export GDK_SCALE=1
+export GDK_DPI_SCALE=1
+export MOZ_USE_XINPUT2=1
 
 
 # Limits recursive functions, see 'man bash'
@@ -92,8 +99,7 @@ export EM_PORTS="${XDG_DATA_HOME}/emscripten/cache"
 export GEM_SPEC_CACHE="${XDG_CACHE_HOME}/gem"
 export GRADLE_USER_HOME="${XDG_DATA_HOME}/gradle"
 export GRIPHOME="${XDG_CONFIG_HOME}/grip"
-export GTK_RC_FILES="${XDG_CONFIG_HOME}/gtk-1.0/gtkrc"
-export GTK2_RC_FILES="${XDG_CONFIG_HOME}/gtk-2.0/gtkrc"
+export GTK2_RC_FILES="$XDG_CONFIG_HOME/gtk-2.0/gtkrc-2.0"
 export XCURSOR_PATH="/usr/share/icons:$XDG_DATA_HOME/icons"
 export ICEAUTHORITY="${XDG_CACHE_HOME}/ICEauthority"
 export IMAPFILTER_HOME="${XDG_CONFIG_HOME}/imapfilter"
@@ -157,9 +163,6 @@ export PYTHONHISTORY="${XDG_CACHE_HOME}/pyhistory"
 export SQLITE_HISTORY="${XDG_DATA_HOME}/sqlite_history"
 export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/ssh-agent.socket"
 export PASSWORD_STORE_DIR="${XDG_DATA_HOME}/password-store"
-export GDK_SCALE=1
-export GDK_DPI_SCALE=1
-
 
 # make less more friendly for non-text input files, see lesspipe(1)
 if which lesspipe >/dev/null 2>&1; then
