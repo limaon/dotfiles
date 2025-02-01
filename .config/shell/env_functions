@@ -166,13 +166,19 @@ fps() {
 }
 
 # Usage: fh
-# Searches command history using fzf and executes the selected command.
+# Searches command history using fzf and copy to clipboard the selected command.
 fhist() {
     local selected_cmd
-    selected_cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+ [0-9:]+[ \t]*/, ""); print}' | fzf-tmux -p +s --tac)
+    selected_cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' | fzf-tmux -p +s --tac)
+    selected_cmd=$(echo "$selected_cmd" | sed 's/^[[:space:]]*//')
     if [[ -n "$selected_cmd" ]]; then
-        echo "$: $selected_cmd"
-        eval "$selected_cmd"
+        echo -n "$selected_cmd" | xclip -selection clipboard
+        if command -v xdotool &> /dev/null; then
+            xdotool key shift+Insert
+            return
+        else
+            echo "xdotool not found."
+        fi
     fi
 }
 [[ $- == *i* ]] && bind -x '"\C-r": fhist'
