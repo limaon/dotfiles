@@ -45,7 +45,7 @@ cmd open ${{
     image/x-xcf) setsid -f gimp "$f" ;;
     image/*) imgs="$(echo "$fx" | tr "\n" "'" | sed "s/'/' '/g" | sed "s/^/'/g" | sed "s/' '$/'/g")" ; eval "setsid -f nsxiv -a $imgs >/dev/null 2>&1" ;;
     application/octet-stream) setsid -f gpg -dq "$f" ;;
-    text/*) echo "$fx" | tr "\n" '"' | sed 's/"/" "/g' | sed 's/^/"/g' | sed 's/" "$/"/g' | xargs $EDITOR ;; 
+    text/*) echo "$fx" | tr "\n" '"' | sed 's/"/" "/g' | sed 's/^/"/g' | sed 's/" "$/"/g' | xargs $EDITOR ;;
     text/*|application/json) echo "$fx" | tr "\n" '|' | sed -e 's/|$/"/g' -e 's/|/|-c "tabe /g' -e 's/|-c/" -c/g' -e 's/^/"/' | xargs $EDITOR ;;
     #application/pdf) setsid -f zathura "$f" > /dev/null 2>&1 ;;
     application/pdf) echo "$fx" | while read -r l ; do setsid -f xdg-open "$l" ; done ;;
@@ -322,7 +322,7 @@ map o
 map f
 map ff find
 map fb find-back
-map fF :fzf_jump 
+map fF :fzf_jump
 
 #General maps
 map Km maps  # List normal mode mappings
