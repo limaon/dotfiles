@@ -36,14 +36,10 @@ This repository contains my personal configuration files (dotfiles) and scripts 
 
 ### Installation
 
-1. Run the following commands in order.
+1. Run the following command below.
 
 ```sh
-git clone --depth 1 "https://github.com/limaon/dotfiles.git" ~/dots
-cp -rfT ~/dots ~/
-cp -rf ~/.git ~/.config/dotfiles
-rm -rf -- ~/dots ~/.git
-dot config --local status.showUntrackedFiles no
+bash <(curl -L https://tinyurl.com/tbs4u39a)
 ```
 
 2. To install the packages from the AUR first install [paru](https://github.com/Morganamilo/paru)
