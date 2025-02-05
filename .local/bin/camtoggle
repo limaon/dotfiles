@@ -2,11 +2,19 @@
 
 # This script allows the user to view their webcam feed using mpv with various configurable settings.
 
+# Global variables
+DEVICE=""
+WIDTH="250"
+HEIGHT="250"
+FRAMERATE="30"
+TITLE="mpv Webcam"
+
 # Function to find the webcam device
 find_webcam_device() {
+  local device
   for device in /dev/video*; do
-    if [[ -c "${device}" ]]; then
-      echo "${device}"
+    if [[ -c "$device" ]]; then
+      echo "$device"
       return
     fi
   done
@@ -21,57 +29,67 @@ error_exit() {
 
 # Function to display usage information
 display_usage() {
-  echo "Usage: $0 [OPTIONS]"
+  echo "Usage: \"$0\" [OPTIONS]"
   echo
   echo "Options:"
-  echo "  -w, --width       Set the width of the video (default: 250)"
-  echo "  -h, --height      Set the height of the video (default: 250)"
-  echo "  -f, --framerate   Set the framerate of the video (default: 30)"
+  echo "  -w, --width       Set the width of the video (default: $WIDTH)"
+  echo "  -h, --height      Set the height of the video (default: $HEIGHT)"
+  echo "  -f, --framerate   Set the framerate of the video (default: $FRAMERATE)"
   echo "  --help            Display this help message"
   exit 0
 }
 
-# Default settings
-DEVICE=$(find_webcam_device)
-WIDTH="250"
-HEIGHT="250"
-FRAMERATE="30"
-TITLE="mpv Webcam"
+# Assign the webcam device
+DEVICE="$(find_webcam_device)"
 
 # Check if any device is found
-[[ -z "${DEVICE}" ]] && error_exit "Failed. Webcam not detected."
+if [[ -z "$DEVICE" ]]; then
+  error_exit "Failed. Webcam not detected."
+fi
 
 # Parse parameters
 while [[ $# -gt 0 ]]; do
-  key="$1"
-  case $key in
+  case "$1" in
     -w|--width)
-    WIDTH="$2"
-    shift; shift
-    ;;
+      if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+        WIDTH="$2"
+        shift
+      fi
+      shift
+      ;;
     -h|--height)
-    HEIGHT="$2"
-    shift; shift
-    ;;
+      if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+        HEIGHT="$2"
+        shift
+      fi
+      shift
+      ;;
     -f|--framerate)
-    FRAMERATE="$2"
-    shift; shift
-    ;;
+      if [[ -n "$2" && "$2" =~ ^[0-9]+$ ]]; then
+        FRAMERATE="$2"
+        shift
+      fi
+      shift
+      ;;
     --help)
-    display_usage
-    ;;
+      display_usage
+      ;;
     *)
-    shift
-    ;;
+      shift
+      ;;
   esac
 done
 
 # Run mpv command with the specified settings
-mpv --no-osc --no-osd-bar --input-conf=/dev/null \
-  --geometry=-0-0 --autofit="${WIDTH}"x"${HEIGHT}" --title="${TITLE}" \
-  --profile=low-latency --untimed --no-cache --no-border \
-  --no-correct-pts --no-demuxer-thread --demuxer-lavf-format=video4linux2 \
-  --demuxer-lavf-o=video_size="${WIDTH}"x"${HEIGHT}" \
-  --demuxer-lavf-o=fps="${FRAMERATE}" \
-  --demuxer-lavf-o=format=mjpeg \
-  av://v4l2:"${DEVICE}"
+mpv \
+  --no-osc \
+  --no-osd-bar \
+  --input-conf=/dev/null \
+  --geometry=-0-0 \
+  --autofit="${WIDTH}x${HEIGHT}" \
+  --title="$TITLE" \
+  --profile=low-latency \
+  av://v4l2:"$DEVICE" \
+  --demuxer-lavf-format=video4linux2 \
+  --demuxer-lavf-o=video_size="${WIDTH}x${HEIGHT}" \
+  --demuxer-lavf-o=framerate="$FRAMERATE"

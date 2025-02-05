@@ -2,25 +2,31 @@
 
 # System control script via command line
 
+# Global variables
 WM="${WM:-i3}"
+PICTURE="/tmp/i3lock.png"
+BLUR="10x8"
+FALLBACK_COLOR="1d2021"
 
+# Function to determine the appropriate control command for system power operations
 ctl() {
-    # Determines the appropriate control command for system power operations
     case $(readlink -f /sbin/init) in
         *systemd*) echo systemctl ;;
         *) echo loginctl ;;
     esac
 }
 
+# Function to turn off the display
 display_off() {
-    xset dpms force off
+    xset dpms 120 300 600 # after 10 minutes
 }
 
+# Function to lock the screen
 lock_screen() {
-    local PICTURE="/tmp/i3lock.png"
-    local BLUR="10x8"
+    # Set DPMS timeout for screen lock
+    xset dpms 60 180 300
 
-    # Pause music player (if applicable)
+    # Pause music player if applicable
     mpc pause >/dev/null 2>&1 || true
     sleep 0.33
 
@@ -29,25 +35,26 @@ lock_screen() {
         magick "$PICTURE" -blur "$BLUR" "$PICTURE"
         i3lock -i "$PICTURE"
     else
-        # Fallback to a solid color if the screenshot fails
-        local fallback_color="${1:-1d2021}"
-        i3lock -e -f -c "$fallback_color"
+        i3lock -e -f -c "$FALLBACK_COLOR"
     fi
 
-    # Turn off the monitor and clean up
-    sleep 8
+    while pgrep -x i3lock >/dev/null; do
+        sleep 1
+    done
+
     display_off
     rm -f "$PICTURE"
 }
 
+# Function to close specific applications before shutting down
 cleanup() {
-    # Closes specific applications before shutting down
     for app in qbittorrent goldendict; do
         pkill -x "$app" >/dev/null 2>&1
     done
     sleep 0.33
 }
 
+# Function to display help message
 print_help() {
     echo "Usage: $0 [option]"
     echo "Options:"
@@ -62,6 +69,7 @@ print_help() {
     echo "  help         Show this help message"
 }
 
+# Main function to handle system control actions
 main() {
     local action="${1:-help}"
 
@@ -84,11 +92,11 @@ main() {
             fi
             ;;
         hibernate|hib)
-            lock_screen ee4b2b
+            lock_screen
             $(ctl) hibernate
             ;;
         sleep|suspend)
-            lock_screen ee4b2b
+            lock_screen
             $(ctl) suspend
             ;;
         reboot|restart)
@@ -113,4 +121,5 @@ main() {
     esac
 }
 
+# Execute the main function
 main "$@"

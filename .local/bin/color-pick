@@ -1,29 +1,34 @@
 #!/usr/bin/env bash
 
-# Simple Script to pick color quickly
+# Simple script to quickly pick a color with notifications
+
+# Global variables
+FORMAT="HEX"
+ICON_PATH="/tmp/color_icon.png"
+NOTIFICATION_ID=1001
 
 # Function to display usage message
 usage() {
-  echo "Usage: $0 [options]"
+  echo "Usage: \"$0\" [options]"
   echo "Options:"
   echo "  -f FORMAT   Set the color format (default: hex)"
   echo "  -h          Display this help message"
   exit 1
 }
 
-# Check if necessary commands are available
-command -v xcolor >/dev/null 2>&1 || { echo >&2 "xcolor command not found. Please install it first."; exit 1; }
-command -v xclip >/dev/null 2>&1 || { echo >&2 "xclip command not found. Please install it first."; exit 1; }
-command -v dunstify >/dev/null 2>&1 || { echo >&2 "dunstify command not found. Please install it first."; exit 1; }
-
-# Default values
-FORMAT="HEX"
+# Check if required commands are available
+for cmd in xcolor xclip dunstify magick; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo >&2 "Error: '$cmd' command not found. Please install it first."
+    exit 1
+  fi
+done
 
 # Parse command-line options
 while getopts "f:h" OPTION; do
-  case $OPTION in
+  case "$OPTION" in
     f)
-      FORMAT=$OPTARG
+      FORMAT="$OPTARG"
       ;;
     h)
       usage
@@ -34,21 +39,32 @@ while getopts "f:h" OPTION; do
   esac
 done
 
-# Function to pick and copy color
+# Main function to pick and copy color
 main() {
   local color
-  color=$(xcolor -P 100 -f "$FORMAT"!)
 
-  if [[ "$color" ]]; then
-    # Copy color code to clipboard
-    echo "$color" | tr -d "\n" | xclip -selection clipboard
-    # Notify about it
-    dunstify -u low --replace=69 -i "colorgrab" "$color, copied to clipboard."
+  # Notify the user that color selection has started
+  dunstify -u low -r "$NOTIFICATION_ID" -i "colorgrab" "Picking color..."
+
+  # Capture the color
+  color="$(xcolor -P 100 -f "$FORMAT"!)" || {
+    dunstify -u critical -r "$NOTIFICATION_ID" -i "error" "Failed to pick color."
+    exit 1
+  }
+
+  if [[ -n "$color" ]]; then
+    # Remove '#' character if present
+    color="${color#\#}"
+
+    magick -size 100x100 "xc:#$color" "$ICON_PATH"
+    printf "%s" "$color" | xclip -selection clipboard
+    dunstify -u low -r "$NOTIFICATION_ID" -i "$ICON_PATH" "Color #$color copied to clipboard."
+
+    sleep 5 && rm -f "$ICON_PATH" &
   else
-    echo "Failed to pick color."
+    dunstify -u critical -r "$NOTIFICATION_ID" -i "error" "Failed to pick color."
     exit 1
   fi
 }
 
-# Run the script
 main

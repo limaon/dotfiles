@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+
+# Defaults
+MAX_VOL=100
+STEP_VOL=5
+STEP_BRIGHT=5
+NOTIFY_ID=2594
+
+ICON_VOLUME_UP="audio-volume-high-symbolic"
+ICON_VOLUME_DOWN="audio-volume-low-symbolic"
+ICON_MUTED="audio-volume-muted-symbolic"
+ICON_BRIGHTNESS_UP="display-brightness-high-symbolic"
+ICON_BRIGHTNESS_DOWN="display-brightness-low-symbolic"
+ICON_MEDIA="media-playback-start-symbolic"
+SOUND_EFFECT="canberra-gtk-play -i audio-volume-change"
+
+
+main() {
+    local command="${1:-}"
+    local action="${2:-}"
+
+    case "${command}" in
+        volume)
+            volume_control "${action}"
+            ;;
+        brightness)
+            brightness_control "${action}"
+            ;;
+        media)
+            media_control "${action}"
+            ;;
+        *)
+            echo "Uso: $0 [volume|brightness|media] [up|down|mute|play-pause|next|prev]"
+            exit 1
+            ;;
+    esac
+}
+
+volume_control() {
+    local action="${1:-}"
+    local current_status="" current_volume=0 new_volume=0
+    local icon="" message=""
+    local status="" volume=""
+
+    case "${action}" in
+        up|down)
+            current_status=$(pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null || echo 'Mute: no')
+            current_volume=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | awk '{print $5}' | tr -d '%' || echo 0)
+
+            if [[ "${current_status}" == *"yes"* ]]; then
+                pactl set-sink-mute @DEFAULT_SINK@ 0
+            fi
+
+            if [[ "${action}" == "up" ]]; then
+                new_volume=$(( current_volume + STEP_VOL ))
+                (( new_volume > MAX_VOL )) && new_volume=${MAX_VOL}
+                icon="${ICON_VOLUME_UP}"
+            else
+                new_volume=$(( current_volume - STEP_VOL ))
+                (( new_volume < 0 )) && new_volume=0
+                icon="${ICON_VOLUME_DOWN}"
+            fi
+
+            pactl set-sink-volume @DEFAULT_SINK@ "${new_volume}%"
+            ${SOUND_EFFECT} &>/dev/null &
+            (( new_volume == 0 )) && pactl set-sink-mute @DEFAULT_SINK@ 1
+            ;;
+        mute)
+            pactl set-sink-mute @DEFAULT_SINK@ toggle
+            ${SOUND_EFFECT} &>/dev/null &
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    status=$(pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null || echo 'Mute: no')
+    volume=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | awk '{print $5}' | tr -d '%' || echo 0)
+
+    if media_status=$(playerctl status 2>/dev/null) && [[ "${media_status}" == "Playing" ]]; then
+        local artist title art_url
+        artist=$(playerctl metadata artist 2>/dev/null || echo "Unknown Artist")
+        title=$(playerctl metadata title 2>/dev/null || echo "Unknown Track")
+        art_url=$(playerctl metadata mpris:artUrl 2>/dev/null || echo "")
+        message="${volume}%\nNow playing: ${artist} - ${title}"
+        if [[ -n "${art_url}" ]]; then
+            art_url="${art_url#file://}"
+            icon="${art_url}"
+        fi
+    else
+        if [[ "${status}" == *"yes"* ]]; then
+            icon="${ICON_MUTED}"
+            message="Muted"
+        else
+            message="${volume}%"
+            if [[ "${action}" == "mute" ]]; then
+                icon="${ICON_VOLUME_UP}"
+            fi
+        fi
+    fi
+
+    notify "Volume" "${message}" "${icon}" "${volume}"
+}
+
+brightness_control() {
+    local action="${1:-}"
+    local current=0
+    local max=1
+    local percent=0
+    local icon=""
+
+    current="$(brightnessctl get 2>/dev/null || echo 0)"
+    max="$(brightnessctl max 2>/dev/null || echo 1)"
+    if (( max == 0 )); then
+        max=1
+    fi
+    percent=$(( (current * 100) / max ))
+
+    case "${action}" in
+        up)
+            brightnessctl set "${STEP_BRIGHT}%+" &>/dev/null
+            percent=$((percent + STEP_BRIGHT))
+            icon="${ICON_BRIGHTNESS_UP}"
+            ;;
+        down)
+            brightnessctl set "${STEP_BRIGHT}%-" &>/dev/null
+            percent=$((percent - STEP_BRIGHT))
+            icon="${ICON_BRIGHTNESS_DOWN}"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    if (( percent < 0 )); then
+        percent=0
+    elif (( percent > 100 )); then
+        percent=100
+    fi
+
+    "${SOUND_EFFECT}" &>/dev/null &
+    notify "Brightness" "${percent}%" "${icon}" "${percent}"
+}
+
+media_control() {
+    local action="${1:-}"
+    local status="" artist="" title="" art_url="" icon_to_use=""
+
+    case "${action}" in
+        play-pause)
+            playerctl play-pause &>/dev/null || true
+            ;;
+        next)
+            playerctl next &>/dev/null || true
+            sleep 1
+            ;;
+        prev)
+            playerctl previous &>/dev/null || true
+            sleep 1
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    status=$(playerctl status 2>/dev/null || echo '')
+    artist=$(playerctl metadata artist 2>/dev/null || echo 'Unknown Artist')
+    title=$(playerctl metadata title 2>/dev/null || echo 'Unknown Track')
+    art_url=$(playerctl metadata mpris:artUrl 2>/dev/null || echo '')
+
+    if [[ -n "${art_url}" ]]; then
+        icon_to_use="${art_url}"
+    else
+        icon_to_use="${ICON_MEDIA}"
+    fi
+
+    if [[ "${status}" == "Playing" ]]; then
+        notify "Now playing" "${artist} - ${title}" "${icon_to_use}" 0
+    else
+        notify "Now playing" "Paused" "${icon_to_use}" 0
+    fi
+}
+
+notify() {
+    local summary="${1:-}"
+    local body="${2:-}"
+    local icon="${3:-}"
+    local value="${4:-}"
+
+    if [[ -z "${value}" || "${value}" -eq 0 ]]; then
+        notify-send -r "${NOTIFY_ID}" -u low \
+            -i "${icon}" \
+            "${summary}" \
+            "${body}" \
+            -h "string:synchronous:system-control"
+    else
+        notify-send -r "${NOTIFY_ID}" -u low \
+            -i "${icon}" \
+            -h "int:value:${value}" \
+            "${summary}" \
+            "${body}" \
+            -h "string:synchronous:system-control"
+    fi
+}
+
+main "$@"

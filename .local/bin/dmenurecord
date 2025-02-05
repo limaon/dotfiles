@@ -182,7 +182,7 @@ audio_anki() {
 
 askrecording() {
 	local -r choice=$(
-		cat <<-EOF | rofi -dmenu -i -p "Select recording style:"
+		cat <<-EOF | dmenu-alt -i -p "Select recording style:"
 			screencast
 			video
 			audio
@@ -204,7 +204,7 @@ askrecording() {
 }
 
 asktoend() {
-	local -r response=$(printf "No\\nYes" | rofi -dmenu -i -p "Recording still active. End recording?")
+	local -r response=$(printf "No\\nYes" | dmenu-alt -i -p "Recording still active. End recording?")
 	[ "$response" = "Yes" ] && killrecording
 }
 
