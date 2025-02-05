@@ -33,5 +33,4 @@ dot config --local status.showUntrackedFiles no
 
 echo "Dotfiles installation complete."
 echo "Temporary alias 'dot' has been created for this session."
-echo "If you want the 'dot' alias permanently, add the following line to your shell config (e.g., ~/.bashrc or ~/.zshrc):"
-echo "  alias dot='git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles --work-tree=$HOME'"
+echo "Run manually: 'dot config --local status.showUntrackedFiles no'"

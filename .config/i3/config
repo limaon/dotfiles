@@ -38,7 +38,7 @@ focus_follows_mouse yes
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font pango: Terminess Nerd Font, Terminus, FontAwesome, Noto Sans Mono CJK JP 12
+font pango: Terminess Nerd Font, Terminus, Noto Sans Mono CJK JP, IPAPGothic, FontAwesome 12
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -180,12 +180,13 @@ for_window [class="(?i)anki" title="Preview"] floating disable, move right
 for_window [class="(?i)anki" title="Add"] floating disable
 for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
 for_window [class="Qalculate-gtk"] floating enable
-for_window [class="Mousepad"] floating enable, sticky enable, resize set 300 200
+for_window [class="Xed"] floating enable, sticky enable, resize set 600 400
 for_window [window_role=browser] border pixel
 for_window [class=obsidian|kitty] border pixel
 for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 for_window [title="Save File"] floating enable
 for_window [class="kitty" instance="floating_kitty$"] floating toggle
+for_window [class="Blueman-manager"] floating toggle
 
 # Set floating mode for generated windows
 for_window [window_type="normal"] border normal
@@ -242,21 +243,27 @@ mode "resize" {
 }
 bindsym $mod+r mode "resize"
 
+
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
   status_command i3status -c ~/.config/i3/i3status.conf
+  # font pango: Terminus 12
+  tray_padding 2
   position bottom
   mode dock
 
   strip_workspace_numbers yes
   workspace_buttons yes
   modifier None
+  separator_symbol "|"
+  workspace_min_width 20
+  binding_mode_indicator yes
   # tray_output primary
 }
 
 
 # Autostarts services
-exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock -s 30
+exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
 exec --no-startup-id systemctl start --user xautocfg.service
 
 
@@ -294,14 +301,11 @@ mode "$mode_display" {
 bindsym $mod+x mode "$mode_display"
 
 ### Get attachments (i3wm) ###
-set $share_attach  (q)ColorPick   (w)RecMedia  (e)AudioAnki  (r)SentAnki  (t)ShotAnki
+set $share_attach  (q)ColorPick  | (w)RecMedia
 
 mode "$share_attach" {
   bindsym q --release exec --no-startup-id color-pick, mode "default"
   bindsym w exec --no-startup-id dmenurecord, mode "default"
-  bindsym e exec --no-startup-id ames.sh -r
-  bindsym r exec --no-startup-id ames.sh -c, mode "default"
-  bindsym t exec --no-startup-id ames.sh -s, mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -311,7 +315,7 @@ bindsym $mod+Insert mode "$share_attach"
 bindsym $mod+F12 mode "$share_attach"
 
 # ScreenShot menu
-bindsym --release $mod+Pause exec --no-startup-id maimpick
+bindsym --release $mod+Print exec --no-startup-id maimpick area_clipboard
 bindsym --release Print exec --no-startup-id maimpick
 bindsym --release $mod+o exec --no-startup-id maimocr
 # bindsym --release Print exec --no-startup-id maimpick full
@@ -320,15 +324,15 @@ bindsym --release $mod+o exec --no-startup-id maimocr
 bindsym XF86Calculator exec --no-startup-id qalculate-gtk
 
 # Audio
-bindsym XF86AudioRaiseVolume exec --no-startup-id xf86-control volume_up
-bindsym XF86AudioLowerVolume exec --no-startup-id xf86-control volume_down
-bindsym XF86AudioMute exec --no-startup-id xf86-control volume_mute
+bindsym XF86AudioRaiseVolume exec --no-startup-id xf86-control volume up
+bindsym XF86AudioLowerVolume exec --no-startup-id xf86-control volume down
+bindsym XF86AudioMute exec --no-startup-id xf86-control volume mute
 
 # Player Control
-bindsym XF86AudioPlay exec --no-startup-id xf86-control play_pause
-bindsym XF86AudioPause exec --no-startup-id xf86-control play_pause
-bindsym XF86AudioNext exec --no-startup-id xf86-control next_track
-bindsym XF86AudioPrev exec --no-startup-id xf86-control prev_track
+bindsym XF86AudioPlay exec --no-startup-id xf86-control media play-pause
+bindsym XF86AudioPause exec --no-startup-id xf86-control media play-pause
+bindsym XF86AudioNext exec --no-startup-id xf86-control media next
+bindsym XF86AudioPrev exec --no-startup-id xf86-control media prev
 bindsym XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
 bindsym XF86AudioStop exec --no-startup-id playerctl stop
 
