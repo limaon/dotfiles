@@ -1,36 +1,49 @@
 #!/bin/sh
+#
+# This script sets the desktop wallpaper in the following manner:
+# 1) If run with no arguments, it will try to set the previously linked wallpaper.
+# 2) If provided a directory, it picks a random valid image in that directory.
+# 3) If provided a file, it uses that file directly.
+# 4) It also maintains a symlink to the current wallpaper.
+#
+# The goal is to produce zero warnings with shellcheck.
+# Make sure you have 'hsetroot', 'xwallpaper', and 'shuf' installed.
+# Additionally, 'notify-send' is used to display system notifications.
+#
+# Usage examples:
+#   setbg /path/to/some/image.png
+#   setbg /path/to/directory/with/images
+#   setbg            (no arguments; sets wallpaper from symlink if it exists)
 
-# This script does the following:
-#	Run by itself, set the wallpaper (at X start).
-#	If given a file, set that as the new wallpaper.
-#	If given a directory, choose random file in it.
+# Path to the symlink that points to the current wallpaper
+LINKPATH="${XDG_DATA_HOME:-"$HOME/.local/share"}/bg"
 
-readonly linkpath="${XDG_DATA_HOME:-$HOME/.local/share}/bg"
-
+# Function to set the wallpaper
 setwallpaper() {
-	hsetroot -solid '#242934'
-	xwallpaper --zoom "$*"
+  hsetroot -solid '#242934'
+  xwallpaper --zoom "$1"
 }
 
-die() {
-	echo "Error: Couldn't set wallpaper." >&2
-	notify-send -u critical "Error" "Couldn't set wallpaper."
-	exit 1
+# Function to handle errors, print a message, send a notification, and exit.
+exit_with_error() {
+  echo "Error: Couldn't set wallpaper." >&2
+  notify-send -u critical "Error" "Couldn't set wallpaper."
+  exit 1
 }
 
 if [ -d "$1" ]; then
-	readonly givenpath="$(find "$1" -type f -iregex '.*\.\(jpg\|jpeg\|png\|gif\)' | shuf -n 1)"
-else
-	readonly givenpath="$1"
+  PICKED_FILE="$(find "$1" -type f -iregex '.*\.\(jpg\|jpeg\|png\|gif\)' | shuf -n 1)"
+elif [ -n "$1" ]; then
+  PICKED_FILE="$1"
 fi
 
-if [ -f "$givenpath" ]; then
-	if setwallpaper "$givenpath" && ln -srf -- "$givenpath" "$linkpath"; then
-		notify-send -i "$linkpath" "Wallpaper changed."
-	else
-		setwallpaper "$linkpath"
-		die
-	fi
+if [ -f "${PICKED_FILE:-}" ]; then
+  if setwallpaper "$PICKED_FILE" && ln -srf -- "$PICKED_FILE" "$LINKPATH"; then
+    notify-send -i "$LINKPATH" "Wallpaper changed."
+  else
+    setwallpaper "$LINKPATH" || exit_with_error
+    exit_with_error
+  fi
 else
-	setwallpaper "$linkpath" || die
+  setwallpaper "$LINKPATH" || exit_with_error
 fi
