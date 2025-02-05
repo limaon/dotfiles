@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+if [ -d "${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles" ]; then
+  echo "It looks like your dotfiles are already installed in '${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles'."
+  read -rp "Do you want to reinstall them? (y/N): " answer
+
+  if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+    echo "Installation canceled. Exiting..."
+    exit 0
+  fi
+
+  echo "Removing existing dotfiles configuration..."
+  rm -rf "${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles"
+fi
+
+echo "Cloning the dotfiles repository..."
+git clone --depth 1 "https://github.com/limaon/dotfiles.git" ~/dots
+
+echo "Copying dotfiles to your home directory..."
+cp -rfT ~/dots ~/
+
+echo "Moving .git to ~/.config/dotfiles..."
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}"
+cp -rf ~/.git "${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles"
+
+echo "Cleaning up temporary files..."
+rm -rf -- ~/dots ~/.git
+
+alias dot='git --git-dir="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles" --work-tree="$HOME"'
+
+echo "Configuring local git to hide untracked files..."
+dot config --local status.showUntrackedFiles no
+
+echo "Dotfiles installation complete."
+echo "Temporary alias 'dot' has been created for this session."
+echo "If you want the 'dot' alias permanently, add the following line to your shell config (e.g., ~/.bashrc or ~/.zshrc):"
+echo "  alias dot='git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles --work-tree=$HOME'"
