@@ -23,13 +23,15 @@ export LC_NUMERIC=$LANG
 export LC_TIME=$LANG
 export LC_MONETARY=$LANG
 
+
 ### Default XDG path end clean up ${HOME}
 export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="${HOME}/.local/share"
 export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_STATE_HOME="${HOME}/.local/state"
-if [ -f ${XDG_CONFIG_HOME}/user-dirs.dirs ]; then
-    . ${XDG_CONFIG_HOME}/user-dirs.dirs
+if [ -f "${XDG_CONFIG_HOME}"/user-dirs.dirs ]; then
+    # shellcheck disable=SC1091
+    . "${XDG_CONFIG_HOME}"/user-dirs.dirs
     export XDG_DESKTOP_DIR
     export XDG_DOWNLOAD_DIR
     export XDG_TEMPLATES_DIR
@@ -74,6 +76,7 @@ export USERXSESSION="${XDG_CACHE_HOME}/.cache/X11/xsession"
 export USERXSESSIONRC="${XDG_CACHE_HOME}/.cache/X11/xsessionrc"
 export ERRFILE="${XDG_CACHE_HOME}/X11/xsession-errors"
 export XINITRC="${XDG_CACHE_HOME}/X11/xinitrc"
+# export INPUTRC="${XDG_CONFIG_HOME}/.inputrc"
 export ASDF_CONFIG_FILE="${XDG_CONFIG_HOME}/asdf/asdfrc"
 export ASDF_DATA_DIR="${XDG_DATA_HOME}/asdf"
 export ASDF_PYTHON_DEFAULT_PACKAGES_FILE="${XDG_CONFIG_HOME}/pip/default-python-packages"
@@ -113,7 +116,6 @@ export MOST_INITFILE="${XDG_CONFIG_HOME}/mostrc"
 export MPLAYER_HOME="${XDG_CONFIG_HOME}/mplayer"
 export NODE_REPL_HISTORY="${XDG_DATA_HOME}/node_repl_history"
 export NOTMUCH_CONFIG="${XDG_CONFIG_HOME}/notmuch/notmuchrc"
-export INPUTRC="${XDG_CONFIG_HOME}/readline/inputr"
 export NMBGIT="${XDG_DATA_HOME}/notmuch/nmbug"
 export NPM_CONFIG_USERCONFIG="${XDG_CONFIG_HOME}/npm/npmrc"
 export NUGET_PACKAGES="${XDG_CACHE_HOME}/NuGetPackages"

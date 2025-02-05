@@ -187,7 +187,7 @@ fhist() {
         fi
     fi
 }
-[[ $- == *i* ]] && bind -x '"\C-r": fhist'
+
 
 _replace_slash_with_semicolon() {
     local line=${READLINE_LINE}
