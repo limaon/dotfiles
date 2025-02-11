@@ -16,9 +16,9 @@ ctl() {
     esac
 }
 
-# Function to turn off the display
-display_off() {
-    xset dpms 120 300 600 # after 10 minutes
+# Function to turn back time display
+display_back_time() {
+    xset dpms 300 480 600 # after 10 minutes
 }
 
 # Function to lock the screen
@@ -42,7 +42,7 @@ lock_screen() {
         sleep 1
     done
 
-    display_off
+    display_back_time
     rm -f "$PICTURE"
 }
 

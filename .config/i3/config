@@ -321,24 +321,24 @@ bindsym --release $mod+o exec --no-startup-id maimocr
 # bindsym --release Print exec --no-startup-id maimpick full
 
 # Open Calculator
-bindsym XF86Calculator exec --no-startup-id qalculate-gtk
+bindsym --release XF86Calculator exec --no-startup-id qalculate-gtk
 
 # Audio
-bindsym XF86AudioRaiseVolume exec --no-startup-id xf86-control volume up
-bindsym XF86AudioLowerVolume exec --no-startup-id xf86-control volume down
-bindsym XF86AudioMute exec --no-startup-id xf86-control volume mute
+bindsym --release XF86AudioRaiseVolume exec --no-startup-id xf86-control volume up
+bindsym --release XF86AudioLowerVolume exec --no-startup-id xf86-control volume down
+bindsym --release XF86AudioMute exec --no-startup-id xf86-control volume mute
 
 # Player Control
-bindsym XF86AudioPlay exec --no-startup-id xf86-control media play-pause
-bindsym XF86AudioPause exec --no-startup-id xf86-control media play-pause
-bindsym XF86AudioNext exec --no-startup-id xf86-control media next
-bindsym XF86AudioPrev exec --no-startup-id xf86-control media prev
-bindsym XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
-bindsym XF86AudioStop exec --no-startup-id playerctl stop
+bindsym --release XF86AudioPlay exec --no-startup-id xf86-control media play-pause
+bindsym --release XF86AudioPause exec --no-startup-id xf86-control media play-pause
+bindsym --release XF86AudioNext exec --no-startup-id xf86-control media next
+bindsym --release XF86AudioPrev exec --no-startup-id xf86-control media prev
+bindsym --release XF86AudioStop exec --no-startup-id playerctl stop
+bindsym --release XF86AudioMedia exec --no-startup-id i3-sensible-terminal -e ncmpcpp
 
 # File Manager
-bindsym XF86Explorer exec --no-startup-id i3-sensible-terminal --title 'File Manager' -e lf
+bindsym --release XF86Explorer exec --no-startup-id i3-sensible-terminal --title 'File Manager' -e lf
 
 # Brightness Control
-bindsym XF86MonBrightnessUp exec --no-startup-id xf86-control brightness_up
-bindsym XF86MonBrightnessDown exec --no-startup-id xf86-control brightness_down
+bindsym --release XF86MonBrightnessUp exec --no-startup-id xf86-control brightness up
+bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control brightness down
