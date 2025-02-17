@@ -16,10 +16,10 @@ set $right l
 
 # Set title bar (border)
 title_align left
-new_window pixel 1
+# new_window pixel 1
 default_border pixel 1
 default_floating_border normal 1
-# for_window [all] border normal 1
+for_window [all] border normal 1
 # for_window [all] border pixel 1 title_window_icon padding 5px
 for_window [all] border pixel 1 title_window_icon no
 
@@ -175,8 +175,9 @@ for_window [instance="scratchpad"] move window to scratchpad, scratchpad show
 for_window [window_type="normal"] border normal
 
 # Set floating for apps needing it
-for_window [class="(?i)anki" title=".*- Anki.*"] border pixel, layout tabbed
-for_window [class="(?i)anki" title="Preview"] floating disable, move right
+for_window [class="(?i)anki" title=".*- Anki.*"] floating disable, layout splitv
+for_window [class="(?i)anki" title="^Preview"] move right, layout tabbed
+for_window [class="(?i)anki" title="^Browse"] move left
 for_window [class="(?i)anki" title="Add"] floating disable
 for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
 for_window [class="Qalculate-gtk"] floating enable
@@ -264,7 +265,8 @@ bar {
 
 # Autostarts services
 exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
-exec --no-startup-id systemctl start --user xautocfg.service
+exec --no-startup-id systemctl --user start xautocfg.service
+exec --no-startup-id systemctl --user start clipcat.service
 
 
 # Exit i3 (logs you out of your X session)
@@ -317,7 +319,7 @@ bindsym $mod+F12 mode "$share_attach"
 # ScreenShot menu
 bindsym --release $mod+Print exec --no-startup-id maimpick area_clipboard
 bindsym --release Print exec --no-startup-id maimpick
-bindsym --release $mod+o exec --no-startup-id maimocr
+# bindsym --release $mod+o exec --no-startup-id maimocr
 # bindsym --release Print exec --no-startup-id maimpick full
 
 # Open Calculator
@@ -342,3 +344,11 @@ bindsym --release XF86Explorer exec --no-startup-id i3-sensible-terminal --title
 # Brightness Control
 bindsym --release XF86MonBrightnessUp exec --no-startup-id xf86-control brightness up
 bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control brightness down
+
+
+# Clipboard
+set $launcher-clipboard-insert clipcat-menu insert
+set $launcher-clipboard-remove clipcat-menu remove
+
+bindsym $mod+p exec $launcher-clipboard-insert
+bindsym $mod+o exec $launcher-clipboard-remove
