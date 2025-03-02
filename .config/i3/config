@@ -21,7 +21,7 @@ default_border pixel 1
 default_floating_border normal 1
 for_window [all] border normal 1
 # for_window [all] border pixel 1 title_window_icon padding 5px
-for_window [all] border pixel 1 title_window_icon no
+for_window [all] border normal 1 title_window_icon no
 
 # Gaps specific
 gaps inner 2
@@ -109,6 +109,10 @@ bindsym $mod+m bar mode toggle
 # Hover: move window to bottom right/left
 bindsym $mod+Shift+apostrophe floating toggle; sticky toggle; exec --no-startup-id hover right
 bindsym $mod+Shift+semicolon floating toggle; sticky toggle; exec --no-startup-id hover left
+
+# Mouse buttons to move around workspaces
+bindsym --whole-window button8 workspace prev_on_output
+bindsym --whole-window button9 workspace next_on_output
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
@@ -199,8 +203,7 @@ for_window [window_role="task_dialog"] floating enable
 for_window [window_type="menu"] floating enable
 for_window [window_role="GtkFileChooserDialog"] resize set 600 400, move position center
 for_window [window_role="Preferences"] floating enable
-for_window [title="(?:Open|Save) (?:File|Folder|As)"] floating enable
-for_window [title="(?:Open|Save) (?:File|Folder|As)"] resize set 600 400
+for_window [title="^(Open|Save|File|Select)"] border normal 2, resize set 800 480
 for_window [title=About|Preferences|htop|calcurse] floating enable, border normal, resize set 700 540, move position center
 for_window [class="mpv"] floating enable move position center
 for_window [title="mpv Webcam"] floating enable move position center sticky enable border pixel 2
@@ -248,18 +251,17 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 bar {
   status_command i3status -c ~/.config/i3/i3status.conf
-  # font pango: Terminus 12
-  tray_padding 2
   position bottom
   mode dock
 
+  tray_output primary
+  tray_padding 2
   strip_workspace_numbers yes
   workspace_buttons yes
   modifier None
   separator_symbol "|"
   workspace_min_width 20
   binding_mode_indicator yes
-  # tray_output primary
 }
 
 
