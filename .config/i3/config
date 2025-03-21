@@ -213,9 +213,11 @@ no_focus   [title="mpv Webcam"]
 for_window [all] move absolute position center
 
 # Open and focus to specific workspace
-assign [window_role=browser] $ws1
+assign [class="(?i)Firefox|LibreWolf" tiling] $ws1
+assign [class="Thunderbird"] $ws1
+assign [class="(?i)chromium" tiling] $ws1
 assign [class="transmission"] $ws7
-assign [class="(?i)anki"] $ws9
+assign [class="(?i)anki" title="Anki$|^Browse|^Add"] $ws9
 
 # Limitando o tamanho máximo da janela flutuante:
 floating_minimum_size 150 x 90
@@ -254,7 +256,7 @@ bar {
   position bottom
   mode dock
 
-  tray_output primary
+  # tray_output primary
   tray_padding 2
   strip_workspace_numbers yes
   workspace_buttons yes

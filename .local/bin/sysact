@@ -48,7 +48,7 @@ lock_screen() {
 
 # Function to close specific applications before shutting down
 cleanup() {
-    for app in qbittorrent goldendict; do
+	for app in qbittorrent goldendict keepassxc nekobox; do
         pkill -x "$app" >/dev/null 2>&1
     done
     sleep 0.33
