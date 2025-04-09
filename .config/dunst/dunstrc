@@ -46,7 +46,7 @@ show_indicators = true
 
 ### Icons ###
 enable_recursive_icon_lookup = true
-icon_theme = "Qogir"
+icon_theme = "Pop"
 icon_position = left
 icon_path = /tmp/:/usr/share/icons/
 # min_icon_size = 24
