@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Defaults
+# DEFAULTS VARS
 MAX_VOL=100
 STEP_VOL=5
 STEP_BRIGHT=5
@@ -11,8 +11,6 @@ ICON_VOLUME_DOWN="audio-volume-low-symbolic"
 ICON_MUTED="audio-volume-muted-symbolic"
 ICON_BRIGHTNESS_UP="display-brightness-high-symbolic"
 ICON_BRIGHTNESS_DOWN="display-brightness-low-symbolic"
-ICON_MEDIA="media-playback-start-symbolic"
-SOUND_EFFECT="canberra-gtk-play -i audio-volume-change"
 
 
 main() {
@@ -26,11 +24,8 @@ main() {
         brightness)
             brightness_control "${action}"
             ;;
-        media)
-            media_control "${action}"
-            ;;
         *)
-            echo "Uso: $0 [volume|brightness|media] [up|down|mute|play-pause|next|prev]"
+            echo "Uso: $0 [volume|brightness] [up|down|mute]"
             exit 1
             ;;
     esac
@@ -62,12 +57,10 @@ volume_control() {
             fi
 
             pactl set-sink-volume @DEFAULT_SINK@ "${new_volume}%"
-            ${SOUND_EFFECT} &>/dev/null &
             (( new_volume == 0 )) && pactl set-sink-mute @DEFAULT_SINK@ 1
             ;;
         mute)
             pactl set-sink-mute @DEFAULT_SINK@ toggle
-            ${SOUND_EFFECT} &>/dev/null &
             ;;
         *)
             return 1
@@ -77,25 +70,13 @@ volume_control() {
     status=$(pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null || echo 'Mute: no')
     volume=$(pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | awk '{print $5}' | tr -d '%' || echo 0)
 
-    if media_status=$(playerctl status 2>/dev/null) && [[ "${media_status}" == "Playing" ]]; then
-        local artist title art_url
-        artist=$(playerctl metadata artist 2>/dev/null || echo "Unknown Artist")
-        title=$(playerctl metadata title 2>/dev/null || echo "Unknown Track")
-        art_url=$(playerctl metadata mpris:artUrl 2>/dev/null || echo "")
-        message="${volume}%\nNow playing: ${artist} - ${title}"
-        if [[ -n "${art_url}" ]]; then
-            art_url="${art_url#file://}"
-            icon="${art_url}"
-        fi
+    if [[ "${status}" == *"yes"* ]]; then
+        icon="${ICON_MUTED}"
+        message="Muted"
     else
-        if [[ "${status}" == *"yes"* ]]; then
-            icon="${ICON_MUTED}"
-            message="Muted"
-        else
-            message="${volume}%"
-            if [[ "${action}" == "mute" ]]; then
-                icon="${ICON_VOLUME_UP}"
-            fi
+        message="${volume}%"
+        if [[ "${action}" == "mute" ]]; then
+            icon="${ICON_VOLUME_UP}"
         fi
     fi
 
@@ -138,47 +119,7 @@ brightness_control() {
         percent=100
     fi
 
-    "${SOUND_EFFECT}" &>/dev/null &
     notify "Brightness" "${percent}%" "${icon}" "${percent}"
-}
-
-media_control() {
-    local action="${1:-}"
-    local status="" artist="" title="" art_url="" icon_to_use=""
-
-    case "${action}" in
-        play-pause)
-            playerctl play-pause &>/dev/null || true
-            ;;
-        next)
-            playerctl next &>/dev/null || true
-            sleep 1
-            ;;
-        prev)
-            playerctl previous &>/dev/null || true
-            sleep 1
-            ;;
-        *)
-            return 1
-            ;;
-    esac
-
-    status=$(playerctl status 2>/dev/null || echo '')
-    artist=$(playerctl metadata artist 2>/dev/null || echo 'Unknown Artist')
-    title=$(playerctl metadata title 2>/dev/null || echo 'Unknown Track')
-    art_url=$(playerctl metadata mpris:artUrl 2>/dev/null || echo '')
-
-    if [[ -n "${art_url}" ]]; then
-        icon_to_use="${art_url}"
-    else
-        icon_to_use="${ICON_MEDIA}"
-    fi
-
-    if [[ "${status}" == "Playing" ]]; then
-        notify "Now playing" "${artist} - ${title}" "${icon_to_use}" 0
-    else
-        notify "Now playing" "Paused" "${icon_to_use}" 0
-    fi
 }
 
 notify() {
@@ -188,13 +129,13 @@ notify() {
     local value="${4:-}"
 
     if [[ -z "${value}" || "${value}" -eq 0 ]]; then
-        notify-send -r "${NOTIFY_ID}" -u low \
+        notify-send -r "${NOTIFY_ID}" \
             -i "${icon}" \
             "${summary}" \
             "${body}" \
             -h "string:synchronous:system-control"
     else
-        notify-send -r "${NOTIFY_ID}" -u low \
+        notify-send -r "${NOTIFY_ID}" \
             -i "${icon}" \
             -h "int:value:${value}" \
             "${summary}" \

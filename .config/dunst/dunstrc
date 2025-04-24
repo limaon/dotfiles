@@ -49,8 +49,8 @@ enable_recursive_icon_lookup = true
 icon_theme = "Pop"
 icon_position = left
 icon_path = /tmp/:/usr/share/icons/
-# min_icon_size = 24
-# max_icon_size = 48
+min_icon_size = 24
+max_icon_size = 48
 
 ### History ###
 sticky_history = true
@@ -67,7 +67,7 @@ corners = all
 ignore_dbusclose = false
 force_xwayland = true
 force_xinerama = false
-mouse_left_click = close_current
+mouse_left_click = open_url, close_current
 mouse_middle_click = do_action, close_current
 mouse_right_click = close_all
 
@@ -139,23 +139,37 @@ urgency = low
 #script = "${HOME}/.local/bin/playsound.sh"
 
 [volume-change]
-desktop_entry = pamixer
+appname = pamixer
 summary = ""
-urgency = low
+urgency = normal
+
+# cli parameter match: "string:synchronous:system-control"
+# volume and brightness
+[system_control]
+stack_tag="system-control"
+background="#1A6395"
+foreground="#FAF3E1"
+frame_color="#ABB6B6"
+highlight="#FCFCFC"
+timeout=1
 
 [ignore-update]
 desktop_entry = "packagekit"
 skip_display = true
 
+[low-battery]
+appname="i3status"
+body=".*Battery: 10%.*"
+foreground="#FF0000"
+timeout=0
+icon="battery-low"
+# script="/path/to/battery-status.sh"
+
 [battery-critical]
-desktop_entry = "upower"
+appname = "upower"
 summary = ".*Battery low.*"
 urgency = critical
 timeout = 0
-
-[i3status]
-desktop_entry = "i3status"
-skip_display = true
 
 [history-ignore]
 summary = "System Notification"
@@ -181,6 +195,22 @@ max_icon_size = 64
 alignment = center
 timeout = 5
 
+[firefox_notifications]
+desktop_entry = "org.mozilla.firefox"
+background = "#1a1a1a"
+foreground = "#f9f9fa"
+frame_color = "#ff7139"
+highlight = "#ff7139"
+timeout = 10
+# CLI TEST: notify-send -h string:desktop-entry:org.mozilla.firefox "Test" "This is a test!"
+
+[telegram_notifications]
+desktop_entry="org.telegram.desktop"
+background="#2A2F4A"
+foreground="#E6EFFF"
+frame_color="#229ED9"
+highlight="#229ED9"
+timeout=5
 
 #[says]
 #    appname = Pidgin
