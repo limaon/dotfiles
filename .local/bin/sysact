@@ -1,12 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # System control script via command line
 
 # Global variables
 WM="${WM:-i3}"
-PICTURE="/tmp/i3lock.png"
-BLUR="10x8"
-FALLBACK_COLOR="1d2021"
+BLUR="0x15"
+FALLBACK_COLOR="5b5b5b"
 
 # Function to determine the appropriate control command for system power operations
 ctl() {
@@ -21,29 +20,29 @@ display_back_time() {
     xset dpms 300 480 600 # after 10 minutes
 }
 
-# Function to lock the screen
+# Optimized screen lock function
 lock_screen() {
-    # Set DPMS timeout for screen lock
-    xset dpms 60 180 300
+    # Configure DPMS for fast response (5s standby/suspend/off)
+    xset dpms 8 120 300
 
-    # Pause music player if applicable
+    # Pause any media players (mpc is for MPD)
     mpc pause >/dev/null 2>&1 || true
-    sleep 0.33
 
-    # Capture and process the screen image
-    if maim --hidecursor --format=png --quality 10 "$PICTURE"; then
-        magick "$PICTURE" -blur "$BLUR" "$PICTURE"
-        i3lock -i "$PICTURE"
-    else
-        i3lock -e -f -c "$FALLBACK_COLOR"
-    fi
+    # Create temporary image file in RAM disk for faster access
+    local TEMP_IMG=$(mktemp /dev/shm/i3lock-XXXXXX.png)
 
-    while pgrep -x i3lock >/dev/null; do
-        sleep 1
-    done
+    # Optimized image processing pipeline:
+    # 1. Capture screen with maim (low quality png)
+    # 2. Resize down to 10% then back up (pixelation effect)
+    # 3. Save to temp file
+    # 4. Lock with i3lock using the processed image
+    maim --hidecursor --format=png --quality 3 -q 2>/dev/null | \
+        convert - -resize 10% -resize 1000% -quality 5 "$TEMP_IMG" 2>/dev/null
 
+    i3lock -i "$TEMP_IMG" -n
+
+    rm -f "$TEMP_IMG"
     display_back_time
-    rm -f "$PICTURE"
 }
 
 # Function to close specific applications before shutting down
