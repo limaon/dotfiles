@@ -89,7 +89,7 @@ interceptor.register(int_fn)
 
 # UI
 c.fonts.default_family = [
-    "Terminus",
+    "Terminess Nerd Font",
     "Ubuntu Mono",
     "Noto Sans CJK JP",
     "Noto Color Emoji",

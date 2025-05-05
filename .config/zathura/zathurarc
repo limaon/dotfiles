@@ -11,7 +11,7 @@ set statusbar -v-padding 0
 set statusbar-basename
 set page-padding 2
 set selection-clipboard "clipboard"
-set font "Terminus 12"
+set font "Terminess Nerd Font 12"
 
 # Binds
 map K zoom in
