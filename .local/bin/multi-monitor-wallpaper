@@ -1,88 +1,144 @@
 #!/usr/bin/env bash
 
-show_help() {
-  echo "Este script configura o monitor e define o papel de parede usando o Nitrogen."
-  echo "Parâmetros:"
-  echo "  -h, --help: mostra o menu de ajuda"
-  echo "  -m, --monitor: configura o monitor (valores possíveis: laptop, hdmi, ambos)"
-  echo "  -p, --paper: define o papel de parede (caminho para a imagem)"
+# Global settings
+LINKPATH="${XDG_DATA_HOME:-"$HOME/.local/share"}/bg"
+FALLBACK_COLOR="#2B2A33"
+WALLPAPER_DIRS=("$HOME/Pictures" "/usr/share/backgrounds")
+
+# Main background application function
+apply_background() {
+    if [ -f "$LINKPATH" ]; then
+        xwallpaper --zoom "$LINKPATH" || exit_with_error
+    else
+        hsetroot -solid "$FALLBACK_COLOR" || exit_with_error
+    fi
 }
 
-validate_file_path() {
-  if [ ! -f "$1" ]; then
-    echo "Caminho do arquivo inválido: $1"
+# Error handling
+exit_with_error() {
+    notify-send -u critical "Error" "Operation failed"
     exit 1
-  fi
 }
 
-configure_monitor() {
-  case "$1" in
-    "laptop")
-      xrandr --output HDMI-1 --off --output eDP-1 --mode 1366x768 --pos 0x0 --rotate normal
-      ;;
-    "hdmi")
-      xrandr --output eDP-1 --off --output HDMI-1 --primary --mode 1920x1080 --pos 0x0 --rotate normal
-      ;;
-    "ambos")
-      xrandr --output eDP-1 --primary --mode 1366x768 --pos 0x0 --rotate normal --output HDMI-1 --mode 1920x1080 --pos 1366x0 --rotate normal
-      ;;
-    *)
-      echo "Monitor inválido: $1"
-      exit 1
-      ;;
-  esac
+# File browser with dmenu (starts in specified directories)
+file_browser() {
+    # Select initial base directory
+    local dir_choice=$(printf "%s\n" "${WALLPAPER_DIRS[@]}" | \
+        dmenu-alt -i -p "Select base directory:" | \
+        sed 's/\/$//')
+
+    [ -z "$dir_choice" ] && return
+    [ ! -d "$dir_choice" ] && { notify-send "Directory not found: $dir_choice"; return; }
+
+    local start_dir="$dir_choice"
+    local selection
+    local full_path
+
+    while true; do
+        selection=$(
+            find "$start_dir" -mindepth 1 -maxdepth 1 \
+                \( -type d -printf "%p/\n" , \
+                -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print \) 2>/dev/null | \
+            sed "s|^$start_dir/||" | \
+            sort -V | \
+            dmenu-alt -i -l 20 -p "Select: $start_dir/"
+        )
+
+        [ -z "$selection" ] && return
+
+        full_path="$start_dir/$selection"
+
+        if [ -d "$full_path" ]; then
+            start_dir="$full_path"
+        else
+            echo "$full_path"
+            return
+        fi
+    done
 }
 
-set_wallpaper() {
-  if [ "$monitor" == "ambos" ]; then
-    nitrogen --set-scaled --head=0 "$1"
-    nitrogen --set-scaled --head=1 "$1"
-  else
-    nitrogen --set-scaled "$1"
-  fi
+# Display configuration (unchanged logic)
+configure_displays() {
+    readarray -t monitors < <(xrandr --query | grep " connected" | awk '{print $1}')
+    declare -A monitor_modes
+
+    for monitor in "${monitors[@]}"; do
+        monitor_modes["$monitor only"]="$monitor"
+    done
+
+    if [ ${#monitors[@]} -gt 1 ]; then
+        monitor_modes["${monitors[0]} + ${monitors[1]} extended"]="dual_primary"
+        monitor_modes["${monitors[1]} + ${monitors[0]} extended"]="dual_secondary"
+        monitor_modes["Clone displays"]="clone"
+    fi
+
+    selected=$(printf "%s\n" "${!monitor_modes[@]}" | dmenu-alt -i -p "Display mode:")
+    [ -z "$selected" ] && exit 0
+
+    case "${monitor_modes[$selected]}" in
+        "dual_primary")
+            xrandr --output "${monitors[0]}" --auto --primary \
+                   --output "${monitors[1]}" --auto --right-of "${monitors[0]}"
+            ;;
+        "dual_secondary")
+            xrandr --output "${monitors[1]}" --auto --primary \
+                   --output "${monitors[0]}" --auto --right-of "${monitors[1]}"
+            ;;
+        "clone")
+            xrandr --output "${monitors[0]}" --auto \
+                   --output "${monitors[1]}" --auto --same-as "${monitors[0]}"
+            ;;
+        *)
+            target_monitor="${monitor_modes[$selected]}"
+            xrandr --output "$target_monitor" --auto --primary
+            for mon in "${monitors[@]}"; do
+                [ "$mon" != "$target_monitor" ] && xrandr --output "$mon" --off
+            done
+            ;;
+    esac
+
+    apply_background
+    notify-send "Display Configuration Updated" "Mode: $selected"
 }
 
-# Verifica se foi passado algum parâmetro
-if [ $# -eq 0 ]; then
-  show_help
-  exit 1
-fi
+# Set a random wallpaper
+set_random_wallpaper() {
+    local random_file
+    random_file=$(find "${WALLPAPER_DIRS[@]}" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print 2>/dev/null | \
+        shuf -n 1)
 
-# Define as variáveis de acordo com os parâmetros
-monitor=""
-paper=""
+    if [ -n "$random_file" ]; then
+        ln -sf "$random_file" "$LINKPATH"
+        apply_background
+        notify-send "Random Wallpaper" "File: $(basename "$random_file")"
+    else
+        notify-send "Error" "No wallpapers found in the specified directories"
+    fi
+}
 
-while [ $# -gt 0 ]; do
-  case "$1" in
-    -h|--help)
-      show_help
-      exit 0
-      ;;
-    -m|--monitor)
-      monitor="$2"
-      shift
-      ;;
-    -p|--paper)
-      paper="$2"
-      validate_file_path "$paper"
-      shift
-      ;;
-    *)
-      echo "Parâmetro inválido: $1"
-      exit 1
-      ;;
-  esac
-  shift
+# Updated main menu
+main_menu() {
+    choice=$(echo -e "Configure displays\nSet wallpaper\nRandom wallpaper" | \
+        dmenu-alt -i -p "Main Menu:")
+
+    case "$choice" in
+        "Configure displays") configure_displays ;;
+        "Set wallpaper")
+            selected_file=$(file_browser)
+            [ -n "$selected_file" ] && ln -sf "$selected_file" "$LINKPATH" && apply_background
+            ;;
+        "Random wallpaper") set_random_wallpaper ;;
+        *) exit ;;
+    esac
+}
+
+# Dependency check (unchanged)
+for cmd in xrandr dmenu hsetroot xwallpaper find shuf notify-send; do
+    command -v "$cmd" >/dev/null || {
+        echo "Error: $cmd is not installed!" >&2
+        exit 1
+    }
 done
 
-# Configura o monitor
-configure_monitor "$monitor"
-
-# Define o papel de parede
-if [ -n "$paper" ]; then
-  set_wallpaper "$paper"
-fi
-
-# Restaura o último papel de parede definido
-sleep 2
-nitrogen --restore
+# Main execution
+main_menu
