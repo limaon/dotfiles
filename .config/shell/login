@@ -187,9 +187,11 @@ if [[ -d "$HOME/.local/bin" ]]; then
 fi
 
 ## Source asdf-vm settings
-[[ -f "/opt/asdf-vm/asdf.sh" ]] && source /opt/asdf-vm/asdf.sh
-[[ -f "${ASDF_DATA_DIR}/asdf.sh" ]] && source ${ASDF_DATA_DIR}/asdf.sh
-[[ -f "${ASDF_DATA_DIR}/completions/asdf.bash" ]] && source ${ASDF_DATA_DIR}/completions/asdf.bash
+# [[ -f "/opt/asdf-vm/asdf.sh" ]] && source /opt/asdf-vm/asdf.sh
+# [[ -f "${ASDF_DATA_DIR}/asdf.sh" ]] && source ${ASDF_DATA_DIR}/asdf.sh
+# [[ -f "${ASDF_DATA_DIR}/completions/asdf.bash" ]] && source ${ASDF_DATA_DIR}/completions/asdf.bash
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+. <(asdf completion bash)
 
 
 ## Java setup for asdf
