@@ -2,10 +2,12 @@
 
 # System control script via command line
 
-# Global variables
+# Global settings
+export DISPLAY=${DISPLAY:-:0}
+export XAUTHORITY=${XAUTHORITY:-"$HOME/.Xauthority"}
 WM="${WM:-i3}"
-BLUR="0x15"
-FALLBACK_COLOR="5b5b5b"
+# BLUR="0x15"
+# FALLBACK_COLOR="5b5b5b"
 
 # Function to determine the appropriate control command for system power operations
 ctl() {
@@ -29,7 +31,8 @@ lock_screen() {
     mpc pause >/dev/null 2>&1 || true
 
     # Create temporary image file in RAM disk for faster access
-    local TEMP_IMG=$(mktemp /dev/shm/i3lock-XXXXXX.png)
+    local TEMP_IMG
+    TEMP_IMG=$(mktemp /dev/shm/i3lock-XXXXXX.png)
 
     # Optimized image processing pipeline:
     # 1. Capture screen with maim (low quality png)
