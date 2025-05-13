@@ -1,3 +1,8 @@
+# pylint: disable=C0111
+
+# Set default Web Browser command:
+# xdg-settings set default-web-browser org.qutebrowser.qutebrowser.desktop
+
 from PyQt6.QtCore import QUrl
 from qutebrowser.api import interceptor, message
 from qutebrowser.config.configfiles import ConfigAPI
@@ -6,10 +11,10 @@ from urllib.parse import urljoin
 import operator
 import re
 
-config: ConfigAPI = config
-c: ConfigContainer = c
+c: ConfigContainer = c # noqa: F821 pylint: disable=E0602,C0103
+config: ConfigAPI = config # noqa: F821 pylint: disable=E0602,C0103
 dowmload_open_script_path = "/usr/share/qutebrowser/userscripts/open_download"
-config.load_autoconfig(False)
+config.load_autoconfig()
 
 
 # REDIRECT CONFIG
@@ -87,39 +92,68 @@ def int_fn(info: interceptor.Request):
 interceptor.register(int_fn)
 
 
-# UI
+# Fonts
 c.fonts.default_family = [
     "Terminess Nerd Font",
     "Ubuntu Mono",
     "Noto Sans CJK JP",
     "Noto Color Emoji",
 ]
-c.fonts.default_size = "16px"
-c.downloads.remove_finished = 10000
+c.fonts.default_size = "18px"
+c.fonts.contextmenu = "default_size default_family"
+c.fonts.debug_console = "default_size default_family"
+c.fonts.web.family.sans_serif = "Ubuntu"
+c.fonts.web.family.standard = "Ubuntu"
+c.fonts.web.family.serif = "Liberation serif"
+c.fonts.web.family.fixed = "JetBrainsMono Nerd Font"
+c.hints.auto_follow = "never"
+c.fonts.hints = "bold 12pt default_family"
+
+c.hints.padding = { 'bottom': 1, 'left': 3, 'right': 3, 'top': 1 }
+c.hints.uppercase = True
+c.fonts.tooltip = "default_size default_family"
+c.fonts.web.size.default = 20
+c.fonts.web.size.default_fixed = 18
+c.fonts.web.size.minimum = 14
+c.fonts.web.size.minimum_logical = 12
+
+c.content.user_stylesheets = ["./styles/youtube-tweaks.css"]
+
+# Dark mode
 c.colors.webpage.darkmode.enabled = False
 c.colors.webpage.preferred_color_scheme = "dark"
+c.colors.webpage.darkmode.algorithm = "lightness-cielab"
+c.colors.webpage.darkmode.policy.images = "never"
 c.colors.webpage.darkmode.policy.page = "always"
+config.set('colors.webpage.darkmode.enabled', False, 'file://*')
+
 c.completion.shrink = True
 c.completion.use_best_match = True
+c.completion.open_categories = ['searchengines', 'quickmarks', 'bookmarks', 'history', 'filesystem']
 c.scrolling.bar = "when-searching"
+c.scrolling.smooth = False
 c.statusbar.widgets = ["progress", "keypress", "url", "history"]
+
+# Browser Tabs
 c.tabs.title.format = "{index}: {audio}{current_title}"
 c.tabs.title.format_pinned = "{index}: {audio}{current_title}"
+c.tabs.padding = { 'top': 5, 'bottom': 5, 'left': 9, 'right': 9 }
 c.tabs.mousewheel_switching = False
-c.tabs.width = 150
+c.tabs.width = '7%'
+c.tabs.indicator.width = 0
 c.tabs.select_on_remove = "last-used"
 c.tabs.show = "multiple"
 c.tabs.last_close = "close"
 c.tabs.mousewheel_switching = False
-c.fonts.hints = "bold 11pt default_family"
+
 c.url.default_page = "https://duckduckgo.com/"
 c.url.start_pages = ["https://duckduckgo.com/"]
 
 # GENERAL
 c.input.insert_mode.auto_load = False
 c.content.default_encoding = "utf-8"
-c.auto_save.session = False
-c.content.prefers_reduced_motion = True
+c.auto_save.session = True
+c.content.prefers_reduced_motion = False
 c.content.xss_auditing = True
 c.content.javascript.modal_dialog = True
 c.content.javascript.clipboard = "access-paste"
@@ -127,22 +161,21 @@ c.content.notifications.enabled = "ask"
 c.content.notifications.presenter = "auto"
 c.content.notifications.show_origin = True
 c.content.javascript.can_open_tabs_automatically = True
-c.downloads.location.prompt = False
 c.content.autoplay = False
-c.content.geolocation = False
 c.content.plugins = False
 c.content.pdfjs = False
 c.content.images = True
-c.downloads.location.directory = "~/Downloads/"
-c.content.canvas_reading = True
-c.content.webgl = False
-c.qt.highdpi = True
 c.content.blocking.method = "auto"
+c.content.blocking.enabled = True
+c.downloads.location.prompt = True
 c.downloads.open_dispatcher = dowmload_open_script_path
+c.downloads.remove_finished = 10000
+c.downloads.location.directory = "~/Downloads/"
 c.editor.command = ["tmux", "new-window", "nvim {}"]
+# c.qt.highdpi = True
 c.qt.force_software_rendering = "chromium"
 c.qt.chromium.process_model = "process-per-site"
-c.qt.chromium.low_end_device_mode = "always"
+c.qt.chromium.low_end_device_mode = "auto"
 c.qt.args += [
     "disable-gpu",
     "disable-accelerated-video-decode",
@@ -157,8 +190,9 @@ c.qt.args += [
 # Keybinds
 config.unbind("m")
 bindings = {
+    "pd": "config-cycle colors.webpage.darkmode.enabled",
     "pw": "spawn -u qute-keepassxc --key ABC1234",
-    ",m": "spawn -u -m view_in_mpv {url}",
+    ",m": "spawn --userscript view_in_mpv {url}",
     ",M": "hint links spawn -u -m view_in_mpv {hint-url}",
     "pf": "spawn --userscript password_fill",
     "mf": "hint all spawn -d firefox {hint-url}",
@@ -171,14 +205,19 @@ for key, bind in bindings.items():
     config.bind(key, bind)
 
 # Select a file to upload
-c.fileselect.handler = "external"
+c.fileselect.handler = "default"
 c.fileselect.single_file.command = ["kitty", "sh", "-c", "lf > {}"]
 c.fileselect.multiple_files.command = ["kitty", "sh", "-c", "lf > {}"]
 
+
+
 # Privacy
-c.content.cookies.accept = "no-unknown-3rdparty"
-c.content.cookies.store = True
-c.content.webrtc_ip_handling_policy = "default-public-interface-only"
+config.set("content.cookies.accept", "no-unknown-3rdparty")
+config.set("content.cookies.store", True)
+config.set("content.canvas_reading", False)
+config.set("content.webgl", False, "*")
+config.set("content.geolocation", False)
+config.set("content.webrtc_ip_handling_policy", "default-public-interface-only")
 
 
 config.set("content.cookies.accept", "all", "chrome-devtools://*")
