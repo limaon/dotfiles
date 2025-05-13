@@ -376,6 +376,7 @@ local language_settings = {
 	toml = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	sh = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	asm = { buffer = { expandtab = false, tabstop = 8, shiftwidth = 8, softtabstop = 8 } },
+	php = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	make = { buffer = { expandtab = false } },
 }
 
