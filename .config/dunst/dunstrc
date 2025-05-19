@@ -57,7 +57,8 @@ sticky_history = true
 history_length = 10
 
 ### Misc/Advanced ###
-dmenu = "dmenu -p dunst"
+dmenu = "dmenu-alt"
+# dmenu = "dmenu -p dunst"
 browser = "xdg-open"
 always_run_script = true
 title = "Dunst"
