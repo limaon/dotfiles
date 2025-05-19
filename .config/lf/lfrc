@@ -1,11 +1,11 @@
 # vim:ft=conf
 
-set shell "bash"
+set shell bash
 set shellopts '-eu'
 set ifs "\n"
 set info size:time
-set sortby time
-set reverse!
+set sortby natural
+set noreverse
 set dircounts
 set period 1
 set autoquit true
@@ -64,28 +64,33 @@ cmd open ${{
   esac
 }}
 
-cmd on-cd &{{
-  case "$PWD" in
-    ~/Downloads/*)
-      lf -remote "send $id set user_prev_sortby $lf_sortby"
-      lf -remote "send $id set sortby natural"
-      lf -remote "send $id set noreverse"
 
-      lf -remote "send $id echomsg changed sort to natural"
+cmd on-cd %{{
+  case "$(basename -- "$PWD")" in
+    Downloads|Screenshots)
+      lf -remote "send $id set sortby time"
+      lf -remote "send $id set reverse"
       ;;
     *)
-      # restore sorting on directory exit
-      if [[ "$lf_user_prev_sortby" != "" ]]; then
-        lf -remote "send $id set sortby $lf_user_prev_sortby"
-        lf -remote "send $id set reverse"
-
-        lf -remote "send $id echomsg restored sort to $lf_user_prev_sortby"
-        lf -remote "send $id set user_prev_sortby ''"
-      fi
+      lf -remote "send $id set sortby natural"
+      lf -remote "send $id set noreverse"
       ;;
   esac
 }}
-on-cd
+
+
+cmd changedirectory ${{
+  set -f
+  MBASE="/run/media/$(id -un)"
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf 'Go to where?\n'
+
+  dirpath="$(find "$HOME" "$MBASE" -maxdepth 4 -type d 2>/dev/null \
+              | fzf --layout=reverse --height 40% --prompt 'Go to where? ')"
+
+  [[ -n "$dirpath" ]] && lf -remote "send $id cd \"$dirpath\""
+}}
+
 
 cmd hard-reload &{{
   [ -d ~/.cache/lf ] && rm -rf ~/.cache/lf
@@ -100,48 +105,79 @@ cmd yank &{{
   esac | xclip -rmlastnl -selection clipboard
 }}
 
+# Colocar aqui uma mensagem que terminou a transferencia
 cmd paste &{{
   set -- $(cat ~/.local/share/lf/files)
   mode="$1"
   shift
   case "$mode" in
     copy)
-      rsync -av --ignore-existing --progress -- "$@" . |
+      rsync -aAXHv --info=progress2 --update --no-compress \
+            --partial --human-readable \
+            -- "$@" . |
       stdbuf -i0 -o0 -e0 tr '\r' '\n' |
       while IFS= read -r line; do
         lf -remote "send $id echo $line"
       done
       ;;
-    move) mv -n -- "$@" .;;
+    move)
+      mv -n -- "$@" .
+      ;;
   esac
   rm ~/.local/share/lf/files
   lf -remote "send clear"
+  lf -remote "send reload"
 }}
 
 cmd copyto ${{
-  clear; tput cup $(($(tput lines)/3)); tput bold
   set -f
-  clear; echo "Copy to where?"
-  dest="$(find $HOME -maxdepth 4 -type d | fzf --reverse --header='Copy to' | sed 's|~|$HOME|' )" &&
+  MBASE="/run/media/$(id -un)"
+  clear; tput cup $(($(tput lines)/3))
+
+  dest="$(find "$HOME" "$MBASE" -maxdepth 4 -type d 2>/dev/null \
+         | fzf --layout=reverse --height 40% --prompt 'Copy to where? ')"
+
+  [[ -z "$dest" || ! -d "$dest" ]] && exit 1
+
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  echo "From:"; printf '%s\n' $fx | sed 's/^/   /'
+  printf 'To:\n   %s\n\n\tcopy?[y/N]' "$dest"
+  read -r ans
+  [[ "$ans" != "y" ]] && exit 1
+
   for x in $fx; do
-    eval cp -ivr \"$x\" \"$dest\"
+    rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
+          --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+          -- "$x" "$dest"
   done &&
-  notify-send "󰆏  File(s) copied." "File(s) copies to $dest."
+  notify-send "󰆏  File(s) copied." "File(s) copied to $dest."
   lf -remote 'send clear'
 }}
 
+
 cmd moveto ${{
-  clear; tput cup $(($(tput lines)/3)); tput bold
   set -f
-  clear; echo "Move to where?"
-  # dest="$(find $HOME $WORK -maxdepth 4 -type d | fzf --reverse --header='Move to' | sed 's|~|$HOME|' )" &&
-  dest="$(find $HOME -maxdepth 4 -type d | fzf --reverse --header='Move to' | sed 's|~|$HOME|' )" &&
+  MBASE="/run/media/$(id -un)"
+  clear; tput cup $(($(tput lines)/3))
+
+  dest="$(find "$HOME" "$MBASE" -maxdepth 4 -type d 2>/dev/null \
+         | fzf --layout=reverse --height 40% --prompt 'Move to where? ')"
+
+  [[ -z "$dest" || ! -d "$dest" ]] && exit 1
+
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  echo "From:"; printf '%s\n' $fx | sed 's/^/   /'
+  printf 'To:\n   %s\n\n\tmove?[y/N]' "$dest"
+  read -r ans
+  [[ "$ans" != "y" ]] && exit 1
+
   for x in $fx; do
-    eval mv -iv \"$x\" \"$dest\"
+    mv -iv -- "$x" "$dest"
   done &&
-  notify-send " File(s) moved." "File(s) moved to $dest."
+  notify-send "  File(s) moved." "File(s) moved to $dest."
   lf -remote 'send clear'
 }}
+
 
 # Delete / Trash
 # ------------------
@@ -152,7 +188,7 @@ cmd delete ${{
     printf "Permenantly delete?[y/N]"
     read ans
     if [ $ans = "y" ] && rm -rf -- $fx; then
-    notify-send " File(s) deleted." "$fx"
+    notify-send "  File(s) deleted." "$fx"
   fi
 }}
 
@@ -179,20 +215,22 @@ cmd restore_trash ${{
 # Extract / Tar / Zip
 # -----------------------
 cmd extract ${{
-  clear; tput cup $(($(tput lines)/3)); tput bold
   set -f
-  printf "%s\n\t" "$fx"
-  printf "extract?[y/N]"
-  read ans
-  [ $ans = "y" ] &&
-  case $f in
-    *.tar.bz|*.tar.bz2|*.tbz|*.tbz2) tar xjvf $f;;
-    *.tar.gz|*.tgz) tar xzvf $f;;
-    *.tar.xz|*.txz) tar xJvf $f;;
-    *.zip) unzip $f;;
-    *.rar) unrar x $f;;
-    *.7z) 7z x $f;;
-  esac
+  clear; tput cup $(($(tput lines)/3)); tput bold
+  printf '%s\n' "$fx"
+  printf 'extract to own folder(s)? [y/N] '
+  read -r ans
+  [[ "$ans" != "y" ]] && exit 0
+
+  for x in $fx; do
+    base="${x##*/}"
+    dest="${base%.*}"
+    mkdir -p -- "$dest" || continue
+    bsdtar -xf "$x" -C "$dest"
+    find "$dest" -type f -exec chmod -x -- {} +
+  done
+  notify-send "󰏖  Extracted." "Unpacked to individual folders."
+  lf -remote 'send reload'
 }}
 
 cmd tar ${{
@@ -304,7 +342,22 @@ cmd stop ${{
   kill -TSTP $(ps -p $$ -o 'ppid=')
 }}
 
-cmd setbg "$1"
+
+cmd ud-unmount ${{
+    if udiskie-umount -aef; then
+        lf -remote "send $id echomsg >> The device was umounted <<"
+    else
+        lf -remote "send $id echoerr >> udiskie-umount failed <<"
+    fi
+}}
+
+cmd setbg ${{
+  case "$(file --mime-type -Lb "$f")" in
+    image/*)  setsid -f setbg "$f" >/dev/null 2>&1 ;;
+    *)        lf -remote "send $id echoerr «not an image»" ;;
+  esac
+}}
+
 
 # Key maps
 #---------
@@ -327,6 +380,7 @@ map fF :fzf_jump
 #General maps
 map Km maps  # List normal mode mappings
 map Kc cmaps  # List command mode mappings
+map cd changedirectory
 map mf touch-file
 map md mkdir
 map R :redraw; reload; recol; cfg_reload
@@ -336,6 +390,9 @@ map <c-r> hard-reload
 map zp set preview!
 map zd set dirfirst!
 map sn :set sortby natural; set reverse!; set info size
+map se :set sortby ext; set reverse!; set info size
+map w setbg
+map W $setsid -f $TERM >/dev/null 2>&1
 # map V glob-select *
 # map U glob-unselect *
 
@@ -383,12 +440,19 @@ map } half-down
 map <enter> open
 
 # Movement dirs
+map g/ cd /
+map gM cd /mnt
+map ge cd /etc
+map gP cd /tmp
+map gU cd /usr
 map gd cd ~/Desktop
 map gD cd ~/Downloads
-map gP cd ~/Pictures
-map gM cd ~/Music
+map gp cd ~/Pictures
+map gm cd ~/Music
 map gV cd ~/Videos
 map gC cd ~/.config
 map gL cd ~/.local
-map gR cd /run/media
+map gr $lf -remote "send $id cd /run/media/$(id -un)"
 map gtr cd ~/.local/share/Trash/files
+map gb cd /usr/share/backgrounds
+map gu ud-unmount
