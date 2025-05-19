@@ -17,8 +17,8 @@ alias su='su -l'
 
 
 # Startup files
-alias rc='nvim ~/.bashrc'
-alias rcs='nvim ~/.bashrc && source ~/.bashrc'
+alias rc='$EDITOR ~/.bashrc'
+alias rcs='$EDITOR ~/.bashrc && source ~/.bashrc'
 
 
 # Confirm before overwriting something
@@ -81,13 +81,13 @@ alias unlock='sudo rm /var/lib/pacman/db.lck'
 alias autoremove='sudo pacman -Rns'
 alias parsua='paru -Sua'
 alias aurlist='pacman -Qm'
-alias refl='sudo reflector --verbose --country Brazil --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
+alias refl='sudo reflector --verbose --country $(curl -s --max-time 2 ifconfig.co/country | tr -d "\n") --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
 # alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
 
 # A.I defaults
-alias ddgo="tgpt -w --provider duckduckgo"
-alias clever="tgpt -w --provider koboldai"
-alias bbai="tgpt -w --provider blackboxai"
+alias llm="tgpt -q --provider pollinations"
+alias codellm="tgpt --code"
+alias genimg='tgpt --img --out ~/Pictures/out-ai-image.jpg --height 512 --width 512'
 
 ## ls defaults
 alias ls="ls --color=always --group-directories-first --time-style=+'%d.%m.%Y %H:%M' --classify"
@@ -107,6 +107,10 @@ alias  lt.='ls --color=always --classify -lt -d .*'
 alias lat.='ls --color=always --classify -t -d .*'
 
 alias llg='ls --color=always --group-directories-first --classify -al | grep'
+
+
+# lf File Manager
+alias lf=lfcd
 
 
 # enable color support of ls and also add handy aliases
@@ -130,6 +134,7 @@ export COLORFGBG="default;default"
 if [ "$COLORTERM" = gnome-terminal -a "$TERM" = xterm ]; then
     export TERM=xterm-256color
 fi
+
 
 # VTE should have this on interactive shells, not login shells.
 # ssource /etc/profile.d/vte.sh
