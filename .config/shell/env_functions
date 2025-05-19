@@ -85,19 +85,10 @@ remorphans() {
 
 # Usage: lf [options]
 # Launches the lf file manager and returns to the last visited directory after exit.
-lf() {
-    \umask 077
-    tmp="$(command mktemp)"
-    command lf -last-dir-path="$tmp" "$@"
-    if [ -f "$tmp" ]; then
-        dir="$(command cat "$tmp")"
-        command rm -f "$tmp"
-    else
-        \return 1
-    fi
-    if [ -d "$dir" ] && [ "$dir" != "$(pwd)" ]; then
-        \cd "$dir" || \return 1
-    fi
+lfcd () {
+  local dir
+  dir="$(command lf -print-last-dir "$@")"
+  [ -n "$dir" ] && [ -d "$dir" ] && cd -- "$dir"
 }
 
 ### FZF functions and options
@@ -170,22 +161,15 @@ fps() {
     ps aux | sed 1d | fzf-tmux -p -m
 }
 
-# Usage: fh
-# Searches command history using fzf and copy to clipboard the selected command.
+# Usage: fhist
+# Searches command history using fzf.
 fhist() {
-    shopt -s extglob
-    local selected_cmd
-    selected_cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' | fzf-tmux -p +s --tac)
-    selected_cmd="${selected_cmd##+([[:space:]])}"
-    if [[ -n "$selected_cmd" ]]; then
-        echo -n "$selected_cmd" | xclip -selection clipboard
-        if command -v xdotool &> /dev/null; then
-            xdotool key ctrl+shift+v
-            return
-        else
-            echo "xdotool not found."
-        fi
-    fi
+    local cmd
+    cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' |
+          fzf-tmux -p +s --tac)
+    [[ -z $cmd ]] && return
+    history -s "$cmd"
+    printf '%s\n' "$cmd"
 }
 
 
