@@ -147,6 +147,9 @@ forvodl() {
 }
 
 if [[ $locale == ja ]]; then
+	duckduckgo_search() {
+		"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=jp-jp"
+	}
 	show_headwords() {
 		# split sentence with mecab, show a list of headwords. copy selected to the clipboard.
 		# requires AJT Japanese or Japanese Support to be installed.
@@ -176,19 +179,23 @@ if [[ $locale == ja ]]; then
 	youglish() { "$BROWSER" "https://youglish.com/pronounce/$*/japanese"; }
 	youreijp() { "$BROWSER" "http://yourei.jp/$*"; }
 	gooexamples() { "$BROWSER" "https://dictionary.goo.ne.jp/word/$*/example/"; }
+	goo() { "$BROWSER" "https://dictionary.goo.ne.jp/word/$*/"; }
 	massif() { "$BROWSER" "https://massif.la/ja/search?q=$*"; }
 	simplytranslate() { "$BROWSER" "https://simplytranslate.vern.cc/?engine=google&text=$*&sl=ja&tl=en"; }
 	most_common_spelling() {
 		# rankspellings is an external script from my dotfiles.
 		IFS='|▼▽ ,.・、。' read -r -a args <<<"$*"
 		if [[ ${#args[@]} -ge 0 ]]; then
-			result=$(rankspellings -g "${args[@]}")
+			result=$(rankspellings -y "${args[@]}")
 			echo "$result" | cut -f1 | head -1 | tr -d '\n' | xclip -selection clipboard
 			notify-send "${0##*/} - ${FUNCNAME[0]}" "$result" &
 		fi
 	}
 	furiganainfo() { "$BROWSER" "https://furigana.info/w/$*"; }
 else
+	duckduckgo_search() {
+		"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=us-en"
+	}
 	thesaurus() { "$BROWSER" "https://www.thesaurus.com/browse/$*"; }
 	elsa() { "$BROWSER" "https://elsaspeak.com/en/learn-english/how-to-pronounce/$*"; }
 	reverso() { "$BROWSER" "https://context.reverso.net/translation/english-japanese/$*"; }
@@ -304,9 +311,6 @@ sukebei_search() {
 }
 animebytes_search() {
 	"$BROWSER" "https://animebytes.tv/torrents.php?searchstr=$*"
-}
-duckduckgo() {
-	"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=jp-jp"
 }
 searx_search() {
 	"$BROWSER" "https://search.inetol.net/search?q=$*&safesearch=0&categories=general"
@@ -467,7 +471,7 @@ __main() {
 	for pid in $(pstree -lpA "$pid" | head -1 | grep --color=never -oP '\(\K\d+(?=\))'); do
 		cd -- "$(readlink -- "/proc/$pid/cwd")" || continue
 		[[ -f "$search_text" ]] && xdg-open "$search_text" && exit
-		[[ -d "$search_text" ]] && "${TERMINAL:-alacritty}" -e "${FILE:-lf}" "$search_text" && exit
+		[[ -d "$search_text" ]] && "${TERMINAL:-kitty}" -e "${FILE:-lf}" "$search_text" && exit
 	done
 
 	if [[ -n ${func:=$(__ask_action)} ]]; then

@@ -44,7 +44,7 @@ if [ -f "${XDG_CONFIG_HOME:-$HOME/.config}/x11/xprofile" ]; then
 else
 	. "$HOME/.xprofile"
 fi
+
 # Activate dbus variables
 dbus-update-activation-environment --all
 exec dbus-launch --sh-syntax --exit-with-session i3 --shmlog-size 0
-# dbus-launch ssh-agent i3

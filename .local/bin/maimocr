@@ -21,7 +21,7 @@ if_installed() {
 
 download_tessdata() {
   local -r \
-    zip_url='https://matrix.4d2.org/_matrix/media/v3/download/4d2.org/akBtGDReZvxAbHZvKtHKfbyi' \
+    zip_url='https://dl.depot.4d2.org/FQFrV7A7mWhf.zip' \
     zip_path=$(mktemp /tmp/tesseract_data.XXXXXX) \
     osd_path=/usr/share/tessdata/osd.traineddata
 
