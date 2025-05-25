@@ -228,6 +228,7 @@ assign [class="(?i)anki" title="Anki$|^Browse|^Add"] $ws9
 assign [class="(?i)chromium" tiling] $ws1
 assign [class="Thunderbird"] $ws1
 assign [class="qBittorrent"] $ws7
+assign [class="KeePassXC"] $ws8
 for_window [class="Zathura"] move window to workspace $ws8, focus
 
 # Limiting the maximum size of the floating window:
@@ -285,7 +286,7 @@ bar {
 exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
 exec --no-startup-id systemctl --user start xautocfg.service
 exec --no-startup-id clipcatd --no-daemon --replace
-exec --no-startup-id xbanish
+exec --no-startup-id unclutter --hide-on-touch --timeout 2 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
 
 
 # Exit i3 (logs you out of your X session)
@@ -308,10 +309,11 @@ mode "$mode_system" {
 }
 
 ### Get attachments (i3wm) ###
-set $share_attach  (q)ColorPick  | (w)RecMedia
+set $share_attach  (c)olorpick  | (r)ecmedia | (m)onitorselect
 mode "$share_attach" {
-  bindsym q --release exec --no-startup-id color-pick, mode "default"
-  bindsym w exec --no-startup-id dmenurecord, mode "default"
+  bindsym --release c exec --no-startup-id color-pick, mode "default"
+  bindsym r exec --no-startup-id dmenurecord, mode "default"
+  bindsym --release m exec --no-startup-id displayselect, mode "default"
 
   # back to normal: Enter or Escape
   bindsym Return mode "default"
@@ -349,12 +351,7 @@ bindsym --release XF86Explorer exec --no-startup-id i3-sensible-terminal --title
 bindsym --release XF86MonBrightnessUp exec --no-startup-id xf86-control brightness up
 bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control brightness down
 
-### Monitor and wallpaper setup
-bindsym --release $mod+x exec --no-startup-id multi-monitor-wallpaper
-
 # Clipboard
-set $launcher-clipboard-insert clipcat-menu insert
-set $launcher-clipboard-remove clipcat-menu remove
+bindsym $mod+p exec --no-startup-id dmenu_cliphist sel
+bindsym $mod+o exec --no-startup-id dmenu_cliphist add
 
-bindsym $mod+p exec $launcher-clipboard-insert
-bindsym $mod+o exec $launcher-clipboard-remove
