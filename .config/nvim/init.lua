@@ -83,6 +83,7 @@ vim.opt.spelllang = { "en_us", "pt_br" }
 vim.opt.spell = false
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap:append("[,]")
+-- vim.o.winborder = "rounded"
 -- }}}
 
 -- [[ Basic Keymaps ]] {{{
@@ -362,6 +363,7 @@ local language_settings = {
 	},
 	javascript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
 	typescript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	php = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	java = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	c = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	cpp = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
@@ -371,12 +373,11 @@ local language_settings = {
 	css = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
 	json = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
 	xml = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	yaml = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
+	yaml = { buffer = { expandtab = false, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
 	vim = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	toml = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	sh = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	asm = { buffer = { expandtab = false, tabstop = 8, shiftwidth = 8, softtabstop = 8 } },
-	php = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
 	make = { buffer = { expandtab = false } },
 }
 
@@ -410,9 +411,11 @@ if not vim.uv.fs_stat(lazypath) then
 		error("Error cloning lazy.nvim:\n" .. out)
 	end
 end ---@diagnostic disable-next-line: undefined-field
-vim.opt.rtp:prepend(lazypath) -- }}}
+vim.opt.rtp:prepend(lazypath)
+-- }}}
 
 -- [[ Configure and install plugins ]] {{{
+---@diagnostic disable: missing-fields
 require("lazy").setup({
 
 	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
@@ -424,10 +427,23 @@ require("lazy").setup({
 			vim.cmd.colorscheme("solarized-osaka")
 		end,
 		config = function()
+      ---@class Highlights
+      ---@field TelescopeNormal         { bg: string, fg: string }
+      ---@field TelescopeBorder         { bg: string, fg: string }
+      ---@field TelescopePromptNormal   { bg: string }
+      ---@field TelescopePromptBorder   { bg: string, fg: string }
+      ---@field TelescopePromptTitle    { bg: string, fg: string }
+      ---@field TelescopeResultsTitle   { bg: string, fg: string }
+
+      ---@alias Colors table<string, string>
 			require("solarized-osaka").setup({
 				style = "storm",
 				light_style = "day",
 				terminal_colors = true,
+				transparent = true,
+				lualine_bold = false,
+				use_background = false,
+				-- plugins = { "" },
 				styles = {
 					comments = { italic = false },
 					keywords = { italic = false },
@@ -439,30 +455,13 @@ require("lazy").setup({
 				hide_inactive_statusline = false,
 				day_brightness = 0.6,
 
-				on_highlights = function(highlights, colors)
-					highlights.TelescopeNormal = {
-						bg = colors.bg,
-						fg = colors.base0,
-					}
-					highlights.TelescopeBorder = {
-						bg = colors.bg,
-						fg = colors.base01,
-					}
-					highlights.TelescopePromptNormal = {
-						bg = colors.bg,
-					}
-					highlights.TelescopePromptBorder = {
-						bg = colors.bg,
-						fg = colors.fg,
-					}
-					highlights.TelescopePromptTitle = {
-						bg = colors.bg,
-						fg = colors.fg,
-					}
-					highlights.TelescopeResultsTitle = {
-						bg = colors.bg,
-						fg = colors.fg,
-					}
+				on_highlights = function(hl, colors)
+					hl.TelescopeNormal = { bg = colors.bg, fg = colors.base0 }
+					hl.TelescopeBorder = { bg = colors.bg, fg = colors.base01 }
+					hl.TelescopePromptNormal = { bg = colors.bg }
+					hl.TelescopePromptBorder = { bg = colors.bg, fg = colors.fg }
+					hl.TelescopePromptTitle = { bg = colors.bg, fg = colors.fg }
+					hl.TelescopeResultsTitle = { bg = colors.bg, fg = colors.fg }
 				end,
 			})
 		end,
@@ -531,7 +530,7 @@ require("lazy").setup({
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
 					else
-						gitsigns.next_hunk()
+						gitsigns.nav_hunk("next")
 						gitsigns.preview_hunk()
 					end
 				end, "Next Hunk")
@@ -540,7 +539,7 @@ require("lazy").setup({
 					if vim.wo.diff then
 						vim.cmd.normal({ "[c", bang = true })
 					else
-						gitsigns.prev_hunk()
+						gitsigns.nav_hunk("prev")
 						gitsigns.preview_hunk()
 					end
 				end, "Previous Hunk")
@@ -732,41 +731,68 @@ require("lazy").setup({
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			{ "williamboman/mason.nvim", config = true },
-			"williamboman/mason-lspconfig.nvim",
+			"saghen/blink.cmp",
+			"mason-org/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
-			"hrsh7th/cmp-nvim-lsp",
+			{ "mason-org/mason.nvim", opts = { ui = { border = "rounded" } } },
 		},
 		config = function()
-			local handlers = {
-				["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = "rounded" }),
-				["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = "rounded" }),
-			}
-
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
 				callback = function(event)
-					local map = function(keys, func, desc)
-						vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+					local map = function(keys, func, desc, mode)
+						mode = mode or "n"
+						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
 
-					map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+					map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
+					map("gra", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
+					map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+					map("grd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+					map("grD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 					map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-					map("gI", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
-					map("<leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-					map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-					map(
-						"<leader>ws",
-						require("telescope.builtin").lsp_dynamic_workspace_symbols,
-						"[W]orkspace [S]ymbols"
-					)
-					map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
+					map("gO", require("telescope.builtin").lsp_document_symbols, "Open Document Symbols")
+					map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "Open Workspace Symbols")
+					map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype Definition")
+					map("<leader>df", vim.diagnostic.open_float, "[D]ianostic [F]loat")
+					map("[d", function()
+						vim.diagnostic.jump({ count = 1 })
+						vim.diagnostic.open_float()
+					end, "Prev diag")
+					map("]d", function()
+						vim.diagnostic.jump({ count = -1 })
+						vim.diagnostic.open_float()
+					end, "Next diag")
 
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
+					if client and client.server_capabilities.inlayHintProvider then
+						local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", {})
+						local detach_augroup = vim.api.nvim_create_augroup("lsp-detach", { clear = true })
 
-					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+						-- vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+						-- 	buffer = event.buf,
+						-- 	group = highlight_augroup,
+						-- 	callback = vim.lsp.buf.document_highlight,
+						-- })
+						-- vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+						-- 	buffer = event.buf,
+						-- 	group = highlight_augroup,
+						-- 	callback = vim.lsp.buf.clear_references,
+						-- })
+
+						vim.api.nvim_create_autocmd("LspDetach", {
+							group = detach_augroup,
+							callback = function(ev)
+								vim.lsp.buf.clear_references()
+								vim.api.nvim_clear_autocmds({
+									group = highlight_augroup,
+									buffer = ev.buf,
+								})
+							end,
+						})
+					end
+
+					if client and client.server_capabilities.inlayHintProvider then
 						map("<leader>th", function()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 						end, "[T]oggle Inlay [H]ints")
@@ -774,13 +800,53 @@ require("lazy").setup({
 				end,
 			})
 
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+			-- Diagnostic Config
+			-- See :help vim.diagnostic.Opts
+			vim.diagnostic.config({
+				severity_sort = true,
+				jump = { float = true },
+				float = { border = "rounded", source = "if_many" },
+				underline = { severity = vim.diagnostic.severity.ERROR },
+				signs = vim.g.have_nerd_font and {
+					text = {
+						[vim.diagnostic.severity.ERROR] = "󰅚 ",
+						[vim.diagnostic.severity.WARN] = "󰀪 ",
+						[vim.diagnostic.severity.INFO] = "󰋽 ",
+						[vim.diagnostic.severity.HINT] = "󰌶 ",
+					},
+				} or {},
+				virtual_text = {
+					source = "if_many",
+					spacing = 2,
+					format = function(diagnostic)
+						local diagnostic_message = {
+							[vim.diagnostic.severity.ERROR] = diagnostic.message,
+							[vim.diagnostic.severity.WARN] = diagnostic.message,
+							[vim.diagnostic.severity.INFO] = diagnostic.message,
+							[vim.diagnostic.severity.HINT] = diagnostic.message,
+						}
+						return diagnostic_message[diagnostic.severity]
+					end,
+				},
+			})
+
+			--  New capabilities with blink.cmp, and then broadcast that to the servers.
+			local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 			-- Enable the following language servers
 			local servers = {
 				clangd = {},
-
+				intelephense = {
+					files = {
+						maxSize = 1e6,
+						associations = { "*.php", "*.module", "*.inc" },
+						exclude = { "**/.git/**", "**/node_modules/**" },
+					},
+					environment = {
+						phpVersion = "8.3.0",
+						includePaths = { "/usr/share/php" },
+					},
+				},
 				texlab = {
 					build = {
 						executable = "latexmk",
@@ -792,7 +858,6 @@ require("lazy").setup({
 						args = { "--synctex-forward", "%l:1:%f", "%p" },
 					},
 				},
-
 				lua_ls = {
 					settings = {
 						Lua = {
@@ -805,20 +870,23 @@ require("lazy").setup({
 				},
 			}
 
-			require("mason").setup()
-
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua",
+				"eslint_d",
+				"prettierd",
+				"prettier",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
-
+			require("lspconfig.ui.windows").default_options = { border = "rounded" }
 			require("mason-lspconfig").setup({
+				automatic_enable = true,
+				automatic_installation = false,
+				ensure_installed = {},
 				handlers = {
 					function(server_name)
 						local server = servers[server_name] or {}
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						server.handlers = handlers
 						require("lspconfig")[server_name].setup(server)
 					end,
 				},
@@ -829,42 +897,60 @@ require("lazy").setup({
 	{ -- Autoformat
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
-		cmd = { "ConformInfo" },
+		cmd = { "ConformInfo", "FormatDisable", "FormatEnable" },
 		keys = {
 			{
 				"<leader>f",
 				function()
 					require("conform").format({ async = true, lsp_fallback = true })
 				end,
-				mode = "",
-				desc = "[F]ormat buffer",
+				mode = { "n", "v" },
+				desc = "[F]ormat buffer or range",
+			},
+			{
+				"<leader>F",
+				function()
+					vim.g.disable_autoformat = not vim.g.disable_autoformat
+					print("Autoformat " .. (vim.g.disable_autoformat and "disabled" or "enabled"))
+				end,
+				desc = "Toggle autoformat on save",
 			},
 		},
 
 		opts = {
-			notify_on_error = false,
-			-- format_on_save = function(bufnr)
-			-- 	local disable_filetypes = { c = true, cpp = true, rust = true }
-			-- 	return {
-			-- 		timeout_ms = 600,
-			-- 		lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
-			-- 	}
-			-- end,
+			notify_on_error = true,
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "isort", "black" },
 				javascript = { "prettierd", "prettier", stop_after_first = true },
+				typescript = { "prettierd", "prettier", stop_after_first = true },
+				typescriptreact = { "prettierd", lsp_format = "fallback" },
+				php = { "php_cs_fixer", "pint" },
+				["*"] = { "codespell" },
+				["_"] = { "trim_whitespace" },
 			},
+		},
+		format_on_save = {
+			lsp_format = "fallback",
+			timeout_ms = 500,
+		},
+		format_after_save = {
+			lsp_format = "fallback",
+		},
+		default_format_opts = {
+			lsp_format = "fallback",
 		},
 	},
 
 	{ -- Autocompletion
-		"hrsh7th/nvim-cmp",
-		event = "InsertEnter",
+		"saghen/blink.cmp",
+		event = { "InsertEnter" },
+		version = "v1.*",
 		dependencies = {
-			-- Snippet Engine & its associated nvim-cmp source
+			-- Snippet Engine
 			{
 				"L3MON4D3/LuaSnip",
+				version = "2.*",
 				build = (function()
 					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
 						return
@@ -879,94 +965,160 @@ require("lazy").setup({
 						end,
 					},
 				},
+				opts = {},
+			},
+			"folke/lazydev.nvim",
+		},
+
+		opts = {
+			enabled = function()
+				local disabled = false
+				disabled = disabled or vim.bo.buftype == "prompt"
+				disabled = disabled or vim.bo.filetype == "snacks_input"
+				disabled = disabled or (vim.fn.reg_recording() ~= "")
+				disabled = disabled or (vim.fn.reg_executing() ~= "")
+				return not disabled
+			end,
+			keymap = {
+				preset = "default",
+				["<Tab>"] = {
+					function(cmp)
+						if cmp.is_menu_visible() then
+							return require("blink-cmp").select_next()
+						elseif cmp.snippet_active() then
+							return cmp.snippet_forward()
+						end
+					end,
+					"fallback",
+				},
+				["<S-Tab>"] = {
+					function(cmp)
+						if cmp.is_menu_visible() then
+							return require("blink-cmp").select_prev()
+						elseif cmp.snippet_active() then
+							return cmp.snippet_backward()
+						end
+					end,
+					"fallback",
+				},
+				["<c-l>"] = { "snippet_forward", "fallback" },
+				["<c-h>"] = { "snippet_backward", "fallback" },
+			},
+			appearance = {
+				use_nvim_cmp_as_default = false,
+				nerd_font_variant = "normal",
+			},
+			completion = {
+				documentation = {
+					auto_show = true,
+					auto_show_delay_ms = 800,
+					update_delay_ms = 50,
+					treesitter_highlighting = false,
+					window = {
+						max_width = math.min(80, vim.o.columns),
+						max_height = 16,
+						border = "rounded",
+						winblend = 0,
+						winhighlight = "Normal:BlinkCmpDoc,FloatBorder:BlinkCmpDocBorder,EndOfBuffer:BlinkCmpDoc",
+						scrollbar = false,
+					},
+				},
+				list = {
+					selection = {
+						preselect = function(_)
+							return not require("blink.cmp").snippet_active({ direction = 1 })
+						end,
+						auto_insert = function(_)
+							return vim.bo.filetype ~= "markdown"
+						end,
+					},
+				},
+				menu = {
+					enabled = true,
+					auto_show = true,
+					min_width = 16,
+					max_height = 8,
+					border = "none",
+					winblend = 10,
+					-- winhighlight = "Normal:TelescopeNormal,FloatBorder:TelescopeBorder,CursorLine:BlinkCmpMenuSelection",
+					winhighlight = "Normal:BlinkCmpMenu,FloatBorder:BlinkCmpMenuBorder,CursorLine:BlinkCmpMenuSelection,Search:None",
+					scrollbar = false,
+					scrolloff = 2,
+					direction_priority = { "s", "n" },
+					draw = {
+						align_to = "cursor",
+						padding = { 0, 1 },
+						columns = { { "label", "label_description", gap = 0 }, { "kind_icon", "kind" } },
+						components = {
+							kind_icon = {
+								text = function(ctx)
+									local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+									return kind_icon
+								end,
+								highlight = function(ctx)
+									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+									return hl
+								end,
+							},
+							kind = {
+								highlight = function(ctx)
+									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+									return hl
+								end,
+							},
+							label = { width = { fill = true, max = 30 } },
+						},
+					},
+				},
+				keyword = { range = "prefix" },
+				accept = { auto_brackets = { enabled = true } },
 			},
 
-			"saadparwaiz1/cmp_luasnip",
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-path",
-			"hrsh7th/cmp-buffer",
-		},
-		config = function()
-			local cmp = require("cmp")
-			local luasnip = require("luasnip")
-			luasnip.config.setup({})
-
-			cmp.setup({
-				snippet = {
-					expand = function(args)
-						luasnip.lsp_expand(args.body)
-					end,
+			sources = {
+				default = function()
+					local success, node = pcall(vim.treesitter.get_node)
+					if
+						success
+						and node
+						and vim.tbl_contains({
+							"comment",
+							"comment_content",
+							"line_comment",
+							"block_comment",
+							"string",
+							"string_content",
+						}, node:type())
+					then
+						return { "buffer" }
+					else
+						return { "lsp", "path", "snippets", "buffer", "lazydev" }
+					end
+				end,
+				providers = {
+					lsp = { fallbacks = { "lazydev" } },
+					lazydev = { name = "LazyDev", module = "lazydev.integrations.blink" },
 				},
-				completion = { completeopt = "menu,menuone,noinsert" },
-				view = {
-					entries = {
-						name = "custom",
-						selection_order = "near_cursor",
-						follow_cursor = true,
-					},
+			},
+			snippets = {
+				preset = "luasnip",
+			},
+			fuzzy = {
+				implementation = "lua",
+				sorts = {
+					"exact",
+					"score",
+					"sort_text",
 				},
-				formatting = {
-					expandable_indicator = true,
-					fields = { "abbr", "kind", "menu" },
-					format = function(entry, vim_item)
-						vim_item.kind = string.format("[%s]", vim_item.kind)
-						vim_item.menu = ({
-							buffer = "[Buffer]",
-							nvim_lsp = "[LSP]",
-							luasnip = "[Snippet]",
-							path = "[Path]",
-						})[entry.source.name] or ""
-						return vim_item
-					end,
-					maxwidth = 20,
-					ellipsis_char = "...",
-					before = function(entry, vim_item)
-						return vim_item
-					end,
-				},
+			},
+			signature = {
+				enabled = true,
 				window = {
-					completion = {
-						col_offset = 1,
-						side_padding = 1,
-						winhighlight = "NormalFloat:TelescopeNormal,FloatBorder:TelescopeBorder",
-					},
-					documentation = {
-						-- border = "rounded",
-						winhighlight = "NormalFloat:TelescopeNormal,FloatBorder:TelescopeBorder",
-					},
+					max_width = 50,
+					border = "rounded",
+					winblend = 10,
 				},
-				---@diagnostic disable-next-line: missing-fields
-				matching = { disallow_prefix_unmatching = true },
-				mapping = cmp.mapping.preset.insert({
-					["<C-n>"] = cmp.mapping.select_next_item(),
-					["<C-p>"] = cmp.mapping.select_prev_item(),
-					["<C-d>"] = cmp.mapping.scroll_docs(-4),
-					["<C-u>"] = cmp.mapping.scroll_docs(4),
-					["<C-y>"] = cmp.mapping.confirm({ select = true }),
-					["<C-Space>"] = cmp.mapping.complete({}),
-					["<C-l>"] = cmp.mapping(function()
-						if luasnip.expand_or_locally_jumpable() then
-							luasnip.expand_or_jump()
-						end
-					end, { "i", "s" }),
-					["<C-h>"] = cmp.mapping(function()
-						if luasnip.locally_jumpable(-1) then
-							luasnip.jump(-1)
-						end
-					end, { "i", "s" }),
-				}),
-				sources = {
-					{
-						name = "lazydev",
-						group_index = 0,
-					},
-					{ name = "nvim_lsp", priority = 1000 },
-					{ name = "luasnip", priority = 750, option = { show_autosnippets = true } },
-					{ name = "path", priority = 250 },
-					{ name = "buffer", priority = 250 },
-				},
-			})
-		end,
+			},
+		},
 	},
 
 	{ -- Collection of various small independent plugins/modules
@@ -1026,6 +1178,7 @@ require("lazy").setup({
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
+    main = 'nvim-treesitter.configs',
 		opts = {
 			ensure_installed = {
 				-- "latex",
@@ -1049,11 +1202,6 @@ require("lazy").setup({
 			},
 			indent = { enable = true, disable = { "ruby" } },
 		},
-		config = function(_, opts)
-			-- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-			---@diagnostic disable-next-line: missing-fields
-			require("nvim-treesitter.configs").setup(opts)
-		end,
 	},
 }, {
 	ui = {
