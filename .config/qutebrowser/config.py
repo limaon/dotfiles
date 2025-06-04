@@ -2,6 +2,8 @@
 
 # Set default Web Browser command:
 # xdg-settings set default-web-browser org.qutebrowser.qutebrowser.desktop
+# Back to Firefox
+# xdg-settings set default-web-browser firefox.desktop
 
 from PyQt6.QtCore import QUrl
 from qutebrowser.api import interceptor, message
@@ -11,8 +13,9 @@ from urllib.parse import urljoin
 import operator
 import re
 
-c: ConfigContainer = c # noqa: F821 pylint: disable=E0602,C0103
-config: ConfigAPI = config # noqa: F821 pylint: disable=E0602,C0103
+# pylint: disable=C0111
+c: ConfigContainer = c  # noqa: F821 pylint: disable=E0602,C0103
+config: ConfigAPI = config  # noqa: F821 pylint: disable=E0602,C0103
 dowmload_open_script_path = "/usr/share/qutebrowser/userscripts/open_download"
 config.load_autoconfig()
 
@@ -95,29 +98,33 @@ interceptor.register(int_fn)
 # Fonts
 c.fonts.default_family = [
     "Terminess Nerd Font",
-    "Ubuntu Mono",
     "Noto Sans CJK JP",
     "Noto Color Emoji",
 ]
-c.fonts.default_size = "18px"
+c.fonts.default_size = "14pt"
+c.fonts.web.family.standard = "Inter"
+c.fonts.web.family.sans_serif = "Inter"
+c.fonts.web.family.serif = "Noto Serif"
+c.fonts.web.family.fixed = "JetBrainsMono Nerd Font"
+c.fonts.hints = "bold 12pt default_family"
 c.fonts.contextmenu = "default_size default_family"
 c.fonts.debug_console = "default_size default_family"
-c.fonts.web.family.sans_serif = "Ubuntu"
-c.fonts.web.family.standard = "Ubuntu"
-c.fonts.web.family.serif = "Liberation serif"
-c.fonts.web.family.fixed = "JetBrainsMono Nerd Font"
-c.hints.auto_follow = "never"
-c.fonts.hints = "bold 12pt default_family"
-
-c.hints.padding = { 'bottom': 1, 'left': 3, 'right': 3, 'top': 1 }
-c.hints.uppercase = True
+c.fonts.completion.category = "bold default_size default_family"
+c.fonts.completion.entry = "default_size default_family"
 c.fonts.tooltip = "default_size default_family"
+c.fonts.downloads = "default_size default_family"
 c.fonts.web.size.default = 20
 c.fonts.web.size.default_fixed = 18
 c.fonts.web.size.minimum = 14
 c.fonts.web.size.minimum_logical = 12
 
-c.content.user_stylesheets = ["./styles/youtube-tweaks.css"]
+
+c.hints.auto_follow = "unique-match"
+c.hints.padding = {'bottom': 1, 'left': 3, 'right': 3, 'top': 1}
+c.hints.uppercase = True
+
+# c.content.user_stylesheets = ["./styles/youtube-tweaks.css"]
+c.content.user_stylesheets = ["./styles/global.css"]
 
 # Dark mode
 c.colors.webpage.darkmode.enabled = False
@@ -125,11 +132,14 @@ c.colors.webpage.preferred_color_scheme = "dark"
 c.colors.webpage.darkmode.algorithm = "lightness-cielab"
 c.colors.webpage.darkmode.policy.images = "never"
 c.colors.webpage.darkmode.policy.page = "always"
+# c.colors.webpage.bg = "#121212"
 config.set('colors.webpage.darkmode.enabled', False, 'file://*')
 
 c.completion.shrink = True
 c.completion.use_best_match = True
-c.completion.open_categories = ['searchengines', 'quickmarks', 'bookmarks', 'history', 'filesystem']
+c.completion.open_categories = ["bookmarks", "history", "filesystem"]
+c.completion.height = '20%'
+c.completion.web_history.max_items = 40
 c.scrolling.bar = "when-searching"
 c.scrolling.smooth = False
 c.statusbar.widgets = ["progress", "keypress", "url", "history"]
@@ -137,9 +147,9 @@ c.statusbar.widgets = ["progress", "keypress", "url", "history"]
 # Browser Tabs
 c.tabs.title.format = "{index}: {audio}{current_title}"
 c.tabs.title.format_pinned = "{index}: {audio}{current_title}"
-c.tabs.padding = { 'top': 5, 'bottom': 5, 'left': 9, 'right': 9 }
+c.tabs.padding = {'top': 2, 'bottom': 2, 'left': 10, 'right': 10}
 c.tabs.mousewheel_switching = False
-c.tabs.width = '7%'
+c.tabs.width = '8%'
 c.tabs.indicator.width = 0
 c.tabs.select_on_remove = "last-used"
 c.tabs.show = "multiple"
@@ -148,6 +158,8 @@ c.tabs.mousewheel_switching = False
 
 c.url.default_page = "https://duckduckgo.com/"
 c.url.start_pages = ["https://duckduckgo.com/"]
+c.url.auto_search = "schemeless"
+c.completion.quick = True
 
 # GENERAL
 c.input.insert_mode.auto_load = False
@@ -171,35 +183,25 @@ c.downloads.location.prompt = True
 c.downloads.open_dispatcher = dowmload_open_script_path
 c.downloads.remove_finished = 10000
 c.downloads.location.directory = "~/Downloads/"
-c.editor.command = ["tmux", "new-window", "nvim {}"]
-# c.qt.highdpi = True
-c.qt.force_software_rendering = "chromium"
+c.editor.command = ["kitty", "-e", "nvim", "+{line}", "{file}"]
+c.qt.highdpi = True
 c.qt.chromium.process_model = "process-per-site"
 c.qt.chromium.low_end_device_mode = "auto"
 c.qt.args += [
-    "disable-gpu",
-    "disable-accelerated-video-decode",
-    "disable-accelerated-fullscreen",
-    "disable-experimental-canvas-features",
-    "disable-multi-monitor-painting",
-    "disable-gpu-compositing",
-    "disable-accelerated-video",
-    "--widevine",
+    "--widevine"
 ]
+
 
 # Keybinds
 config.unbind("m")
 bindings = {
     "pd": "config-cycle colors.webpage.darkmode.enabled",
-    "pw": "spawn -u qute-keepassxc --key ABC1234",
-    ",m": "spawn --userscript view_in_mpv {url}",
-    ",M": "hint links spawn -u -m view_in_mpv {hint-url}",
-    "pf": "spawn --userscript password_fill",
-    "mf": "hint all spawn -d firefox {hint-url}",
-    ";M": 'spawn kitty -e yt-dlp --embed-metadata \
-        --embed-thumbnail -i -o "~/Videos/%(title)s.%(ext)s" -f mp4 \
-        --sponsorblock-remove all --write-sub --sub-lang en \
-        --convert-subs vtt {url}',
+    "pw": "spawn -u qute-keepassxc --key 7265E01E8E939A67",
+    "pt": "spawn -u qute-keepassxc --key 7265E01E8E939A67 --totp",
+    "pf": "spawn -u password_fill",
+    ",m": "spawn -u view_in_mpv",
+    ",M": "hint links spawn -u view_in_mpv {hint-url}",
+    ",f": "hint all spawn -d firefox {hint-url}",
 }
 for key, bind in bindings.items():
     config.bind(key, bind)
@@ -210,22 +212,22 @@ c.fileselect.single_file.command = ["kitty", "sh", "-c", "lf > {}"]
 c.fileselect.multiple_files.command = ["kitty", "sh", "-c", "lf > {}"]
 
 
-
 # Privacy
-config.set("content.cookies.accept", "no-unknown-3rdparty")
-config.set("content.cookies.store", True)
-config.set("content.canvas_reading", False)
 config.set("content.webgl", False, "*")
+config.set("content.canvas_reading", False)
 config.set("content.geolocation", False)
-config.set("content.webrtc_ip_handling_policy", "default-public-interface-only")
+config.set("content.webrtc_ip_handling_policy",
+           "default-public-interface-only")
+config.set("content.cookies.accept", "all")
+config.set("content.cookies.store", True)
 
 
-config.set("content.cookies.accept", "all", "chrome-devtools://*")
-config.set("content.cookies.accept", "all", "devtools://*")
-config.set("content.headers.accept_language", "", "https://matchmaker.krunker.io/*")
-config.set("content.images", True, "chrome-devtools://*")
-config.set("content.images", True, "devtools://*")
-config.set("content.javascript.enabled", True, "chrome-devtools://*")
-config.set("content.javascript.enabled", True, "devtools://*")
-config.set("content.javascript.enabled", True, "chrome://*/*")
-config.set("content.javascript.enabled", True, "qute://*/*")
+# config.set("content.cookies.accept", "all", "chrome-devtools://*")
+# config.set("content.cookies.accept", "all", "devtools://*")
+# config.set("content.headers.accept_language", "", "https://matchmaker.krunker.io/*")
+# config.set("content.images", True, "chrome-devtools://*")
+# config.set("content.images", True, "devtools://*")
+# config.set("content.javascript.enabled", True, "chrome-devtools://*")
+# config.set("content.javascript.enabled", True, "devtools://*")
+# config.set("content.javascript.enabled", True, "chrome://*/*")
+# config.set("content.javascript.enabled", True, "qute://*/*")
