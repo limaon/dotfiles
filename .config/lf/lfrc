@@ -1,4 +1,4 @@
-# vim:ft=conf
+# vim: ts=2 sts=2 sw=2 ft=conf
 
 set shell bash
 set shellopts '-eu'
@@ -33,35 +33,94 @@ set cursorpreviewfmt "\033[7m"
 # Functions
 cmd cfg_reload source ~/.config/lf/lfrc
 
+# cmds/functions
 cmd open ${{
-  case "${f##*.}" in
-    kdenlive) setsid -f kdenlive "$f" >/dev/null 2>&1 ; exit ;;
-  esac
+  for f in $fx; do
+    # 0 ▶ discard qBittorrent temporary files
+    [[ "$f" == *'.!qB' ]] && continue
 
-  case $({ [ -L "$f" ] && f="$(readlink -f "$f")" ;} ; file --mime-type -b "$f") in
-    image/vnd.djvu) setsid -f zathura "$f" > /dev/null 2>&1 ;;
-    video/*) setsid -f mpv "$f" >/dev/null 2>&1 ;;
-    audio/*) setsid -f mpv --player-operation-mode=pseudo-gui "$f" ;;
-    image/x-xcf) setsid -f gimp "$f" ;;
-    image/*) imgs="$(echo "$fx" | tr "\n" "'" | sed "s/'/' '/g" | sed "s/^/'/g" | sed "s/' '$/'/g")" ; eval "setsid -f nsxiv -a $imgs >/dev/null 2>&1" ;;
-    application/octet-stream) setsid -f gpg -dq "$f" ;;
-    text/*) echo "$fx" | tr "\n" '"' | sed 's/"/" "/g' | sed 's/^/"/g' | sed 's/" "$/"/g' | xargs $EDITOR ;;
-    text/*|application/json) echo "$fx" | tr "\n" '|' | sed -e 's/|$/"/g' -e 's/|/|-c "tabe /g' -e 's/|-c/" -c/g' -e 's/^/"/' | xargs $EDITOR ;;
-    #application/pdf) setsid -f zathura "$f" > /dev/null 2>&1 ;;
-    application/pdf) echo "$fx" | while read -r l ; do setsid -f xdg-open "$l" ; done ;;
-    application/epub+zip) setsid -f zathura "$f" > /dev/null 2>&1 ;;
-    application/x-mobipocket-ebook) setsid -f ebook-viewer "$f" > /dev/null 2>&1 ;;
-    inode/symlink) setsid -f xdg-open "$(readlink "$f")" ;;
-    application/zip) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
-    application/x-7z-compressed) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
-    application/x-rar) setsid -f xarchiver "$f" >/dev/null 2>&1 ;;
-    application/gzip) setsid -f xarchiver "$f" > /dev/null 2>&1 ;;
-    application/vnd.oasis.opendocument.spreadsheet) setsid -f libreoffice "$f" ;;
-    application/vnd.openxmlformats-officedocument.wordprocessingml.document) setsid -f libreoffice "$f" ;;
-    inode/x-empty) $EDITOR "$f" ;;
-    *) for f in "$fx" ; do setsid -f xdg-open "$f" >/dev/null 2>&1 ; done ;;
-    *) setsid -f xdg-open "$f" >/dev/null 2>&1 ;;
-  esac
+    # 1 ▶ guard: skip empty files (0 byte) -------------------------------
+    if [ ! -s "$f" ]; then
+      lf -remote "send $id echo '⚠  Empty file ignored: ${f##*/}'"
+      continue
+    fi
+
+    # 2 ▶ guard: malformed PDFs -----------------------------------------
+    ext="${f##*.}"
+    if [[ "${ext,,}" = pdf ]]; then
+      if head -c4 -- "$f" | grep -q $'%PDF'; then
+        # Authentic PDF → open in reader
+        setsid -f zathura "$f" >/dev/null 2>&1 &
+      else
+        # Missing header → prevent loop and warn
+        lf -remote "send $id echo '⚠  Damaged PDF: ${f##*/} — please re‑download the file'"
+      fi
+      continue                # proceed to next item in the loop
+    fi
+
+    # 3 ▶ default MIME detection ----------------------------------------
+    mime=$(file --mime-type -Lb -- "$f")
+    case "$mime" in
+      # spreadsheets
+      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
+        setsid -f localc           "$f" >/dev/null 2>&1 & ;;
+      # generic office documents
+      text/rtf|application/ms*|application/*office*|*opendocument*|*powerpoint*|application/vnd.ms*)
+        setsid -f soffice          "$f" >/dev/null 2>&1 & ;;
+      # books and scanned documents
+      image/vnd.djvu|application/pdf|application/postscript|application/vnd.djvu|application/epub*)
+        setsid -f zathura          "$f" >/dev/null 2>&1 & ;;
+      # troff sources
+      text/troff)
+        man -l -- "$f" ;;
+      # plain text, JSON, subtitles
+      text/*|application/json|inode/x-empty|application/x-subrip)
+        setsid -f "${VISUAL:-$OPENER}" "$f" >/dev/null 2>&1 & ;;
+      # images: GIMP, SVG, generic
+      image/x-xcf)   setsid -f gimp "$f" >/dev/null 2>&1 & ;;
+      image/svg+xml) setsid -f display -- "$f" >/dev/null 2>&1 & ;;
+      image/*)       setsid -f lf-select "$f" & ;;
+      # audio-only playback
+      audio/*|video/x-ms-asf)
+        mpv --audio-display=no --force-window=no "$f" ;;
+      # video
+      video/*|application/vnd.rn-realmedia)
+        setsid -f mpv "$f" --quiet >/dev/null 2>&1 & ;;
+      # .rar archives
+      application/x-rar)
+        setsid -f xarchiver        "$f" >/dev/null 2>&1 & ;;
+      # encrypted files
+      application/pgp-encrypted)
+        "${EDITOR:-vi}"            "$f" ;;
+      # further office formats
+      application/vnd.openxmlformats-officedocument.wordprocessingml.document|\
+      application/vnd.oasis.opendocument.text|\
+      application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|\
+      application/vnd.oasis.opendocument.spreadsheet|\
+      application/vnd.oasis.opendocument.spreadsheet-template|\
+      application/vnd.openxmlformats-officedocument.presentationml.presentation|\
+      application/vnd.oasis.opendocument.presentation-template|\
+      application/vnd.oasis.opendocument.presentation|\
+      application/vnd.ms-powerpoint|\
+      application/vnd.oasis.opendocument.graphics|\
+      application/vnd.oasis.opendocument.graphics-template|\
+      application/vnd.oasis.opendocument.formula|\
+      application/vnd.oasis.opendocument.database)
+        setsid -f libreoffice       "$f" >/dev/null 2>&1 & ;;
+      # generic binaries – decide by extension
+      application/octet-stream)
+        case "${f##*.}" in
+          doc|docx|xls|xlsx|odt|ppt|pptx) setsid -f libreoffice "$f" >/dev/null 2>&1 & ;;
+          ghw)                            setsid -f gtkwave     "$f" >/dev/null 2>&1 & ;;
+          ts)                             setsid -f mpv         "$f" --quiet >/dev/null 2>&1 & ;;
+          ankiaddon|zip)                  setsid -f xarchiver   "$f" >/dev/null 2>&1 & ;;
+          *)                              setsid -f zathura     "$f" >/dev/null 2>&1 & ;;
+        esac ;;
+      # fallback
+      *)
+        setsid -f "${OPENER:-xdg-open}" "$f" >/dev/null 2>&1 & ;;
+    esac
+  done
 }}
 
 
@@ -356,6 +415,20 @@ cmd setbg ${{
     image/*)  setsid -f setbg "$f" >/dev/null 2>&1 ;;
     *)        lf -remote "send $id echoerr «not an image»" ;;
   esac
+}}
+
+cmd select-glob &{{
+    select_glob() {
+        files="$(printf '%s\0' "$@" | sed 's/ /\\ /g;s/\x00/ /g')"
+        lf -remote "send $id :unselect; toggle $files"
+    }
+
+    [ "$#" -eq 1 ] || exit
+
+    # enable recursive glob and failglob
+    shopt -s globstar failglob
+
+    select_glob $1
 }}
 
 

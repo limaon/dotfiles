@@ -1,111 +1,155 @@
 #!/usr/bin/env bash
+#
+# lf preview script ─ Kitty-aware edition (+SVG support)
+# Generates and caches thumbnails in $XDG_CACHE_HOME/lf/thumbnail.*
+# Exit code 69 tells lf that the preview was already displayed by icat.
+# Author:  limaon – amended by Alvaro (SVG support)
+# License: MIT
+# ──────────────────────────────────────────────────────────────────────
 
 CACHEDIR="${XDG_CACHE_HOME:-$HOME/.cache}/lf"
-CACHE="$CACHEDIR/thumbnail.$(stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" | sha256sum | awk '{print $1}')"
+[ -d "$CACHEDIR" ] || mkdir -p "$CACHEDIR"
 
-filetype="$(file -Lb --mime-type "$1")"
+# Unique cache name: inode, size, timestamps → SHA-256
+CACHE="$CACHEDIR/thumbnail.$(
+  stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" |
+  sha256sum | awk '{print $1}'
+)"
 
-function image() {
-  if hash kitty 2>/dev/null; then
-    kitten icat --transfer-mode=memory --stdin=no --place="$(($2 - 2))x$(($3 - 4))@${4}x$(($5 + 2))" "$1" </dev/null >/dev/tty
-    exit 69
+filetype="$(file -Lb --mime-type -- "$1")"
+
+# ── Helpers ──────────────────────────────────────────────────────────
+
+have_kitty() { [[ -n "$KITTY_WINDOW_ID" ]] && command -v kitten &>/dev/null; }
+
+# $1 path · $2 cols · $3 rows · $4 x-offset · $5 y-offset
+show_image() {
+  if have_kitty; then
+    kitten icat --transfer-mode=memory --stdin=no \
+      --place="$(( $2 - 2 ))x$(( $3 - 4 ))@${4}x$(( $5 + 2 ))" \
+      -- "$1" </dev/null >/dev/tty
+    exit 69                       # signal lf “preview done”
+  elif command -v chafa &>/dev/null; then
+    chafa -s "$(( $2 - 2 ))x$(( $3 - 2 ))" -f symbols -- "$1"
   else
-    chafa -s "$(($2 - 2))x$(($3 - 2))" -f symbols "$1"
+    echo "[image preview unavailable]"
   fi
 }
 
-function preview_tar() {
-  tar tf "$1" | head -n 50 | sed 's/$/.../'
-}
+thumb_video()  { ffmpegthumbnailer -m -s 0 -i "$1" -o "${CACHE}.jpg"; }
+thumb_pdf()    { pdftoppm -jpeg -f 1 -singlefile "$1" "$CACHE";        }
+thumb_office() {                                  \
+  libreoffice --convert-to jpg --headless "$1" --outdir "$CACHEDIR" &>/dev/null
+  mv "$CACHEDIR/$(basename "${1%.*}").jpg" "${CACHE}.jpg" 2>/dev/null; }
+thumb_svg()    { setsid rsvg-convert -w 1024 -h 1024 -o "${CACHE}.png" "$1"; }
 
-function preview_gzip() {
-  tar -ztf "$1" | head -n 50 | sed 's/$/.../'
-}
+preview_tar()  { tar  tf "$1" | head -n 50; }
+preview_gzip() { tar -ztf "$1" | head -n 50; }
+preview_bzip2(){ tar -jtf "$1" | head -n 50; }
+preview_xz()   { tar -Jtf "$1" | head -n 50; }
+preview_zip()  { unzip  -l "$1" | head -n 50; }
+preview_rar()  { unrar   l "$1" | head -n 50; }
+preview_zstd() { tar --use-compress-program=zstd -tf "$1" | head -n 50; }
 
-function preview_bzip2() {
-  tar -jtf "$1" | head -n 50 | sed 's/$/.../'
-}
-
-function preview_xz() {
-  tar -Jtf "$1" | head -n 50 | sed 's/$/.../'
-}
-
-function preview_zip() {
-  unzip -l "$1" | head -n 50 | sed 's/$/.../'
-}
-
-function preview_rar() {
-  unrar l "$1" | head -n 50 | sed 's/$/.../'
-}
-
-function preview_zstd() {
-  tar --use-compress-program=zstd -tf "$1" | head -n 50 | sed 's/$/.../'
-}
-
-function preview_font() {
-  if [ "$(command -v fc-query)" ]; then
+preview_font() {
+  if command -v fc-query &>/dev/null; then
     fc-query -f "%{family}\n%{fullname}\n%{style}\n%{weight}\n%{file}\n" "$1"
   else
-    echo "Font file preview is not supported."
-    echo "You can use a font viewer or text editor to inspect the font."
+    echo "[font preview unavailable]"
   fi
 }
 
-function preview_audio() {
-  if [ "$(command -v ffprobe)" ]; then
-    ffprobe -hide_banner -show_format -show_streams "$1"
-    # exiftool "$1"
+preview_audio() {
+  if command -v ffprobe &>/dev/null; then
+    ffprobe -hide_banner -show_format -show_streams -- "$1"
   else
-    echo "Audio file preview is not supported."
-    echo "You can use a media player or audio editor to inspect the audio."
+    echo "[audio metadata unavailable]"
   fi
 }
 
-function preview() {
-  [ ! -d "$CACHEDIR" ] && mkdir -p "$CACHEDIR"
-
-  if [ ! -f "${CACHE}.jpg" ]; then
-    case "$1" in
-      video) ffmpegthumbnailer -m -s0 -i "$2" -o "${CACHE}.jpg" ;;
-      pdf) pdftoppm -jpeg -f 1 -singlefile "$2" "$CACHE" ;;
-      office)
-        libreoffice --convert-to jpg "$2" --outdir "$CACHEDIR/${2%/*}" &>/dev/null
-        filename="$(basename "$2" | cut -d. -f1)"
-        mv "$CACHEDIR/${2%/*}/$filename.jpg" "$CACHE.jpg"
-        ;;
-    esac
+preview_torrent() {
+  if command -v transmission-show >/dev/null; then
+    transmission-show --magnet "$1" | fold -s -w "$(( $2 - 4 ))"
+  elif command -v aria2c >/dev/null; then
+    aria2c -S "$1" | sed 's/^/│ /'
+  elif command -v btshowmetainfo >/dev/null; then
+    btshowmetainfo "$1" | sed 's/^/│ /'
+  else
+    python - <<'PY'
+import sys, bencodepy, textwrap, datetime, base64, hashlib, os
+with open(sys.argv[1], 'rb') as fp:
+    meta = bencodepy.decode(fp.read())
+info = meta[b'info']
+name = info[b'name'].decode()
+size = sum(f[b'length'] for f in info.get(b'files', [info]))
+creation = meta.get(b'creation date', 0)
+print(f"Name       : {name}")
+print(f"Size       : {size/2**20:.2f} MiB")
+print(f"Pieces     : {len(info[b'pieces'])//20}")
+print(f"Created    : {datetime.datetime.utcfromtimestamp(creation)}")
+print("Trackers   :")
+for t in meta.get(b'announce-list', [[meta.get(b'announce', b'')]]):
+    print("  •", t[0].decode())
+if b'files' in info:
+    print("Files      :")
+    for f in info[b'files'][:20]:
+        print("  └", os.path.join(*(p.decode() for p in f[b'path'])),
+              f"({f[b'length']/2**20:.2f} MiB)")
+PY
   fi
-
-  image "${CACHE}.jpg" "$3" "$4" "$5" "$6"
 }
 
-function main() {
-  case "$filetype" in
-    image/*) image "$@" ;;
-    video/*) preview video "$@" ;;
-    audio/*) preview_audio "$@" ;;
-    *pdf) preview pdf "$@" ;;
-    */*office* | */*document*) preview office "$@" || pistol "$@" ;;
-    application/x-iso9660-image) 
-      iso-info --no-header -l "$1" ;;
-    application/x-gtar|application/gtar|application/x-tar|application/tar)
-      preview_tar "$@" ;;
-    application/x-gzip|application/gzip)
-      preview_gzip "$@" ;;
-    application/x-bzip2|application/bzip2)
-      preview_bzip2 "$@" ;;
-    application/x-xz|application/x-7z-compressed|application/x-zstd)
-      preview_xz "$@" ;;
-    application/zip)
-      preview_zip "$@" ;;
-    application/x-rar|application/rar)
-      preview_rar "$@" ;;
-    application/zstd)
-      preview_zstd "$@" ;;
-    application/font-*|font/*)
-        preview_font "$@" ;;
-    *) cat -n "$@" ;;
-  esac
+preview_with_thumbnail() {
+  local mode="$1"; shift          # (video | pdf | office | svg)
+  local src="$1"; shift
+  [[ -f "${CACHE}.$([[ $mode == svg ]] && echo png || echo jpg)" ]] ||
+    "thumb_${mode}" "$src"
+  show_image "${CACHE}.$([[ $mode == svg ]] && echo png || echo jpg)" "$@"
 }
 
-main "$@"
+# ── Main dispatcher (lf passes geometry as $2-$5) ────────────────────
+case "$filetype" in
+  image/svg+xml)
+    preview_with_thumbnail svg "$@"                                   ;;
+  image/*)
+    show_image "$@"                                                   ;;
+  video/*)
+    preview_with_thumbnail video "$@"                                 ;;
+  audio/*)
+    preview_audio "$1"                                                ;;
+  application/pdf|application/postscript)
+    preview_with_thumbnail pdf "$@"                                   ;;
+  */*office*|*/*document*)
+    if have_kitty; then
+      preview_with_thumbnail office "$@"
+    else
+      pistol "$@"                 # text fallback
+    fi                                                                ;;
+  application/x-iso9660-image)
+    iso-info --no-header -l "$1"                                      ;;
+  application/x-bittorrent)
+    preview_torrent "$1"                                              ;;
+  application/x-gtar|application/gtar|application/x-tar|application/tar)
+    preview_tar   "$1"                                                ;;
+  application/x-gzip|application/gzip)
+    preview_gzip  "$1"                                                ;;
+  application/x-bzip2|application/bzip2)
+    preview_bzip2 "$1"                                                ;;
+  application/x-xz|application/x-7z-compressed)
+    preview_xz    "$1"                                                ;;
+  application/zip)
+    preview_zip   "$1"                                                ;;
+  application/x-rar|application/rar)
+    preview_rar   "$1"                                                ;;
+  application/zstd|application/x-zstd)
+    preview_zstd  "$1"                                                ;;
+  application/font-*|font/*)
+    if have_kitty && command -v fontpreview &>/dev/null; then
+      fontpreview "$1" --output "${CACHE}.png" &>/dev/null
+      show_image "${CACHE}.png" "$@"
+    else
+      preview_font "$1"
+    fi                                                                 ;;
+  *)
+    cat -n -- "$1"                                                    ;;
+esac
