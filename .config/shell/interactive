@@ -39,11 +39,13 @@ alias fake="cat /dev/urandom | hexdump -C | grep 'ca fe'"
 
 
 ## Youtube (yt-dlp)
-alias yt="yt-dlp --embed-metadata --embed-thumbnail -i -o '~/Videos/%(title)s.%(ext)s' -f mp4 --sponsorblock-remove all"
-alias ytautosub="yt --write-sub --sub-lang en --convert-subs vtt "
-alias ytaudio="yt-dlp -x -f bestaudio/best -i -o '~/Music/%(title)s.%(ext)s' --audio-format opus"
-alias mp3dl="yta --audio-quality 1 --audio-format mp3"
-alias ytt="yt-dlp --skip-download --write-thumbnail -o '~/Pictures/%(title)s.%(ext)s'"
+alias yt="yt-dlp --embed-metadata -i"
+alias ytautosub="yt --write-auto-sub --sub-lang ja"
+alias yta="yt -x -f bestaudio/best"
+alias mp3dl="yta --audio-quality 1 --audio-format mp3 -o '~/Music/%(title)s.%(ext)s'"
+alias ytv="youtube-viewer"
+alias ytt="yt --skip-download --write-thumbnail"
+alias ytw="yt --merge-output-format webm -f 'bestvideo[ext=webm]+bestaudio/best[ext=webm]'"
 
 
 #Display ISO version and distribution information in short

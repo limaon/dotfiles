@@ -44,7 +44,7 @@ fi
 
 
 # Python
-export PYTHONSTARTUP=$HOME/.config/python/pythonrc
+export PYTHONSTARTUP="$XDG_CONFIG_HOME/python/pythonrc"
 
 
 # Less
