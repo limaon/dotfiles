@@ -50,7 +50,8 @@
 *highlightTextColor:    base03
 *.selectionColor: base01
 *.barBackground: white
-*.font: Terminess Nerd Font-14:antialias=true,Noto Color Emoji-14:antialias=true
+*.font: xft:UbuntuMono:size=14
+! *.font: xft:Terminus:size=14
 *.mark.background: yellow
 *.bar.background: base01
 *.bar.foreground: base03

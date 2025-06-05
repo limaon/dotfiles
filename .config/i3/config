@@ -286,7 +286,7 @@ bar {
 exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
 exec --no-startup-id systemctl --user start xautocfg.service
 exec --no-startup-id clipcatd --no-daemon --replace
-exec --no-startup-id unclutter --hide-on-touch --timeout 2 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
+exec --no-startup-id unclutter --hide-on-touch --timeout 1 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
 
 
 # Exit i3 (logs you out of your X session)
