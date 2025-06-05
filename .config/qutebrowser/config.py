@@ -132,7 +132,7 @@ c.colors.webpage.preferred_color_scheme = "dark"
 c.colors.webpage.darkmode.algorithm = "lightness-cielab"
 c.colors.webpage.darkmode.policy.images = "never"
 c.colors.webpage.darkmode.policy.page = "always"
-# c.colors.webpage.bg = "#121212"
+c.colors.webpage.bg = "#303030"
 config.set('colors.webpage.darkmode.enabled', False, 'file://*')
 
 c.completion.shrink = True
