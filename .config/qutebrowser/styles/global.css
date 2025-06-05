@@ -1,0 +1,23 @@
+/* *, */
+/* *::before, */
+/* *::after { */
+/*   margin: 0; */
+/*   padding: 0; */
+/*   box-sizing: border-box; */
+/* } */
+*,
+*::before,
+*::after {
+  animation: none !important;
+  transition: none !important;
+  animation-delay: 0s !important;
+  animation-duration: 0s !important;
+  transition-delay: 0s !important;
+  transition-duration: 0s !important;
+  border-radius: 0 !important;
+}
+
+
+html, body {
+  scroll-behavior: auto !important;
+}
