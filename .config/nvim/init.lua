@@ -83,6 +83,8 @@ vim.opt.spelllang = { "en_us", "pt_br" }
 vim.opt.spell = false
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap:append("[,]")
+vim.opt.showtabline = 2
+vim.opt.tabline = "%!v:lua.MyTabLine()"
 -- vim.o.winborder = "rounded"
 -- }}}
 
@@ -180,8 +182,32 @@ keymap("i", "<F5>", "<c-x><c-s>", { desc = "Suggests a list of correct word" })
 
 -- }}}
 
--- [[ Basic Autocommands ]] {{{
+-- [[ Basic Autocommands/Functions ]] {{{
 --  See `:help lua-guide-autocommands`
+--  See `:help lua-guide-vim-functions
+
+-- Global Lua function that builds a tabline like "1:[foo.lua] [+]  2:[bar.lua]"
+function _G.MyTabLine()
+	local s = ""
+	local tabs = vim.fn.tabpagenr("$")
+	for i = 1, tabs do
+		local nr = i
+		local win = vim.fn.tabpagewinnr(i)
+		local buf = vim.fn.tabpagebuflist(i)[win]
+		local name = vim.fn.fnamemodify(vim.fn.bufname(buf), ":t")
+		if name == "" then
+			name = "No Name"
+		end
+		local modified = vim.fn.getbufvar(buf, "&mod") == 1 and " [+]" or ""
+		local hl = nr == vim.fn.tabpagenr() and "%#TabLineSel#" or "%#TabLine#"
+
+		s = s .. "%" .. nr .. "T" .. hl .. " " .. nr .. ":[" .. name .. "]" .. modified .. " "
+	end
+
+	s = s .. "%#TabLineFill#%T"
+	return s
+end
+-- vim.cmd('hi! link TabLineSel Visual')
 
 -- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
@@ -427,15 +453,15 @@ require("lazy").setup({
 			vim.cmd.colorscheme("solarized-osaka")
 		end,
 		config = function()
-      ---@class Highlights
-      ---@field TelescopeNormal         { bg: string, fg: string }
-      ---@field TelescopeBorder         { bg: string, fg: string }
-      ---@field TelescopePromptNormal   { bg: string }
-      ---@field TelescopePromptBorder   { bg: string, fg: string }
-      ---@field TelescopePromptTitle    { bg: string, fg: string }
-      ---@field TelescopeResultsTitle   { bg: string, fg: string }
+			---@class Highlights
+			---@field TelescopeNormal         { bg: string, fg: string }
+			---@field TelescopeBorder         { bg: string, fg: string }
+			---@field TelescopePromptNormal   { bg: string }
+			---@field TelescopePromptBorder   { bg: string, fg: string }
+			---@field TelescopePromptTitle    { bg: string, fg: string }
+			---@field TelescopeResultsTitle   { bg: string, fg: string }
 
-      ---@alias Colors table<string, string>
+			---@alias Colors table<string, string>
 			require("solarized-osaka").setup({
 				style = "storm",
 				light_style = "day",
@@ -836,17 +862,6 @@ require("lazy").setup({
 			-- Enable the following language servers
 			local servers = {
 				clangd = {},
-				intelephense = {
-					files = {
-						maxSize = 1e6,
-						associations = { "*.php", "*.module", "*.inc" },
-						exclude = { "**/.git/**", "**/node_modules/**" },
-					},
-					environment = {
-						phpVersion = "8.3.0",
-						includePaths = { "/usr/share/php" },
-					},
-				},
 				texlab = {
 					build = {
 						executable = "latexmk",
@@ -1161,7 +1176,7 @@ require("lazy").setup({
 							{ hl = "MiniStatuslineIndicators", strings = { spell, wrap } },
 							{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
 							"%<", -- Mark general truncate point
-							{ hl = "MiniStatuslineFilename", strings = { vim.fn.expand("%:t") } },
+							{ hl = "MiniStatuslineFilename", strings = { vim.fn.expand("%:~:.") } },
 							"%=", -- End left alignment
 							{ hl = "MiniStatuslineFileinfo", strings = { fileinfo:upper() } },
 							{ hl = mode_hl, strings = { "L:%l C:%c P:%P" } },
@@ -1178,7 +1193,7 @@ require("lazy").setup({
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
-    main = 'nvim-treesitter.configs',
+		main = "nvim-treesitter.configs",
 		opts = {
 			ensure_installed = {
 				-- "latex",
