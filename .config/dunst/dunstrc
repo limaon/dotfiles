@@ -68,9 +68,9 @@ corners = all
 ignore_dbusclose = false
 force_xwayland = true
 force_xinerama = false
-mouse_left_click = open_url, close_current
-mouse_middle_click = do_action, close_current
-mouse_right_click = close_all
+mouse_left_click =  do_action, close_current
+mouse_middle_click = close_all
+mouse_right_click = close_current
 
 [experimental]
 per_monitor_dpi = false
