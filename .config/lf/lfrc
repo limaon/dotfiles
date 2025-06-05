@@ -30,10 +30,11 @@ set numberfmt "\033[38;2;75;87;116m"
 set rulerfmt 'df:acc:progress:selection:filter:ind'
 set cursorpreviewfmt "\033[7m"
 
-# Functions
+
+# CMDs/Functions
 cmd cfg_reload source ~/.config/lf/lfrc
 
-# cmds/functions
+
 cmd open ${{
   for f in $fx; do
     # 0 ▶ discard qBittorrent temporary files
@@ -451,8 +452,6 @@ map fb find-back
 map fF :fzf_jump
 
 #General maps
-map Km maps  # List normal mode mappings
-map Kc cmaps  # List command mode mappings
 map cd changedirectory
 map mf touch-file
 map md mkdir
@@ -465,9 +464,6 @@ map zd set dirfirst!
 map sn :set sortby natural; set reverse!; set info size
 map se :set sortby ext; set reverse!; set info size
 map w setbg
-map W $setsid -f $TERM >/dev/null 2>&1
-# map V glob-select *
-# map U glob-unselect *
 
 # Archive Mappins
 map xz zip-files
