@@ -5,7 +5,7 @@
 # https://github.com/BreadOnPenguins/scripts/blob/master/dmenu_cliphist
 # Many thanks to BreadOnPenguins for making this tool available!
 
-histfile="$HOME/.cache/cliphist"
+histfile="/tmp/cliphist"
 placeholder="<NEWLINE>"
 
 highlight() {
@@ -15,11 +15,11 @@ output() {
   clip=$(xclip -i -f -selection clipboard 2>/dev/null) ;}
 
 write() {
-  [ -f "$histfile" ] || notify-send "Creating $histfile"; touch $histfile
+  [ -f "$histfile" ] || notify-send "Creating $histfile"; touch "$histfile"
   [ -z "$clip" ] && exit 0
   multiline=$(echo "$clip" | sed ':a;N;$!ba;s/\n/'"$placeholder"'/g')
   grep -Fxq "$multiline" "$histfile" || echo "$multiline" >> "$histfile"
-  notification=$(echo \"$multiline\") ;}
+  notification=$(printf '%s' "$clip" | sed ':a;N;$!ba;s/\n/'"$placeholder"'/g') ;}
 
 sel() {
   selection=$(tac "$histfile" | dmenu-alt -l 5 -i -p "Clipboard history:")
@@ -29,7 +29,7 @@ case "$1" in
   add) highlight && write ;;
   out) output && write ;;
   sel) sel ;;
-  *) printf "$0 | File: $histfile\n\nadd - copies primary selection to clipboard, and adds to history file\nout - pipe commands to copy output to clipboard, and add to history file\nsel - select from history file with dmenu-alt and recopy!\n" ; exit 0 ;;
+  *) printf "%s | File: %s\n\nadd - copies primary selection to clipboard, and adds to history file\nout - pipe commands to copy output to clipboard, and add to history file\nsel - select from history file with dmenu-alt and recopy!\n" "$0" "$histfile" ; exit 0 ;;
 esac
 
 [ -z "$notification" ] || notify-send "$notification"

@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-dmenu -i -fn 'xos4 Terminus-14' -p "Open:" "$@"
+dmenu -p "Open:" -i -fn "xos4terminus-14" "$@"
