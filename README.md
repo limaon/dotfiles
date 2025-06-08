@@ -2,7 +2,7 @@
 
 This repository has my personal setup files (dotfiles) and scripts made for Arch Linux. These files help me keep my work environment the same for all my projects and make me more productive.
 
-![screenshots](https://github.com/user-attachments/assets/2e0fd9e6-148f-4228-8f3a-7b55edfbeb6a)
+![screenshots](https://github.com/user-attachments/assets/ee31fa2f-c49f-4ddc-aa4d-157346e454ff)
 
 ## Details
 
