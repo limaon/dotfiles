@@ -8,13 +8,13 @@
 *,
 *::before,
 *::after {
-  animation: none !important;
-  transition: none !important;
-  animation-delay: 0s !important;
-  animation-duration: 0s !important;
-  transition-delay: 0s !important;
-  transition-duration: 0s !important;
-  border-radius: 0 !important;
+  /* animation: none !important; */
+  /* transition: none !important; */
+  /* animation-delay: 0s !important; */
+  /* animation-duration: 0s !important; */
+  /* transition-delay: 0s !important; */
+  /* transition-duration: 0s !important; */
+  /* border-radius: 0 !important; */
 }
 
 
