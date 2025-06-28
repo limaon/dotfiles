@@ -209,10 +209,25 @@ function _G.MyTabLine()
 end
 -- vim.cmd('hi! link TabLineSel Visual')
 
+
 -- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
 	return vim.api.nvim_create_augroup(name, { clear = true }), autocmds or {}
 end
+
+
+-- Checks if the given node or any of its parent nodes has a type listed in 'types'
+-- This is for disable autocompletion menu for blink.cmp
+local function node_has_type(node, types)
+	while node do
+		if vim.tbl_contains(types, node:type()) then
+			return true
+		end
+		node = node:parent()
+	end
+	return false
+end
+
 
 -- Utility function to create autocommands
 local function create_autocmd(event, group, pattern, callback, desc)
@@ -223,6 +238,7 @@ local function create_autocmd(event, group, pattern, callback, desc)
 		desc = desc,
 	})
 end
+
 
 -- Grouping all basic autocommands
 local basic_group = create_augroup("BasicAutocommands")
@@ -385,6 +401,14 @@ local language_settings = {
 			linebreak = true,
 			spell = true,
 			conceallevel = 0,
+		},
+	},
+	lua = {
+		buffer = {
+			expandtab = true,
+			tabstop = 2,
+			shiftwidth = 2,
+			softtabstop = 2,
 		},
 	},
 	javascript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
@@ -988,10 +1012,10 @@ require("lazy").setup({
 		opts = {
 			enabled = function()
 				local disabled = false
-				disabled = disabled or vim.bo.buftype == "prompt"
-				disabled = disabled or vim.bo.filetype == "snacks_input"
-				disabled = disabled or (vim.fn.reg_recording() ~= "")
-				disabled = disabled or (vim.fn.reg_executing() ~= "")
+				disabled = disabled or (vim.bo.buftype == "prompt") -- in prompt window
+				disabled = disabled or (vim.bo.filetype == "snacks_input") -- in special input
+				disabled = disabled or (vim.fn.reg_recording() ~= "") -- while recoding a macro
+				disabled = disabled or (vim.fn.reg_executing() ~= "") -- while executing a macro
 				return not disabled
 			end,
 			keymap = {
@@ -1050,7 +1074,27 @@ require("lazy").setup({
 				},
 				menu = {
 					enabled = true,
-					auto_show = true,
+					auto_show = function()
+						local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+						local ok, node = pcall(vim.treesitter.get_node, {
+							pos = { row - 1, math.max(0, col - 1) },
+							ignore_injections = false,
+						})
+						local reject = {
+							"comment",
+							"line_comment",
+							"block_comment",
+							"comment_content",
+							"string",
+							"string_start",
+							"string_content",
+							"string_end",
+						}
+						if ok and node and node_has_type(node, reject) then
+							return false
+						end
+						return true
+					end,
 					min_width = 16,
 					max_height = 8,
 					border = "none",
@@ -1088,30 +1132,27 @@ require("lazy").setup({
 				keyword = { range = "prefix" },
 				accept = { auto_brackets = { enabled = true } },
 			},
-
 			sources = {
 				default = function()
-					local success, node = pcall(vim.treesitter.get_node)
-					if
-						success
-						and node
-						and vim.tbl_contains({
-							"comment",
-							"comment_content",
-							"line_comment",
-							"block_comment",
-							"string",
-							"string_content",
-						}, node:type())
-					then
-						return { "buffer" }
-					else
-						return { "lsp", "path", "snippets", "buffer", "lazydev" }
+					local ok, node = pcall(vim.treesitter.get_node)
+					if ok and node and node:type():find("string") then
+						return { "path" }
 					end
+					return { "lsp", "path", "snippets", "buffer" }
 				end,
+
 				providers = {
 					lsp = { fallbacks = { "lazydev" } },
-					lazydev = { name = "LazyDev", module = "lazydev.integrations.blink" },
+					lazydev = {
+						name = "LazyDev",
+						module = "lazydev.integrations.blink",
+					},
+					path = {
+						opts = {
+							trailing_slash = true,
+							label_trailing_slash = true,
+						},
+					},
 				},
 			},
 			snippets = {
