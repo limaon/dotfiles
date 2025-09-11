@@ -31,13 +31,11 @@ vim.opt.foldmethod = "marker"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.opt.foldlevel = 99
 vim.opt.foldcolumn = "auto"
--- vim.opt.foldtext = " "
 vim.opt.termguicolors = true
 vim.opt.cmdheight = 1
 vim.opt.ruler = false
 vim.opt.showcmd = true
 vim.opt.laststatus = 2
--- vim.opt.statusline = "%<%{expand('%:t')}  %h%m%r %= %y |" .. vim.o.encoding .. "| L:%l C:%c P:%P "
 vim.opt.pumheight = 8
 vim.opt.pumblend = 5
 vim.opt.completeopt = "menu,menuone,noselect"
@@ -66,7 +64,6 @@ vim.opt.undofile = true
 vim.opt.swapfile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
--- vim.opt.signcolumn = "no"
 vim.opt.updatetime = 500
 vim.opt.timeoutlen = 500
 vim.opt.splitright = true
@@ -84,8 +81,6 @@ vim.opt.spell = false
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap:append("[,]")
 vim.opt.showtabline = 2
-vim.opt.tabline = "%!v:lua.MyTabLine()"
--- vim.o.winborder = "rounded"
 -- }}}
 
 -- [[ Basic Keymaps ]] {{{
@@ -200,21 +195,18 @@ function _G.MyTabLine()
 		end
 		local modified = vim.fn.getbufvar(buf, "&mod") == 1 and " [+]" or ""
 		local hl = nr == vim.fn.tabpagenr() and "%#TabLineSel#" or "%#TabLine#"
-
 		s = s .. "%" .. nr .. "T" .. hl .. " " .. nr .. ":[" .. name .. "]" .. modified .. " "
 	end
-
 	s = s .. "%#TabLineFill#%T"
 	return s
 end
+vim.opt.tabline = "%!v:lua.MyTabLine()"
 -- vim.cmd('hi! link TabLineSel Visual')
-
 
 -- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
 	return vim.api.nvim_create_augroup(name, { clear = true }), autocmds or {}
 end
-
 
 -- Checks if the given node or any of its parent nodes has a type listed in 'types'
 -- This is for disable autocompletion menu for blink.cmp
@@ -228,7 +220,6 @@ local function node_has_type(node, types)
 	return false
 end
 
-
 -- Utility function to create autocommands
 local function create_autocmd(event, group, pattern, callback, desc)
 	vim.api.nvim_create_autocmd(event, {
@@ -238,7 +229,6 @@ local function create_autocmd(event, group, pattern, callback, desc)
 		desc = desc,
 	})
 end
-
 
 -- Grouping all basic autocommands
 local basic_group = create_augroup("BasicAutocommands")
@@ -467,61 +457,50 @@ vim.opt.rtp:prepend(lazypath)
 -- [[ Configure and install plugins ]] {{{
 ---@diagnostic disable: missing-fields
 require("lazy").setup({
-
 	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
-	{
+
+	{ -- Theme Solarized
 		"craftzdog/solarized-osaka.nvim",
-		lazy = true,
+		lazy = false,
 		priority = 1000,
-		init = function()
-			vim.cmd.colorscheme("solarized-osaka")
-		end,
 		config = function()
-			---@class Highlights
-			---@field TelescopeNormal         { bg: string, fg: string }
-			---@field TelescopeBorder         { bg: string, fg: string }
-			---@field TelescopePromptNormal   { bg: string }
-			---@field TelescopePromptBorder   { bg: string, fg: string }
-			---@field TelescopePromptTitle    { bg: string, fg: string }
-			---@field TelescopeResultsTitle   { bg: string, fg: string }
-
-			---@alias Colors table<string, string>
-			require("solarized-osaka").setup({
-				style = "storm",
-				light_style = "day",
-				terminal_colors = true,
-				transparent = true,
-				lualine_bold = false,
-				use_background = false,
-				-- plugins = { "" },
-				styles = {
-					comments = { italic = false },
-					keywords = { italic = false },
-					sidebars = "normal",
-					floats = "normal",
-				},
-				sidebars = { "qf", "vista_kind", "terminal", "packer", "help" },
-				dim_inactive = false,
-				hide_inactive_statusline = false,
-				day_brightness = 0.6,
-
-				on_highlights = function(hl, colors)
-					hl.TelescopeNormal = { bg = colors.bg, fg = colors.base0 }
-					hl.TelescopeBorder = { bg = colors.bg, fg = colors.base01 }
-					hl.TelescopePromptNormal = { bg = colors.bg }
-					hl.TelescopePromptBorder = { bg = colors.bg, fg = colors.fg }
-					hl.TelescopePromptTitle = { bg = colors.bg, fg = colors.fg }
-					hl.TelescopeResultsTitle = { bg = colors.bg, fg = colors.fg }
-				end,
-			})
+			local ok, theme = pcall(require, "solarized-osaka")
+			if ok then
+				theme.setup({
+					style = "storm",
+					light_style = "day",
+					terminal_colors = true,
+					transparent = true,
+					lualine_bold = false,
+					use_background = false,
+					styles = {
+						comments = { italic = false },
+						keywords = { italic = false },
+						sidebars = "normal",
+						floats = "normal",
+					},
+					sidebars = { "qf", "vista_kind", "terminal", "packer", "help" },
+					dim_inactive = false,
+					hide_inactive_statusline = false,
+					day_brightness = 0.6,
+					on_highlights = function(_, colors)
+						vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = colors.bg, fg = colors.base0 })
+						vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = colors.bg, fg = colors.base01 })
+						vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = colors.bg, fg = colors.bg })
+						vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = colors.bg, fg = colors.fg })
+						vim.api.nvim_set_hl(0, "TelescopePromptTitle", { bg = colors.bg, fg = colors.fg })
+						vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { bg = colors.bg, fg = colors.fg })
+					end,
+				})
+			end
+			vim.cmd.colorscheme("solarized-osaka")
 		end,
 	},
 
-	{ -- Adds git related signs to the gutter, as well as utilities for managing changes
+	{ -- Git
 		"lewis6991/gitsigns.nvim",
-		dependencies = {
-			"mbbill/undotree",
-		},
+		dependencies = { "mbbill/undotree" },
+		event = { "BufReadPre", "BufNewFile" },
 		opts = {
 			signs = {
 				add = { text = "+" },
@@ -530,81 +509,53 @@ require("lazy").setup({
 				topdelete = { text = "‾" },
 				changedelete = { text = "~" },
 			},
-			signs_staged = {
-				add = { text = "|" },
-				change = { text = "|" },
-				delete = { text = "_" },
-				topdelete = { text = "‾" },
-				changedelete = { text = "~" },
-				untracked = { text = "┆" },
-			},
 			signs_staged_enable = true,
 			signcolumn = true,
 			numhl = false,
 			linehl = false,
 			word_diff = false,
-			watch_gitdir = {
-				follow_files = true,
-			},
+			watch_gitdir = { follow_files = true },
 			auto_attach = true,
 			attach_to_untracked = false,
 			current_line_blame = false,
-			current_line_blame_opts = {
-				virt_text = false,
-				virt_text_pos = "eol", -- 'eol' | 'overlay' | 'right_align'
-				delay = 1000,
-				ignore_whitespace = false,
-				virt_text_priority = 100,
-				use_focus = true,
-			},
-			current_line_blame_formatter = "<author>, <author_time:%R> - <summary>",
+			current_line_blame_opts = { virt_text = false, delay = 1000, virt_text_pos = "eol", use_focus = true },
 			sign_priority = 6,
 			update_debounce = 100,
 			status_formatter = nil,
 			max_file_length = 40000,
-			preview_config = {
-				border = "single",
-				style = "minimal",
-				relative = "cursor",
-				row = 0,
-				col = 1,
-			},
+			preview_config = { border = "single", style = "minimal", relative = "cursor", row = 0, col = 1 },
 			on_attach = function(bufnr)
-				local gitsigns = require("gitsigns")
-
-				local function map(mode, lhs, rhs, desc)
+				local g = require("gitsigns")
+				local function m(mode, lhs, rhs, desc)
 					vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
 				end
-
-				map("n", "]c", function()
+				m("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
 					else
-						gitsigns.nav_hunk("next")
-						gitsigns.preview_hunk()
+						g.nav_hunk("next")
+						g.preview_hunk()
 					end
-				end, "Next Hunk")
-
-				map("n", "[c", function()
+				end, "Hunk seguinte")
+				m("n", "[c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "[c", bang = true })
 					else
-						gitsigns.nav_hunk("prev")
-						gitsigns.preview_hunk()
+						g.nav_hunk("prev")
+						g.preview_hunk()
 					end
-				end, "Previous Hunk")
-
-				map("n", "<leader>ghs", gitsigns.stage_hunk, "Stage Hunk")
-				map("n", "<leader>ghr", gitsigns.reset_hunk, "Reset Hunk")
-				map("v", "<leader>ghs", function()
-					gitsigns.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
-				end, "Stage Hunk Visual")
-				map("v", "<leader>ghr", function()
-					gitsigns.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-				end, "Reset Hunk Visual")
-				map("n", "<leader>ghb", function()
-					gitsigns.blame_line({ full = true })
-				end, "Blame Line")
+				end, "Hunk anterior")
+				m("n", "<leader>ghs", g.stage_hunk, "Stage hunk")
+				m("n", "<leader>ghr", g.reset_hunk, "Reset hunk")
+				m("v", "<leader>ghs", function()
+					g.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
+				end, "Stage hunk (visual)")
+				m("v", "<leader>ghr", function()
+					g.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
+				end, "Reset hunk (visual)")
+				m("n", "<leader>ghb", function()
+					g.blame_line({ full = true })
+				end, "Blame linha")
 			end,
 		},
 	},
@@ -933,7 +884,8 @@ require("lazy").setup({
 		end,
 	},
 
-	{ -- Autoformat
+	-- Autoformat
+	{
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
 		cmd = { "ConformInfo", "FormatDisable", "FormatEnable" },
@@ -1177,28 +1129,19 @@ require("lazy").setup({
 		},
 	},
 
-	{ -- Collection of various small independent plugins/modules
+	-- mini.nvim (statusline, ai, pairs, trailspace, icons)
+	{
 		"echasnovski/mini.nvim",
 		config = function()
-			-- Better Around/Inside textobjects
-			--
-			-- Examples:
-			--  - va)  - [V]isually select [A]round [)]paren
-			--  - yinq - [Y]ank [I]nside [N]ext [Q]uote
-			--  - ci'  - [C]hange [I]nside [']quote
+			require("mini.icons").setup()
 			require("mini.ai").setup({ n_lines = 500 })
 
-			-- Simple and easy statusline.
-			--  You could remove this setup call if you don't like it,
-			--  and try some other statusline plugin
 			local statusline = require("mini.statusline")
-			-- set use_icons to true if you have a Nerd Font
 			statusline.setup({
 				use_icons = vim.g.have_nerd_font,
 				set_vim_settings = false,
 				content = {
 					active = function()
-						-- local statusline = require("mini.statusline")
 						local mode, mode_hl = statusline.section_mode({ trunc_width = 120 })
 						local spell = vim.wo.spell and (statusline.is_truncated(120) and "S" or "SPELL") or ""
 						local wrap = vim.wo.wrap and (statusline.is_truncated(120) and "W" or "WRAP") or ""
@@ -1207,18 +1150,16 @@ require("lazy").setup({
 						local diagnostics = statusline.section_diagnostics({ trunc_width = 75 })
 						local lsp = statusline.section_lsp({ trunc_width = 75 })
 						local fileinfo = statusline.section_fileinfo({ trunc_width = 120 })
-
 						vim.api.nvim_set_hl(0, "MiniStatuslineIndicators", { bg = "#586E75", fg = "#00141A" })
 						vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = "#657B83", fg = "#00141A" })
 						vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = "#657B83", fg = "#00141A" })
-
 						return statusline.combine_groups({
 							{ hl = mode_hl, strings = { mode:upper() } },
 							{ hl = "MiniStatuslineIndicators", strings = { spell, wrap } },
 							{ hl = "MiniStatuslineDevinfo", strings = { git, diff, diagnostics, lsp } },
-							"%<", -- Mark general truncate point
+							"%<",
 							{ hl = "MiniStatuslineFilename", strings = { vim.fn.expand("%:~:.") } },
-							"%=", -- End left alignment
+							"%=",
 							{ hl = "MiniStatuslineFileinfo", strings = { fileinfo:upper() } },
 							{ hl = mode_hl, strings = { "L:%l C:%c P:%P" } },
 						})
@@ -1231,13 +1172,14 @@ require("lazy").setup({
 		end,
 	},
 
-	{ -- Highlight, edit, and navigate code
+	-- Treesitter
+	{
 		"nvim-treesitter/nvim-treesitter",
+		event = { "BufReadPre", "BufNewFile" },
 		build = ":TSUpdate",
 		main = "nvim-treesitter.configs",
 		opts = {
 			ensure_installed = {
-				-- "latex",
 				"bash",
 				"c",
 				"diff",
@@ -1245,17 +1187,12 @@ require("lazy").setup({
 				"lua",
 				"luadoc",
 				"markdown",
-				"markdown_inline",
 				"query",
 				"vim",
 				"vimdoc",
 			},
-			-- Autoinstall languages that are not installed
 			auto_install = true,
-			highlight = {
-				enable = true,
-				additional_vim_regex_highlighting = { "ruby" },
-			},
+			highlight = { enable = true, additional_vim_regex_highlighting = { "ruby" } },
 			indent = { enable = true, disable = { "ruby" } },
 		},
 	},
@@ -1275,6 +1212,21 @@ require("lazy").setup({
 			start = "󱓞 ",
 			task = " ",
 			lazy = "󰒲 ",
+		},
+	},
+	performance = {
+		reset_packpath = false,
+		rtp = {
+			disabled_plugins = {
+				"gzip",
+				"matchit",
+				"matchparen",
+				"netrwPlugin",
+				"tarPlugin",
+				"tohtml",
+				"tutor",
+				"zipPlugin",
+			},
 		},
 	},
 })
