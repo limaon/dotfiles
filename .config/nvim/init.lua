@@ -94,10 +94,10 @@ local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
 -- TIP: Disable arrow keys in normal mode
-keymap("n", "<left>", '<cmd>echo "Use h to move!!"<cr>')
-keymap("n", "<right>", '<cmd>echo "Use l to move!!"<cr>')
-keymap("n", "<up>", '<cmd>echo "Use k to move!!"<cr>')
-keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
+-- keymap("n", "<left>", '<cmd>echo "Use h to move!!"<cr>')
+-- keymap("n", "<right>", '<cmd>echo "Use l to move!!"<cr>')
+-- keymap("n", "<up>", '<cmd>echo "Use k to move!!"<cr>')
+-- keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
 
 -- Select all
 keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
@@ -209,12 +209,10 @@ function _G.MyTabLine()
 end
 -- vim.cmd('hi! link TabLineSel Visual')
 
-
 -- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
 	return vim.api.nvim_create_augroup(name, { clear = true }), autocmds or {}
 end
-
 
 -- Checks if the given node or any of its parent nodes has a type listed in 'types'
 -- This is for disable autocompletion menu for blink.cmp
@@ -228,7 +226,6 @@ local function node_has_type(node, types)
 	return false
 end
 
-
 -- Utility function to create autocommands
 local function create_autocmd(event, group, pattern, callback, desc)
 	vim.api.nvim_create_autocmd(event, {
@@ -238,7 +235,6 @@ local function create_autocmd(event, group, pattern, callback, desc)
 		desc = desc,
 	})
 end
-
 
 -- Grouping all basic autocommands
 local basic_group = create_augroup("BasicAutocommands")
@@ -767,6 +763,7 @@ require("lazy").setup({
 		"lervag/vimtex",
 		ft = "tex",
 		config = function()
+			vim.g.vimtex_syntax_enabled = 0
 			vim.g.vimtex_view_method = "zathura"
 			vim.g.vimtex_compiler_method = "latexmk"
 
@@ -781,7 +778,6 @@ require("lazy").setup({
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
-			"saghen/blink.cmp",
 			"mason-org/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			{ "mason-org/mason.nvim", opts = { ui = { border = "rounded" } } },
@@ -1006,7 +1002,6 @@ require("lazy").setup({
 				},
 				opts = {},
 			},
-			"folke/lazydev.nvim",
 		},
 
 		opts = {
@@ -1085,7 +1080,7 @@ require("lazy").setup({
 							"line_comment",
 							"block_comment",
 							"comment_content",
-							"string",
+							-- "string",
 							"string_start",
 							"string_content",
 							"string_end",
@@ -1138,7 +1133,16 @@ require("lazy").setup({
 					if ok and node and node:type():find("string") then
 						return { "path" }
 					end
-					return { "lsp", "path", "snippets", "buffer" }
+					return {
+						"lsp",
+						"path",
+						"snippets",
+						"buffer",
+						-- "avante_commands",
+						-- "avante_mentions",
+						-- "avante_shortcuts",
+						-- "avante_files",
+					}
 				end,
 
 				providers = {
@@ -1152,6 +1156,31 @@ require("lazy").setup({
 							trailing_slash = true,
 							label_trailing_slash = true,
 						},
+					},
+
+					avante_commands = {
+						name = "avante_commands",
+						module = "blink.compat.source",
+						score_offset = 90,
+						opts = {},
+					},
+					avante_files = {
+						name = "avante_files",
+						module = "blink.compat.source",
+						score_offset = 100,
+						opts = {},
+					},
+					avante_mentions = {
+						name = "avante_mentions",
+						module = "blink.compat.source",
+						score_offset = 1000,
+						opts = {},
+					},
+					avante_shortcuts = {
+						name = "avante_shortcuts",
+						module = "blink.compat.source",
+						score_offset = 1000,
+						opts = {},
 					},
 				},
 			},
@@ -1237,7 +1266,7 @@ require("lazy").setup({
 		main = "nvim-treesitter.configs",
 		opts = {
 			ensure_installed = {
-				-- "latex",
+				"latex",
 				"bash",
 				"c",
 				"diff",
@@ -1257,6 +1286,227 @@ require("lazy").setup({
 				additional_vim_regex_highlighting = { "ruby" },
 			},
 			indent = { enable = true, disable = { "ruby" } },
+		},
+	},
+
+	{
+		"yetone/avante.nvim",
+		build = vim.fn.has("win32") ~= 0
+				and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
+			or "make",
+		event = "VeryLazy",
+		version = false,
+		---@module 'avante'
+		---@type avante.Config
+		opts = {
+			rag_service = {
+				enabled = false,
+				host_mount = os.getenv("HOME"),
+				runner = "docker",
+
+				llm = {
+					provider = "openrouter",
+					endpoint = "https://openrouter.ai/api/v1",
+					api_key = "OPENROUTER_API_KEY",
+					model = "anthropic/claude-3-haiku-20240307",
+					extra = nil,
+				},
+
+				embed = {
+					provider = "ollama",
+					endpoint = "http://localhost:11434",
+					api_key = nil,
+					model = "nomic-embed-text",
+					extra = nil,
+				},
+
+				docker_extra_args = "",
+			},
+			mappings = {
+				suggestion = {
+					accept = "<C-y>",
+					-- next = "<M-]>",
+					-- prev = "<M-[>",
+					-- dismiss = "<C-]>",
+				},
+				submit = {
+					normal = "<CR>",
+					insert = "<C-CR>",
+				},
+				sidebar = {
+					apply_cursor = "<leader>aa",
+					apply_all = "<leader>aA",
+					-- retry_user_request = "r",
+					-- edit_user_request = "e",
+					-- switch_windows = "<Tab>",
+					-- add_file = "@",
+					-- remove_file = "d",
+					-- close = { "<Esc>", "q" },
+				},
+				-- diff = { ... },
+				-- jump = { ... },
+				-- cancel = { ... },
+			},
+			windows = {
+				position = "right",
+				wrap = false,
+				width = 40,
+				sidebar_header = {
+					enabled = true,
+					align = "center",
+					rounded = false,
+				},
+				spinner = {
+					editing = { "|", "/", "-", "\\" },
+					generating = { ".", "..", "..." },
+					thinking = { "󰱸", "" },
+				},
+				input = {
+					prefix = "$ ",
+					height = 12,
+					width = 50,
+				},
+				edit = {
+					border = "single",
+					start_insert = true,
+				},
+				ask = {
+					floating = false,
+					start_insert = true,
+					border = "single",
+					focus_on_apply = "ours",
+				},
+			},
+			behaviour = {
+				auto_apply_diff_after_generation = false,
+				minimize_diff = true,
+				enable_token_counting = true,
+				auto_add_current_file = true,
+				auto_approve_tool_permissions = true,
+				confirmation_ui_style = "inline_buttons",
+				acp_follow_agent_locations = true,
+				-- auto_set_highlight_group = true,
+				-- auto_set_keymaps = true,
+				support_paste_from_clipboard = true,
+				auto_set_highlight_group = true,
+				auto_set_keymaps = true,
+				enable_fastapply = false,
+			},
+			selector = {
+				provider = "telescope",
+				-- provider_opts = {
+				--   theme = require("telescope.themes").get_ivy(),
+				-- },
+			},
+			input = {
+				provider = "native",
+				provider_opts = {
+					-- title = "Enter Avante:",
+				},
+			},
+			instructions_file = "avante.md",
+			provider = "claude", -- Eg: ollama, openai, gemini etc...
+			providers = {
+				-- run in the shell: $ export MORPH_API_KEY="your-api-key"
+				morph = {
+					model = "auto",
+				},
+				openai = {
+					-- endpoint = "https://api.openai.com/v1",
+					model = "gpt-4o",
+					timeout = 60000,
+					extra_request_body = {
+						temperature = 0.7,
+						max_tokens = 4096,
+						-- top_p = 1,
+					},
+					-- disable_tools = false,
+				},
+				claude = {
+					endpoint = "https://api.anthropic.com",
+					model = "claude-sonnet-4-20250514",
+					timeout = 30000,
+					extra_request_body = {
+						temperature = 0.75,
+						max_tokens = 20480,
+					},
+				},
+				ollama = {
+					endpoint = "http://localhost:11434",
+					model = "llama3",
+					timeout = 180000,
+					extra_request_body = {
+						temperature = 0.6,
+						max_tokens = 2048,
+						-- top_p = 0.9,
+						-- stop = {"\n"},
+					},
+					disable_tools = true,
+					-- is_env_set = require("avante.providers.ollama").check_endpoint_alive,
+				},
+				gemini = {
+					-- endpoint = "https://generativelanguage.googleapis.com/v1beta",
+					model = "gemini-1.5-pro-latest",
+					timeout = 90000, -- 90 sec
+					extra_request_body = {
+						temperature = 0.7,
+						maxOutputTokens = 4096,
+						-- topP = 0.95,
+					},
+					-- disable_tools = false,
+				},
+				openrouter = {
+					endpoint = "https://openrouter.ai/api/v1",
+					model = "anthropic/claude-3-opus",
+					-- model = "google/gemini-pro-1.5",
+					-- model = "mistralai/mistral-large-latest",
+					timeout = 120000,
+					extra_request_body = {
+						temperature = 0.7,
+						max_tokens = 4096,
+					},
+					-- disable_tools = false,
+				},
+				azure = {
+					endpoint = "https://your_resource_azure.openai.azure.com/",
+					model = "name_of_your_implementation_GPT4",
+					timeout = 60000,
+					extra_request_body = {
+						temperature = 0.7,
+						max_tokens = 4096,
+					},
+					-- disable_tools = false,
+				},
+				moonshot = {
+					endpoint = "https://api.moonshot.ai/v1",
+					model = "kimi-k2-0711-preview",
+					timeout = 30000,
+					extra_request_body = {
+						temperature = 0.75,
+						max_tokens = 32768,
+					},
+				},
+			},
+		},
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			"zbirenbaum/copilot.lua",
+			{
+				-- support for image pasting
+				"HakonHarnes/img-clip.nvim",
+				event = "VeryLazy",
+				opts = {
+					default = {
+						embed_image_as_base64 = false,
+						prompt_for_file_name = false,
+						drag_and_drop = {
+							insert_mode = true,
+						},
+						use_absolute_path = true,
+					},
+				},
+			},
 		},
 	},
 }, {
