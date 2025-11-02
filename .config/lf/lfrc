@@ -412,14 +412,42 @@ cmd restore_trash ${{
 # -----------------------
 cmd extract ${{
   set -f
+
+  valid_files=""
+  invalid_files=""
+
+  for x in $fx; do
+    if bsdtar -tf "$x" >/dev/null 2>&1; then
+      valid_files="${valid_files}${valid_files:+ }$x"
+    else
+      base="${x##*/}"
+      invalid_files="${invalid_files}${invalid_files:+ }$base"
+    fi
+  done
+
+  if [ -z "$valid_files" ]; then
+    if [ -n "$invalid_files" ]; then
+      notify-send " Not a compressed file" \
+                   "No valid archives found to extract" \
+                   2>/dev/null
+    fi
+    exit 0
+  fi
+
+  if [ -n "$invalid_files" ]; then
+    notify-send "  Some files skipped" \
+                 "Invalid archives: $invalid_files" \
+                 2>/dev/null
+  fi
+
   clear; tput cup $(($(tput lines)/3)); tput bold
-  printf '%s\n' "$fx"
+  printf '%s\n' "$valid_files"
   printf 'extract to own folder(s)? [y/N] '
   read -r ans
   [[ "$ans" != "y" ]] && exit 0
 
   NOTIFY_ID=2598
-  file_count=$(echo "$fx" | wc -w)
+  file_count=$(echo "$valid_files" | wc -w)
   current_file_num=0
 
   notify-send -r "${NOTIFY_ID}" \
@@ -429,15 +457,55 @@ cmd extract ${{
                -h "string:synchronous:lf-extract" \
                2>/dev/null
 
-  for x in $fx; do
+  for x in $valid_files; do
     base="${x##*/}"
     dest="${base%.*}"
-    mkdir -p -- "$dest" || continue
+
+    archive_list=$(bsdtar -tf "$x" 2>/dev/null)
+    if [ -n "$archive_list" ]; then
+      first_entry=$(echo "$archive_list" | head -1)
+      root_dir=$(echo "$first_entry" | cut -d'/' -f1)
+
+      first_is_dir=$(echo "$first_entry" | grep -q '/$' && echo "yes" || echo "no")
+
+      has_files_in_root="no"
+      all_in_same_root="yes"
+
+      for entry in $archive_list; do
+        [ -z "$entry" ] && continue
+
+        if ! echo "$entry" | grep -q '/'; then
+          has_files_in_root="yes"
+          all_in_same_root="no"
+          break
+        fi
+
+        entry_root=$(echo "$entry" | cut -d'/' -f1)
+
+        if [ "$entry_root" != "$root_dir" ]; then
+          all_in_same_root="no"
+          break
+        fi
+      done
+
+      if [ "$all_in_same_root" = "yes" ] && [ "$first_is_dir" = "yes" ] && [ "$has_files_in_root" = "no" ]; then
+        extract_dest="."
+        saved_root_dir="$root_dir"
+      else
+        mkdir -p -- "$dest" || continue
+        extract_dest="$dest"
+        saved_root_dir=""
+      fi
+    else
+      mkdir -p -- "$dest" || continue
+      extract_dest="$dest"
+      saved_root_dir=""
+    fi
 
     archive_size=$(stat -f%z "$x" 2>/dev/null || stat -c%s "$x" 2>/dev/null || echo 0)
 
     if command -v pv >/dev/null 2>&1 && [ "$archive_size" -gt 0 ]; then
-      pv -s "$archive_size" -p -t -e "$x" | bsdtar -xf - -C "$dest" 2>/dev/null |
+      pv -s "$archive_size" -p -t -e "$x" | bsdtar -xf - -C "$extract_dest" 2>/dev/null |
       while IFS= read -r line; do
         if echo "$line" | grep -qE '[0-9]+%'; then
           percent=$(echo "$line" | sed -nE 's/.*[[:space:]]*\(([0-9]+)%\)[[:space:]]*.*/\1/p' | head -1)
@@ -457,13 +525,13 @@ cmd extract ${{
         fi
       done
     else
-      initial_size=$(du -sb "$dest" 2>/dev/null | awk '{print $1}' || echo 0)
+      initial_size=$(du -sb "$extract_dest" 2>/dev/null | awk '{print $1}' || echo 0)
 
-      bsdtar -xf "$x" -C "$dest" &
+      bsdtar -xf "$x" -C "$extract_dest" &
       tar_pid=$!
 
       while kill -0 "$tar_pid" 2>/dev/null; do
-        current_size=$(du -sb "$dest" 2>/dev/null | awk '{print $1}' || echo 0)
+        current_size=$(du -sb "$extract_dest" 2>/dev/null | awk '{print $1}' || echo 0)
 
         if [ "$archive_size" -gt 0 ]; then
           extracted_bytes=$((current_size - initial_size))
@@ -486,7 +554,11 @@ cmd extract ${{
       wait "$tar_pid"
     fi
 
-    find "$dest" -type f -exec chmod -x -- {} +
+    if [ "$extract_dest" != "." ]; then
+      find "$extract_dest" -type f -exec chmod -x -- {} +
+    elif [ -n "$saved_root_dir" ] && [ -d "$saved_root_dir" ]; then
+      find "$saved_root_dir" -type f -exec chmod -x -- {} +
+    fi
     current_file_num=$((current_file_num + 1))
 
     total_progress=$(( (current_file_num * 100) / file_count ))
