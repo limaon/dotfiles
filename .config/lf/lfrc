@@ -165,28 +165,75 @@ cmd yank &{{
   esac | xclip -rmlastnl -selection clipboard
 }}
 
-# Colocar aqui uma mensagem que terminou a transferencia
 cmd paste &{{
   set -- $(cat ~/.local/share/lf/files)
   mode="$1"
   shift
+  dest="$PWD"
+
   case "$mode" in
     copy)
+      NOTIFY_ID=2595
+      file_count=$(echo "$@" | wc -w)
+      current_file_num=0
+      last_percent=-1
+
+      notify-send -r "${NOTIFY_ID}" \
+                   -h "int:value:0" \
+                   "Copying file(s)..." \
+                   "Preparing... ($current_file_num/$file_count)" \
+                   -h "string:synchronous:lf-paste" \
+                   2>/dev/null
+
       rsync -aAXHv --info=progress2 --update --no-compress \
             --partial --human-readable \
-            -- "$@" . |
+            -- "$@" . 2>&1 |
       stdbuf -i0 -o0 -e0 tr '\r' '\n' |
       while IFS= read -r line; do
-        lf -remote "send $id echo $line"
+        if echo "$line" | grep -qE '[0-9]+%'; then
+          percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
+          filename=$(echo "$line" | awk '{print $1}' | sed 's|^\./||' | xargs basename 2>/dev/null || echo "file")
+
+          if [ -n "$percent" ] && [ "$percent" -ne "$last_percent" ] && [ "$percent" -gt "$last_percent" ]; then
+            if [ "$percent" -eq 100 ] || [ "$((percent - last_percent))" -ge 1 ]; then
+              last_percent="$percent"
+
+              if [ "$file_count" -gt 1 ]; then
+                total_progress=$(( (current_file_num * 100 + percent) / file_count ))
+              else
+                total_progress="$percent"
+              fi
+
+              notify-send -r "${NOTIFY_ID}" \
+                         -h "int:value:${total_progress}" \
+                         "Copying file(s)..." \
+                         "$filename - $percent% ($(($current_file_num + 1))/$file_count)" \
+                         -h "string:synchronous:lf-paste" \
+                         2>/dev/null
+            fi
+          fi
+
+          if [ -n "$percent" ] && [ "$percent" -eq 100 ]; then
+            current_file_num=$((current_file_num + 1))
+            last_percent=-1
+          fi
+        fi
       done
       ;;
     move)
       mv -n -- "$@" .
       ;;
   esac
+
   rm ~/.local/share/lf/files
-  lf -remote "send clear"
-  lf -remote "send reload"
+
+  if [ "$mode" = "copy" ] && [ -n "${NOTIFY_ID:-}" ]; then
+    notify-send -r "${NOTIFY_ID}" "  File(s) pasted." "Pasted to $dest"
+  else
+    notify-send "  File(s) pasted." "Pasted to $dest"
+  fi
+  lf -remote "send $id clear"
+  lf -remote "send $id reload"
 }}
 
 cmd copyto ${{
@@ -205,12 +252,55 @@ cmd copyto ${{
   read -r ans
   [[ "$ans" != "y" ]] && exit 1
 
+  NOTIFY_ID=2596
+  file_count=$(echo "$fx" | wc -w)
+  current_file_num=0
+  last_percent=-1
+
+  notify-send -r "${NOTIFY_ID}" \
+               -h "int:value:0" \
+               "Copying to destination..." \
+               "Preparing... ($current_file_num/$file_count)" \
+               -h "string:synchronous:lf-copyto" \
+               2>/dev/null
+
   for x in $fx; do
     rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
           --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
-          -- "$x" "$dest"
+          -- "$x" "$dest" 2>&1 |
+    stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+    while IFS= read -r line; do
+      if echo "$line" | grep -qE '[0-9]+%'; then
+        percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
+        filename=$(echo "$line" | awk '{print $1}' | sed 's|^\./||' | xargs basename 2>/dev/null || basename "$x")
+
+        if [ -n "$percent" ] && [ "$percent" -ne "$last_percent" ] && [ "$percent" -gt "$last_percent" ]; then
+          if [ "$percent" -eq 100 ] || [ "$((percent - last_percent))" -ge 1 ]; then
+            last_percent="$percent"
+
+            if [ "$file_count" -gt 1 ]; then
+              total_progress=$(( (current_file_num * 100 + percent) / file_count ))
+            else
+              total_progress="$percent"
+            fi
+
+            notify-send -r "${NOTIFY_ID}" \
+                       -h "int:value:${total_progress}" \
+                       "Copying to destination..." \
+                       "$filename - $percent% ($(($current_file_num + 1))/$file_count)" \
+                       -h "string:synchronous:lf-copyto" \
+                       2>/dev/null
+          fi
+        fi
+
+        if [ -n "$percent" ] && [ "$percent" -eq 100 ]; then
+          current_file_num=$((current_file_num + 1))
+          last_percent=-1
+        fi
+      fi
+    done
   done &&
-  notify-send "󰆏  File(s) copied." "File(s) copied to $dest."
+  notify-send -r "${NOTIFY_ID}" "󰆏  File(s) copied." "File(s) copied to $dest."
   lf -remote 'send clear'
 }}
 
@@ -231,10 +321,56 @@ cmd moveto ${{
   read -r ans
   [[ "$ans" != "y" ]] && exit 1
 
+  NOTIFY_ID=2597
+  file_count=$(echo "$fx" | wc -w)
+  current_file_num=0
+  last_percent=-1
+
+  notify-send -r "${NOTIFY_ID}" \
+               -h "int:value:0" \
+               "Moving file(s)..." \
+               "Preparing... ($current_file_num/$file_count)" \
+               -h "string:synchronous:lf-moveto" \
+               2>/dev/null
+
   for x in $fx; do
-    mv -iv -- "$x" "$dest"
+    rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
+          --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+          -- "$x" "$dest" 2>&1 |
+    stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+    while IFS= read -r line; do
+      if echo "$line" | grep -qE '[0-9]+%'; then
+        percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
+        filename=$(echo "$line" | awk '{print $1}' | sed 's|^\./||' | xargs basename 2>/dev/null || basename "$x")
+
+        if [ -n "$percent" ] && [ "$percent" -ne "$last_percent" ] && [ "$percent" -gt "$last_percent" ]; then
+          if [ "$percent" -eq 100 ] || [ "$((percent - last_percent))" -ge 1 ]; then
+            last_percent="$percent"
+
+            if [ "$file_count" -gt 1 ]; then
+              total_progress=$(( (current_file_num * 100 + percent) / file_count ))
+            else
+              total_progress="$percent"
+            fi
+
+            notify-send -r "${NOTIFY_ID}" \
+                       -h "int:value:${total_progress}" \
+                       "Moving file(s)..." \
+                       "$filename - $percent% ($(($current_file_num + 1))/$file_count)" \
+                       -h "string:synchronous:lf-moveto" \
+                       2>/dev/null
+          fi
+        fi
+
+        if [ -n "$percent" ] && [ "$percent" -eq 100 ]; then
+          current_file_num=$((current_file_num + 1))
+          last_percent=-1
+        fi
+      fi
+    done
+    rm -rf -- "$x"
   done &&
-  notify-send "  File(s) moved." "File(s) moved to $dest."
+  notify-send -r "${NOTIFY_ID}" " File(s) moved." "File(s) moved to $dest."
   lf -remote 'send clear'
 }}
 
@@ -282,14 +418,87 @@ cmd extract ${{
   read -r ans
   [[ "$ans" != "y" ]] && exit 0
 
+  NOTIFY_ID=2598
+  file_count=$(echo "$fx" | wc -w)
+  current_file_num=0
+
+  notify-send -r "${NOTIFY_ID}" \
+               -h "int:value:0" \
+               "Extracting file(s)..." \
+               "Preparing... ($current_file_num/$file_count)" \
+               -h "string:synchronous:lf-extract" \
+               2>/dev/null
+
   for x in $fx; do
     base="${x##*/}"
     dest="${base%.*}"
     mkdir -p -- "$dest" || continue
-    bsdtar -xf "$x" -C "$dest"
+
+    archive_size=$(stat -f%z "$x" 2>/dev/null || stat -c%s "$x" 2>/dev/null || echo 0)
+
+    if command -v pv >/dev/null 2>&1 && [ "$archive_size" -gt 0 ]; then
+      pv -s "$archive_size" -p -t -e "$x" | bsdtar -xf - -C "$dest" 2>/dev/null |
+      while IFS= read -r line; do
+        if echo "$line" | grep -qE '[0-9]+%'; then
+          percent=$(echo "$line" | sed -nE 's/.*[[:space:]]*\(([0-9]+)%\)[[:space:]]*.*/\1/p' | head -1)
+          if [ -z "$percent" ]; then
+            percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p' | head -1)
+          fi
+
+          if [ -n "$percent" ] && [ "$percent" -ge 0 ] && [ "$percent" -le 100 ]; then
+            total_progress=$(( (current_file_num * 100 + percent) / file_count ))
+            notify-send -r "${NOTIFY_ID}" \
+                       -h "int:value:${total_progress}" \
+                       "Extracting file(s)..." \
+                       "$base - $percent% ($(($current_file_num + 1))/$file_count)" \
+                       -h "string:synchronous:lf-extract" \
+                       2>/dev/null
+          fi
+        fi
+      done
+    else
+      initial_size=$(du -sb "$dest" 2>/dev/null | awk '{print $1}' || echo 0)
+
+      bsdtar -xf "$x" -C "$dest" &
+      tar_pid=$!
+
+      while kill -0 "$tar_pid" 2>/dev/null; do
+        current_size=$(du -sb "$dest" 2>/dev/null | awk '{print $1}' || echo 0)
+
+        if [ "$archive_size" -gt 0 ]; then
+          extracted_bytes=$((current_size - initial_size))
+          percent=$(( (extracted_bytes * 100) / archive_size ))
+          [ "$percent" -gt 100 ] && percent=100
+        else
+          percent=50
+        fi
+
+        total_progress=$(( (current_file_num * 100 + percent) / file_count ))
+        notify-send -r "${NOTIFY_ID}" \
+                   -h "int:value:${total_progress}" \
+                   "Extracting file(s)..." \
+                   "$base - $percent% ($(($current_file_num + 1))/$file_count)" \
+                   -h "string:synchronous:lf-extract" \
+                   2>/dev/null
+
+        sleep 0.5
+      done
+      wait "$tar_pid"
+    fi
+
     find "$dest" -type f -exec chmod -x -- {} +
+    current_file_num=$((current_file_num + 1))
+
+    total_progress=$(( (current_file_num * 100) / file_count ))
+    notify-send -r "${NOTIFY_ID}" \
+               -h "int:value:${total_progress}" \
+               "Extracting file(s)..." \
+               "$base - 100% ($current_file_num/$file_count)" \
+               -h "string:synchronous:lf-extract" \
+               2>/dev/null
   done
-  notify-send "󰏖  Extracted." "Unpacked to individual folders."
+
+  notify-send -r "${NOTIFY_ID}" "󰏖  Extracted." "Unpacked to individual folders."
   lf -remote 'send reload'
 }}
 
@@ -432,6 +641,11 @@ cmd select-glob &{{
     select_glob $1
 }}
 
+cmd go_to_current_song ${{
+	music_dir=$( grep -Po 'music_directory\s*"\K.*(?="$)' ~/.config/mpd/mpd.conf )
+	playing_file=$( mpc -f %file% | head -1 )
+	lf -remote " send $id select '${music_dir}/${playing_file}' "
+}}
 
 # Key maps
 #---------
@@ -522,6 +736,7 @@ map gV cd ~/Videos
 map gC cd ~/.config
 map gL cd ~/.local
 map gr $lf -remote "send $id cd /run/media/$(id -un)"
+map gs go_to_current_song
 map gtr cd ~/.local/share/Trash/files
 map gb cd /usr/share/backgrounds
 map gu ud-unmount
