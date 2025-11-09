@@ -37,6 +37,7 @@
 [user]
   name = Alvaro Oliveira
   email = 51033564+limaon@users.noreply.github.com
+	signingkey = 9D11FA6E81F50FB6958D27327265E01E8E939A67
 
 [core]
   editor = nvim
@@ -87,7 +88,7 @@
   verbose = true
 
 [pull]
-  rebase = false
+	rebase = true
 
 [rebase]
   instructionFormat = (%an <%ae>) %s
