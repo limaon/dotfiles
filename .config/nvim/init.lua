@@ -486,7 +486,7 @@ require("lazy").setup({
 					on_highlights = function(_, colors)
 						vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = colors.bg, fg = colors.base0 })
 						vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = colors.bg, fg = colors.base01 })
-						vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = colors.bg, fg = colors.bg })
+						-- vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = colors.bg, fg = colors.bg })
 						vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = colors.bg, fg = colors.fg })
 						vim.api.nvim_set_hl(0, "TelescopePromptTitle", { bg = colors.bg, fg = colors.fg })
 						vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { bg = colors.bg, fg = colors.fg })
@@ -746,6 +746,9 @@ require("lazy").setup({
 						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
 
+					map("K", function()
+						vim.lsp.buf.hover({ border = "rounded" })
+					end, "Hover")
 					map("grn", vim.lsp.buf.rename, "[R]e[n]ame")
 					map("gra", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 					map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
@@ -884,7 +887,7 @@ require("lazy").setup({
 		end,
 	},
 
-	-- Autoformat
+	-- [[ Conform.nvim ]] {{{
 	{
 		"stevearc/conform.nvim",
 		event = { "BufWritePre" },
@@ -932,7 +935,9 @@ require("lazy").setup({
 			lsp_format = "fallback",
 		},
 	},
+	-- }}}
 
+	-- [[ blink.cmp ]] {{{
 	{ -- Autocompletion
 		"saghen/blink.cmp",
 		event = { "InsertEnter" },
@@ -941,13 +946,8 @@ require("lazy").setup({
 			-- Snippet Engine
 			{
 				"L3MON4D3/LuaSnip",
-				version = "2.*",
-				build = (function()
-					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-						return
-					end
-					return "make install_jsregexp"
-				end)(),
+				version = "v2.*",
+				make = "make install_jsregexp",
 				dependencies = {
 					{
 						"rafamadriz/friendly-snippets",
@@ -965,6 +965,10 @@ require("lazy").setup({
 				local disabled = false
 				disabled = disabled or (vim.bo.buftype == "prompt") -- in prompt window
 				disabled = disabled or (vim.bo.filetype == "snacks_input") -- in special input
+				local ft = (vim.bo.filetype or ""):lower()
+				disabled = disabled or ft:match("^avante") ~= nil -- avante chat/input buffers
+				local bufname = vim.api.nvim_buf_get_name(0)
+				disabled = disabled or bufname:match("^avante://") ~= nil
 				disabled = disabled or (vim.fn.reg_recording() ~= "") -- while recoding a macro
 				disabled = disabled or (vim.fn.reg_executing() ~= "") -- while executing a macro
 				return not disabled
@@ -1022,6 +1026,7 @@ require("lazy").setup({
 							return vim.bo.filetype ~= "markdown"
 						end,
 					},
+					max_entries = 4,
 				},
 				menu = {
 					enabled = true,
@@ -1046,8 +1051,8 @@ require("lazy").setup({
 						end
 						return true
 					end,
+					max_height = 5,
 					min_width = 16,
-					max_height = 8,
 					border = "none",
 					winblend = 10,
 					-- winhighlight = "Normal:TelescopeNormal,FloatBorder:TelescopeBorder,CursorLine:BlinkCmpMenuSelection",
@@ -1094,10 +1099,6 @@ require("lazy").setup({
 						"path",
 						"snippets",
 						"buffer",
-						-- "avante_commands",
-						-- "avante_mentions",
-						-- "avante_shortcuts",
-						-- "avante_files",
 					}
 				end,
 
@@ -1161,8 +1162,9 @@ require("lazy").setup({
 			},
 		},
 	},
+	-- }}}
 
-	-- mini.nvim (statusline, ai, pairs, trailspace, icons)
+	-- [[ mini.nvim ]] {{{
 	{
 		"echasnovski/mini.nvim",
 		config = function()
@@ -1204,8 +1206,9 @@ require("lazy").setup({
 			require("mini.trailspace").setup()
 		end,
 	},
+	-- }}}
 
-	-- Treesitter
+	-- [[ nvim-treesitter ]] {{{
 	{
 		"nvim-treesitter/nvim-treesitter",
 		event = { "BufReadPre", "BufNewFile" },
@@ -1213,13 +1216,9 @@ require("lazy").setup({
 		main = "nvim-treesitter.configs",
 		opts = {
 			ensure_installed = {
-				"bash",
-				"c",
 				"diff",
-				"html",
 				"lua",
 				"luadoc",
-				"markdown",
 				"query",
 				"vim",
 				"vimdoc",
@@ -1229,212 +1228,169 @@ require("lazy").setup({
 			indent = { enable = true, disable = { "ruby" } },
 		},
 	},
+	-- }}}
 
+	-- [[ Avante.nvim ]] {{{
 	{
 		"yetone/avante.nvim",
-		build = vim.fn.has("win32") ~= 0
-				and "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false"
-			or "make",
+		build = "make",
 		event = "VeryLazy",
-		version = false,
-		---@module 'avante'
-		---@type avante.Config
 		opts = {
-			rag_service = {
-				enabled = false,
-				host_mount = os.getenv("HOME"),
-				runner = "docker",
-
-				llm = {
-					provider = "openrouter",
-					endpoint = "https://openrouter.ai/api/v1",
-					api_key = "OPENROUTER_API_KEY",
-					model = "anthropic/claude-3-haiku-20240307",
-					extra = nil,
-				},
-
-				embed = {
-					provider = "ollama",
+			instructions_file = "avante.md",
+			web_search_engine = {
+				provider = "tavily", -- tavily, serpapi, google, kagi, brave, searxng
+				proxy = nil,
+			},
+			provider = "copilot",
+			providers = {
+				ollama = {
 					endpoint = "http://localhost:11434",
-					api_key = nil,
-					model = "nomic-embed-text",
-					extra = nil,
+					model = "deepseek-r1:latest",
+					timeout = 180000,
+					is_env_set = function()
+						local ok, ollama = pcall(require, "avante.providers.ollama")
+						if ok and ollama and ollama.check_endpoint_alive then
+							return ollama.check_endpoint_alive()
+						end
+						local handle = io.popen("curl -s --max-time 1 http://localhost:11434/api/tags 2>/dev/null")
+						if handle then
+							local result = handle:read("*a")
+							handle:close()
+							return result ~= "" and result ~= nil
+						end
+						return false
+					end,
+					extra_request_body = {
+						options = {
+							temperature = 0.6,
+							num_ctx = 8192,
+						},
+					},
 				},
-
-				docker_extra_args = "",
-			},
-			mappings = {
-				suggestion = {
-					accept = "<C-y>",
-					-- next = "<M-]>",
-					-- prev = "<M-[>",
-					-- dismiss = "<C-]>",
+				copilot = {
+					model = "gpt-5-mini", -- Available models: "gpt-4", "gpt-3.5-turbo", "claude-3.5-sonnet", "gemini-1.5-pro"
+					timeout = 30000,
+					disable_tools = false,
 				},
-				submit = {
-					normal = "<CR>",
-					insert = "<C-CR>",
-				},
-				sidebar = {
-					apply_cursor = "<leader>aa",
-					apply_all = "<leader>aA",
-					-- retry_user_request = "r",
-					-- edit_user_request = "e",
-					-- switch_windows = "<Tab>",
-					-- add_file = "@",
-					-- remove_file = "d",
-					-- close = { "<Esc>", "q" },
-				},
-				-- diff = { ... },
-				-- jump = { ... },
-				-- cancel = { ... },
-			},
-			windows = {
-				position = "right",
-				wrap = false,
-				width = 40,
-				sidebar_header = {
-					enabled = true,
-					align = "center",
-					rounded = false,
-				},
-				spinner = {
-					editing = { "|", "/", "-", "\\" },
-					generating = { ".", "..", "..." },
-					thinking = { "󰱸", "" },
-				},
-				input = {
-					prefix = "$ ",
-					height = 12,
-					width = 50,
-				},
-				edit = {
-					border = "single",
-					start_insert = true,
-				},
-				ask = {
-					floating = false,
-					start_insert = true,
-					border = "single",
-					focus_on_apply = "ours",
-				},
-			},
-			behaviour = {
-				auto_apply_diff_after_generation = false,
-				minimize_diff = true,
-				enable_token_counting = true,
-				auto_add_current_file = true,
-				auto_approve_tool_permissions = true,
-				confirmation_ui_style = "inline_buttons",
-				acp_follow_agent_locations = true,
-				-- auto_set_highlight_group = true,
-				-- auto_set_keymaps = true,
-				support_paste_from_clipboard = true,
-				auto_set_highlight_group = true,
-				auto_set_keymaps = true,
-				enable_fastapply = false,
-			},
-			selector = {
-				provider = "telescope",
-				-- provider_opts = {
-				--   theme = require("telescope.themes").get_ivy(),
-				-- },
 			},
 			input = {
 				provider = "native",
-				provider_opts = {
-					-- title = "Enter Avante:",
-				},
 			},
-			instructions_file = "avante.md",
-			provider = "claude", -- Eg: ollama, openai, gemini etc...
-			providers = {
-				-- run in the shell: $ export MORPH_API_KEY="your-api-key"
-				morph = {
-					model = "auto",
+			suggestion = {
+				debounce = 1000,
+				throttle = 1000,
+			},
+			behaviour = {
+				auto_apply_diff_after_generation = false,
+				auto_set_highlight_group = true,
+				support_paste_from_clipboard = false,
+				minimize_diff = true,
+				enable_token_counting = false,
+				auto_approve_tool_permissions = false, -- Default: auto-approve all tools (no prompts)
+				auto_add_current_file = true,
+				---@type boolean
+				acp_follow_agent_locations = true,
+				---@type "popup" | "inline_buttons"
+				confirmation_ui_style = "inline_buttons",
+			},
+			windows = {
+				wrap = true,
+				width = 32,
+				sidebar_header = {
+					enabled = true,
+					align = "center",
+					rounded = true,
 				},
-				openai = {
-					-- endpoint = "https://api.openai.com/v1",
-					model = "gpt-4o",
-					timeout = 60000,
-					extra_request_body = {
-						temperature = 0.7,
-						max_tokens = 4096,
-						-- top_p = 1,
-					},
-					-- disable_tools = false,
+				spinner = {
+					editing = { " ", " ", " " },
+					generating = { ".", "..", "..." },
+					thinking = { "󰳟 ", "󰊠 " },
 				},
-				claude = {
-					endpoint = "https://api.anthropic.com",
-					model = "claude-sonnet-4-20250514",
-					timeout = 30000,
-					extra_request_body = {
-						temperature = 0.75,
-						max_tokens = 20480,
-					},
+				input = {
+					border = "rounded",
+					prefix = "> ",
+					start_insert = false,
+					height = 12,
+					width = 52,
+					winblend = 8,
 				},
-				ollama = {
-					endpoint = "http://localhost:11434",
-					model = "llama3",
-					timeout = 180000,
-					extra_request_body = {
-						temperature = 0.6,
-						max_tokens = 2048,
-						-- top_p = 0.9,
-						-- stop = {"\n"},
-					},
-					disable_tools = true,
-					-- is_env_set = require("avante.providers.ollama").check_endpoint_alive,
+				edit = {
+					border = "single",
+					title = "Apply Changes",
+					title_pos = "center",
+					start_insert = true,
+					winblend = 0,
 				},
-				gemini = {
-					-- endpoint = "https://generativelanguage.googleapis.com/v1beta",
-					model = "gemini-1.5-pro-latest",
-					timeout = 90000, -- 90 sec
-					extra_request_body = {
-						temperature = 0.7,
-						maxOutputTokens = 4096,
-						-- topP = 0.95,
-					},
-					-- disable_tools = false,
+				ask = {
+					floating = false,
+					border = "rounded",
+					title = "Ask Avante",
+					title_pos = "center",
+					focus_on_apply = "ours",
 				},
-				openrouter = {
-					endpoint = "https://openrouter.ai/api/v1",
-					model = "anthropic/claude-3-opus",
-					-- model = "google/gemini-pro-1.5",
-					-- model = "mistralai/mistral-large-latest",
-					timeout = 120000,
-					extra_request_body = {
-						temperature = 0.7,
-						max_tokens = 4096,
-					},
-					-- disable_tools = false,
-				},
-				azure = {
-					endpoint = "https://your_resource_azure.openai.azure.com/",
-					model = "name_of_your_implementation_GPT4",
-					timeout = 60000,
-					extra_request_body = {
-						temperature = 0.7,
-						max_tokens = 4096,
-					},
-					-- disable_tools = false,
-				},
-				moonshot = {
-					endpoint = "https://api.moonshot.ai/v1",
-					model = "kimi-k2-0711-preview",
-					timeout = 30000,
-					extra_request_body = {
-						temperature = 0.75,
-						max_tokens = 32768,
-					},
+				acp = {
+					border = "rounded",
+					width = 80,
+					height = 20,
+					row = 1,
+					col = 0.5,
+					winblend = 12,
 				},
 			},
 		},
 		dependencies = {
-			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
-			"zbirenbaum/copilot.lua",
 			{
-				-- support for image pasting
+				"zbirenbaum/copilot.lua",
+				cmd = "Copilot",
+				event = "InsertEnter",
+				config = function()
+					require("copilot").setup({
+						panel = {
+							enabled = true,
+							auto_refresh = false,
+							keymap = {
+								jump_prev = "[[",
+								jump_next = "]]",
+								accept = "<CR>",
+								refresh = "gr",
+								open = "<M-CR>",
+							},
+							layout = {
+								position = "bottom",
+								ratio = 0.4,
+							},
+						},
+						suggestion = {
+							enabled = true,
+							auto_trigger = false,
+							debounce = 75,
+							keymap = {
+								accept = "<C-l>",
+								accept_word = false,
+								accept_line = false,
+								next = "<M-]>",
+								prev = "<M-[>",
+								dismiss = "<C-]>",
+							},
+						},
+						filetypes = {
+							yaml = false,
+							markdown = false,
+							help = false,
+							gitcommit = false,
+							gitrebase = false,
+							hgcommit = false,
+							svn = false,
+							cvs = false,
+							["."] = false,
+						},
+						copilot_node_command = "node",
+						server_opts_overrides = {},
+					})
+				end,
+			},
+			{
 				"HakonHarnes/img-clip.nvim",
 				event = "VeryLazy",
 				opts = {
@@ -1450,6 +1406,7 @@ require("lazy").setup({
 			},
 		},
 	},
+	-- }}}
 }, {
 	ui = {
 		icons = vim.g.have_nerd_font and {} or {
@@ -1475,7 +1432,6 @@ require("lazy").setup({
 				"gzip",
 				"matchit",
 				"matchparen",
-				"netrwPlugin",
 				"tarPlugin",
 				"tohtml",
 				"tutor",
@@ -1484,6 +1440,7 @@ require("lazy").setup({
 		},
 	},
 })
+
 -- }}}
 
 -- vim: ts=2 sts=2 sw=2 et
