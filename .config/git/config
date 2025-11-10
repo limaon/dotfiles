@@ -37,7 +37,8 @@
 [user]
   name = Alvaro Oliveira
   email = 51033564+limaon@users.noreply.github.com
-	signingkey = 9D11FA6E81F50FB6958D27327265E01E8E939A67
+  signingkey = 9D11FA6E81F50FB6958D27327265E01E8E939A67
+  useConfigOnly = true
 
 [core]
   editor = nvim
@@ -67,10 +68,10 @@
 
 [color]
   ui = auto
-  status = always
-  branch = always
-  diff = always
-  grep = always
+  status = auto
+  branch = auto
+  diff = auto
+  grep = auto
 
 [github]
   user = limaon
@@ -79,19 +80,27 @@
   defaultBranch = main
 
 [help]
-  autocorrect = 1
+  autocorrect = 10
 
 [log]
   date = relative
 
 [commit]
   verbose = true
+  gpgsign = false
 
 [pull]
-	rebase = true
+  rebase = true
 
 [rebase]
   instructionFormat = (%an <%ae>) %s
 
 [push]
   default = simple
+
+[fetch]
+  prune = true
+
+[gc]
+  pruneExpire = now
+  pruneExpireUnreachable = now
