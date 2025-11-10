@@ -150,9 +150,6 @@ keymap("n", "J", "mzJ`z", { desc = "Join lines" })
 -- Open File browser
 keymap("n", "<leader>e", "<cmd>Explore<cr>", { desc = "Open Netrw" })
 
--- Undotree
-keymap("n", "<leader>u", vim.cmd.UndotreeToggle, { desc = "Open undotree for git" })
-
 -- Replace World
 keymap(
 	"n",
@@ -315,7 +312,8 @@ end, "Disable concealing for specific file types")
 -- Highlight on yank (copying) text
 local yank_group = create_augroup("HighlightYank")
 create_autocmd("TextYankPost", yank_group, "*", function()
-	vim.highlight.on_yank()
+	local hl = vim.hl or vim.highlight
+	hl.on_yank()
 end, "Highlight text when yanked")
 
 -- Sync syntax highlighting
@@ -499,7 +497,6 @@ require("lazy").setup({
 
 	{ -- Git
 		"lewis6991/gitsigns.nvim",
-		dependencies = { "mbbill/undotree" },
 		event = { "BufReadPre", "BufNewFile" },
 		opts = {
 			signs = {
@@ -525,37 +522,33 @@ require("lazy").setup({
 			max_file_length = 40000,
 			preview_config = { border = "single", style = "minimal", relative = "cursor", row = 0, col = 1 },
 			on_attach = function(bufnr)
-				local g = require("gitsigns")
-				local function m(mode, lhs, rhs, desc)
+				local gsigns = require("gitsigns")
+				local function map(mode, lhs, rhs, desc)
 					vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
 				end
-				m("n", "]c", function()
+				map("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
 					else
-						g.nav_hunk("next")
-						g.preview_hunk()
+						gsigns.next_hunk()
+						gsigns.preview_hunk_inline()
 					end
-				end, "Hunk seguinte")
-				m("n", "[c", function()
+				end, "[G]itsigns Next [H]unk")
+				map("n", "[c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "[c", bang = true })
 					else
-						g.nav_hunk("prev")
-						g.preview_hunk()
+						gsigns.prev_hunk()
+						gsigns.preview_hunk_inline()
 					end
-				end, "Hunk anterior")
-				m("n", "<leader>ghs", g.stage_hunk, "Stage hunk")
-				m("n", "<leader>ghr", g.reset_hunk, "Reset hunk")
-				m("v", "<leader>ghs", function()
-					g.stage_hunk({ vim.fn.line("."), vim.fn.line("v") })
-				end, "Stage hunk (visual)")
-				m("v", "<leader>ghr", function()
-					g.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
-				end, "Reset hunk (visual)")
-				m("n", "<leader>ghb", function()
-					g.blame_line({ full = true })
-				end, "Blame linha")
+				end, "[G]itsigns Prev [H]unk")
+				map("n", "<leader>hb", "<cmd>Gitsigns blame_line full=true<cr>", "[G]itsigns [B]lame Line")
+				map("n", "<leader>hd", "<cmd>Gitsigns toggle_deleted<cr>", "[G]itsigns Toggle [D]eleted")
+				map("n", "<leader>hq", "<cmd>Gitsigns setqflist<cr>", "[G]itsigns [Q]uickfix Hunks")
+				map("n", "<leader>hs", "<cmd>Gitsigns stage_hunk<cr>", "[G]itsigns Stage [H]unk")
+				map("n", "<leader>hr", "<cmd>Gitsigns reset_hunk<cr>", "[G]itsigns Reset [H]unk")
+				map("v", "<leader>hs", "<cmd>Gitsigns stage_hunk<cr>", "[G]itsigns Stage [H]unk (visual)")
+				map("v", "<leader>hr", "<cmd>Gitsigns reset_hunk<cr>", "[G]itsigns Reset [H]unk (visual)")
 			end,
 		},
 	},
@@ -567,14 +560,14 @@ require("lazy").setup({
 				vim.keymap.set(mode, lhs, rhs, { desc = desc })
 			end
 
-			map("n", "<leader>gs", "<cmd>Git<cr>", "Git Status")
-			map("n", "<leader>gc", "<cmd>Git commit<cr>", "Git Commit")
-			map("n", "<leader>gps", "<cmd>Git push<cr>", "Git Push")
-			map("n", "<leader>gpl", "<cmd>Git pull<cr>", "Git Pull")
-			map("n", "<leader>gb", "<cmd>Git blame<cr>", "Git Blame")
-			map("n", "<leader>gdf", "<cmd>Git diff<cr>", "Git Diff")
-			map("n", "<leader>gl", "<cmd>Git log<cr>", "Git Log")
-			map("n", "<leader>gP", "<cmd>Git push -u origin HEAD<cr>", "Git Push Upstream")
+			map("n", "<leader>gs", "<cmd>Git<cr>", "[G]it [S]tatus")
+			map("n", "<leader>gc", "<cmd>Git commit<cr>", "[G]it [C]ommit")
+			map("n", "<leader>gps", "<cmd>Git push<cr>", "[G]it [P]ush")
+			map("n", "<leader>gpl", "<cmd>Git pull<cr>", "[G]it Pu[l]l")
+			map("n", "<leader>gb", "<cmd>Git blame<cr>", "[G]it [B]lame")
+			map("n", "<leader>gdf", "<cmd>Git diff<cr>", "[G]it [D]iff")
+			map("n", "<leader>gl", "<cmd>Git log<cr>", "[G]it [L]og")
+			map("n", "<leader>gP", "<cmd>Git push -u origin HEAD<cr>", "[G]it Push U[p]stream")
 		end,
 	},
 
@@ -598,6 +591,12 @@ require("lazy").setup({
 			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
 		},
 		config = function()
+			local themes = require("telescope.themes")
+			local dropdown_no_preview = themes.get_dropdown({ previewer = false })
+			local dropdown_with_preview = themes.get_dropdown({})
+			local ivy_theme = themes.get_ivy({})
+			local cursor_theme = themes.get_cursor({})
+
 			require("telescope").setup({
 				defaults = {
 					winblend = 10,
@@ -634,15 +633,19 @@ require("lazy").setup({
 				pickers = {
 					find_files = {
 						hidden = true,
-						previewer = false,
 					},
-					buffers = {
-						theme = "dropdown",
-						previewer = false,
+					buffers = vim.tbl_deep_extend("force", dropdown_no_preview, {
 						sort_mru = true,
 						sort_lastused = true,
 						ignore_current_buffer = true,
-					},
+					}),
+					keymaps = dropdown_no_preview,
+					current_buffer_fuzzy_find = dropdown_no_preview,
+					diagnostics = dropdown_with_preview,
+					help_tags = dropdown_with_preview,
+					git_branches = dropdown_with_preview,
+					commands = dropdown_with_preview,
+					command_history = dropdown_no_preview,
 				},
 				extensions = {
 					fzf = {
@@ -672,15 +675,17 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+			vim.keymap.set("n", "<leader>sb", builtin.git_branches, { desc = "[S]earch Git [B]ranches" })
+			vim.keymap.set("n", "<leader>sc", builtin.commands, { desc = "[S]earch [C]ommands" })
 			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
 
 			-- Slightly advanced example of overriding default behavior and theme
-			vim.keymap.set("n", "<leader>/", function()
-				-- You can pass additional configuration to Telescope to change the theme, layout, etc.
-				builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
-					previewer = false,
-				}))
-			end, { desc = "[/] Fuzzily search in current buffer" })
+			vim.keymap.set(
+				"n",
+				"<leader>/",
+				builtin.current_buffer_fuzzy_find,
+				{ desc = "[/] Fuzzily search in current buffer" }
+			)
 
 			-- It's also possible to pass additional configuration options.
 			--  See `:help telescope.builtin.live_grep()` for information about particular keys
@@ -941,25 +946,28 @@ require("lazy").setup({
 	{ -- Autocompletion
 		"saghen/blink.cmp",
 		event = { "InsertEnter" },
-		version = "v1.*",
 		dependencies = {
-			-- Snippet Engine
 			{
 				"L3MON4D3/LuaSnip",
 				version = "v2.*",
-				make = "make install_jsregexp",
-				dependencies = {
-					{
-						"rafamadriz/friendly-snippets",
-						config = function()
-							require("luasnip.loaders.from_vscode").lazy_load()
-						end,
-					},
-				},
-				opts = {},
+				build = "make install_jsregexp",
+				config = function()
+					local ok, luasnip = pcall(require, "luasnip")
+					if not ok then
+						return
+					end
+					require("luasnip.loaders.from_vscode").lazy_load()
+					luasnip.config.set_config({
+						history = true,
+						updateevents = "TextChanged,TextChangedI",
+					})
+				end,
 			},
+			"rafamadriz/friendly-snippets",
 		},
-
+		version = "1.*",
+		---@module 'blink.cmp'
+		---@type blink.cmp.Config
 		opts = {
 			enabled = function()
 				local disabled = false
@@ -1042,9 +1050,9 @@ require("lazy").setup({
 							"block_comment",
 							"comment_content",
 							-- "string",
-							"string_start",
-							"string_content",
-							"string_end",
+							-- "string_start",
+							-- "string_content",
+							-- "string_end",
 						}
 						if ok and node and node_has_type(node, reject) then
 							return false
@@ -1112,6 +1120,9 @@ require("lazy").setup({
 						opts = {
 							trailing_slash = true,
 							label_trailing_slash = true,
+							get_cwd = function()
+								return vim.fn.expand("%:p:h")
+							end,
 						},
 					},
 
@@ -1302,8 +1313,8 @@ require("lazy").setup({
 					rounded = true,
 				},
 				spinner = {
-					editing = { " ", " ", " " },
-					generating = { ".", "..", "..." },
+					editing = { "", "", "" },
+					generating = { "", "", "" },
 					thinking = { "󰳟 ", "󰊠 " },
 				},
 				input = {
@@ -1327,6 +1338,7 @@ require("lazy").setup({
 					title = "Ask Avante",
 					title_pos = "center",
 					focus_on_apply = "ours",
+					start_insert = false,
 				},
 				acp = {
 					border = "rounded",
