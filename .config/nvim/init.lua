@@ -1034,7 +1034,7 @@ require("lazy").setup({
 							return vim.bo.filetype ~= "markdown"
 						end,
 					},
-					max_entries = 4,
+					max_items = 4,
 				},
 				menu = {
 					enabled = true,
@@ -1444,6 +1444,7 @@ require("lazy").setup({
 				"gzip",
 				"matchit",
 				"matchparen",
+				-- "netrwPlugin",
 				"tarPlugin",
 				"tohtml",
 				"tutor",
