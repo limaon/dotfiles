@@ -495,6 +495,19 @@ require("lazy").setup({
 		end,
 	},
 
+	{
+		"limaon/anki-editor.nvim",
+		event = "VeryLazy",
+		config = function()
+			require("anki-editor").setup({
+				anki_connect_url = "http://127.0.0.1:8765",
+			})
+		end,
+		keys = {
+			{ "<leader>ne", ":AnkiEdit<CR>", desc = "Edit Anki template" },
+		},
+	},
+
 	{ -- Git
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile" },
