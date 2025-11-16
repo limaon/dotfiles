@@ -110,4 +110,9 @@
     "security.promptForRemoteFileProtocolHandling": false,
     "redhat.telemetry.enabled": false,
     "makefile.configureOnOpen": true,
+
+    "[html]": {
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true
+    },
 }
