@@ -111,8 +111,8 @@ bindsym $mod+Shift+apostrophe floating toggle; sticky toggle; exec --no-startup-
 bindsym $mod+Shift+semicolon floating toggle; sticky toggle; exec --no-startup-id hover left
 
 # Mouse buttons to move around workspaces
-bindsym --whole-window button8 workspace prev_on_output
-bindsym --whole-window button9 workspace next_on_output
+bindsym --whole-window button8 workspace next_on_output
+bindsym --whole-window button9 workspace prev_on_output
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
@@ -212,7 +212,7 @@ for_window [window_role="toolbox"] floating enable
 for_window [window_role="webconsole"] floating enable
 for_window [window_role="browser"] border pixel
 for_window [window_role="GtkFileChooserDialog"] resize set 600 400, move position center
-for_window [title="^(Open|Save|File|Select|Print)"] border normal 2, resize set 800 480
+for_window [title="^(Open|Save|File|Select|Print|Choose)"] border normal 2, resize set 800 510
 no_focus [title="mpv Webcam"]
 for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
 for_window [class="mpv"] floating enable, move position center
@@ -228,8 +228,8 @@ assign [class="(?i)anki" title="Anki$|^Browse|^Add"] $ws9
 assign [class="(?i)chromium" tiling] $ws1
 assign [class="Thunderbird"] $ws1
 assign [class="qBittorrent"] $ws7
-assign [class="KeePassXC"] $ws8
-for_window [class="Zathura"] move window to workspace $ws8, focus
+assign [class="KeePassXC"] $ws6
+# for_window [class="Zathura"] move window to workspace $ws2, focus
 
 # Limiting the maximum size of the floating window:
 floating_minimum_size 150 x 90
@@ -283,10 +283,11 @@ bar {
 
 
 # Autostarts services
-exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
-exec --no-startup-id systemctl --user start xautocfg.service
+exec --no-startup-id autorandr --daemon
 exec --no-startup-id clipcatd --no-daemon --replace
-exec --no-startup-id unclutter --hide-on-touch --timeout 1 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
+exec --no-startup-id systemctl --user start xautocfg.service
+exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
+exec --no-startup-id unclutter --hide-on-touch --timeout 3 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
 
 
 # Exit i3 (logs you out of your X session)
@@ -323,7 +324,7 @@ bindsym $mod+Insert mode "$share_attach"
 bindsym $mod+F12 mode "$share_attach"
 
 # ScreenShot menu
-bindsym --release $mod+Print exec --no-startup-id maimpick area_clipboard
+bindsym --release $mod+Print exec --no-startup-id maimpick window_clipboard
 bindsym --release Print exec --no-startup-id maimpick
 # bindsym --release $mod+o exec --no-startup-id maimocr
 # bindsym --release Print exec --no-startup-id maimpick full
