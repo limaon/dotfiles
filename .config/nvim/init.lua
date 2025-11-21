@@ -1260,12 +1260,14 @@ require("lazy").setup({
 		build = "make",
 		event = "VeryLazy",
 		opts = {
+			mode = "agentic", -- "agentic" (default) or "legacy" mode
 			instructions_file = "avante.md",
 			web_search_engine = {
 				provider = "tavily", -- tavily, serpapi, google, kagi, brave, searxng
 				proxy = nil,
 			},
-			provider = "copilot",
+			-- provider = "gemini-cli", -- ACP provider (com problemas de agent_capabilities)
+			provider = "copilot", -- Provider tradicional (mais estável)
 			providers = {
 				ollama = {
 					endpoint = "http://localhost:11434",
@@ -1292,13 +1294,61 @@ require("lazy").setup({
 					},
 				},
 				copilot = {
-					model = "gpt-5-mini", -- Available models: "gpt-4", "gpt-3.5-turbo", "claude-3.5-sonnet", "gemini-1.5-pro"
-					timeout = 30000,
+					model = "grok-code-fast-1", -- Available models: "gpt-4", "gpt-3.5-turbo", "claude-3.5-sonnet", "gemini-1.5-pro"
+					timeout = 10000,
 					disable_tools = false,
 				},
+				gemini = {
+					api_key = os.getenv("GEMINI_API_KEY"),
+					model = "gemini-pro",
+					timeout = 30000,
+				},
 			},
+			-- [[ Agent Client Protocol (ACP) Providers ]] {{{
+			-- Configure ACP providers for enhanced AI agent capabilities
+			-- To use an ACP provider, set provider to the ACP provider name (e.g., "gemini-cli")
+			acp_providers = {
+				["gemini-cli"] = {
+					command = "npx",
+					args = { "@google/gemini-cli", "--experimental-acp" },
+					env = {
+						NODE_NO_WARNINGS = "1",
+						GEMINI_API_KEY = os.getenv("GEMINI_API_KEY"),
+					},
+					-- Timeout para evitar travamentos
+					timeout = 30000, -- 30 segundos
+				},
+				["claude-code"] = {
+					command = "npx",
+					args = { "@zed-industries/claude-code-acp" },
+					env = {
+						NODE_NO_WARNINGS = "1",
+						ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY"),
+					},
+				},
+				["goose"] = {
+					command = "goose",
+					args = { "acp" },
+				},
+				["codex"] = {
+					command = "codex-acp",
+					env = {
+						NODE_NO_WARNINGS = "1",
+						OPENAI_API_KEY = os.getenv("OPENAI_API_KEY"),
+					},
+				},
+				["kimi-cli"] = {
+					command = "kimi",
+					args = { "acp" },
+					env = {
+						KIMI_API_KEY = os.getenv("KIMI_API_KEY"),
+					},
+				},
+			},
+			-- }}}
 			input = {
 				provider = "native",
+				history = true,
 			},
 			suggestion = {
 				debounce = 1000,
@@ -1310,7 +1360,7 @@ require("lazy").setup({
 				support_paste_from_clipboard = false,
 				minimize_diff = true,
 				enable_token_counting = false,
-				auto_approve_tool_permissions = false, -- Default: auto-approve all tools (no prompts)
+				auto_approve_tool_permissions = false, -- Require manual approval for tool permissions
 				auto_add_current_file = true,
 				---@type boolean
 				acp_follow_agent_locations = true,
