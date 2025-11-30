@@ -1,18 +1,37 @@
 # In case you are on an apple Notebook/Keyboard
 # you can simply swap Mod1 and Mod4 to get the same
 # behaviour
+
+# Mod1 = Left Alt key
+# Mod2 = Num Lock key
+# Mod3 = Custom key
 # Mod4 = Super key
-# Mod1 = Alt key
-set $alt Mod1
+# Mod5 = Right Alt key
+set $left_alt Mod1
+set $right_alt Mod5
 set $mod Mod4
 set $control Control
 
+# Mouse keys
+set $left_button button1
+set $middle_button button2
+set $right_button button3
+set $scrollup_button button4
+set $scrolldown_button button5
+set $mouse_button1 button8
+set $mouse_button2 button9
+
 # use these keys for focus, movement, and resize directions when reaching for
+set $vim_up k
+set $vim_down j
+set $vim_left h
+set $vim_right l
+
 # the arrows is not convenient
-set $up k
-set $down j
-set $left h
-set $right l
+set $arrow_up Up
+set $arrow_down Down
+set $arrow_left Left
+set $arrow_right Right
 
 # Set title bar (border)
 title_align left
@@ -111,8 +130,8 @@ bindsym $mod+Shift+apostrophe floating toggle; sticky toggle; exec --no-startup-
 bindsym $mod+Shift+semicolon floating toggle; sticky toggle; exec --no-startup-id hover left
 
 # Mouse buttons to move around workspaces
-bindsym --whole-window button8 workspace next_on_output
-bindsym --whole-window button9 workspace prev_on_output
+bindsym --whole-window $mouse_button1 workspace next_on_output
+bindsym --whole-window $mouse_button2 workspace prev_on_output
 
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
@@ -149,28 +168,28 @@ bindsym $mod+Shift+8 move container to workspace $ws8
 bindsym $mod+Shift+9 move container to workspace $ws9
 
 # change focus
-bindsym $mod+$left focus left
-bindsym $mod+$down focus down
-bindsym $mod+$up focus up
-bindsym $mod+$right focus right
+bindsym $mod+$vim_up focus up
+bindsym $mod+$vim_down focus down
+bindsym $mod+$vim_left focus left
+bindsym $mod+$vim_right focus right
 
 # alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
+bindsym $mod+$arrow_up focus up
+bindsym $mod+$arrow_down focus down
+bindsym $mod+$arrow_left focus left
+bindsym $mod+$arrow_right focus right
 
 # move focused window
-bindsym $mod+Shift+$left move left
-bindsym $mod+Shift+$down move down
-bindsym $mod+Shift+$up move up
-bindsym $mod+Shift+$right move right
+bindsym $mod+Shift+$vim_up move up
+bindsym $mod+Shift+$vim_down move down
+bindsym $mod+Shift+$vim_left move left
+bindsym $mod+Shift+$vim_right move right
 
 # move a workspace around monitors
-bindsym $mod+Ctrl+$left move workspace to output left
-bindsym $mod+Ctrl+$down move workspace to output down
-bindsym $mod+Ctrl+$up move workspace to output up
-bindsym $mod+Ctrl+$right move workspace to output right
+bindsym $mod+Ctrl+$vim_up move workspace to output up
+bindsym $mod+Ctrl+$vim_down move workspace to output down
+bindsym $mod+Ctrl+$vim_left move workspace to output left
+bindsym $mod+Ctrl+$vim_right move workspace to output right
 
 # scratchpad feature
 bindsym $mod+BackSpace scratchpad show
@@ -179,23 +198,24 @@ for_window [instance="scratchpad"] move window to scratchpad, scratchpad show
 for_window [window_type="normal"] border normal
 
 # Set floating for apps needing it
-for_window [class="(?i)anki" title="^Profiles"] floating enable, resize set 720 480, border pixel
-for_window [class="(?i)anki" title="^Preview"] floating disable, move right, layout tabbed, border pixel
-for_window [class="(?i)anki" title="^Browse"] floating disable, move left, border pixel
-for_window [class="(?i)anki" title="^Add Notes"] floating disable, layout splitv, border pixel
 for_window [class="(?i)anki" title=".*- Anki.*"] floating disable, layout splitv, border pixel
+for_window [class="(?i)anki" title="^Add Notes"] floating disable, layout splitv, border pixel
+for_window [class="(?i)anki" title="^Browse"] floating disable, move left, border pixel
+for_window [class="(?i)anki" title="^Preview"] floating disable, move right, layout tabbed, border pixel
+for_window [class="(?i)anki" title="^Profiles"] floating enable, resize set 720 480, border pixel
+for_window [class="(?i)anki" title="Add Note Type"] floating enable, resize set 620 480, border pixel
+for_window [class="Blueman-manager"] floating enable
+for_window [class="Gnome-disks"] floating enable, resize set 800 600
+for_window [class="kitty" instance="FloatingTerminal$"] floating toggle
+for_window [class=obsidian|kitty] border pixel
+for_window [class="Nm-connection-editor"] floating enable, resize set 800 480
 for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
 for_window [class="Qalculate-gtk"] floating enable
-for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
-for_window [class=obsidian|kitty] border pixel
-for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
-for_window [title="Save File"] floating enable
-for_window [class="kitty" instance="FloatingTerminal$"] floating toggle
-for_window [class="Gnome-disks"] floating enable, resize set 800 600
-for_window [class="Blueman-manager"] floating enable
-for_window [class="Nm-connection-editor"] floating enable, resize set 800 480
 for_window [class="qBittorrent" title="^(?!.*qBittorrent).*$"] floating enable
 for_window [class="VirtualBox" title="^(?!.*Oracle VirtualBox Manager).*$"] floating enable
+for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
+for_window [class="mpv"] floating enable, move position center
+for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 
 # Set floating mode for generated windows
 for_window [window_type="normal"] border normal
@@ -213,10 +233,11 @@ for_window [window_role="webconsole"] floating enable
 for_window [window_role="browser"] border pixel
 for_window [window_role="GtkFileChooserDialog"] resize set 600 400, move position center
 for_window [title="^(Open|Save|File|Select|Print|Choose)"] border normal 2, resize set 800 510
-no_focus [title="mpv Webcam"]
-for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
-for_window [class="mpv"] floating enable, move position center
+for_window [title="Event Tester"] floating enable resize set 400 200
 for_window [title="About|Preferences|htop|calcurse"] floating enable, border normal, resize set 700 540, move position center
+for_window [title="Save File"] floating enable
+for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
+no_focus [title="mpv Webcam"]
 
 
 # Set position of floating window
@@ -282,9 +303,9 @@ bar {
 }
 
 
-# Autostarts services
+# Autostarts aplications
+# exec --no-startup-id setxkbmap -option caps:swapescape
 exec --no-startup-id autorandr --daemon
-exec --no-startup-id clipcatd --no-daemon --replace
 exec --no-startup-id systemctl --user start xautocfg.service
 exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
 exec --no-startup-id unclutter --hide-on-touch --timeout 3 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
