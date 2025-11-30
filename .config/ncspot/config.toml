@@ -7,7 +7,7 @@ shuffle = false
 repeat = 'playlist'
 volnorm = false
 cover_max_scale = 2
-# notify = true
+notify = true
 # bitrate = 320
 
 [notification_format]

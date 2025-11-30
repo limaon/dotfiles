@@ -5,7 +5,7 @@
 # https://github.com/BreadOnPenguins/scripts/blob/master/dmenu_cliphist
 # Many thanks to BreadOnPenguins for making this tool available!
 
-histfile="/tmp/cliphist"
+histfile="${HOME}/.cache/cliphist"
 placeholder="<NEWLINE>"
 
 highlight() {

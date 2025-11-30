@@ -427,7 +427,7 @@ cmd extract ${{
 
   if [ -z "$valid_files" ]; then
     if [ -n "$invalid_files" ]; then
-      notify-send " Not a compressed file" \
+      notify-send -u critical "Not a compressed file" \
                    "No valid archives found to extract" \
                    2>/dev/null
     fi
@@ -435,7 +435,7 @@ cmd extract ${{
   fi
 
   if [ -n "$invalid_files" ]; then
-    notify-send "  Some files skipped" \
+    notify-send -u critical "Some files skipped" \
                  "Invalid archives: $invalid_files" \
                  2>/dev/null
   fi

@@ -46,16 +46,22 @@
 *.color14:               base1
 *.color15:               base3
 
-*highlightColor:        base02
-*highlightTextColor:    base03
+*highlightColor: base02
+*highlightTextColor: base03
 *.selectionColor: base01
 *.barBackground: white
-*.font: xft:UbuntuMono:size=14
-! *.font: xft:Terminus:size=14
+*.font: xos4 Terminus:pixelsize=20:antialias=true:autohint=true
 *.mark.background: yellow
 *.bar.background: base01
 *.bar.foreground: base03
 
+! === Nsxiv ===
+Nsxiv.window.background:  base03
+Nsxiv.window.foreground:  base01
+Nsxiv.bar.font:           xos4 Terminus:pixelsize=20:antialias=true:autohint=true
+Nsxiv.bar.background:     base01
+Nsxiv.bar.foreground:     base03
+Nsxiv.mark.foreground:    yellow
 
 ! Cursor settings
 Xcursor.theme: Pop
@@ -100,6 +106,12 @@ Xft.rgba:               none
 
 
 ! XTerm settings
+xterm*faceName: xft:UbuntuMono:size=16:antialias=true
+xterm*faceNameBold: xft:UbuntuMono:bold:style=Bold:size=15:antialias=true
+xterm*faceNameDoublesize: Noto Sans CJK
+xterm*allowBold: true
+xterm*renderFont: true
+xterm*loginShell: true
 ?.vt100.termName: xterm-256color
 ?.vt100.locale: false
 ?.vt100.utf8: true

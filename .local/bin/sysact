@@ -94,11 +94,9 @@ main() {
             fi
             ;;
         hibernate|hib)
-            lock_screen
             $(ctl) hibernate
             ;;
         sleep|suspend)
-            lock_screen
             $(ctl) suspend
             ;;
         reboot|restart)
