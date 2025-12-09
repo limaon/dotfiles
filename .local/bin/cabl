@@ -19,6 +19,137 @@ __strip() {
 	sed -e 's/^ *//; s/ *$//;' -e 's/▼//g' -e 's/△//g'
 }
 
+__is_portuguese() {
+	local text="$1"
+	text=$(echo "$text" | sed 's/^ *//; s/ *$//' | head -c 50)
+
+	# ============================================
+	# HIGH CONFIDENCE INDICATORS (immediate return)
+	# ============================================
+
+	# Portuguese-specific characters and digraphs
+	echo "$text" | grep -qiE '[áàâãéêíóôõúüçÁÀÂÃÉÊÍÓÔÕÚÜÇ]' && return 0
+	echo "$text" | grep -qiE '(nh|lh|ç|ão$)' && return 0
+	echo "$text" | grep -qiE '(ção|ções|são|ões|mente|dade)$' && return 0
+
+	# ============================================
+	# COMMON PORTUGUESE WORDS (exact matches)
+	# ============================================
+
+	# Verb conjugations (present, past, subjunctive)
+	echo "$text" | grep -qiE '^(sou|és|é|estou|estás|está|sejam|são|fazem|querem|podem|têm|vão|vamos|estamos|estão|faz|quer|pode|vai|diz|vem|tem)$' && return 0
+	echo "$text" | grep -qiE '^(fazer|querer|poder|ver|dizer|trazer|saber|haver|ser|ter|comer|beber|ler|escrever|vender|entender|responder|aprender|conhecer|parecer|escolher|correr|volver|rir|vir|dar|ir|estar)$' && return 0
+
+	# ============================================
+	# VERB TENSES PATTERNS
+	# ============================================
+
+	if [ ${#text} -ge 4 ]; then
+		echo "$text" | grep -qiE '(ar|ir)$' && return 0
+		echo "$text" | grep -qiE '(ado|ida|ido)$' && return 0
+		echo "$text" | grep -qiE 'iu$' && return 0
+		echo "$text" | grep -qiE '(ava|ia)$' && return 0
+		echo "$text" | grep -qiE '(ando|endo|indo)$' && return 0
+		echo "$text" | grep -qiE '(ará|erá|irá)$' && return 0
+		echo "$text" | grep -qiE '(aria|eria|iria)$' && return 0
+	fi
+
+	# ============================================
+	# ENGLISH EXCLUSIONS (to avoid false positives)
+	# ============================================
+
+	if [ ${#text} -ge 4 ]; then
+		echo "$text" | grep -qiE 'ed$' && return 1
+		echo "$text" | grep -qiE 'ive$' && return 1
+	fi
+
+	# Common English words
+	echo "$text" | grep -qiE '^(houses|phrases|cases|bases|shoes|games|times|comes|files|states|phases|tables|themes|those|these|makes|takes|uses|faces|places|spaces|races|photos|cities|countries|data|idea|area|photo|video|studio|radio|piano|solo|hero|zero|hello|ago|too|two|go|no|so|do|to|my|by|we|he|be|me|she|the|sofa|camera|banana|pizza|tomato|potato|cargo|mango|cream|dream|stream|system|team|beam|seam|them|stem|item)$' && return 1
+
+	# ============================================
+	# PLURAL FORMS
+	# ============================================
+
+	if [ ${#text} -ge 5 ]; then
+		echo "$text" | grep -qiE '(ntes|stes|res|les|mes|nes|tes|des|ges|ces|pes|bes|ves|zes|ques|gues|fes|ses|oes)$' && return 0
+
+		if echo "$text" | grep -qiE '[bcdfghjklmnpqrstvwxz][aeiou][bcdfghjklmnpqrstvwxz](os|as|es)$'; then
+			return 0
+		fi
+
+		echo "$text" | grep -qiE '(os|as|es)$' && return 0
+	fi
+
+	# ============================================
+	# NOUNS AND ADJECTIVES
+	# ============================================
+
+	if [ ${#text} -ge 5 ]; then
+		echo "$text" | grep -qiE 'ivo$' && return 0
+	fi
+
+	if [ ${#text} -ge 4 ]; then
+		if echo "$text" | grep -qiE '(a|o)$'; then
+			if [ ${#text} -eq 4 ] && echo "$text" | grep -qiE '[bcdfghjklmnpqrstvwxz](a|o)$'; then
+				return 0
+			fi
+			if [ ${#text} -ge 5 ]; then
+				return 0
+			fi
+		fi
+	fi
+
+	# ============================================
+	# FALSE COGNATES (Cognatos Imperfeitos)
+	# Distinguish Portuguese vs English similar words
+	# ============================================
+
+	if [ ${#text} -ge 5 ]; then
+		echo "$text" | grep -qiE 'ção$' && return 0
+		echo "$text" | grep -qiE 'cional$' && return 0
+		echo "$text" | grep -qiE 'dade$' && return 0
+		echo "$text" | grep -qiE 'ico$' && return 0
+		echo "$text" | grep -qiE 'ic$' && return 1
+		echo "$text" | grep -qiE 'oso$' && return 0
+		echo "$text" | grep -qiE 'ous$' && return 1
+		echo "$text" | grep -qiE 'ente$' && return 0
+
+		if [ ${#text} -ge 6 ]; then
+			echo "$text" | grep -qiE 'ent$' && return 1
+		fi
+
+		if echo "$text" | grep -qiE 'al$'; then
+			echo "$text" | grep -qiE '^(potential|actual|normal|general|local|social|personal|national|special|original|central|total|final|formal|legal|physical|medical|political|practical|critical|typical|musical|digital|capital|animal|hospital|portal)$' && return 1
+			if echo "$text" | grep -qiE '(cional|tual|ual)$' || echo "$text" | grep -qiE '[bcdfghjklmnpqrstvwxz][aeiou][bcdfghjklmnpqrstvwxz]al$'; then
+				return 0
+			fi
+			if [ ${#text} -ge 7 ]; then
+				return 0
+			fi
+		fi
+
+		echo "$text" | grep -qiE 'mente$' && return 0
+		echo "$text" | grep -qiE 'ly$' && return 1
+	fi
+
+	# ============================================
+	# OTHER PORTUGUESE PATTERNS
+	# ============================================
+
+	# Portuguese-specific patterns
+	echo "$text" | grep -qiE '(qu[aeiou]|gu[aeiou])' && return 0
+	echo "$text" | grep -qiE '(ante|ável|ível)$' && return 0
+
+	if [ ${#text} -ge 5 ]; then
+		echo "$text" | grep -qiE '[cgvz]er$' && return 0
+		if echo "$text" | grep -qiE '(zem|rem|tem|dem|sem|am)$'; then
+			return 0
+		fi
+	fi
+
+	return 1
+}
+
 # If you run `cabl clip`, reads from the clipboard instead.
 if [[ $1 == clip* ]]; then
 	search_text="$(xclip -o -selection clipboard | __strip)"
@@ -33,8 +164,15 @@ readonly search_text
 # Guess search locale
 if echo "$search_text" | grep -q '[А-Яа-я]'; then
 	readonly locale=ru
+elif echo "$search_text" | grep -q '[áàâãéêíóôõúüçÁÀÂÃÉÊÍÓÔÕÚÜÇ]'; then
+	readonly locale=pt
 elif echo "$search_text" | grep -q '[A-Za-z]'; then
-	readonly locale=en
+	# If it has Latin characters but no accents, check Portuguese patterns
+	if __is_portuguese "$search_text"; then
+		readonly locale=pt
+	else
+		readonly locale=en
+	fi
 else
 	readonly locale=ja
 fi
@@ -192,6 +330,19 @@ if [[ $locale == ja ]]; then
 		fi
 	}
 	furiganainfo() { "$BROWSER" "https://furigana.info/w/$*"; }
+elif [[ $locale == pt ]]; then
+	duckduckgo_search() {
+		"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=pt-br"
+	}
+	dicio() { "$BROWSER" "https://www.dicio.com.br/pesquisa.php?q=$*"; }
+	priberam() { "$BROWSER" "https://dicionario.priberam.org/$*"; }
+	michaelis() { "$BROWSER" "https://michaelis.uol.com.br/busca?r=0&f=0&t=0&palavra=$*"; }
+	aulete() { "$BROWSER" "https://www.aulete.com.br/$*"; }
+	sinonimos() { "$BROWSER" "https://www.sinonimos.com.br/busca.php?q=$*"; }
+	reverso() { "$BROWSER" "https://context.reverso.net/translation/portuguese-english/$*"; }
+	linguee() { "$BROWSER" "https://www.linguee.com.br/portugues-ingles/search?query=$*"; }
+	youglish() { "$BROWSER" "https://youglish.com/pronounce/$*/portuguese/br"; }
+	simplytranslate() { "$BROWSER" "https://simplytranslate.vern.cc/?engine=google&text=$*&sl=pt&tl=en"; }
 else
 	duckduckgo_search() {
 		"$BROWSER" "https://duckduckgo.com/?q=$*&kp=-2&kl=us-en"
