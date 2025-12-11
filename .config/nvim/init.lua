@@ -28,7 +28,7 @@ vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.shiftround = true
 vim.opt.foldmethod = "marker"
-vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
 vim.opt.foldcolumn = "auto"
 vim.opt.termguicolors = true
@@ -51,20 +51,18 @@ vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.grepprg = "rg --vimgrep"
 vim.opt.backspace = { "start", "eol", "indent" }
 vim.opt.backupskip = { "/tmp/*", "/private/tmp/*" }
-vim.opt.path:append({ "**" })
+-- vim.opt.path:append({ "**" }) -- Removed: too slow on large projects, use specific paths if needed
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.mouse = ""
 vim.opt.showmode = false
-vim.schedule(function()
-	vim.opt.clipboard = "unnamedplus"
-end)
+vim.opt.clipboard = "unnamedplus"
 vim.opt.breakindent = true
 vim.opt.undofile = true
 vim.opt.swapfile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.updatetime = 500
+vim.opt.updatetime = 300 -- Reduced from 500 for better responsiveness (LSP, diagnostics, etc.)
 vim.opt.timeoutlen = 500
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -72,7 +70,7 @@ vim.opt.list = false
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.opt.inccommand = "split"
 vim.opt.cursorline = false
-vim.opt.cursorlineopt = "number" or "number,line"
+vim.opt.cursorlineopt = "number,line"
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 5
 vim.opt.wrap = false
@@ -179,11 +177,13 @@ keymap("i", "<F5>", "<c-x><c-s>", { desc = "Suggests a list of correct word" })
 --  See `:help lua-guide-vim-functions
 
 -- Global Lua function that builds a tabline like "1:[foo.lua] [+]  2:[bar.lua]"
+-- Optimized: cache current tab number to avoid repeated calls
 function _G.MyTabLine()
 	local s = ""
 	local tabs = vim.fn.tabpagenr("$")
+	local current_tab = vim.fn.tabpagenr()
+
 	for i = 1, tabs do
-		local nr = i
 		local win = vim.fn.tabpagewinnr(i)
 		local buf = vim.fn.tabpagebuflist(i)[win]
 		local name = vim.fn.fnamemodify(vim.fn.bufname(buf), ":t")
@@ -191,8 +191,8 @@ function _G.MyTabLine()
 			name = "No Name"
 		end
 		local modified = vim.fn.getbufvar(buf, "&mod") == 1 and " [+]" or ""
-		local hl = nr == vim.fn.tabpagenr() and "%#TabLineSel#" or "%#TabLine#"
-		s = s .. "%" .. nr .. "T" .. hl .. " " .. nr .. ":[" .. name .. "]" .. modified .. " "
+		local hl = i == current_tab and "%#TabLineSel#" or "%#TabLine#"
+		s = s .. "%" .. i .. "T" .. hl .. " " .. i .. ":[" .. name .. "]" .. modified .. " "
 	end
 	s = s .. "%#TabLineFill#%T"
 	return s
@@ -227,16 +227,60 @@ local function create_autocmd(event, group, pattern, callback, desc)
 	})
 end
 
+-- [[ Context Files Helper (Cursor-like @filename) ]] {{{
+-- Function to add files to the Avante context (similar to @filename in Cursor)
+local function add_file_to_context(filename)
+	local filepath = vim.fn.findfile(filename, ".;")
+	if filepath == "" then
+		filepath = vim.fn.findfile(filename, vim.fn.getcwd() .. "/**")
+	end
+	if filepath ~= "" then
+		local content = vim.fn.readfile(filepath)
+		return table.concat(content, "\n"), filepath
+	end
+	return nil, nil
+end
+
+-- Command to add file to context
+vim.api.nvim_create_user_command("AvanteAddFile", function(opts)
+	local filename = opts.args
+	local content, filepath = add_file_to_context(filename)
+	if content then
+		vim.notify("Added " .. filename .. " to context: " .. filepath, vim.log.levels.INFO)
+		-- Store the content in the buffer for later use
+		if not vim.b.avante_context_files then
+			vim.b.avante_context_files = {}
+		end
+		vim.b.avante_context_files[filename] = content
+	else
+		vim.notify("File not found: " .. filename, vim.log.levels.ERROR)
+	end
+end, { nargs = 1, complete = "file" })
+-- }}}
+
 -- Grouping all basic autocommands
 local basic_group = create_augroup("BasicAutocommands")
 
 -- Resize windows when Vim is resized
 create_autocmd("VimResized", basic_group, "*", function()
-	vim.cmd("wincmd =")
+	vim.api.nvim_command("wincmd =")
 end, "Resize all windows equally when Vim is resized")
 
--- Remove trailing whitespaces before saving
+-- Remove trailing whitespaces before saving (optimized with filters)
 create_autocmd("BufWritePre", basic_group, "*", function()
+	-- Skip binary files
+	if vim.bo.binary or vim.bo.filetype == "" then
+		return
+	end
+	-- Skip very large files (performance optimization)
+	if vim.api.nvim_buf_line_count(0) > 100000 then
+		return
+	end
+	-- Skip certain file types that shouldn't be modified
+	local skip_filetypes = { "gitcommit", "gitrebase", "hgcommit", "svn", "cvs" }
+	if vim.tbl_contains(skip_filetypes, vim.bo.filetype) then
+		return
+	end
 	vim.cmd([[%s/\s\+$//e]])
 end, "Remove trailing whitespaces before saving")
 
@@ -247,7 +291,7 @@ end, "Automatically close the Netrw buffer")
 
 -- Enter insert mode when opening the terminal
 create_autocmd("TermOpen", basic_group, "*", function()
-	vim.cmd("startinsert")
+	vim.api.nvim_command("startinsert")
 end, "Enter insert mode when opening the terminal")
 
 -- Turn off paste mode when leaving insert mode
@@ -312,15 +356,21 @@ end, "Disable concealing for specific file types")
 -- Highlight on yank (copying) text
 local yank_group = create_augroup("HighlightYank")
 create_autocmd("TextYankPost", yank_group, "*", function()
-	local hl = vim.hl or vim.highlight
-	hl.on_yank()
+	vim.hl.on_yank()
 end, "Highlight text when yanked")
 
--- Sync syntax highlighting
+-- Sync syntax highlighting (optimized: only on file read, not on every buffer switch)
 local syntax_group = create_augroup("SyncSyntax")
-create_autocmd("BufEnter", syntax_group, "*", function()
+create_autocmd("BufReadPost", syntax_group, "*", function()
+	-- Only sync for text files, skip binary and very large files
+	if vim.bo.binary or vim.bo.filetype == "" then
+		return
+	end
+	if vim.api.nvim_buf_line_count(0) > 100000 then
+		return
+	end
 	vim.cmd("syntax sync maxlines=100")
-end, "Synchronize syntax highlighting with a line limit")
+end, "Synchronize syntax highlighting when reading file")
 
 -- Remember cursor position when reopening files
 local cursor_group = create_augroup("RememberCursorPosition")
@@ -455,7 +505,10 @@ vim.opt.rtp:prepend(lazypath)
 -- [[ Configure and install plugins ]] {{{
 ---@diagnostic disable: missing-fields
 require("lazy").setup({
-	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
+	{ -- Detect tabstop and shiftwidth automatically
+		"tpope/vim-sleuth",
+		event = { "BufReadPost", "BufNewFile" },
+	},
 
 	{ -- Theme Solarized
 		"craftzdog/solarized-osaka.nvim",
@@ -484,7 +537,6 @@ require("lazy").setup({
 					on_highlights = function(_, colors)
 						vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = colors.bg, fg = colors.base0 })
 						vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = colors.bg, fg = colors.base01 })
-						-- vim.api.nvim_set_hl(0, "TelescopePromptNormal", { bg = colors.bg, fg = colors.bg })
 						vim.api.nvim_set_hl(0, "TelescopePromptBorder", { bg = colors.bg, fg = colors.fg })
 						vim.api.nvim_set_hl(0, "TelescopePromptTitle", { bg = colors.bg, fg = colors.fg })
 						vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { bg = colors.bg, fg = colors.fg })
@@ -511,6 +563,10 @@ require("lazy").setup({
 	{ -- Git
 		"lewis6991/gitsigns.nvim",
 		event = { "BufReadPre", "BufNewFile" },
+		cond = function()
+			local line_count = vim.fn.line("$")
+			return line_count < 50000
+		end,
 		opts = {
 			signs = {
 				add = { text = "+" },
@@ -568,6 +624,8 @@ require("lazy").setup({
 
 	{ -- Plugin vim-fugitive to git integration
 		"tpope/vim-fugitive",
+		cmd = { "Git", "Gstatus", "Gcommit", "Gpush", "Gpull", "Gblame", "Gdiff", "Glog" },
+		event = "VeryLazy",
 		config = function()
 			local function map(mode, lhs, rhs, desc)
 				vim.keymap.set(mode, lhs, rhs, { desc = desc })
@@ -748,6 +806,7 @@ require("lazy").setup({
 		dependencies = {},
 	},
 
+	-- [[ LSP Configuration with nvim-lspconfig ]] {{{
 	{
 		"neovim/nvim-lspconfig",
 		dependencies = {
@@ -788,28 +847,12 @@ require("lazy").setup({
 
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.server_capabilities.inlayHintProvider then
-						local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", {})
 						local detach_augroup = vim.api.nvim_create_augroup("lsp-detach", { clear = true })
-
-						-- vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-						-- 	buffer = event.buf,
-						-- 	group = highlight_augroup,
-						-- 	callback = vim.lsp.buf.document_highlight,
-						-- })
-						-- vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-						-- 	buffer = event.buf,
-						-- 	group = highlight_augroup,
-						-- 	callback = vim.lsp.buf.clear_references,
-						-- })
 
 						vim.api.nvim_create_autocmd("LspDetach", {
 							group = detach_augroup,
 							callback = function(ev)
 								vim.lsp.buf.clear_references()
-								vim.api.nvim_clear_autocmds({
-									group = highlight_augroup,
-									buffer = ev.buf,
-								})
 							end,
 						})
 					end
@@ -879,6 +922,38 @@ require("lazy").setup({
 						},
 					},
 				},
+				ts_ls = {
+					settings = {
+						typescript = {
+							inlayHints = {
+								includeInlayParameterNameHints = "all",
+								includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+								includeInlayFunctionParameterTypeHints = true,
+								includeInlayVariableTypeHints = true,
+								includeInlayPropertyDeclarationTypeHints = true,
+								includeInlayFunctionLikeReturnTypeHints = true,
+								includeInlayEnumMemberValueHints = true,
+							},
+							preferences = {
+								importModuleSpecifier = "relative",
+							},
+						},
+						javascript = {
+							inlayHints = {
+								includeInlayParameterNameHints = "all",
+								includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+								includeInlayFunctionParameterTypeHints = true,
+								includeInlayVariableTypeHints = true,
+								includeInlayPropertyDeclarationTypeHints = true,
+								includeInlayFunctionLikeReturnTypeHints = true,
+								includeInlayEnumMemberValueHints = true,
+							},
+							preferences = {
+								importModuleSpecifier = "relative",
+							},
+						},
+					},
+				},
 			}
 
 			local ensure_installed = vim.tbl_keys(servers or {})
@@ -904,6 +979,7 @@ require("lazy").setup({
 			})
 		end,
 	},
+	-- }}}
 
 	-- [[ Conform.nvim ]] {{{
 	{
@@ -1002,6 +1078,12 @@ require("lazy").setup({
 							return require("blink-cmp").select_next()
 						elseif cmp.snippet_active() then
 							return cmp.snippet_forward()
+						else
+							-- Trigger autocomplete if not visible
+							local blink_cmp = require("blink.cmp")
+							if blink_cmp and blink_cmp.complete then
+								blink_cmp.complete()
+							end
 						end
 					end,
 					"fallback",
@@ -1251,6 +1333,12 @@ require("lazy").setup({
 			highlight = { enable = true, additional_vim_regex_highlighting = { "ruby" } },
 			indent = { enable = true, disable = { "ruby" } },
 		},
+		fold = {
+			enable = true,
+			disable = function(_, bufnr)
+				return vim.api.nvim_buf_line_count(bufn) > 800
+			end,
+		}
 	},
 	-- }}}
 
@@ -1294,7 +1382,7 @@ require("lazy").setup({
 					},
 				},
 				copilot = {
-					model = "grok-code-fast-1", -- Available models: "gpt-4", "gpt-3.5-turbo", "claude-3.5-sonnet", "gemini-1.5-pro"
+					model = "gpt-5-mini", -- Available models: "gpt-4", "gpt-3.5-turbo", "claude-3.5-sonnet", "gemini-1.5-pro"
 					timeout = 10000,
 					disable_tools = false,
 				},
@@ -1362,6 +1450,8 @@ require("lazy").setup({
 				enable_token_counting = false,
 				auto_approve_tool_permissions = false, -- Require manual approval for tool permissions
 				auto_add_current_file = true,
+				-- Add project context automatically
+				auto_add_codebase_context = true,
 				---@type boolean
 				acp_follow_agent_locations = true,
 				---@type "popup" | "inline_buttons"
@@ -1389,11 +1479,9 @@ require("lazy").setup({
 					winblend = 8,
 				},
 				edit = {
-					border = "single",
-					title = "Apply Changes",
-					title_pos = "center",
-					start_insert = true,
-					winblend = 0,
+					border = "rounded",
+					title_pos = "right",
+					start_insert = false,
 				},
 				ask = {
 					floating = false,
@@ -1438,16 +1526,20 @@ require("lazy").setup({
 						},
 						suggestion = {
 							enabled = true,
-							auto_trigger = false,
+							auto_trigger = true, -- Enable automatic suggestions (ghost text)
 							debounce = 75,
 							keymap = {
 								accept = "<C-l>",
-								accept_word = false,
-								accept_line = false,
+								accept_word = "<C-right>", -- Accept word by word
+								accept_line = "<C-down>", -- Accept line by line
 								next = "<M-]>",
 								prev = "<M-[>",
 								dismiss = "<C-]>",
 							},
+						},
+						-- This makes suggestions appear inline as gray/ghost text
+						highlight = {
+							priority = 1000,
 						},
 						filetypes = {
 							yaml = false,
@@ -1463,6 +1555,16 @@ require("lazy").setup({
 						copilot_node_command = "node",
 						server_opts_overrides = {},
 					})
+
+					-- Set highlight for Copilot suggestions to appear as ghost text
+					vim.defer_fn(function()
+						-- Configure the highlight group for ghost text
+						vim.api.nvim_set_hl(0, "CopilotSuggestion", {
+							fg = "#808080", -- Gray color for ghost text
+							italic = true,
+							underline = false,
+						})
+					end, 100)
 				end,
 			},
 			{
