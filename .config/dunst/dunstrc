@@ -20,6 +20,8 @@ progress_bar_height = 8
 progress_bar_frame_width = 1
 progress_bar_min_width = 150
 progress_bar_max_width = 300
+# progress_bar_corner_radius = 3
+# progress_bar_horizontal_alignment = center
 indicate_hidden = yes
 transparency = 0
 separator_height = 2
@@ -72,6 +74,17 @@ mouse_left_click =  do_action, close_current
 mouse_middle_click = close_all
 mouse_right_click = close_current
 
+### Keyboard Shortcuts (X11 only) ###
+# Uncomment to enable keyboard shortcuts
+# context = ctrl+grave          # Action menu
+# close = ctrl+space            # Close current notification
+# close_all = ctrl+shift+space  # Close all notifications
+# history = ctrl+shift+grave    # Show history
+# pause = ctrl+shift+p          # Pause/Resume
+
+# default_pause_level = 0       # 0-100, notifications only appear if urgency > pause_level
+idle_threshold = 120            # Don't show notifications when system is idle (seconds)
+
 [experimental]
 per_monitor_dpi = false
 
@@ -102,6 +115,18 @@ frame_color = "#eeeeee"
 default_icon = dialog-error
 highlight = "#ff4444"
 override_pause_level = 70
+
+[notification-sound-normal]
+urgency = normal
+script = "pw-play /usr/share/sounds/freedesktop/stereo/dialog-information.oga 2>/dev/null &"
+
+[notification-sound-low]
+urgency = low
+script = "pw-play /usr/share/sounds/freedesktop/stereo/dialog-information.oga 2>/dev/null &"
+
+[notification-sound-critical]
+urgency = critical
+script = "pw-play /usr/share/sounds/freedesktop/stereo/dialog-warning.oga 2>/dev/null &"
 
 [transient_disable]
 match_transient = yes
@@ -143,6 +168,7 @@ urgency = low
 appname = pamixer
 summary = ""
 urgency = normal
+# Sem script de áudio para evitar loop
 
 # cli parameter match: "string:synchronous:system-control"
 # volume and brightness
@@ -153,6 +179,7 @@ foreground="#FAF3E1"
 frame_color="#ABB6B6"
 highlight="#FCFCFC"
 timeout=1
+# Sem script de áudio para evitar loop
 
 [ignore-update]
 desktop_entry = "packagekit"
@@ -164,13 +191,14 @@ body=".*Battery: 10%.*"
 foreground="#FF0000"
 timeout=0
 icon="battery-low"
-# script="/path/to/battery-status.sh"
+script="pw-play /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga 2>/dev/null &"
 
 [battery-critical]
 appname = "upower"
 summary = ".*Battery low.*"
 urgency = critical
 timeout = 0
+script = "pw-play /usr/share/sounds/freedesktop/stereo/alarm-clock-elapsed.oga 2>/dev/null &"
 
 [history-ignore]
 summary = "System Notification"
@@ -212,6 +240,137 @@ foreground="#E6EFFF"
 frame_color="#229ED9"
 highlight="#229ED9"
 timeout=5
+
+#
+# Additional Custom Settings (uncomment as desired)
+#
+
+### Email ###
+[email-notifications]
+desktop_entry = "thunderbird"
+background = "#1E3A5F"
+foreground = "#FFFFFF"
+frame_color = "#4A90E2"
+highlight = "#4A90E2"
+timeout = 15
+urgency = normal
+
+### Discord/Slack ###
+[discord-notifications]
+desktop_entry = "discord"
+background = "#5865F2"
+foreground = "#FFFFFF"
+frame_color = "#7289DA"
+highlight = "#7289DA"
+timeout = 10
+
+#[slack-notifications]
+#desktop_entry = "slack"
+#background = "#4A154B"
+#foreground = "#FFFFFF"
+#frame_color = "#611F69"
+#highlight = "#611F69"
+#timeout = 10
+
+### Git/Development ###
+[git-notifications]
+appname = "git"
+urgency = normal
+timeout = 5
+icon = "git"
+
+[build-notifications]
+#summary = ".*(build|compile|make).*"
+#urgency = normal
+#timeout = 3
+
+### Network/Connectivity ###
+[network-connected]
+summary = ".*(connected|Connection established).*"
+background = "#2D5016"
+foreground = "#88FF88"
+timeout = 3
+
+#[network-disconnected]
+summary = ".*(disconnected|Connection lost).*"
+background = "#501616"
+foreground = "#FF8888"
+urgency = critical
+timeout = 0
+
+### Screenshots ###
+#[screenshot-notifications]
+#appname = "maim"
+#urgency = low
+#timeout = 2
+#icon = "camera"
+
+### Download ###
+[download-complete]
+summary = ".*(Download complete|Transfer complete).*"
+urgency = normal
+timeout = 5
+script = "pw-play /usr/share/sounds/freedesktop/stereo/complete.oga 2>/dev/null &"
+
+#[transfer-complete]
+category = "transfer.complete"
+urgency = normal
+timeout = 5
+
+[transfer-error]
+category = "transfer.error"
+urgency = critical
+timeout = 0
+
+### System ###
+[system-updates]
+category = "sysadmin"
+urgency = normal
+timeout = 10
+
+[system-errors]
+category = "error"
+urgency = critical
+timeout = 0
+
+### Stack Tags (group notifications) ###
+[stack-music]
+appname = "(ncspot|mpd|mpv)"
+set_stack_tag = "music"
+
+[stack-downloads]
+summary = ".*(Download|Transfer).*"
+set_stack_tag = "downloads"
+
+### Formatting ###
+[long-messages]
+word_wrap = true
+ellipsize = end
+
+### Backup ###
+[backup-notifications]
+summary = ".*(backup|Backup).*"
+urgency = low
+timeout = 3
+
+### Printing ###
+[print-notifications]
+category = "device"
+urgency = normal
+timeout = 5
+
+### Calendar/Reminders ###
+#[calendar-reminders]
+#category = "calendar"
+#urgency = normal
+#timeout = 30
+#background = "#FFA500"
+#foreground = "#000000"
+
+### Fullscreen (enhancements) ###
+#[fullscreen_show_important]
+#fullscreen = show
+#msg_urgency = critical
 
 #[says]
 #    appname = Pidgin
