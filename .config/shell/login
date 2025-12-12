@@ -72,8 +72,8 @@ export MOZ_USE_XINPUT2=1
 
 
 # Exports to clean my home directory
-export USERXSESSION="${XDG_CACHE_HOME}/.cache/X11/xsession"
-export USERXSESSIONRC="${XDG_CACHE_HOME}/.cache/X11/xsessionrc"
+export USERXSESSION="${XDG_CACHE_HOME}/X11/xsession"
+export USERXSESSIONRC="${XDG_CACHE_HOME}/X11/xsessionrc"
 export ERRFILE="${XDG_CACHE_HOME}/X11/xsession-errors"
 export XINITRC="${XDG_CACHE_HOME}/X11/xinitrc"
 # export INPUTRC="${XDG_CONFIG_HOME}/.inputrc"
@@ -155,7 +155,6 @@ export TMUX_TMPDIR="${XDG_RUNTIME_DIR}"
 export ANDROID_SDK_HOME="${XDG_CONFIG_HOME}/android"
 export GOPATH="${XDG_DATA_HOME}/go"
 export GOMODCACHE="${XDG_CACHE_HOME}/go/mod"
-export ANSIBLE_CONFIG="${XDG_CONFIG_HOME}/ansible/ansible.cfg"
 export MBSYNCRC="${XDG_CONFIG_HOME}/mbsync/config"
 export PYTHONHISTORY="${XDG_CACHE_HOME}/pyhistory"
 export SQLITE_HISTORY="${XDG_DATA_HOME}/sqlite_history"
@@ -180,11 +179,11 @@ pathprepend ~/include CPATH
 pathremove . PATH
 pathremove "" PATH
 
-ssource ~/.cofing/shell/login_local
+ssource ~/.config/shell/login_local
 
 # Add all directories in `~/.local/bin` to $PATH
 if [[ -d "$HOME/.local/bin" ]]; then
-    export PATH="$PATH:$(find ~/.local/bin -type d | paste -sd ':' -)"
+    pathprepend "$HOME/.local/bin" PATH
 fi
 
 ## Source asdf-vm settings
@@ -193,7 +192,9 @@ fi
 # [[ -f "${ASDF_DATA_DIR}/completions/asdf.bash" ]] && source ${ASDF_DATA_DIR}/completions/asdf.bash
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="${HOME}/.local/share/cargo/bin:$PATH"
-. <(asdf completion bash)
+if command -v asdf >/dev/null 2>&1; then
+    . <(asdf completion bash)
+fi
 
 
 
