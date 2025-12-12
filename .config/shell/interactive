@@ -30,7 +30,7 @@ alias rm='rm -vI'
 alias rsync='rsync -vrPlu'
 alias rsync-keep='rsync -avzru --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r'
 alias pstree='pstree -npTC age'
-alias rmpyc='find . -name "*.pyc" -exec rm -f {} \;'
+alias rmpyc='find . -name "*.pyc" -delete'
 alias ip='ip -color=auto'
 
 
@@ -132,7 +132,7 @@ export CLICOLOR=1
 export COLORFGBG="default;default"
 
 # gnome-terminal doesn't advertise its 256 colour support.
-if [ "$COLORTERM" = gnome-terminal -a "$TERM" = xterm ]; then
+if [ "$COLORTERM" = gnome-terminal ] && [ "$TERM" = xterm ]; then
     export TERM=xterm-256color
 fi
 

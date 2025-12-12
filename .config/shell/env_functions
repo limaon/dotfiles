@@ -72,10 +72,11 @@ mkcd() {
 # Uninstalls all orphaned packages (packages no longer required as dependencies).
 remorphans() {
     local packages=()
+    local package
 
-    for package in $(pacman -Qdtq); do
+    while IFS= read -r package; do
         packages+=("$package")
-    done
+    done < <(pacman -Qdtq)
 
     echo "Found ${#packages[*]} orphans."
     if ! [[ ${#packages[*]} -eq 0 ]]; then
@@ -93,13 +94,35 @@ lfcd () {
 
 ### FZF functions and options
 FZF_EXCLUDE_DIRS=(
+    # Common unnecessary directories
     ".git"
     "node_modules"
     ".cache"
     ".cargo"
     ".yarn"
     ".svn"
-    "chromium"
+    # Python-specific non-relevant files and folders
+    "__pycache__"
+    "*.pyc"
+    "*.pyo"
+    "*.pyd"
+    "*.egg-info"
+    "*.eggs"
+    ".env"
+    ".venv"
+    "env"
+    "venv"
+    ".mypy_cache"
+    ".pytest_cache"
+    ".tox"
+    ".coverage"
+    ".hypothesis"
+    ".idea"
+    ".ropeproject"
+    "*.log"
+    "*.db"
+    "pip-selfcheck.json"
+    # Media and binary assets
     "*.png"
     "*.mp4"
     "*.mp3"
@@ -111,11 +134,69 @@ FZF_EXCLUDE_DIRS=(
     "*.tar"
     "*.tgz"
     "*.zip"
+    # Swap and temporary files
+    "*/.swap*"
+    "*.swp"
+    "*.swo"
+    "*.swm"
+    "*.swn"
+    "*.swo"
+    "*.swl"
+    "*.spp"
+    # Irrelevant/large files and folders often found in $HOME/.config
+    ".DS_Store"
+    ".Trash"
+    "*.lock"
+    "*.sqlite"
+    "*.log"
+    "Cache"
+    "cache"
+    ".local"
+    "*.bak"
+    ".recently-used"
+    "Code/CachedData"
+    "Code/Crashpad"
+    "Code/logs"
+    "Code/Service Worker/CacheStorage"
+    "google-chrome"
+    "chromium"
+    "BraveSoftware"
+    "VSCodium"
+    "Electron"
+    "kitty/session"
+    "nvim/backup"
+    "nvim/swap"
+    "nvim/shada"
+    "nvim/undo"
+    "btop/themes"
+    "btop/logs"
+    # Irrelevant/large files and folders often found in $HOME/.local
+    ".local/share/Trash"
+    ".local/share/flatpak"
+    ".local/share/baloo"
+    ".local/share/Steam"
+    ".local/share/akonadi"
+    ".local/share/recently-used.xbel"
+    ".local/share/nvim/backup"
+    ".local/share/nvim/swap"
+    ".local/share/nvim/shada"
+    ".local/share/nvim/undo"
+    ".local/share/virtualenvs"
+    ".local/share/gnome-shell"
+    ".local/share/gvfs-metadata"
+    ".local/share/gvfs-metadata/*"
+    ".local/share/Trash/*"
+    ".local/share/containers"
+    ".local/state"
+    ".local/cache"
+    ".local/log"
+    ".local/bin/__pycache__"
+    ".local/bin/*.pyc"
 )
 if command -v fd >/dev/null 2>&1; then
     FZF_CMD='fd --type f --hidden --follow'
     for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-        FZF_CMD="$FZF_CMD --exclude $dir"
+        FZF_CMD="$FZF_CMD --exclude \"$dir\""
     done
     export FZF_DEFAULT_COMMAND="$FZF_CMD"
 elif command -v rg >/dev/null 2>&1; then
@@ -148,30 +229,35 @@ fall() {
 fe() {
     local file
 
-    file="$( find . \
-        -type f \
-        -not \( \
-            -path "*/.git*" -o \
-            -path "*/.cache*" -o \
-            -path "*/.cargo*" -o \
-            -path "*/.yarn*" -o \
-            -path "*/chromium*" -o \
-            -path "*/.svn*" -o \
-            -path "*.png" -o \
-            -path "*.mp4" -o \
-            -path "*.mp3" -o \
-            -path "*.jpg" -o \
-            -path "*.jpeg" -o \
-            -path "*.bin" -o \
-            -path "*.svg" -o \
-            -path "*.gz" -o \
-            -path "*.tar" -o \
-            -path "*.tgz" -o \
-            -path "*.zip" \
-        \) \
-        ! -size 0 \
-        -print 2> /dev/null | fzf-tmux -p +m)" &&
-    ${EDITOR:-vim} "$file"
+    if [ -n "$FZF_DEFAULT_COMMAND" ]; then
+        file="$($FZF_DEFAULT_COMMAND 2>/dev/null | fzf-tmux -p +m)"
+    else
+        file="$( find . \
+            -type f \
+            -not \( \
+                -path "*/.git*" -o \
+                -path "*/.cache*" -o \
+                -path "*/.cargo*" -o \
+                -path "*/.yarn*" -o \
+                -path "*/chromium*" -o \
+                -path "*/.svn*" -o \
+                -path "*.png" -o \
+                -path "*.mp4" -o \
+                -path "*.mp3" -o \
+                -path "*.jpg" -o \
+                -path "*.jpeg" -o \
+                -path "*.bin" -o \
+                -path "*.svg" -o \
+                -path "*.gz" -o \
+                -path "*.tar" -o \
+                -path "*.tgz" -o \
+                -path "*.zip" \
+            \) \
+            ! -size 0 \
+            -print 2> /dev/null | fzf-tmux -p +m)"
+    fi
+
+    [ -n "$file" ] && ${EDITOR:-vim} "$file"
 }
 
 
