@@ -89,10 +89,67 @@ remorphans() {
 lfcd () {
   local dir
   dir="$(command lf -print-last-dir "$@")"
-  [ -n "$dir" ] && [ -d "$dir" ] && cd -- "$dir"
+  [ -n "$dir" ] && [ -d "$dir" ] && cd -- "$dir" || return
 }
 
 ### FZF functions and options
+
+# Helper function to build FZF command with exclusions
+_build_fzf_cmd() {
+    local cmd_type=$1
+    local tool=$2
+    local base_cmd
+    local fzf_cmd
+    local dir
+
+    case "$tool" in
+        fd)
+            base_cmd="fd --type $cmd_type --hidden --follow"
+            fzf_cmd="$base_cmd"
+            for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+                fzf_cmd="$fzf_cmd --exclude \"$dir\""
+            done
+            ;;
+        rg)
+            if [ "$cmd_type" = "f" ]; then
+                base_cmd="rg --files --hidden --follow"
+                fzf_cmd="$base_cmd"
+                for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+                    fzf_cmd="$fzf_cmd --glob \"!$dir/*\""
+                done
+            else
+                # rg doesn't support directories, use find
+                base_cmd="find . -type d"
+                fzf_cmd="$base_cmd"
+                for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+                    fzf_cmd="$fzf_cmd -not -path \"*/$dir/*\""
+                done
+            fi
+            ;;
+        find)
+            base_cmd="find . -type $cmd_type"
+            fzf_cmd="$base_cmd"
+            for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+                fzf_cmd="$fzf_cmd -not -path \"*/$dir/*\""
+            done
+            ;;
+    esac
+
+    printf '%s' "$fzf_cmd"
+}
+
+# Helper function to run fzf with fallback
+_fzf_select() {
+    local fzf_command=$1
+    local fallback_cmd=$2
+
+    if [ -n "$fzf_command" ]; then
+        eval "$fzf_command" 2>/dev/null | fzf-tmux -p +m
+    else
+        eval "$fallback_cmd" 2>/dev/null | fzf-tmux -p +m
+    fi
+}
+
 FZF_EXCLUDE_DIRS=(
     # Common unnecessary directories
     ".git"
@@ -193,24 +250,22 @@ FZF_EXCLUDE_DIRS=(
     ".local/bin/__pycache__"
     ".local/bin/*.pyc"
 )
+# Build FZF commands based on available tools
 if command -v fd >/dev/null 2>&1; then
-    FZF_CMD='fd --type f --hidden --follow'
-    for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-        FZF_CMD="$FZF_CMD --exclude \"$dir\""
-    done
-    export FZF_DEFAULT_COMMAND="$FZF_CMD"
+    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'fd')"
+    export FZF_DEFAULT_COMMAND
+    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'fd')"
+    export FZF_DIR_COMMAND
 elif command -v rg >/dev/null 2>&1; then
-    FZF_CMD='rg --files --hidden --follow'
-    for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-        FZF_CMD="$FZF_CMD --glob \"!$dir/*\""
-    done
-    export FZF_DEFAULT_COMMAND="$FZF_CMD"
+    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'rg')"
+    export FZF_DEFAULT_COMMAND
+    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'rg')"
+    export FZF_DIR_COMMAND
 else
-    FZF_CMD='find . -type f'
-    for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-        FZF_CMD="$FZF_CMD -not -path \"*/$dir/*\""
-    done
-    export FZF_DEFAULT_COMMAND="$FZF_CMD"
+    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'find')"
+    export FZF_DEFAULT_COMMAND
+    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'find')"
+    export FZF_DIR_COMMAND
 fi
 export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
@@ -228,35 +283,9 @@ fall() {
 # Finds and edits a file in the current directory, excluding certain paths and file types.
 fe() {
     local file
+    local fallback_cmd='find . -type f -not \( -path "*/.git*" -o -path "*/.cache*" -o -path "*/.cargo*" -o -path "*/.yarn*" -o -path "*/chromium*" -o -path "*/.svn*" -o -path "*.png" -o -path "*.mp4" -o -path "*.mp3" -o -path "*.jpg" -o -path "*.jpeg" -o -path "*.bin" -o -path "*.svg" -o -path "*.gz" -o -path "*.tar" -o -path "*.tgz" -o -path "*.zip" \) ! -size 0 -print'
 
-    if [ -n "$FZF_DEFAULT_COMMAND" ]; then
-        file="$($FZF_DEFAULT_COMMAND 2>/dev/null | fzf-tmux -p +m)"
-    else
-        file="$( find . \
-            -type f \
-            -not \( \
-                -path "*/.git*" -o \
-                -path "*/.cache*" -o \
-                -path "*/.cargo*" -o \
-                -path "*/.yarn*" -o \
-                -path "*/chromium*" -o \
-                -path "*/.svn*" -o \
-                -path "*.png" -o \
-                -path "*.mp4" -o \
-                -path "*.mp3" -o \
-                -path "*.jpg" -o \
-                -path "*.jpeg" -o \
-                -path "*.bin" -o \
-                -path "*.svg" -o \
-                -path "*.gz" -o \
-                -path "*.tar" -o \
-                -path "*.tgz" -o \
-                -path "*.zip" \
-            \) \
-            ! -size 0 \
-            -print 2> /dev/null | fzf-tmux -p +m)"
-    fi
-
+    file="$(_fzf_select "$FZF_DEFAULT_COMMAND" "$fallback_cmd")"
     [ -n "$file" ] && ${EDITOR:-vim} "$file"
 }
 
@@ -265,13 +294,10 @@ fe() {
 # Changes to a directory selected via fzf, excluding certain paths.
 fcd() {
     local dir
-    dir=$(find . \
-        -not \( -path "*/.*" -prune \) \
-            -not \( -path "*/Library/*" -prune \) \
-            -not \( -path "*/Applications/*" -prune \) \
-            -not \( -ipath "*/cache/*" -prune \) \
-        -type d -print 2> /dev/null | fzf-tmux -p +m) &&
-    cd "$dir" || return
+    local fallback_cmd='find . -not \( -path "*/.*" -prune \) -not \( -path "*/Library/*" -prune \) -not \( -path "*/Applications/*" -prune \) -not \( -ipath "*/cache/*" -prune \) -type d -print'
+
+    dir="$(_fzf_select "$FZF_DIR_COMMAND" "$fallback_cmd")"
+    [ -n "$dir" ] && cd "$dir" || return
 }
 
 # Usage: fkill [signal]

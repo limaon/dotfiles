@@ -6,6 +6,7 @@ export HISTSIZE=10000
 export HISTFILESIZE=20000
 export HISTFILE="${XDG_DATA_HOME}/bash_history"
 
+# Shell options - globbing
 shopt -s histappend
 shopt -s nocaseglob
 shopt -s autocd
@@ -14,11 +15,26 @@ shopt -s extglob
 shopt -s globstar
 shopt -s dotglob
 shopt -s direxpand
+shopt -s failglob          # Fail if glob doesn't match
+shopt -s nullglob           # Expand empty globs to empty string
+
+# Shell options - history
 shopt -s histverify
 shopt -s lithist
 shopt -s cmdhist
+
+# Shell options - other
 shopt -s checkwinsize
+shopt -s lastpipe           # Last pipe command in current shell
+shopt -s progcomp_alias     # Enable completion for aliases
+shopt -s no_empty_cmd_completion  # Don't complete empty commands
+shopt -s shift_verbose      # Warn if shift exceeds arguments
+
+# Set options
 complete -cf doas
 set -o noclobber
+set -o pipefail             # Return failure status from pipelines
+# set -o ignoreeof          # If you want Ctrl+D protection
+
 
 # vim:ft=sh
