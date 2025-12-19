@@ -1,118 +1,153 @@
 {
-    "editor.fontSize": 18,
-    "editor.wordWrap": "off",
-    "editor.fontFamily": "'JetBrainsMono Nerd Font','Ubuntu Mono','Droid Sans Mono', 'monospace', monospace",
-    "editor.defaultFormatter": "anysphere.cursor-agent-exec",
-    "editor.cursorStyle": "line",
-    "editor.insertSpaces": false,
-    "editor.fontLigatures": true,
-    "editor.minimap.enabled": false,
-    "editor.renderWhitespace": "none",
-    "editor.renderControlCharacters": false,
-    "editor.renderLineHighlight": "gutter",
-    "editor.suggestSelection": "first",
-    "editor.cursorBlinking": "phase",
-    "editor.formatOnSave": true,
-    "editor.wordSeparators": "/\\()\"':;,.<>~!@#$%^&*|+=[]{}`?-",
-    "editor.semanticHighlighting.enabled": false,
-    "editor.scrollbar.vertical": "hidden",
-    "editor.scrollbar.horizontal": "hidden",
+  "editor.fontSize": 18,
+  "editor.fontFamily": "'JetBrainsMono Nerd Font','Ubuntu Mono','Droid Sans Mono', 'monospace', monospace",
+  "editor.defaultFormatter": "anysphere.cursor-agent-exec",
+  "editor.wordWrap": "off",
+  // "editor.lineHeight": 22,
+  "editor.lineNumbers": "relative",
+  "editor.insertSpaces": false,
+  "editor.fontLigatures": false,
+  "editor.minimap.enabled": false,
+  "editor.codeLens": false,
+  "editor.colorDecorators": true,
+  "editor.links": true,
+  "editor.matchBrackets": "never",
+  "editor.parameterHints.enabled": true,
+  "editor.lightbulb.enabled": "off",
+  "editor.hover.enabled": false,
+  "editor.renderWhitespace": "none",
+  "editor.renderControlCharacters": false,
+  "editor.renderLineHighlight": "none",
+  "editor.occurrencesHighlight": "off",
+  "editor.selectionHighlight": false,
+  "editor.suggestSelection": "first",
+  "editor.guides.indentation": false,
+  "editor.showFoldingControls": "never",
+  "editor.renderLineHighlightOnlyWhenFocus": false,
+  "editor.cursorBlinking": "phase",
+  "editor.cursorStyle": "line",
+  "editor.formatOnSave": true,
+  "editor.wordSeparators": "/\\()\"':;,.<>~!@#$%^&*|+=[]{}`?-",
+  "editor.semanticHighlighting.enabled": false,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.scrollbar.horizontal": "hidden",
+  "editor.overviewRulerBorder": false,
+  "editor.hideCursorInOverviewRuler": true,
+  "editor.snippetSuggestions": "top",
+  "editor.tabCompletion": "on",
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.quickSuggestions": {
+    "other": "off",
+    "comments": "off",
+    "strings": "off"
+  },
 
-    "workbench.editor.labelFormat": "short",
-    "workbench.editor.showTabs": "multiple",
-    "workbench.sideBar.location": "right",
-    "workbench.statusBar.visible": false,
-    "workbench.iconTheme": "vs-seti",
-    "workbench.editor.enablePreviewFromQuickOpen": false,
-    "workbench.colorTheme": "Cursor Dark",
-    "workbench.startupEditor": "newUntitledFile",
-    // "workbench.tree.indent": 20,
-    // "workbench.list.automaticKeyboardNavigation": false
+
+  "workbench.statusBar.visible": true,
+  "workbench.statusEditor": "none",
+  "workbench.tips.enabled": false,
+  "workbench.tree.enabledSticky": false,
+  "workbench.tree.renderIndentGuides": "none",
+  "workbench.sideBar.location": "right",
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "workbench.editor.labelFormat": "short",
+  "workbench.editor.showTabs": "multiple",
+  "workbench.iconTheme": "vs-seti",
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.colorTheme": "Cursor Dark",
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.tree.indent": 10,
+  // "workbench.list.automaticKeyboardNavigation": false
 
 
-    "explorer.compactFolders": false,
-    "explorer.fileNesting.enabled": true,
-    "explorer.openEditors.visible": 10,
-    "explorer.sortOrder": "foldersNestsFiles",
-    "explorer.fileNesting.patterns": {
-      "package.json": ".eslint*, prettier*, tsconfig*, vite*, pnpm-lock*, package-lock*, bun.lockb",
-      "tailwind.config*": "tailwind.config*, postcss.config*",
-      ".env.local*": ".env*",
-      ".env*": ".env*"
-    },
+  "explorer.compactFolders": false,
+  "explorer.fileNesting.enabled": true,
+  "explorer.openEditors.visible": 10,
+  "explorer.confirmDragAndDrop": false,
+  "explorer.confirmDelete": true,
+  "explorer.decorations.badges": false,
+  "explorer.sortOrder": "foldersNestsFiles",
+  "explorer.fileNesting.patterns": {
+    "package.json": ".eslint*, prettier*, tsconfig*, vite*, pnpm-lock*, package-lock*, bun.lockb",
+    "tailwind.config*": "tailwind.config*, postcss.config*",
+    ".env.local*": ".env*",
+    ".env*": ".env*"
+  },
 
-    "files.trimTrailingWhitespace": true,
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/package-lock.json": true,
-        "**/*.js": { "when": "$(basename).ts" }
-    },
 
-    "terminal.integrated.fontSize": 17,
-    "terminal.integrated.fontFamily": "'UbuntuMono Nerd Font','Ubuntu Mono','Droid Sans Mono','monospace'",
-    "terminal.integrated.defaultProfile.linux": "bash",
-    "terminal.integrated.defaultProfile.osx": "bash",
-    "terminal.integrated.copyOnSelection": true,
-    "terminal.integrated.cursorBlinking": true,
-    "terminal.integrated.fontWeightBold": "normal",
-    "terminal.integrated.drawBoldTextInBrightColors": false,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "files.autoSave": "afterDelay",
+  "files.exclude": {
+      "**/.git": true,
+      "**/.svn": true,
+      "**/.hg": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true,
+      "**/package-lock.json": true,
+      "**/*.js": { "when": "$(basename).ts" }
+  },
 
-    "apc.electron": {
-      "titleBarStyle": "hiddenInset",
-      "trafficLightPosition": {
-        "x": 16,
-        "y": 12
-      },
-      "frame": false
-    },
-    "apc.header": {
-        "height": 16
-    },
-    "apc.listRow": {
-      "height": 24
-    },
-    "apc.stylesheet": {
-      ".title-label > h2": "display: none",
-      ".editor-actions": "display: none",
-      ".nosidebar .inline-tabs-placeholder": "width: 75px",
-      ".pane-header": "padding: 8 8px",
-      ".pane-body": "padding: 8px",
-      ".split-view-view:first-child .pane-header": "display: none !important;",
-      ".monaco-list-row": "border-radius: 4px;",
-      ".monaco-workbench .monaco-list:not(.element-focused):focus:before": "display: none;",
-      ".explorer-viewlet .monaco-list-row": "font-size: 20px;"
-    },
-    "apc.font.family": "'UbuntuMono Nerd Font','Ubuntu Mono','Droid Sans Mono','monospace'",
+  "terminal.integrated.fontSize": 17,
+  "terminal.integrated.fontFamily": "'UbuntuMono Nerd Font','Ubuntu Mono','Droid Sans Mono','monospace'",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.defaultProfile.osx": "bash",
+  "terminal.integrated.copyOnSelection": true,
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.fontWeightBold": "normal",
+  "terminal.integrated.drawBoldTextInBrightColors": false,
 
-    "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
 
-    "search.searchOnType": false,
+  "search.searchOnType": true,
 
-    "scm.inputFontSize": 16,
-    "screencastMode.fontSize": 60,
+  "git.decorations.enabled": false,
 
-    "window.closeWhenEmpty": true,
-    "window.confirmSaveUntitledWorkspace": true,
-    "window.commandCenter": false,
-    "window.customTitleBarVisibility": "never",
-    "window.doubleClickIconToClose": false,
-    "window.title": "${dirty}${activeEditorShort}${separator}${rootName}${separator}${profileName}${separator}${appName}",
-    "window.titleBarStyle": "native",
-    "window.menuBarVisibility": "hidden",
-    "window.titleSeparator": " - ",
+  "emmet.triggerExpansionOnTab": true,
 
-    "breadcrumbs.enabled": false,
+  "scm.inputFontSize": 16,
+  "scm.alwaysShowActions": false,
+  "scm.showActionButton": true,
+  "scm.diffDecorations": "gutter",
+  "screencastMode.fontSize": 60,
 
-    "security.promptForRemoteFileProtocolHandling": false,
-    "redhat.telemetry.enabled": false,
-    "makefile.configureOnOpen": true,
+  "window.closeWhenEmpty": true,
+  "window.confirmSaveUntitledWorkspace": true,
+  "window.commandCenter": false,
+  "window.customTitleBarVisibility": "never",
+  "window.doubleClickIconToClose": false,
+  "window.title": "${dirty}${activeEditorShort}${separator}${rootName}${separator}${profileName}${separator}${appName}",
+  "window.titleBarStyle": "native",
+  "window.menuBarVisibility": "hidden",
+  "window.titleSeparator": " - ",
+  "window.zoomLevel": 0.2,
 
-    "[html]": {
-      "editor.tabSize": 2,
-      "editor.insertSpaces": true
-    },
+  "breadcrumbs.enabled": false,
+
+  "security.promptForRemoteFileProtocolHandling": false,
+  "redhat.telemetry.enabled": false,
+  "makefile.configureOnOpen": true,
+
+
+  "[html]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "[json]": {
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+
+  "cursor.composer.cmdPFilePicker2": true,
+  "cursor.composer.queueMessageDefaultBehavior": "stop-and-send",
+  "cursor.composer.collapsePaneInputBoxPills": true,
+  "cursor.cmdk.useThemedDiffBackground2": false,
+  "cursor.worktreeCleanupIntervalHours": 6,
+  "cursor.composer.shouldChimeAfterChatFinishes": true,
+
+  "update.mode": "none",
+  "extensions.ignoreRecommendations": true,
+
 }
