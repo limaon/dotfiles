@@ -146,8 +146,8 @@
   "cursor.cmdk.useThemedDiffBackground2": false,
   "cursor.worktreeCleanupIntervalHours": 6,
   "cursor.composer.shouldChimeAfterChatFinishes": true,
-
-  "update.mode": "none",
+  "cursor.composer.usageSummaryDisplay": "always",
   "extensions.ignoreRecommendations": true,
+  "workbench.editor.enablePreview": false,
 
 }

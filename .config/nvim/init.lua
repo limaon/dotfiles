@@ -14,7 +14,7 @@ vim.g.netrw_dirhistmax = 0
 vim.g.netrw_banner = 1
 vim.g.netrw_home = vim.fn.getcwd()
 vim.g.netrw_localmovecmd = "mv -f"
-vim.g.netrw_localrmdir = "rm -r"
+vim.g.netrw_localrmdir = "rm -rf"
 vim.g.netrw_list_hide = ".git,*.o,*.bak,*.pyc,*.swp,*.~,*.tmp,*.temp,node_modules,__pycache__"
 -- }}}
 
@@ -81,96 +81,6 @@ vim.opt.whichwrap:append("[,]")
 vim.opt.showtabline = 2
 -- }}}
 
--- [[ Basic Keymaps ]] {{{
---  See `:help vim.keymap.set()`
-local keymap = vim.keymap.set
-local opts = { noremap = true, silent = true }
-
--- TIP: Disable arrow keys in normal mode
--- keymap("n", "<left>", '<cmd>echo "Use h to move!!"<cr>')
--- keymap("n", "<right>", '<cmd>echo "Use l to move!!"<cr>')
--- keymap("n", "<up>", '<cmd>echo "Use k to move!!"<cr>')
--- keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
-
--- Select all
-keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
-
--- Native tabs
-keymap("n", "te", ":tabfind ", { noremap = true, silent = false })
-keymap("n", "tt", "<cmd>tabnew<cr>", opts)
-keymap("n", "tn", "<cmd>tabnext<cr>", opts)
-keymap("n", "tp", "<cmd>tabprevious<cr>", opts)
-keymap("n", "td", "<cmd>tabclose<cr>", opts)
-
--- Buffer
-keymap("n", "<tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
-keymap("n", "<s-tab>", "<cmd>bprevious<cr>", { desc = "Preivous buffer" })
-keymap("n", "<delete>", "<cmd>bdelete!<cr>", { desc = "Close current" })
-
--- Split window
-keymap("n", "ss", "<c-w>s", { desc = "Split below" })
-keymap("n", "sv", "<c-w>v", { desc = "Split right" })
-
--- Move to window
-keymap("n", "sh", "<c-w>h", { desc = "Go to left window" })
-keymap("n", "sk", "<c-w>k", { desc = "Go to upper window" })
-keymap("n", "sj", "<c-w>j", { desc = "Go to lower window" })
-keymap("n", "sl", "<c-w>l", { desc = "Go to right window" })
-
--- Resize window
-keymap("n", "<m-up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
-keymap("n", "<m-down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" })
-keymap("n", "<m-left>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
-keymap("n", "<m-right>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
-
-keymap("v", ">", ">gv", { desc = "Visual shifting" })
-keymap("v", "<", "<gv", { desc = "Visual shifting" })
-
--- Keep cursor in the middle of the screen
-keymap("n", "<c-d>", "<c-d>zz", { desc = "Scroll down" })
-keymap("n", "<c-u>", "<c-u>zz", { desc = "Scroll up" })
-
--- Keeping search centered
-keymap("n", "n", "nzzzv", { desc = "Next search result" })
-keymap("n", "N", "Nzzzv", { desc = "Prev search result" })
-
--- Clear search with <esc>
-keymap({ "i", "n" }, "<esc>", "<Cmd>nohlsearch<CR><Esc>", { desc = "Escape and clear hlsearch" })
-keymap("n", "/", "zn/", { desc = "Search & Pause Folds" })
-
--- Better UP / DOWN
-keymap("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move lines up" })
-keymap("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move lines down" })
-
--- Keep cursor in place
-keymap("n", "J", "mzJ`z", { desc = "Join lines" })
-
--- Open File browser
-keymap("n", "<leader>e", "<cmd>Explore<cr>", { desc = "Open Netrw" })
-
--- Replace World
-keymap(
-	"n",
-	"<leader>s",
-	":%s/\\<<c-r><c-w>\\>/<c-r><c-w>/gI<left><left><left>",
-	{ silent = false, desc = "Replace word" }
-)
-keymap("n", "<leader>x", "<cmd>!chmod u+x %<CR>", { desc = "Excutable file" })
-
--- Get terminal
-keymap("n", "<leader>tt", "<cmd>split term://bash<cr>", { silent = false, desc = "Horizontal terminal" })
-keymap("n", "<leader>tv", "<cmd>vsplit term://bash<cr>", { silent = false, desc = "Vertical terminal" })
-keymap("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Exit terminal mode" })
-keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
-
--- Function keys
-keymap("n", "<F1>", "<cmd>set rnu!<cr>", { desc = "Set relative number" })
-keymap("n", "<F2>", "<cmd>set spell!<cr>", { desc = "Spell language" })
-keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Alternate wrap option" })
-keymap("n", "<F4>", "z=", { desc = "Select a correct word" })
-keymap("i", "<F5>", "<c-x><c-s>", { desc = "Suggests a list of correct word" })
-
--- }}}
 
 -- [[ Basic Autocommands/Functions ]] {{{
 --  See `:help lua-guide-autocommands`
@@ -239,6 +149,16 @@ local function add_file_to_context(filename)
 		return table.concat(content, "\n"), filepath
 	end
 	return nil, nil
+end
+
+-- Function to split window and switch to next buffer
+---@diagnostic disable: assign-type-mismatch
+local function split_and_switch(split_cmd)
+	vim.cmd(split_cmd)
+	local buffers = vim.fn.getbufinfo({ buflisted = true })
+	if #buffers > 1 then
+		vim.cmd("bnext")
+	end
 end
 
 -- Command to add file to context
@@ -486,6 +406,98 @@ create_autocmd("FileType", lang_group, vim.tbl_keys(language_settings), function
 		end
 	end
 end, "Language-specific settings")
+
+-- }}}
+
+
+-- [[ Basic Keymaps ]] {{{
+--  See `:help vim.keymap.set()`
+local keymap = vim.keymap.set
+local opts = { noremap = true, silent = true }
+
+-- TIP: Disable arrow keys in normal mode
+-- keymap("n", "<left>", '<cmd>echo "Use h to move!!"<cr>')
+-- keymap("n", "<right>", '<cmd>echo "Use l to move!!"<cr>')
+-- keymap("n", "<up>", '<cmd>echo "Use k to move!!"<cr>')
+-- keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
+
+-- Select all
+keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
+
+-- Native tabs
+keymap("n", "te", ":tabfind ", { noremap = true, silent = false })
+keymap("n", "tt", "<cmd>tabnew<cr>", opts)
+keymap("n", "tn", "<cmd>tabnext<cr>", opts)
+keymap("n", "tp", "<cmd>tabprevious<cr>", opts)
+keymap("n", "td", "<cmd>tabclose<cr>", opts)
+
+-- Buffer
+keymap("n", "<tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
+keymap("n", "<s-tab>", "<cmd>bprevious<cr>", { desc = "Preivous buffer" })
+keymap("n", "<delete>", "<cmd>bdelete!<cr>", { desc = "Close current" })
+
+-- Split window
+keymap("n", "ss", function() split_and_switch('split') end, { desc = "Split below" })
+keymap("n", "sv", function() split_and_switch('vsplit') end, { desc = "Split right" })
+
+-- Move to window
+keymap("n", "sh", "<c-w>h", { desc = "Go to left window" })
+keymap("n", "sk", "<c-w>k", { desc = "Go to upper window" })
+keymap("n", "sj", "<c-w>j", { desc = "Go to lower window" })
+keymap("n", "sl", "<c-w>l", { desc = "Go to right window" })
+
+-- Resize window
+keymap("n", "<m-up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
+keymap("n", "<m-down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" })
+keymap("n", "<m-left>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
+keymap("n", "<m-right>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
+
+keymap("v", ">", ">gv", { desc = "Visual shifting" })
+keymap("v", "<", "<gv", { desc = "Visual shifting" })
+
+-- Keep cursor in the middle of the screen
+keymap("n", "<c-d>", "<c-d>zz", { desc = "Scroll down" })
+keymap("n", "<c-u>", "<c-u>zz", { desc = "Scroll up" })
+
+-- Keeping search centered
+keymap("n", "n", "nzzzv", { desc = "Next search result" })
+keymap("n", "N", "Nzzzv", { desc = "Prev search result" })
+
+-- Clear search with <esc>
+keymap({ "i", "n" }, "<esc>", "<Cmd>nohlsearch<CR><Esc>", { desc = "Escape and clear hlsearch" })
+keymap("n", "/", "zn/", { desc = "Search & Pause Folds" })
+
+-- Better UP / DOWN
+keymap("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move lines up" })
+keymap("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move lines down" })
+
+-- Keep cursor in place
+keymap("n", "J", "mzJ`z", { desc = "Join lines" })
+
+-- Open File browser
+keymap("n", "<leader>e", "<cmd>Explore<cr>", { desc = "Open Netrw" })
+
+-- Replace World
+keymap(
+	"n",
+	"<leader>s",
+	":%s/\\<<c-r><c-w>\\>/<c-r><c-w>/gI<left><left><left>",
+	{ silent = false, desc = "Replace word" }
+)
+keymap("n", "<leader>x", "<cmd>!chmod u+x %<CR>", { desc = "Excutable file" })
+
+-- Get terminal
+keymap("n", "<leader>tt", "<cmd>split term://bash<cr>", { silent = false, desc = "Horizontal terminal" })
+keymap("n", "<leader>tv", "<cmd>vsplit term://bash<cr>", { silent = false, desc = "Vertical terminal" })
+keymap("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Exit terminal mode" })
+keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+
+-- Function keys
+keymap("n", "<F1>", "<cmd>set rnu!<cr>", { desc = "Set relative number" })
+keymap("n", "<F2>", "<cmd>set spell!<cr>", { desc = "Spell language" })
+keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Alternate wrap option" })
+keymap("n", "<F4>", "z=", { desc = "Select a correct word" })
+keymap("i", "<F5>", "<c-x><c-s>", { desc = "Suggests a list of correct word" })
 
 -- }}}
 
@@ -1345,121 +1357,24 @@ require("lazy").setup({
 	-- [[ Avante.nvim ]] {{{
 	{
 		"yetone/avante.nvim",
+    event = "VeryLazy",
+    lazy = false,
+    varsion = false,
 		build = "make",
-		event = "VeryLazy",
 		opts = {
-			mode = "agentic", -- "agentic" (default) or "legacy" mode
-			instructions_file = "avante.md",
-			web_search_engine = {
-				provider = "tavily", -- tavily, serpapi, google, kagi, brave, searxng
-				proxy = nil,
-			},
-			-- provider = "gemini-cli", -- ACP provider (com problemas de agent_capabilities)
-			provider = "copilot", -- Provider tradicional (mais estável)
+			provider = "copilot",
 			providers = {
-				ollama = {
-					endpoint = "http://localhost:11434",
-					model = "deepseek-r1:latest",
-					timeout = 180000,
-					is_env_set = function()
-						local ok, ollama = pcall(require, "avante.providers.ollama")
-						if ok and ollama and ollama.check_endpoint_alive then
-							return ollama.check_endpoint_alive()
-						end
-						local handle = io.popen("curl -s --max-time 1 http://localhost:11434/api/tags 2>/dev/null")
-						if handle then
-							local result = handle:read("*a")
-							handle:close()
-							return result ~= "" and result ~= nil
-						end
-						return false
-					end,
-					extra_request_body = {
-						options = {
-							temperature = 0.6,
-							num_ctx = 8192,
-						},
-					},
-				},
 				copilot = {
-					model = "gpt-5-mini", -- Available models: "gpt-4", "gpt-3.5-turbo", "claude-3.5-sonnet", "gemini-1.5-pro"
-					timeout = 10000,
-					disable_tools = false,
+          disable_tools = false,
+					model = "grok-code-fast-1",
 				},
-				gemini = {
-					api_key = os.getenv("GEMINI_API_KEY"),
-					model = "gemini-pro",
-					timeout = 30000,
-				},
-			},
-			-- [[ Agent Client Protocol (ACP) Providers ]] {{{
-			-- Configure ACP providers for enhanced AI agent capabilities
-			-- To use an ACP provider, set provider to the ACP provider name (e.g., "gemini-cli")
-			acp_providers = {
-				["gemini-cli"] = {
-					command = "npx",
-					args = { "@google/gemini-cli", "--experimental-acp" },
-					env = {
-						NODE_NO_WARNINGS = "1",
-						GEMINI_API_KEY = os.getenv("GEMINI_API_KEY"),
-					},
-					-- Timeout para evitar travamentos
-					timeout = 30000, -- 30 segundos
-				},
-				["claude-code"] = {
-					command = "npx",
-					args = { "@zed-industries/claude-code-acp" },
-					env = {
-						NODE_NO_WARNINGS = "1",
-						ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY"),
-					},
-				},
-				["goose"] = {
-					command = "goose",
-					args = { "acp" },
-				},
-				["codex"] = {
-					command = "codex-acp",
-					env = {
-						NODE_NO_WARNINGS = "1",
-						OPENAI_API_KEY = os.getenv("OPENAI_API_KEY"),
-					},
-				},
-				["kimi-cli"] = {
-					command = "kimi",
-					args = { "acp" },
-					env = {
-						KIMI_API_KEY = os.getenv("KIMI_API_KEY"),
-					},
-				},
-			},
-			-- }}}
-			input = {
-				provider = "native",
-				history = true,
-			},
-			suggestion = {
-				debounce = 1000,
-				throttle = 1000,
 			},
 			behaviour = {
 				auto_apply_diff_after_generation = false,
-				auto_set_highlight_group = true,
-				support_paste_from_clipboard = false,
+				confirmation_ui_style = "popup",
 				minimize_diff = true,
-				enable_token_counting = false,
-				auto_approve_tool_permissions = false, -- Require manual approval for tool permissions
-				auto_add_current_file = true,
-				-- Add project context automatically
-				auto_add_codebase_context = true,
-				---@type boolean
-				acp_follow_agent_locations = true,
-				---@type "popup" | "inline_buttons"
-				confirmation_ui_style = "inline_buttons",
 			},
 			windows = {
-				wrap = true,
-				width = 32,
 				sidebar_header = {
 					enabled = true,
 					align = "center",
@@ -1471,33 +1386,15 @@ require("lazy").setup({
 					thinking = { "󰳟 ", "󰊠 " },
 				},
 				input = {
-					border = "rounded",
-					prefix = "> ",
-					start_insert = false,
-					height = 12,
-					width = 52,
-					winblend = 8,
+          start_insert = false,
 				},
+        ask = {
+          start_insert = false,
+        },
 				edit = {
 					border = "rounded",
 					title_pos = "right",
 					start_insert = false,
-				},
-				ask = {
-					floating = false,
-					border = "rounded",
-					title = "Ask Avante",
-					title_pos = "center",
-					focus_on_apply = "ours",
-					start_insert = false,
-				},
-				acp = {
-					border = "rounded",
-					width = 80,
-					height = 20,
-					row = 1,
-					col = 0.5,
-					winblend = 12,
 				},
 			},
 		},
@@ -1526,47 +1423,33 @@ require("lazy").setup({
 						},
 						suggestion = {
 							enabled = true,
-							auto_trigger = true, -- Enable automatic suggestions (ghost text)
+							auto_trigger = true,
 							debounce = 75,
 							keymap = {
 								accept = "<C-l>",
-								accept_word = "<C-right>", -- Accept word by word
-								accept_line = "<C-down>", -- Accept line by line
+								accept_word = "<C-right>",
+								accept_line = "<C-down>",
 								next = "<M-]>",
 								prev = "<M-[>",
 								dismiss = "<C-]>",
 							},
 						},
-						-- This makes suggestions appear inline as gray/ghost text
 						highlight = {
 							priority = 1000,
 						},
-						filetypes = {
-							yaml = false,
-							markdown = false,
-							help = false,
-							gitcommit = false,
-							gitrebase = false,
-							hgcommit = false,
-							svn = false,
-							cvs = false,
-							["."] = false,
-						},
 						copilot_node_command = "node",
-						server_opts_overrides = {},
 					})
 
-					-- Set highlight for Copilot suggestions to appear as ghost text
 					vim.defer_fn(function()
-						-- Configure the highlight group for ghost text
 						vim.api.nvim_set_hl(0, "CopilotSuggestion", {
-							fg = "#808080", -- Gray color for ghost text
+							fg = "#808080",
 							italic = true,
 							underline = false,
 						})
 					end, 100)
 				end,
 			},
+
 			{
 				"HakonHarnes/img-clip.nvim",
 				event = "VeryLazy",
@@ -1580,8 +1463,38 @@ require("lazy").setup({
 						use_absolute_path = true,
 					},
 				},
+        keys = {
+          { "<leader>p", "<cmd>PasteImage<cr>", desc = "Paste image from clipboard" },
+        }
 			},
+
 		},
+	},
+	-- }}}
+
+	-- [[ MCPHub.nvim ]] {{{
+	{
+		"ravitemer/mcphub.nvim",
+		event = "VeryLazy",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+		},
+		cmd = "MCPHub",
+		build = "npm install -g mcp-hub@latest",
+		config = function()
+			require("mcphub").setup({
+				config = vim.fn.expand("~/.config/mcphub/servers.json"),
+				auto_approve = false,
+				extensions = {
+					avante = {
+						make_slash_commands = true,
+					},
+				},
+				on_error = function(err)
+					vim.notify("MCPHub error: " .. tostring(err), vim.log.levels.ERROR)
+				end,
+			})
+		end,
 	},
 	-- }}}
 }, {
