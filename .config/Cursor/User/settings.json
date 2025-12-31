@@ -53,12 +53,17 @@
     "editor.defaultFormatter": "vscode.css-language-features"
   },
   "workbench.editor.labelFormat": "short",
-  "workbench.editor.showTabs": "multiple",
   "workbench.iconTheme": "vs-seti",
   "workbench.editor.enablePreviewFromQuickOpen": false,
   "workbench.colorTheme": "Cursor Dark",
   "workbench.startupEditor": "newUntitledFile",
   "workbench.tree.indent": 10,
+  "workbench.settings.editor": "ui",
+  "workbench.settings.openDefaultSettings": false,
+  "workbench.editor.splitInGroupLayout": "vertical",
+  "workbench.editor.openPositioning": "last",
+  "workbench.editor.splitOnDragAndDrop": false,
+
   // "workbench.list.automaticKeyboardNavigation": false
 
 
@@ -146,8 +151,20 @@
   "cursor.cmdk.useThemedDiffBackground2": false,
   "cursor.worktreeCleanupIntervalHours": 6,
   "cursor.composer.shouldChimeAfterChatFinishes": true,
-  "cursor.composer.usageSummaryDisplay": "always",
   "extensions.ignoreRecommendations": true,
+  "cursor.composer.textSizeScale": 1.15,
+  // Adicione aqui outros arquivos interessantes desabilitar.
+  "cursor.cpp.disabledLanguages": [
+    "plaintext",
+    "yaml",
+    "json",
+    "csv"
+  ],
+  "cursor.inlineDiff.enablePerformanceProtection": false,
+  "cursor.composer.usageSummaryDisplay": "always",
   "workbench.editor.enablePreview": false,
+  "notebook.diff.enablePreview": false,
+  "markdown.preview.breaks": true,
+  "multiDiffEditor.experimental.enabled": false,
 
 }
