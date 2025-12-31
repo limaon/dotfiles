@@ -185,24 +185,6 @@ create_autocmd("VimResized", basic_group, "*", function()
 	vim.api.nvim_command("wincmd =")
 end, "Resize all windows equally when Vim is resized")
 
--- Remove trailing whitespaces before saving (optimized with filters)
-create_autocmd("BufWritePre", basic_group, "*", function()
-	-- Skip binary files
-	if vim.bo.binary or vim.bo.filetype == "" then
-		return
-	end
-	-- Skip very large files (performance optimization)
-	if vim.api.nvim_buf_line_count(0) > 100000 then
-		return
-	end
-	-- Skip certain file types that shouldn't be modified
-	local skip_filetypes = { "gitcommit", "gitrebase", "hgcommit", "svn", "cvs" }
-	if vim.tbl_contains(skip_filetypes, vim.bo.filetype) then
-		return
-	end
-	vim.cmd([[%s/\s\+$//e]])
-end, "Remove trailing whitespaces before saving")
-
 -- Autoclose Netrw buffer
 create_autocmd("FileType", basic_group, "netrw", function()
 	vim.opt_local.bufhidden = "wipe"
@@ -625,7 +607,7 @@ require("lazy").setup({
 					vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
 				end
 
-				-- Navigation (usando nav_hunk ao invés de next_hunk/prev_hunk deprecated)
+				-- Navigation
 				map("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
@@ -1555,7 +1537,9 @@ require("lazy").setup({
 			})
 
 			require("mini.pairs").setup()
-			require("mini.trailspace").setup()
+			require("mini.trailspace").setup({
+				only_in_normal_buffers = true,
+			})
 		end,
 	},
 	-- }}}
