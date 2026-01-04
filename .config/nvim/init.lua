@@ -62,7 +62,7 @@ vim.opt.undofile = true
 vim.opt.swapfile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
-vim.opt.updatetime = 500
+vim.opt.updatetime = 250
 vim.opt.timeoutlen = 500
 vim.opt.splitright = true
 vim.opt.splitbelow = true
@@ -136,20 +136,6 @@ local function create_autocmd(event, group, pattern, callback, desc)
 	})
 end
 
--- [[ Context Files Helper (Cursor-like @filename) ]] {{{
--- Function to add files to the Avante context (similar to @filename in Cursor)
-local function add_file_to_context(filename)
-	local filepath = vim.fn.findfile(filename, ".;")
-	if filepath == "" then
-		filepath = vim.fn.findfile(filename, vim.fn.getcwd() .. "/**")
-	end
-	if filepath ~= "" then
-		local content = vim.fn.readfile(filepath)
-		return table.concat(content, "\n"), filepath
-	end
-	return nil, nil
-end
-
 -- Function to split window and switch to next buffer
 ---@diagnostic disable: assign-type-mismatch
 local function split_and_switch(split_cmd)
@@ -159,23 +145,6 @@ local function split_and_switch(split_cmd)
 		vim.cmd("bnext")
 	end
 end
-
--- Command to add file to context
-vim.api.nvim_create_user_command("AvanteAddFile", function(opts)
-	local filename = opts.args
-	local content, filepath = add_file_to_context(filename)
-	if content then
-		vim.notify("Added " .. filename .. " to context: " .. filepath, vim.log.levels.INFO)
-		-- Store the content in the buffer for later use
-		if not vim.b.avante_context_files then
-			vim.b.avante_context_files = {}
-		end
-		vim.b.avante_context_files[filename] = content
-	else
-		vim.notify("File not found: " .. filename, vim.log.levels.ERROR)
-	end
-end, { nargs = 1, complete = "file" })
--- }}}
 
 -- Grouping all basic autocommands
 local basic_group = create_augroup("BasicAutocommands")
@@ -597,7 +566,7 @@ require("lazy").setup({
 				use_focus = true,
 			},
 			sign_priority = 6,
-			update_debounce = 100,
+			update_debounce = 250,
 			status_formatter = nil,
 			max_file_length = 40000,
 			preview_config = { border = "single", style = "minimal", relative = "cursor", row = 0, col = 1 },
@@ -608,6 +577,7 @@ require("lazy").setup({
 				end
 
 				-- Navigation
+        ---@diagnostic disable: param-type-mismatch
 				map("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
@@ -694,7 +664,7 @@ require("lazy").setup({
 		-- tag = "*",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
-			{ -- If encountering errors, see telescope-fzf-native README for installation instructions
+			{
 				"nvim-telescope/telescope-fzf-native.nvim",
 				build = "make",
 				cond = function()
@@ -914,7 +884,7 @@ require("lazy").setup({
 
 						vim.api.nvim_create_autocmd("LspDetach", {
 							group = detach_augroup,
-							callback = function(ev)
+							callback = function(_)
 								vim.lsp.buf.clear_references()
 							end,
 						})
@@ -1133,63 +1103,47 @@ require("lazy").setup({
 	},
 	-- }}}
 
-	-- [[ NeoCodeium ]] {{{
+	-- [[ Supermaven ]] {{{
 	{
-		"monkoose/neocodeium",
+		"supermaven-inc/supermaven-nvim",
 		event = "VeryLazy",
 		config = function()
-			local neocodeium = require("neocodeium")
 			local ok_blink, blink = pcall(require, "blink.cmp")
 
-			neocodeium.setup({
-				enabled = true,
-				manual = false,
-				show_label = true,
-				debounce = false,
-				max_lines = 10000, -- or -1 for no limit (it could be slow)
-				silent = true,
-				disable_in_special_buftypes = true,
-				log_level = "warn",
-				single_line = {
-					enabled = false,
-					label = "...",
+			require("supermaven-nvim").setup({
+				keymaps = {
+					accept_suggestion = "<Tab>",
 				},
-				filetypes = {
-					help = false,
+				ignore_filetypes = {
+					help = true,
 					gitcommit = false,
-					gitrebase = false,
-					["."] = false,
-					TelescopePrompt = false,
-					["dap-repl"] = false,
+					gitrebase = true,
+					TelescopePrompt = true,
+					dap_repl = true,
 				},
-				root_dir = {
-					".bzr",
-					".git",
-					".hg",
-					".svn",
-					"_FOSSIL_",
-					"package.json",
-					"package.json",
-					"pyproject.toml",
-					"Cargo.toml",
-					"go.mod",
-					"composer.json",
+				color = {
+					suggestion_color = "#586E75",
+					cterm = 244,
 				},
-				filter = function(bufnr)
-					local line_count = vim.api.nvim_buf_line_count(bufnr)
-					if line_count > 5000 then
-						return false
-					end
-
-					local bufname = vim.api.nvim_buf_get_name(bufnr)
-					if vim.endswith(bufname, ".env") then
-						return false
-					end
-
+				log_level = "warn",
+				disable_inline_completion = false,
+				disable_keymaps = false,
+				condition = function()
 					if ok_blink and blink and blink.is_visible() then
-						return false
+						return true
 					end
-					return true
+
+					local line_count = vim.api.nvim_buf_line_count(0)
+					if line_count > 5000 then
+						return true
+					end
+
+					local bufname = vim.api.nvim_buf_get_name(0)
+					if vim.endswith(bufname, ".env") then
+						return true
+					end
+
+					return false
 				end,
 			})
 
@@ -1197,24 +1151,25 @@ require("lazy").setup({
 				vim.api.nvim_create_autocmd("User", {
 					pattern = "BlinkCmpMenuOpen",
 					callback = function()
-						neocodeium.clear()
+						local preview = require("supermaven-nvim.completion_preview")
+						preview:dispose_inlay()
 					end,
 				})
 			end
 
 			vim.keymap.set("i", "<Tab>", function()
-				if neocodeium and neocodeium.visible() then
-					neocodeium.accept()
-				else
-					return vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
+				if ok_blink and blink and blink.is_visible() then
+					return vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
 				end
-			end, { desc = "Accept NeoCodeium suggestion" })
-			vim.keymap.set("i", "<M-,>", function()
-				neocodeium.cycle(1)
-			end, { desc = "Next NeoCodeium suggestion" })
-			vim.keymap.set("i", "<M-.>", function()
-				neocodeium.cycle(-1)
-			end, { desc = "Previous NeoCodeium suggestion" })
+
+				local preview = require("supermaven-nvim.completion_preview")
+				if preview.has_suggestion() then
+					preview.on_accept_suggestion()
+					return
+				end
+
+				return vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
+			end, { desc = "Accept Supermaven suggestion or fallback to Tab" })
 		end,
 	},
 	-- }}}
@@ -1237,7 +1192,7 @@ require("lazy").setup({
 					require("luasnip.loaders.from_vscode").lazy_load({ paths = { "~/.config/nvim/snippets" } })
 					ls.config.set_config({
 						history = true,
-						updateevents = "TextChangedI",
+						-- updateevents = "TextChangedI",
 						enable_autosnippets = true,
 					})
 					vim.keymap.set({ "i" }, "<C-K>", function()
@@ -1270,10 +1225,6 @@ require("lazy").setup({
 				local disabled = false
 				disabled = disabled or (vim.bo.buftype == "prompt")
 				disabled = disabled or (vim.bo.filetype == "snacks_input")
-
-				-- Verificar se estamos em buffer Avante
-				local ft = (vim.bo.filetype or ""):lower()
-				local bufname = vim.api.nvim_buf_get_name(0)
 				disabled = disabled or (vim.fn.reg_recording() ~= "")
 				disabled = disabled or (vim.fn.reg_executing() ~= "")
 				return not disabled
@@ -1398,8 +1349,8 @@ require("lazy").setup({
 			sources = {
 				default = function()
 					local ft = (vim.bo.filetype or ""):lower()
-					local bufname = vim.api.nvim_buf_get_name(0)
-					local is_avante = ft:match("^avante") ~= nil or bufname:match("^avante://") ~= nil
+					local bufname = vim.api.nvim_buf_get_name(0):lower()
+					local is_avante = ft:find("^avante") ~= nil or bufname:find("^avante://") ~= nil
 
 					if is_avante then
 						return { "avante" }
@@ -1439,29 +1390,25 @@ require("lazy").setup({
 					},
 					snippets = {
 						score_offset = -1,
+						opts = {
+							use_show_condition = true,
+							show_autosnippets = true,
+							prefer_doc_trig = false,
+							use_label_description = true,
+						},
 					},
 					buffer = {
 						score_offset = -3,
 						opts = {
 							use_cache = true,
-							max_sync_buffer_size = 20000,
-							max_async_buffer_size = 200000,
+							max_sync_buffer_size = 5000,
+							max_async_buffer_size = 50000,
 						},
-					},
-					codeium = {
-						name = "Codeium",
-						module = "codeium.blink",
 					},
 				},
 			},
 			snippets = {
 				preset = "luasnip",
-				opts = {
-					use_show_condition = true,
-					show_autosnippets = true,
-					prefer_doc_trig = false,
-					use_label_description = true,
-				},
 			},
 			fuzzy = {
 				implementation = "prefer_rust_with_warning",
@@ -1634,28 +1581,35 @@ require("lazy").setup({
 		build = "make",
 		opts = {
 			instructions_file = "avante.md",
-			provider = "copilot",
+			provider = "glm",
+			-- auto_suggestions_provider = "glm",
 			mode = "agentic",
 			providers = {
-				glm = {
-					__inherited_from = "openai",
-					endpoint = "https://open.bigmodel.cn/api/coding/paas/v4",
-					model = "GLM-4.7",
-					api_key_name = "GLM_API_KEY",
-					timeout = 30000,
-					extra_request_body = {
-						temperature = 0.75,
-						max_tokens = 20480,
-					},
-				},
 				claude = {
 					endpoint = "https://api.anthropic.com",
-					model = "claude-3-5-sonnet-20241022",
+					model = "claude-sonnet-4-5-20250929",
+					context_window = 200000,
 					api_key_name = "ANTHROPIC_API_KEY",
 					timeout = 30000,
 					extra_request_body = {
 						temperature = 0.75,
-						max_tokens = 64000,
+						max_tokens = 4096,
+					},
+				},
+				glm = {
+					__inherited_from = "openai",
+					endpoint = "https://api.z.ai/api/coding/paas/v4",
+					model = "glm-4.7",
+					api_key_name = "Z_AI_API_KEY",
+					timeout = 30000,
+					disable_tools = false,
+					model_names = {
+						"GLM-4.7",
+						"GLM-4.5-air",
+					},
+					extra_request_body = {
+						temperature = 0.75,
+						max_tokens = 20480,
 					},
 				},
 				copilot = {
@@ -1686,15 +1640,13 @@ require("lazy").setup({
 				auto_set_highlight_group = true,
 				auto_set_keymaps = true,
 				auto_apply_diff_after_generation = false,
-				support_paste_from_clipboard = false,
+				support_paste_from_clipboard = true,
 				minimize_diff = true,
-				enable_token_counting = true,
+				enable_token_counting = false,
 				auto_add_current_file = true,
 				auto_approve_tool_permissions = false,
-				---@type "popup" | "inline_buttons"
-				confirmation_ui_style = "inline_buttons",
+				confirmation_ui_style = "popup",
 				acp_follow_agent_locations = true,
-				debounce_ms = 100,
 			},
 			system_prompt = function()
 				local hub = require("mcphub").get_hub_instance()
@@ -1735,9 +1687,8 @@ require("lazy").setup({
 					start_insert = false,
 				},
 				edit = {
-					border = "rounded",
-					title_pos = "right",
-					start_insert = false,
+					border = "single",
+					start_insert = true,
 				},
 			},
 		},
@@ -1748,12 +1699,23 @@ require("lazy").setup({
 				event = "VeryLazy",
 				opts = {
 					default = {
+						extension = "png",
+						template = "![$CURSOR]($FILE_PATH)",
+						url_encode_path = false,
+						use_absolute_path = false,
+						use_cursor_in_template = true,
+						insert_mode_after_paste = true,
 						embed_image_as_base64 = false,
 						prompt_for_file_name = false,
 						drag_and_drop = {
 							insert_mode = true,
 						},
-						use_absolute_path = true,
+					},
+					filetypes = {
+						markdown = {
+							url_encode_path = true,
+							template = "![$CURSOR]($FILE_PATH)",
+						},
 					},
 				},
 				keys = {
