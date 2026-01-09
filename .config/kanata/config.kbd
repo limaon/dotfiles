@@ -1,0 +1,62 @@
+;; vim: ft=lisp
+
+;; Kanata Configuration - Basic setup
+;; Created: 2025-01-09
+;; Layout: US QWERTY
+;;
+;; Key Swap:
+;; - CapsLock -> ESC
+;; - ESC -> CapsLock
+;;
+;; Tap-Hold:
+;; - Space tap (quick press) -> Space normal
+;; - Space hold (long press) -> Ctrl
+
+(defcfg
+  ;; Process keys not in defsrc
+  process-unmapped-keys yes
+
+  ;; Enable layer change logging
+  log-layer-changes yes
+
+  ;; X11 repeat rate: delay=300ms, rate=50 repeats/sec
+  linux-x11-repeat-delay-rate 300,50
+)
+
+;; Define aliases for complex actions
+(defalias
+  ;; Space key: tap = Space, hold = Ctrl
+  ;; If Space is released quickly (tap timeout), output Space
+  ;; If Space is held or another key is pressed, output Ctrl
+  spc-key (tap-hold-release-keys 100 100 spc lctl (a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9 0 - = bspc tab [ ] \ ; spc lsft rsft lctl rctl lmet rmet lalt ralt))
+
+  ;; Enter key: 1 tap = Enter, 2 taps = ESC
+  ;; Timeout: 300ms
+  enter-td (tap-dance 300 (ret esc))
+
+  ;; One-shot modifiers (500ms timeout)
+  ;; Press once, applies to next key, then auto-releases
+  sft-l (one-shot 500 lsft)
+  sft-r (one-shot 500 rsft)
+  ctl-l (one-shot 500 lctl)
+  ctl-r (one-shot 500 rctl)
+)
+
+;; Physical keyboard layout (US QWERTY)
+(defsrc
+  esc  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt spc  ralt rmet rctl
+)
+
+;; Default layer - swapped CapsLock and ESC, Space tap-hold
+(deflayer base
+  caps 1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  esc  a    s    d    f    g    h    j    k    l    ;    '    ret
+  @sft-l z    x    c    v    b    n    m    ,    .    /    @sft-r
+  @ctl-l lmet lalt @spc-key ralt rmet @ctl-r
+)
+
