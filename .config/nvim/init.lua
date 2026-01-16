@@ -51,7 +51,7 @@ vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.grepprg = "rg --vimgrep"
 vim.opt.backspace = { "start", "eol", "indent" }
 vim.opt.backupskip = { "/tmp/*", "/private/tmp/*" }
--- vim.opt.path:append({ "**" })
+
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.mouse = ""
@@ -115,7 +115,7 @@ function _G.MyTabLine()
 	return s
 end
 vim.opt.tabline = "%!v:lua.MyTabLine()"
--- vim.cmd('hi! link TabLineSel Visual')
+
 
 -- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
@@ -195,7 +195,7 @@ local openExternalFile = function()
 	end
 
 	-- Execute the command asynchronously
-	vim.loop.spawn(command[1], { args = { unpack(command, 2) } }, function(return_code)
+	vim.uv.spawn(command[1], { args = { unpack(command, 2) } }, function(return_code)
 		if return_code ~= 0 then
 			vim.schedule(function()
 				vim.notify("Failed to open file: " .. file, vim.log.levels.ERROR)
@@ -372,11 +372,7 @@ end, "Language-specific settings")
 local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
--- TIP: Disable arrow keys in normal mode
--- keymap("n", "<left>", '<cmd>echo "Use h to move!!"<cr>')
--- keymap("n", "<right>", '<cmd>echo "Use l to move!!"<cr>')
--- keymap("n", "<up>", '<cmd>echo "Use k to move!!"<cr>')
--- keymap("n", "<down>", '<cmd>echo "Use j to move!!"<cr>')
+
 
 -- Select all
 keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
@@ -669,7 +665,7 @@ require("lazy").setup({
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
 		event = "VimEnter",
-		-- tag = "*",
+
 		dependencies = {
 			"nvim-lua/plenary.nvim",
 			{
@@ -685,8 +681,6 @@ require("lazy").setup({
 			local themes = require("telescope.themes")
 			local dropdown_no_preview = themes.get_dropdown({ previewer = false })
 			local dropdown_with_preview = themes.get_dropdown({})
-			-- local ivy_theme = themes.get_ivy({})
-			-- local cursor_theme = themes.get_cursor({})
 
 			require("telescope").setup({
 				defaults = {
@@ -838,13 +832,11 @@ require("lazy").setup({
 			vim.g.vimtex_syntax_enabled = 0
 			vim.g.vimtex_view_method = "zathura"
 			vim.g.vimtex_compiler_method = "latexmk"
-
 			vim.g.vimtex_quickfix_mode = 0
 			vim.g.vimtex_view_general_options = "--unique file:@pdf#src:@line@tex"
 			vim.g.vimtex_format_enabled = 1
 			vim.g.vimtex_compiler_autowatch = 1
 		end,
-		dependencies = {},
 	},
 
 	-- [[ LSP Configuration with nvim-lspconfig ]] {{{
@@ -1124,9 +1116,6 @@ require("lazy").setup({
 			local ok_blink, blink = pcall(require, "blink.cmp")
 
 			require("supermaven-nvim").setup({
-				keymaps = {
-					accept_suggestion = "<Tab>",
-				},
 				ignore_filetypes = {
 					help = true,
 					gitcommit = false,
@@ -1140,7 +1129,7 @@ require("lazy").setup({
 				},
 				log_level = "warn",
 				disable_inline_completion = false,
-				disable_keymaps = false,
+				disable_keymaps = true,
 				condition = function()
 					if ok_blink and blink and blink.is_visible() then
 						return true
@@ -1175,6 +1164,12 @@ require("lazy").setup({
 					return vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
 				end
 
+				local ok_luasnip, luasnip = pcall(require, "luasnip")
+				if ok_luasnip and luasnip.expandable() then
+					luasnip.expand()
+					return
+				end
+
 				local preview = require("supermaven-nvim.completion_preview")
 				if preview.has_suggestion() then
 					preview.on_accept_suggestion()
@@ -1182,7 +1177,7 @@ require("lazy").setup({
 				end
 
 				return vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
-			end, { desc = "Accept Supermaven suggestion or fallback to Tab" })
+			end, { desc = "Smart Tab: blink > luasnip > supermaven > tab" })
 		end,
 	},
 	-- }}}
@@ -1203,11 +1198,10 @@ require("lazy").setup({
 					end
 					local ls = luasnip
 					require("luasnip.loaders.from_vscode").lazy_load({ paths = { "~/.config/nvim/snippets" } })
-					ls.config.set_config({
-						history = true,
-						-- updateevents = "TextChangedI",
-						enable_autosnippets = true,
-					})
+				ls.config.set_config({
+					history = true,
+					enable_autosnippets = true,
+				})
 					vim.keymap.set({ "i" }, "<C-K>", function()
 						ls.expand()
 					end, { silent = true })
@@ -1225,10 +1219,6 @@ require("lazy").setup({
 				end,
 			},
 			"rafamadriz/friendly-snippets",
-			{
-				"Kaiser-Yang/blink-cmp-avante",
-				event = "VeryLazy",
-			},
 		},
 		version = "1.*",
 		---@module 'blink.cmp'
@@ -1295,7 +1285,7 @@ require("lazy").setup({
 						local buf = vim.api.nvim_get_current_buf()
 						local cache_key = "blink_cmp_auto_show_" .. buf
 						local last_check = vim.b[cache_key] or 0
-						local now = vim.loop.hrtime()
+						local now = vim.uv.hrtime()
 
 						if now - last_check < 100000000 then
 							return true
@@ -1307,16 +1297,12 @@ require("lazy").setup({
 							pos = { row - 1, math.max(0, col - 1) },
 							ignore_injections = false,
 						})
-						local reject = {
-							"comment",
-							"line_comment",
-							"block_comment",
-							"comment_content",
-							-- "string",
-							-- "string_start",
-							-- "string_content",
-							-- "string_end",
-						}
+					local reject = {
+						"comment",
+						"line_comment",
+						"block_comment",
+						"comment_content",
+					}
 						if ok and node and node_has_type(node, reject) then
 							return false
 						end
@@ -1326,7 +1312,6 @@ require("lazy").setup({
 					min_width = 16,
 					border = "none",
 					winblend = 10,
-					-- winhighlight = "Normal:TelescopeNormal,FloatBorder:TelescopeBorder,CursorLine:BlinkCmpMenuSelection",
 					winhighlight = "Normal:BlinkCmpMenu,FloatBorder:BlinkCmpMenuBorder,CursorLine:BlinkCmpMenuSelection,Search:None",
 					scrollbar = false,
 					scrolloff = 2,
@@ -1361,21 +1346,12 @@ require("lazy").setup({
 			},
 			sources = {
 				default = function()
-					local ft = (vim.bo.filetype or ""):lower()
-					local bufname = vim.api.nvim_buf_get_name(0):lower()
-					local is_avante = ft:find("^avante") ~= nil or bufname:find("^avante://") ~= nil
-
-					if is_avante then
-						return { "avante" }
-					end
-
 					local ok, node = pcall(vim.treesitter.get_node)
 					if ok and node and node:type():find("string") then
 						return { "path" }
 					end
 					return {
 						"lsp",
-						"avante",
 						"path",
 						"snippets",
 						"buffer",
@@ -1387,10 +1363,6 @@ require("lazy").setup({
 					lazydev = {
 						name = "LazyDev",
 						module = "lazydev.integrations.blink",
-					},
-					avante = {
-						name = "Avante",
-						module = "blink-cmp-avante",
 					},
 					path = {
 						opts = {
@@ -1510,9 +1482,7 @@ require("lazy").setup({
 		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter").setup({
-				-- install_dir = vim.fn.stdpath("data") .. "/site",
-			})
+			require("nvim-treesitter").setup({})
 
 			local parsers = {
 				"bash",
@@ -1580,193 +1550,6 @@ require("lazy").setup({
 					end
 				end,
 				desc = "Enable treesitter for ruby",
-			})
-		end,
-	},
-	-- }}}
-
-	-- [[ Avante.nvim ]] {{{
-	{
-		"yetone/avante.nvim",
-		event = "VeryLazy",
-		lazy = false,
-		version = false,
-		build = "make",
-		opts = {
-			instructions_file = "avante.md",
-			provider = "glm",
-			-- auto_suggestions_provider = "glm",
-			mode = "agentic",
-			providers = {
-				claude = {
-					endpoint = "https://api.anthropic.com",
-					model = "claude-sonnet-4-5-20250929",
-					context_window = 200000,
-					api_key_name = "ANTHROPIC_API_KEY",
-					timeout = 30000,
-					extra_request_body = {
-						temperature = 0.75,
-						max_tokens = 4096,
-					},
-				},
-				glm = {
-					__inherited_from = "openai",
-					endpoint = "https://api.z.ai/api/coding/paas/v4",
-					model = "glm-4.7",
-					api_key_name = "Z_AI_API_KEY",
-					timeout = 30000,
-					disable_tools = false,
-					model_names = {
-						"GLM-4.7",
-						"GLM-4.5-air",
-					},
-					extra_request_body = {
-						temperature = 0.75,
-						max_tokens = 20480,
-					},
-				},
-				copilot = {
-					endpoint = "https://api.githubcopilot.com",
-					model = "grok-code-fast-1",
-					timeout = 30000,
-					extra_request_body = {
-						max_tokens = 20480,
-					},
-				},
-			},
-			acp_providers = {
-				["opencode"] = {
-					command = vim.fn.system("which opencode"):gsub("\n", ""),
-					timeout = 30000,
-					args = {
-						"acp",
-						"--print-logs",
-						"--log-level",
-						"DEBUG",
-						"--cwd",
-						vim.fn.getcwd(),
-					},
-				},
-			},
-			behaviour = {
-				auto_suggestions = false,
-				auto_set_highlight_group = true,
-				auto_set_keymaps = true,
-				auto_apply_diff_after_generation = false,
-				support_paste_from_clipboard = true,
-				minimize_diff = true,
-				enable_token_counting = false,
-				auto_add_current_file = true,
-				auto_approve_tool_permissions = false,
-				confirmation_ui_style = "popup",
-				acp_follow_agent_locations = true,
-			},
-			system_prompt = function()
-				local hub = require("mcphub").get_hub_instance()
-				return hub and hub:get_active_servers_prompt() or ""
-			end,
-			custom_tools = function()
-				return {
-					require("mcphub.extensions.avante").mcp_tool(),
-				}
-			end,
-			disabled_tools = {
-				"list_files",
-				"search_files",
-				"read_file",
-				"create_file",
-				"rename_file",
-				"delete_file",
-				"create_dir",
-				"rename_dir",
-				"delete_dir",
-			},
-			windows = {
-				position = "left",
-				sidebar_header = {
-					enabled = true,
-					align = "center",
-					rounded = true,
-				},
-				spinner = {
-					editing = { "", "", "" },
-					generating = { "", "", "" },
-					thinking = { "󰳟 ", "󰊠 " },
-				},
-				input = {
-					start_insert = false,
-				},
-				ask = {
-					start_insert = false,
-				},
-				edit = {
-					border = "single",
-					start_insert = true,
-				},
-			},
-		},
-		dependencies = {
-			"MunifTanjim/nui.nvim",
-			{
-				"HakonHarnes/img-clip.nvim",
-				event = "VeryLazy",
-				opts = {
-					default = {
-						extension = "png",
-						template = "![$CURSOR]($FILE_PATH)",
-						url_encode_path = false,
-						use_absolute_path = false,
-						use_cursor_in_template = true,
-						insert_mode_after_paste = true,
-						embed_image_as_base64 = false,
-						prompt_for_file_name = false,
-						drag_and_drop = {
-							insert_mode = true,
-						},
-					},
-					filetypes = {
-						markdown = {
-							url_encode_path = true,
-							template = "![$CURSOR]($FILE_PATH)",
-						},
-					},
-				},
-				keys = {
-					{ "<leader>p", "<cmd>PasteImage<cr>", desc = "Paste image from clipboard" },
-				},
-			},
-		},
-	},
-
-	-- }}}
-
-	-- [[ MCPHub.nvim ]] {{{
-	{
-		"ravitemer/mcphub.nvim",
-		event = "VeryLazy",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-		},
-		cmd = "MCPHub",
-		build = "npm install -g mcp-hub@latest",
-		config = function()
-			require("mcphub").setup({
-				config = vim.fn.expand("~/.config/mcphub/servers.json"),
-				auto_approve = false,
-				extensions = {
-					avante = {
-						enabled = true,
-						make_slash_commands = true,
-					},
-				},
-				ui = {
-					window = {
-						border = "rounded",
-					},
-				},
-				on_error = function(err)
-					vim.notify("MCPHub error: " .. tostring(err), vim.log.levels.ERROR)
-				end,
 			})
 		end,
 	},
