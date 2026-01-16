@@ -1,0 +1,54 @@
+{
+  "html": {
+    "prefix": "html",
+    "body": [
+      "<!DOCTYPE html>",
+      "<html lang=\"${1:en}\">",
+      "<head>",
+      "\t<meta charset=\"UTF-8\">",
+      "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
+      "\t<title>${2:Document}</title>",
+      "</head>",
+      "<body>",
+      "\t${3:<!-- content -->}",
+      "</body>",
+      "</html>"
+    ],
+    "description": "HTML5 template"
+  },
+  "div": {
+    "prefix": "div",
+    "body": "<div class=\"${1:class}\">${2:content}</div>",
+    "description": "Div element"
+  },
+  "span": {
+    "prefix": "span",
+    "body": "<span class=\"${1:class}\">${2:text}</span>",
+    "description": "Span element"
+  },
+  "link": {
+    "prefix": "link",
+    "body": "<link rel=\"stylesheet\" href=\"${1:style.css}\">",
+    "description": "CSS link"
+  },
+  "script": {
+    "prefix": "script",
+    "body": "<script src=\"${1:script.js}\"></script>",
+    "description": "Script tag"
+  },
+  "img": {
+    "prefix": "img",
+    "body": "<img src=\"${1:image.jpg}\" alt=\"${2:description}\">",
+    "description": "Image tag"
+  },
+  "input": {
+    "prefix": "input",
+    "body": "<input type=\"${1:text}\" name=\"${2:name}\" placeholder=\"${3:placeholder}\">",
+    "description": "Input element"
+  },
+  "button": {
+    "prefix": "button",
+    "body": "<button type=\"${1:button}\">${2:Button}</button>",
+    "description": "Button element"
+  }
+}

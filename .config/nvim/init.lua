@@ -76,9 +76,17 @@ vim.opt.sidescrolloff = 5
 vim.opt.wrap = false
 vim.opt.spelllang = { "en_us", "pt_br" }
 vim.opt.spell = false
+vim.opt.spellsuggest = "best,6"
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap:append("[,]")
 vim.opt.showtabline = 2
+vim.opt.modeline = false
+vim.opt.modelines = 5
+vim.opt.backupdir = vim.fn.stdpath("state") .. "/backup//"
+vim.opt.directory = vim.fn.stdpath("state") .. "/swap//"
+vim.opt.undodir = vim.fn.stdpath("state") .. "/undo//"
+vim.opt.sessionoptions:remove("blank")
+vim.opt.sessionoptions:append({ "winsize", "globals", "localoptions" })
 -- }}}
 
 -- [[ Basic Autocommands/Functions ]] {{{
@@ -577,7 +585,7 @@ require("lazy").setup({
 				end
 
 				-- Navigation
-        ---@diagnostic disable: param-type-mismatch
+				---@diagnostic disable: param-type-mismatch
 				map("n", "]c", function()
 					if vim.wo.diff then
 						vim.cmd.normal({ "]c", bang = true })
@@ -1085,6 +1093,8 @@ require("lazy").setup({
 				javascript = { "prettierd", "prettier", stop_after_first = true },
 				typescript = { "prettierd", "prettier", stop_after_first = true },
 				typescriptreact = { "prettierd", lsp_format = "fallback" },
+				json = { "prettierd", "prettier", stop_after_first = true },
+				jsonc = { "prettierd", "prettier", stop_after_first = true },
 				php = { "php_cs_fixer", "pint" },
 				["*"] = { "codespell" },
 				["_"] = { "trim_whitespace" },
@@ -1107,6 +1117,9 @@ require("lazy").setup({
 	{
 		"supermaven-inc/supermaven-nvim",
 		event = "VeryLazy",
+		keys = {
+			{ "<leader>sm", "<cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
+		},
 		config = function()
 			local ok_blink, blink = pcall(require, "blink.cmp")
 
@@ -1746,6 +1759,11 @@ require("lazy").setup({
 						make_slash_commands = true,
 					},
 				},
+				ui = {
+					window = {
+						border = "rounded",
+					},
+				},
 				on_error = function(err)
 					vim.notify("MCPHub error: " .. tostring(err), vim.log.levels.ERROR)
 				end,
@@ -1755,6 +1773,7 @@ require("lazy").setup({
 	-- }}}
 }, {
 	ui = {
+		border = "rounded",
 		icons = vim.g.have_nerd_font and {} or {
 			cmd = " ",
 			config = " ",

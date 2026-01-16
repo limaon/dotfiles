@@ -1,0 +1,557 @@
+{
+  "heading 1": {
+    "prefix": "h1",
+    "body": "# ${1:Title}",
+    "description": "Heading level 1"
+  },
+  "heading 2": {
+    "prefix": "h2",
+    "body": "## ${1:Title}",
+    "description": "Heading level 2"
+  },
+  "heading 3": {
+    "prefix": "h3",
+    "body": "### ${1:Title}",
+    "description": "Heading level 3"
+  },
+  "heading 4": {
+    "prefix": "h4",
+    "body": "#### ${1:Title}",
+    "description": "Heading level 4"
+  },
+  "heading 5": {
+    "prefix": "h5",
+    "body": "##### ${1:Title}",
+    "description": "Heading level 5"
+  },
+  "heading 6": {
+    "prefix": "h6",
+    "body": "###### ${1:Title}",
+    "description": "Heading level 6"
+  },
+  "bold": {
+    "prefix": "b",
+    "body": "**${1:bold text}**",
+    "description": "Bold text"
+  },
+  "italic": {
+    "prefix": "i",
+    "body": "*${1:italic text}*",
+    "description": "Italic text"
+  },
+  "strikethrough": {
+    "prefix": "s",
+    "body": "~~${1:strikethrough text}~~",
+    "description": "Strikethrough text"
+  },
+  "bold and italic": {
+    "prefix": "bi",
+    "body": "***${1:bold and italic text}***",
+    "description": "Bold and italic text"
+  },
+  "link": {
+    "prefix": "link",
+    "body": "[${1:link text}](${2:url})",
+    "description": "Link"
+  },
+  "link with title": {
+    "prefix": "linkt",
+    "body": "[${1:link text}](${2:url} \"${3:title}\")",
+    "description": "Link with title"
+  },
+  "image": {
+    "prefix": "img",
+    "body": "![${1:alt text}](${2:image-url})",
+    "description": "Image"
+  },
+  "image with title": {
+    "prefix": "imgt",
+    "body": "![${1:alt text}](${2:image-url} \"${3:title}\")",
+    "description": "Image with title"
+  },
+  "inline code": {
+    "prefix": "code",
+    "body": "`${1:code}`",
+    "description": "Inline code"
+  },
+  "code block": {
+    "prefix": "```",
+    "body": [
+      "```${1:language}",
+      "${2:code}",
+      "```"
+    ],
+    "description": "Code block"
+  },
+  "code block javascript": {
+    "prefix": "js",
+    "body": [
+      "```javascript",
+      "${1:// your code here}",
+      "```"
+    ],
+    "description": "JavaScript code block"
+  },
+  "code block python": {
+    "prefix": "py",
+    "body": [
+      "```python",
+      "${1:# your code here}",
+      "```"
+    ],
+    "description": "Python code block"
+  },
+  "code block bash": {
+    "prefix": "bash",
+    "body": [
+      "```bash",
+      "${1:# your command here}",
+      "```"
+    ],
+    "description": "Bash code block"
+  },
+  "code block typescript": {
+    "prefix": "ts",
+    "body": [
+      "```typescript",
+      "${1:// your code here}",
+      "```"
+    ],
+    "description": "TypeScript code block"
+  },
+  "code block lua": {
+    "prefix": "lua",
+    "body": [
+      "```lua",
+      "${1:-- your code here}",
+      "```"
+    ],
+    "description": "Lua code block"
+  },
+  "code block html": {
+    "prefix": "html",
+    "body": [
+      "```html",
+      "<!-- your code here -->",
+      "${1:<!-- HTML content -->}",
+      "```"
+    ],
+    "description": "HTML code block"
+  },
+  "code block css": {
+    "prefix": "css",
+    "body": [
+      "```css",
+      "/* your code here */",
+      "${1:/* CSS content */}",
+      "```"
+    ],
+    "description": "CSS code block"
+  },
+  "code block java": {
+    "prefix": "java",
+    "body": [
+      "```java",
+      "// your code here",
+      "${1:// Java content}",
+      "```"
+    ],
+    "description": "Java code block"
+  },
+  "code block c": {
+    "prefix": "c",
+    "body": [
+      "```c",
+      "// your code here",
+      "${1:// C content}",
+      "```"
+    ],
+    "description": "C code block"
+  },
+  "code block cpp": {
+    "prefix": "cpp",
+    "body": [
+      "```cpp",
+      "// your code here",
+      "${1:// C++ content}",
+      "```"
+    ],
+    "description": "C++ code block"
+  },
+  "code block csharp": {
+    "prefix": "csharp",
+    "body": [
+      "```csharp",
+      "// your code here",
+      "${1:// C# content}",
+      "```"
+    ],
+    "description": "C# code block"
+  },
+  "code block rust": {
+    "prefix": "rust",
+    "body": [
+      "```rust",
+      "// your code here",
+      "${1:// Rust content}",
+      "```"
+    ],
+    "description": "Rust code block"
+  },
+  "code block go": {
+    "prefix": "go",
+    "body": [
+      "```go",
+      "// your code here",
+      "${1:// Go content}",
+      "```"
+    ],
+    "description": "Go code block"
+  },
+  "code block ruby": {
+    "prefix": "ruby",
+    "body": [
+      "```ruby",
+      "# your code here",
+      "${1:# Ruby content}",
+      "```"
+    ],
+    "description": "Ruby code block"
+  },
+  "code block php": {
+    "prefix": "php",
+    "body": [
+      "```php",
+      "<?php",
+      "// your code here",
+      "${1:// PHP content}",
+      "?>",
+      "```"
+    ],
+    "description": "PHP code block"
+  },
+  "code block sql": {
+    "prefix": "sql",
+    "body": [
+      "```sql",
+      "-- your code here",
+      "${1:-- SQL query}",
+      "```"
+    ],
+    "description": "SQL code block"
+  },
+  "code block yaml": {
+    "prefix": "yaml",
+    "body": [
+      "```yaml",
+      "# your code here",
+      "${1:key: value}",
+      "```"
+    ],
+    "description": "YAML code block"
+  },
+  "code block json": {
+    "prefix": "json",
+    "body": [
+      "```json",
+      "{",
+      "  ${1:\"key\": \"value\"}",
+      "}",
+      "```"
+    ],
+    "description": "JSON code block"
+  },
+  "code block xml": {
+    "prefix": "xml",
+    "body": [
+      "```xml",
+      "<!-- your code here -->",
+      "<${1:root}>",
+      "  ${2:<!-- content -->}",
+      "</${1:root}>",
+      "```"
+    ],
+    "description": "XML code block"
+  },
+  "code block dockerfile": {
+    "prefix": "dockerfile",
+    "body": [
+      "```dockerfile",
+      "# your code here",
+      "FROM ${1:alpine}",
+      "${2:RUN apk add --no-cache ...}",
+      "```"
+    ],
+    "description": "Dockerfile code block"
+  },
+  "code block makefile": {
+    "prefix": "makefile",
+    "body": [
+      "```makefile",
+      "# your code here",
+      "${1:target}:",
+      "	${2:command}",
+      "```"
+    ],
+    "description": "Makefile code block"
+  },
+  "code block powershell": {
+    "prefix": "powershell",
+    "body": [
+      "```powershell",
+      "# your code here",
+      "${1:# PowerShell command}",
+      "```"
+    ],
+    "description": "PowerShell code block"
+  },
+  "code block scala": {
+    "prefix": "scala",
+    "body": [
+      "```scala",
+      "// your code here",
+      "${1:// Scala content}",
+      "```"
+    ],
+    "description": "Scala code block"
+  },
+  "code block kotlin": {
+    "prefix": "kotlin",
+    "body": [
+      "```kotlin",
+      "// your code here",
+      "${1:// Kotlin content}",
+      "```"
+    ],
+    "description": "Kotlin code block"
+  },
+  "code block swift": {
+    "prefix": "swift",
+    "body": [
+      "```swift",
+      "// your code here",
+      "${1:// Swift content}",
+      "```"
+    ],
+    "description": "Swift code block"
+  },
+  "code block dart": {
+    "prefix": "dart",
+    "body": [
+      "```dart",
+      "// your code here",
+      "${1:// Dart content}",
+      "```"
+    ],
+    "description": "Dart code block"
+  },
+  "code block jsx": {
+    "prefix": "jsx",
+    "body": [
+      "```jsx",
+      "// your code here",
+      "${1:// JSX content}",
+      "```"
+    ],
+    "description": "JSX code block"
+  },
+  "code block tsx": {
+    "prefix": "tsx",
+    "body": [
+      "```tsx",
+      "// your code here",
+      "${1:// TSX content}",
+      "```"
+    ],
+    "description": "TSX code block"
+  },
+  "code block vue": {
+    "prefix": "vue",
+    "body": [
+      "```vue",
+      "<!-- your code here -->",
+      "<template>",
+      "  ${1:<!-- template content -->}",
+      "</template>",
+      "",
+      "<script>",
+      "${2:// script content}",
+      "</script>",
+      "",
+      "<style>",
+      "${3:/* style content */}",
+      "</style>",
+      "```"
+    ],
+    "description": "Vue code block"
+  },
+  "code block svelte": {
+    "prefix": "svelte",
+    "body": [
+      "```svelte",
+      "<!-- your code here -->",
+      "${1:<!-- Svelte content -->}",
+      "<script>",
+      "${2:// script content}",
+      "</script>",
+      "",
+      "<style>",
+      "${3:/* style content */}",
+      "</style>",
+      "```"
+    ],
+    "description": "Svelte code block"
+  },
+  "code block toml": {
+    "prefix": "toml",
+    "body": [
+      "```toml",
+      "# your code here",
+      "${1:key = \"value\"}",
+      "```"
+    ],
+    "description": "TOML code block"
+  },
+  "code block ini": {
+    "prefix": "ini",
+    "body": [
+      "```ini",
+      "; your code here",
+      "${1:[section]",
+      "key = value}",
+      "```"
+    ],
+    "description": "INI code block"
+  },
+  "code block hcl": {
+    "prefix": "hcl",
+    "body": [
+      "```hcl",
+      "# your code here",
+      "${1:resource \"type\" \"name\" {",
+      "  # configuration",
+      "}}",
+      "```"
+    ],
+    "description": "HCL (Terraform) code block"
+  },
+  "code block graphql": {
+    "prefix": "graphql",
+    "body": [
+      "```graphql",
+      "# your code here",
+      "${1:query {",
+      "  field",
+      "}}",
+      "```"
+    ],
+    "description": "GraphQL code block"
+  },
+  "code block mermaid": {
+    "prefix": "mermaid",
+    "body": [
+      "```mermaid",
+      "graph TD",
+      "  A[Start] --> B[End]",
+      "${1:  A --> B}",
+      "```"
+    ],
+    "description": "Mermaid diagram code block"
+  },
+  "unordered list": {
+    "prefix": "ul",
+    "body": [
+      "- ${1:item 1}",
+      "- ${2:item 2}",
+      "- ${3:item 3}"
+    ],
+    "description": "Unordered list"
+  },
+  "ordered list": {
+    "prefix": "ol",
+    "body": [
+      "1. ${1:item 1}",
+      "2. ${2:item 2}",
+      "3. ${3:item 3}"
+    ],
+    "description": "Ordered list"
+  },
+  "task list": {
+    "prefix": "task",
+    "body": [
+      "- [ ] ${1:Task 1}",
+      "- [ ] ${2:Task 2}",
+      "- [ ] ${3:Task 3}"
+    ],
+    "description": "Task list"
+  },
+  "task list done": {
+    "prefix": "taskd",
+    "body": [
+      "- [x] ${1:Task 1}",
+      "- [x] ${2:Task 2}",
+      "- [x] ${3:Task 3}"
+    ],
+    "description": "Task list (all done)"
+  },
+  "block quote": {
+    "prefix": "q",
+    "body": "> ${1:quote text}",
+    "description": "Block quote"
+  },
+  "multi-line block quote": {
+    "prefix": "qm",
+    "body": [
+      "> ${1:quote line 1}",
+      "> ${2:quote line 2}"
+    ],
+    "description": "Multi-line block quote"
+  },
+  "horizontal rule": {
+    "prefix": "---",
+    "body": "---",
+    "description": "Horizontal rule"
+  },
+  "table": {
+    "prefix": "table",
+    "body": [
+      "| ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
+      "| --- | --- | --- |",
+      "| ${4:Cell 1} | ${5:Cell 2} | ${6:Cell 3} |",
+      "| ${7:Cell 4} | ${8:Cell 5} | ${9:Cell 6} |"
+    ],
+    "description": "Table"
+  },
+  "details/summary": {
+    "prefix": "details",
+    "body": [
+      "<details>",
+      "<summary>${1:Click to expand}</summary>",
+      "",
+      "${2:Content}",
+      "",
+      "</details>"
+    ],
+    "description": "Details/summary collapsible"
+  },
+  "footnote": {
+    "prefix": "fn",
+    "body": "[^${1:1}]",
+    "description": "Footnote reference"
+  },
+  "footnote definition": {
+    "prefix": "fnd",
+    "body": "[^${1:1}]: ${2:footnote text}",
+    "description": "Footnote definition"
+  },
+  "checkbox": {
+    "prefix": "cb",
+    "body": "- [ ] ${1:task}",
+    "description": "Checkbox"
+  },
+  "checkbox checked": {
+    "prefix": "cbb",
+    "body": "- [x] ${1:task}",
+    "description": "Checkbox checked"
+  }
+}

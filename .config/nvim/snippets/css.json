@@ -1,0 +1,68 @@
+{
+  "flexbox": {
+    "prefix": "flex",
+    "body": [
+      "display: flex;",
+      "justify-content: ${1:center};",
+      "align-items: ${2:center};"
+    ],
+    "description": "Flexbox properties"
+  },
+  "grid": {
+    "prefix": "grid",
+    "body": [
+      "display: grid;",
+      "grid-template-columns: ${1:repeat(3, 1fr)};",
+      "gap: ${2:10px};"
+    ],
+    "description": "CSS Grid"
+  },
+  "media query": {
+    "prefix": "media",
+    "body": [
+      "@media (max-width: ${1:768px}) {",
+      "\t${2:/* styles */}",
+      "}"
+    ],
+    "description": "Media query"
+  },
+  "keyframes": {
+    "prefix": "keyframes",
+    "body": [
+      "@keyframes ${1:animationName} {",
+      "\tfrom {",
+      "\t\t${2:/* initial styles */}",
+      "\t}",
+      "\tto {",
+      "\t\t${3:/* final styles */}",
+      "\t}",
+      "}"
+    ],
+    "description": "Keyframes animation"
+  },
+  "transition": {
+    "prefix": "transition",
+    "body": "transition: ${1:all} ${2:0.3s} ${3:ease};",
+    "description": "CSS transition"
+  },
+  "border-radius": {
+    "prefix": "border-radius",
+    "body": "border-radius: ${1:5px};",
+    "description": "Border radius"
+  },
+  "box-shadow": {
+    "prefix": "box-shadow",
+    "body": "box-shadow: ${1:0 2px 4px rgba(0,0,0,0.1)};",
+    "description": "Box shadow"
+  },
+  "center": {
+    "prefix": "center",
+    "body": [
+      "position: absolute;",
+      "top: 50%;",
+      "left: 50%;",
+      "transform: translate(-50%, -50%);"
+    ],
+    "description": "Center element absolutely"
+  }
+}

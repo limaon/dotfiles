@@ -1,0 +1,11 @@
+{
+  "For Loop": {
+    "prefix": "forin",
+    "body": [
+      "for ${1:item} in ${2:$(ls)}; do",
+      "  ${0:# commands}",
+      "done"
+    ],
+    "description": "Loop básico em shell"
+  }
+}

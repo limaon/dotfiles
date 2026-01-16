@@ -1,0 +1,85 @@
+{
+  "function": {
+    "prefix": "def",
+    "body": [
+      "def ${1:function_name}(${2:parameters}):",
+      "\t${3:\"\"\"Docstring\"\"\"}",
+      "\t${4:pass}"
+    ],
+    "description": "Function definition"
+  },
+  "class": {
+    "prefix": "class",
+    "body": [
+      "class ${1:ClassName}:",
+      "\tdef __init__(self${2:, parameters}):",
+      "\t\t${3:pass}"
+    ],
+    "description": "Class definition"
+  },
+  "if statement": {
+    "prefix": "if",
+    "body": [
+      "if ${1:condition}:",
+      "\t${2:pass}"
+    ],
+    "description": "If statement"
+  },
+  "elif": {
+    "prefix": "elif",
+    "body": [
+      "elif ${1:condition}:",
+      "\t${2:pass}"
+    ],
+    "description": "Elif statement"
+  },
+  "for loop": {
+    "prefix": "for",
+    "body": [
+      "for ${1:item} in ${2:iterable}:",
+      "\t${3:pass}"
+    ],
+    "description": "For loop"
+  },
+  "while loop": {
+    "prefix": "while",
+    "body": [
+      "while ${1:condition}:",
+      "\t${2:pass}"
+    ],
+    "description": "While loop"
+  },
+  "try-except": {
+    "prefix": "try",
+    "body": [
+      "try:",
+      "\t${1:pass}",
+      "except ${2:Exception} as ${3:e}:",
+      "\t${4:pass}"
+    ],
+    "description": "Try-except block"
+  },
+  "import": {
+    "prefix": "import",
+    "body": "import ${1:module}",
+    "description": "Import statement"
+  },
+  "from import": {
+    "prefix": "from",
+    "body": "from ${1:module} import ${2:name}",
+    "description": "From import statement"
+  },
+  "print": {
+    "prefix": "print",
+    "body": "print(${1:value})",
+    "description": "Print statement"
+  },
+  "main guard": {
+    "prefix": "ifmain",
+    "body": [
+      "if __name__ == \"__main__\":",
+      "\t${1:main()}"
+    ],
+    "description": "Main guard"
+  }
+}
