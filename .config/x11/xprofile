@@ -43,7 +43,7 @@ if command -v ibus-daemon >/dev/null 2>&1; then
                 -layout us \
                 -variant altgr-intl \
                 -option terminate:ctrl_alt_bksp \
-                -option terminate:ctrl_alt_bksp,caps:swapescape
+                # -option terminate:ctrl_alt_bksp,caps:swapescape
 else
     setxkbmap -model pc104 \
               -layout us,br \

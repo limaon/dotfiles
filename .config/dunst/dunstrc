@@ -108,7 +108,7 @@ highlight = "#6699ff"
 override_pause_level = 50
 
 [urgency_critical]
-timeout = 60
+timeout = 10
 background = "#900000"
 foreground = "#ffffff"
 frame_color = "#eeeeee"

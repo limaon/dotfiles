@@ -13,6 +13,7 @@ ask_command() {
 	dmenu-alt -i -p 'Screenshot which area?' <<-EOF
 		selected area
 		selected area → clipboard
+		selected area → /tmp
 		selected area → gimp
 		selected area → Anki
 		selected area → Tesseract OCR
@@ -165,6 +166,11 @@ main() {
 	*area*clipboard)
 		take_screenshot -s | xclip_png
 		notify "Area copied to the clipboard."
+		;;
+	*area*"/tmp")
+		local -r tmp_path=/tmp/screenshot-$(date --utc '+%F-%H-%M-%S').png
+		take_screenshot -s | tee "$tmp_path" | xclip_png
+		notify "Area saved to $tmp_path and copied to clipboard."
 		;;
 	*area*gimp)
 		take_screenshot -s "$file_path"

@@ -11,7 +11,7 @@ WM="${WM:-i3}"
 
 # Function to determine the appropriate control command for system power operations
 ctl() {
-    case $(readlink -f /sbin/init) in
+    case "$(readlink -f /sbin/init)" in
         *systemd*) echo systemctl ;;
         *) echo loginctl ;;
     esac
@@ -20,6 +20,11 @@ ctl() {
 # Function to turn back time display
 display_back_time() {
     xset dpms 300 480 600 # after 10 minutes
+}
+
+# Function to turn off the display
+display_off() {
+    xset dpms force off
 }
 
 # Optimized screen lock function
@@ -50,7 +55,7 @@ lock_screen() {
 
 # Function to close specific applications before shutting down
 cleanup() {
-	for app in qbittorrent goldendict keepassxc nekobox; do
+    for app in qbittorrent goldendict keepassxc nekobox; do
         pkill -x "$app" >/dev/null 2>&1
     done
     sleep 0.33
@@ -60,12 +65,12 @@ cleanup() {
 print_help() {
     echo "Usage: $0 [option]"
     echo "Options:"
-    echo "  lock         Lock the screen with a blur effect"
+    echo "  lock         Lock the screen with pixelated effect"
     echo "  leave        Exit the window manager ($WM)"
     echo "  renew        Restart the window manager ($WM)"
     echo "  reboot       Reboot the system"
-    echo "  shutdown     Shutdown the system"
-    echo "  sleep        Suspend the system"
+    echo "  poweroff     Shutdown the system"
+    echo "  suspend      Suspend the system"
     echo "  hibernate    Hibernate the system"
     echo "  display-off  Turn off the monitor"
     echo "  help         Show this help message"
@@ -79,14 +84,14 @@ main() {
         lock|screenlock)
             lock_screen
             ;;
-        leave|exit|quit)
+        leave|exit|logout)
             if [[ "$WM" == "i3" ]]; then
                 i3-msg -q exit
             else
                 kill -TERM "$(pgrep -u "$USER" "\bdwm$")" >/dev/null 2>&1
             fi
             ;;
-        renew|restart|reload)
+        renew|reload)
             if [[ "$WM" == "i3" ]]; then
                 i3-msg -q restart
             else
@@ -94,20 +99,20 @@ main() {
             fi
             ;;
         hibernate|hib)
-            $(ctl) hibernate
+            "$(ctl)" hibernate
             ;;
-        sleep|suspend)
-            $(ctl) suspend
+        suspend|sleep)
+            "$(ctl)" suspend
             ;;
-        reboot|restart)
+        reboot)
             cleanup
-            $(ctl) reboot -i
+            "$(ctl)" reboot -i
             ;;
-        shutdown|poweroff|off)
+        poweroff|shutdown|off)
             cleanup
-            $(ctl) poweroff -i
+            "$(ctl)" poweroff -i
             ;;
-        display-off|monitor-off)
+        display-off|dpms-off)
             display_off
             ;;
         help|-h|--help)

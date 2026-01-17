@@ -1,16 +1,15 @@
 ;; vim: ft=lisp
 
-;; Kanata Configuration - Basic setup
-;; Created: 2025-01-09
-;; Layout: US QWERTY
+;; Kanata Configuration - Sunaku-style Home Row Mods
+;; Created: 2025-01-11
+;; Layout: US QWERTY with Home Row Mods (GACS order)
 ;;
-;; Key Swap:
-;; - CapsLock -> ESC
-;; - ESC -> CapsLock
+;; Key Remaps:
+;; ESC/Caps Lock are swapped
 ;;
-;; Tap-Hold:
-;; - Space tap (quick press) -> Space normal
-;; - Space hold (long press) -> Ctrl
+;; Home Row Mods:
+;; A/S/D/F: LGUI/LALT/LCTL/LSFT (left hand)
+;; J/K/L/;;: RSFT/RCTL/RALT/RGUI (right hand)
 
 (defcfg
   ;; Process keys not in defsrc
@@ -23,23 +22,18 @@
   linux-x11-repeat-delay-rate 300,50
 )
 
-;; Define aliases for complex actions
+;; Home Row Mods - Sunaku-style (GACS order)
 (defalias
-  ;; Space key: tap = Space, hold = Ctrl
-  ;; If Space is released quickly (tap timeout), output Space
-  ;; If Space is held or another key is pressed, output Ctrl
-  spc-key (tap-hold-release-keys 100 100 spc lctl (a b c d e f g h i j k l m n o p q r s t u v w x y z 1 2 3 4 5 6 7 8 9 0 - = bspc tab [ ] \ ; spc lsft rsft lctl rctl lmet rmet lalt ralt))
-
-  ;; Enter key: 1 tap = Enter, 2 taps = ESC
-  ;; Timeout: 300ms
-  enter-td (tap-dance 300 (ret esc))
-
-  ;; One-shot modifiers (500ms timeout)
-  ;; Press once, applies to next key, then auto-releases
-  sft-l (one-shot 500 lsft)
-  sft-r (one-shot 500 rsft)
-  ctl-l (one-shot 500 lctl)
-  ctl-r (one-shot 500 rctl)
+  ;; Tap to type letter, hold for modifier
+  ;; Timeout 200ms for responsive typing
+  a-mod  (tap-hold 200 200 a lmet)
+  s-mod  (tap-hold 200 200 s lalt)
+  d-mod  (tap-hold 200 200 d lctl)
+  f-mod  (tap-hold 200 200 f lsft)
+  j-mod  (tap-hold 200 200 j rsft)
+  k-mod  (tap-hold 200 200 k rctl)
+  l-mod  (tap-hold 200 200 l ralt)
+  sc-mod (tap-hold 200 200 ; rmet)
 )
 
 ;; Physical keyboard layout (US QWERTY)
@@ -51,12 +45,11 @@
   lctl lmet lalt spc  ralt rmet rctl
 )
 
-;; Default layer - swapped CapsLock and ESC, Space tap-hold
+;; Main layer with Home Row Mods always active
 (deflayer base
   caps 1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
-  esc  a    s    d    f    g    h    j    k    l    ;    '    ret
-  @sft-l z    x    c    v    b    n    m    ,    .    /    @sft-r
-  @ctl-l lmet lalt @spc-key ralt rmet @ctl-r
+  esc  @a-mod @s-mod @d-mod @f-mod  g    h    @j-mod @k-mod @l-mod @sc-mod '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt spc  ralt rmet rctl
 )
-

@@ -38,9 +38,9 @@ title_align left
 # new_window pixel 1
 default_border pixel 1
 default_floating_border normal 1
-for_window [all] border normal 1
+# for_window [all] border normal 1
 # for_window [all] border pixel 1 title_window_icon padding 5px
-for_window [all] border normal 1 title_window_icon no
+# for_window [all] border normal 1 title_window_icon no
 
 # Gaps specific
 gaps inner 2
@@ -194,28 +194,6 @@ bindsym $mod+Ctrl+$vim_right move workspace to output right
 # scratchpad feature
 bindsym $mod+BackSpace scratchpad show
 bindsym $mod+Shift+BackSpace move scratchpad
-for_window [instance="scratchpad"] move window to scratchpad, scratchpad show
-for_window [window_type="normal"] border normal
-
-# Set floating for apps needing it
-for_window [class="(?i)anki" title=".*- Anki.*"] floating disable, layout splitv, border pixel
-for_window [class="(?i)anki" title="^Add Notes"] floating disable, layout splitv, border pixel
-for_window [class="(?i)anki" title="^Browse"] floating disable, move left, border pixel
-for_window [class="(?i)anki" title="^Preview"] floating disable, move right, layout tabbed, border pixel
-for_window [class="(?i)anki" title="^Profiles"] floating enable, resize set 720 480, border pixel
-for_window [class="(?i)anki" title="Add Note Type"] floating enable, resize set 620 480, border pixel
-for_window [class="Blueman-manager"] floating enable
-for_window [class="Gnome-disks"] floating enable, resize set 800 600
-for_window [class="kitty" instance="FloatingTerminal$"] floating toggle
-for_window [class=obsidian|kitty] border pixel
-for_window [class="Nm-connection-editor"] floating enable, resize set 800 480
-for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
-for_window [class="Qalculate-gtk"] floating enable
-for_window [class="qBittorrent" title="^(?!.*qBittorrent).*$"] floating enable
-for_window [class="VirtualBox" title="^(?!.*Oracle VirtualBox Manager).*$"] floating enable
-for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
-for_window [class="mpv"] floating enable, move position center
-for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 
 # Set floating mode for generated windows
 for_window [window_type="normal"] border normal
@@ -239,6 +217,25 @@ for_window [title="Save File"] floating enable
 for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
 no_focus [title="mpv Webcam"]
 
+# Set floating for apps needing it
+for_window [class="(?i)anki" title=".*- Anki.*"] floating disable, layout splitv, border pixel
+for_window [class="(?i)anki" title="^Add Notes"] floating disable, layout splitv, border pixel
+for_window [class="(?i)anki" title="^Browse"] floating disable, move left, border pixel
+for_window [class="(?i)anki" title="^Preview"] floating disable, move right, layout tabbed, border pixel
+for_window [class="(?i)anki" title="^Profiles"] floating enable, resize set 720 480, border pixel
+for_window [class="(?i)anki" title="Add Note Type"] floating enable, resize set 620 480, border pixel
+for_window [class="Blueman-manager"] floating enable
+for_window [class="Gnome-disks"] floating enable, resize set 800 600
+for_window [class="kitty" instance="FloatingTerminal$"] floating toggle
+for_window [class=obsidian|kitty] border pixel
+for_window [class="Nm-connection-editor"] floating enable, resize set 800 480
+for_window [class="Polkit-gnome-authentication-agent-1"] sticky enable
+for_window [class="Qalculate-gtk"] floating enable
+for_window [class="qBittorrent" title="^(?!.*qBittorrent).*$"] floating enable
+for_window [class="VirtualBox" title="^(?!.*Oracle VirtualBox Manager).*$"] floating enable
+for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
+for_window [class="mpv"] floating enable, move position center
+for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 
 # Set position of floating window
 for_window [all] move absolute position center
@@ -249,7 +246,6 @@ assign [class="(?i)anki" title="Anki$|^Browse|^Add"] $ws9
 assign [class="(?i)chromium" tiling] $ws1
 assign [class="Thunderbird"] $ws1
 assign [class="qBittorrent"] $ws7
-assign [class="KeePassXC"] $ws6
 # for_window [class="Zathura"] move window to workspace $ws2, focus
 
 # Limiting the maximum size of the floating window:
@@ -304,21 +300,32 @@ bar {
 
 
 # Autostarts aplications
-# exec --no-startup-id setxkbmap -option caps:swapescape
 exec --no-startup-id autorandr --daemon
-exec --no-startup-id systemctl --user start xautocfg.service
-exec --no-startup-id xss-lock --transfer-sleep-lock -- sysact lock
-exec --no-startup-id unclutter --hide-on-touch --timeout 3 --ignore-buttons 8,9 --ignore-scrolling --start-hidden --fork
+exec --no-startup-id unclutter \
+  --hide-on-touch \
+  --timeout 2 \
+  --ignore-buttons 8,9 \
+  --ignore-scrolling \
+  --start-hidden \
+  --fork
+exec --no-startup-id xautolock \
+  -time 5 \
+  -locker "sysact lock" \
+  -notify 30 \
+  -notifier "dunstify -u critical -r 9999 'Session' 'Screen will lock in 30 seconds'" \
+  -killer "dunstctl close-all" \
+  -killtime 25 \
+  -detectsleep
 
 
 # Exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e mode "$mode_system"
 
 # Logout menu
-set $mode_system  [L]OCK  LOG[O]UT  [S]USPEND  [R]EBOOT  [P]OWEROFF  RESTART[I]3
+set $mode_system  [L]OCK  LOG[O]UT  [S]USPEND  [H]IBERNATE  [R]EBOOT  [P]OWEROFF  RESTART[I]3
 mode "$mode_system" {
     bindsym l exec --no-startup-id sysact lock, mode "default"
-    bindsym s exec --no-startup-id sysact sleep, mode "default"
+    bindsym s exec --no-startup-id sysact suspend, mode "default"
     bindsym r exec --no-startup-id sysact reboot, mode "default"
     bindsym p exec --no-startup-id sysact poweroff, mode "default"
     bindsym h exec --no-startup-id sysact hibernate, mode "default"
