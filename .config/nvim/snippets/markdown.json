@@ -83,6 +83,15 @@
     ],
     "description": "Code block"
   },
+  "code block txt": {
+    "prefix": "txt",
+    "body": [
+      "```txt",
+      "${1:// your text here}",
+      "```"
+    ],
+    "description": "Text block "
+  },
   "code block javascript": {
     "prefix": "js",
     "body": [

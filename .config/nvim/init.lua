@@ -6,6 +6,7 @@ vim.g.session_autoload = "no"
 vim.g.session_autosave = "no"
 vim.g.session_command_aliases = 1
 vim.g.autoformat = false
+vim.g.SUPERMAVEN_DISABLED = 1
 vim.g.markdown_recommended_style = 0
 vim.g.netrw_browse_split = 0
 vim.g.netrw_winsize = 25
@@ -1117,11 +1118,11 @@ require("lazy").setup({
 
 			require("supermaven-nvim").setup({
 				ignore_filetypes = {
-					help = true,
-					gitcommit = false,
-					gitrebase = true,
-					TelescopePrompt = true,
-					dap_repl = true,
+					"help",
+					"gitcommit",
+					"gitrebase",
+					"TelescopePrompt",
+					"dap_repl",
 				},
 				color = {
 					suggestion_color = "#586E75",
