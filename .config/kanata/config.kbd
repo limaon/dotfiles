@@ -34,6 +34,10 @@
   k-mod  (tap-hold 200 200 k rctl)
   l-mod  (tap-hold 200 200 l ralt)
   sc-mod (tap-hold 200 200 ; rmet)
+
+  ;; Layer toggle: Insert switches between plain (default) and hrm
+  lyr-hrm   (layer-switch hrm)
+  lyr-plain (layer-switch plain)
 )
 
 ;; Physical keyboard layout (US QWERTY)
@@ -43,13 +47,25 @@
   caps a    s    d    f    g    h    j    k    l    ;    '    ret
   lsft z    x    c    v    b    n    m    ,    .    /    rsft
   lctl lmet lalt spc  ralt rmet rctl
+  ins
 )
 
-;; Main layer with Home Row Mods always active
-(deflayer base
+;; Default layer without Home Row Mods
+(deflayer plain
+  caps 1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  esc  a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt spc  ralt rmet rctl
+  @lyr-hrm
+)
+
+;; Home Row Mods layer (Insert to toggle)
+(deflayer hrm
   caps 1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   esc  @a-mod @s-mod @d-mod @f-mod  g    h    @j-mod @k-mod @l-mod @sc-mod '    ret
   lsft z    x    c    v    b    n    m    ,    .    /    rsft
   lctl lmet lalt spc  ralt rmet rctl
+  @lyr-plain
 )
