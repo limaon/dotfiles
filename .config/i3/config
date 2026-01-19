@@ -308,14 +308,11 @@ exec --no-startup-id unclutter \
   --ignore-scrolling \
   --start-hidden \
   --fork
-exec --no-startup-id xautolock \
-  -time 5 \
-  -locker "sysact lock" \
-  -notify 30 \
-  -notifier "dunstify -u critical -r 9999 'Session' 'Screen will lock in 30 seconds'" \
-  -killer "dunstctl close-all" \
-  -killtime 25 \
-  -detectsleep
+exec_always --no-startup-id xset s 900 30
+exec --no-startup-id xss-lock \
+  --transfer-sleep-lock \
+  --notifier "dunstify -u critical -r 9999 'Session' 'Screen will lock in 30 seconds'" \
+  -- sysact lock
 
 
 # Exit i3 (logs you out of your X session)

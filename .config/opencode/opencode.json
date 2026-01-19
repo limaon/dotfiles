@@ -17,31 +17,6 @@
     }
   },
 
-  "agent": {
-    "build": {
-      "mode": "primary",
-      "model": "zai-coding-plan/glm-4.7",
-      "description": "Build agent com GLM‑4.7 via Z.AI Coding Plan",
-      "tools": {
-        "write": true,
-        "edit": true,
-        "bash": true
-      },
-      "temperature": 0.1
-    },
-    "plan": {
-      "mode": "primary",
-      "model": "zai-coding-plan/glm-4.7",
-      "description": "Plan agent com GLM‑4.7 via Z.AI Coding Plan",
-      "tools": {
-        "write": false,
-        "edit": false,
-        "bash": false
-      },
-      "temperature": 0.05
-    }
-  },
-
   "mcp": {
     "context7": {
       "type": "remote",
@@ -58,7 +33,8 @@
       "oauth": false,
       "headers": {
         "Authorization": "Bearer {env:Z_AI_API_KEY}"
-      }
+      },
+      "enabled": true
     },
     "web-reader": {
       "type": "remote",
@@ -66,7 +42,8 @@
       "oauth": false,
       "headers": {
         "Authorization": "Bearer {env:Z_AI_API_KEY}"
-      }
+      },
+      "enabled": true
     },
     "zread": {
       "type": "remote",
@@ -74,7 +51,8 @@
       "oauth": false,
       "headers": {
         "Authorization": "Bearer {env:Z_AI_API_KEY}"
-      }
+      },
+      "enabled": true
     },
     "zai-mcp-server": {
       "type": "local",
@@ -82,7 +60,8 @@
       "environment": {
         "Z_AI_API_KEY": "{env:Z_AI_API_KEY}",
         "Z_AI_MODE": "ZAI"
-      }
+      },
+      "enabled": true
     }
   }
 }
