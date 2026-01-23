@@ -292,14 +292,14 @@ local language_settings = {
 	},
 	markdown = {
 		buffer = {
-			expandtab = true,
+			expandtab = false,
 			shiftwidth = 4,
 			tabstop = 4,
 			softtabstop = 4,
 			formatoptions = "jcroql",
 		},
 		window = {
-			wrap = true,
+			wrap = false,
 			linebreak = true,
 			spell = true,
 			conceallevel = 0,
@@ -307,14 +307,14 @@ local language_settings = {
 	},
 	tex = {
 		buffer = {
-			expandtab = true,
+			expandtab = false,
 			shiftwidth = 4,
 			tabstop = 4,
 			softtabstop = 4,
 			formatoptions = "jcroql",
 		},
 		window = {
-			wrap = true,
+			wrap = false,
 			linebreak = true,
 			spell = true,
 			conceallevel = 0,
