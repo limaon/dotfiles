@@ -1483,8 +1483,6 @@ require("lazy").setup({
 		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			require("nvim-treesitter").setup({})
-
 			local parsers = {
 				"bash",
 				"c",
@@ -1497,8 +1495,14 @@ require("lazy").setup({
 				"query",
 				"vim",
 				"vimdoc",
+				"json",
+				"yaml",
+				"toml",
+				"python",
+				"javascript",
+				"typescript",
+				"css",
 			}
-			require("nvim-treesitter").install(parsers)
 
 			local skip_filetypes = {
 				"TelescopePrompt",
@@ -1506,6 +1510,9 @@ require("lazy").setup({
 				"snacks_input",
 				"",
 			}
+			local max_filesize = 100 * 1024
+
+			require("nvim-treesitter").setup({})
 
 			local function should_use_treesitter()
 				local ft = vim.bo.filetype
@@ -1516,6 +1523,12 @@ require("lazy").setup({
 					return false
 				end
 				if ft == "" then
+					return false
+				end
+				-- Check file size
+				local filepath = vim.api.nvim_buf_get_name(0)
+				local ok, stats = pcall(vim.loop.fs_stat, filepath)
+				if ok and stats and stats.size > max_filesize then
 					return false
 				end
 				return true
@@ -1536,7 +1549,7 @@ require("lazy").setup({
 					end
 
 					if vim.bo.filetype ~= "ruby" then
-						vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+						vim.bo.indentexpr = "v:lua.vim.treesitter.indentexpr()"
 					end
 				end,
 				desc = "Enable treesitter features",
