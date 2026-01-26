@@ -81,7 +81,7 @@ vim.opt.spellsuggest = "best,6"
 vim.opt.virtualedit = "block"
 vim.opt.whichwrap:append("[,]")
 vim.opt.showtabline = 2
-vim.opt.modeline = false
+vim.opt.modeline = true
 vim.opt.modelines = 5
 vim.opt.backupdir = vim.fn.stdpath("state") .. "/backup//"
 vim.opt.directory = vim.fn.stdpath("state") .. "/swap//"
@@ -277,26 +277,16 @@ create_autocmd({ "BufNewFile", "BufRead" }, make_group, "CMakeLists.txt", functi
 	vim.bo.filetype = "cmake"
 end, "Set filetype to cmake for CMakeLists.txt")
 
--- Language-specific settings
+-- Language-specific settings (indentation handled by vim-sleuth)
 local language_settings = {
 	python = {
 		buffer = {
-			expandtab = true,
-			shiftwidth = 4,
-			tabstop = 8,
 			formatoptions = "croq",
-			softtabstop = 4,
 			cinwords = "if,elif,else,for,while,try,except,finally,def,class,with",
 		},
 	},
 	markdown = {
-		buffer = {
-			expandtab = false,
-			shiftwidth = 4,
-			tabstop = 4,
-			softtabstop = 4,
-			formatoptions = "jcroql",
-		},
+		buffer = { formatoptions = "jcroql" },
 		window = {
 			wrap = false,
 			linebreak = true,
@@ -305,13 +295,7 @@ local language_settings = {
 		},
 	},
 	tex = {
-		buffer = {
-			expandtab = false,
-			shiftwidth = 4,
-			tabstop = 4,
-			softtabstop = 4,
-			formatoptions = "jcroql",
-		},
+		buffer = { formatoptions = "jcroql" },
 		window = {
 			wrap = false,
 			linebreak = true,
@@ -319,32 +303,6 @@ local language_settings = {
 			conceallevel = 0,
 		},
 	},
-	lua = {
-		buffer = {
-			expandtab = true,
-			tabstop = 2,
-			shiftwidth = 2,
-			softtabstop = 2,
-		},
-	},
-	javascript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	typescript = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	php = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	java = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	c = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	cpp = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	ruby = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	go = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	html = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	css = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	json = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	xml = { buffer = { expandtab = true, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	yaml = { buffer = { expandtab = false, tabstop = 2, shiftwidth = 2, softtabstop = 2 } },
-	vim = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	toml = { buffer = { expandtab = true, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	sh = { buffer = { expandtab = false, tabstop = 4, shiftwidth = 4, softtabstop = 4 } },
-	asm = { buffer = { expandtab = false, tabstop = 8, shiftwidth = 8, softtabstop = 8 } },
-	make = { buffer = { expandtab = false } },
 }
 
 local lang_group = create_augroup("LanguageSettings")
@@ -472,9 +430,17 @@ vim.opt.rtp:prepend(lazypath)
 -- [[ Configure and install plugins ]] {{{
 ---@diagnostic disable: missing-fields
 require("lazy").setup({
+
 	{ -- Detect tabstop and shiftwidth automatically
-		"tpope/vim-sleuth",
+		-- Works alongside Neovim's native EditorConfig support (0.9+)
+		-- Priority: .editorconfig > guess-indent detection > defaults
+		"NMAC427/guess-indent.nvim",
 		event = { "BufReadPost", "BufNewFile" },
+		opts = {
+			auto_cmd = true,
+			filetype_exclude = { "netrw", "tutor" },
+			buftype_exclude = { "help", "nofile", "terminal", "prompt" },
+		},
 	},
 
 	{ -- Theme Solarized
@@ -1020,7 +986,6 @@ require("lazy").setup({
 			})
 
 			local ensure_installed = {
-				"clangd",
 				"texlab",
 				"lua_ls",
 				"ts_ls",
@@ -1036,7 +1001,6 @@ require("lazy").setup({
 				ensure_installed = {},
 			})
 
-			vim.lsp.enable("clangd")
 			vim.lsp.enable("texlab")
 			vim.lsp.enable("lua_ls")
 			vim.lsp.enable("ts_ls")
@@ -1198,6 +1162,46 @@ require("lazy").setup({
 			require("mini.trailspace").setup({
 				only_in_normal_buffers = true,
 			})
+
+			local gen_loader = require("mini.snippets").gen_loader
+			require("mini.snippets").setup({
+				snippets = {
+					gen_loader.from_lang(),
+				},
+			})
+			MiniSnippets.start_lsp_server()
+
+			require("mini.completion").setup({
+				delay = { completion = 100, info = 100, signature = 50 },
+				window = {
+					info = { height = 25, width = 80, border = "rounded" },
+					signature = { height = 25, width = 80, border = "rounded" },
+				},
+				lsp_completion = {
+					source_func = "completefunc",
+					auto_setup = true,
+					process_items = function(items, base)
+						items = vim.tbl_filter(function(item)
+							local dominated_by_string = item.insertText
+								and vim.startswith(item.insertText, '"')
+								and vim.endswith(item.insertText, '"')
+							local dominated_by_comment = item.label
+								and (vim.startswith(item.label, "//") or vim.startswith(item.label, "--"))
+							return not dominated_by_string and not dominated_by_comment
+						end, items)
+						return MiniCompletion.default_process_items(items, base)
+					end,
+				},
+				fallback_action = "<C-n>",
+				mappings = {
+					force_twostep = "<C-Space>",
+					force_fallback = "<A-Space>",
+					scroll_down = "<C-f>",
+					scroll_up = "<C-b>",
+				},
+			})
+
+			vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
 		end,
 	},
 	-- }}}
@@ -1209,86 +1213,41 @@ require("lazy").setup({
 		build = ":TSUpdate",
 		config = function()
 			local parsers = {
-				"bash",
-				"c",
-				"diff",
-				"html",
 				"lua",
 				"luadoc",
 				"markdown",
 				"markdown_inline",
-				"query",
 				"vim",
 				"vimdoc",
-				"json",
-				"yaml",
-				"toml",
-				"python",
-				"javascript",
-				"typescript",
-				"css",
 			}
 
-			local skip_filetypes = {
-				"TelescopePrompt",
-				"snacks_input",
-				"",
-			}
-			local max_filesize = 100 * 1024
-
-			require("nvim-treesitter").setup({})
-
-			local function should_use_treesitter()
-				local ft = vim.bo.filetype
-				if vim.tbl_contains(skip_filetypes, ft) then
-					return false
-				end
-				if vim.bo.binary then
-					return false
-				end
-				if ft == "" then
-					return false
-				end
-				-- Check file size
-				local filepath = vim.api.nvim_buf_get_name(0)
-				local ok, stats = pcall(vim.loop.fs_stat, filepath)
-				if ok and stats and stats.size > max_filesize then
-					return false
-				end
-				return true
-			end
-
-			local ts_group = vim.api.nvim_create_augroup("TreesitterFeatures", { clear = true })
+			-- Auto-enable treesitter for supported filetypes
 			vim.api.nvim_create_autocmd("FileType", {
-				group = ts_group,
 				pattern = "*",
-				callback = function()
-					if not should_use_treesitter() then
+				callback = function(args)
+					local max_filesize = 100 * 1024 -- 100 KB
+					local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
+					if ok and stats and stats.size > max_filesize then
 						return
 					end
 
-					local ok, _ = pcall(vim.treesitter.start)
-					if not ok then
-						return
-					end
-
-					if vim.bo.filetype ~= "ruby" then
-						vim.bo.indentexpr = "v:lua.vim.treesitter.indentexpr()"
+					local ft = vim.bo[args.buf].filetype
+					local lang = vim.treesitter.language.get_lang(ft)
+					if lang and vim.treesitter.language.add(lang) then
+						vim.treesitter.start(args.buf, lang)
 					end
 				end,
-				desc = "Enable treesitter features",
+				desc = "Enable treesitter highlighting",
 			})
 
-			vim.api.nvim_create_autocmd("FileType", {
-				group = ts_group,
-				pattern = "ruby",
-				callback = function()
-					if should_use_treesitter() then
-						pcall(vim.treesitter.start)
-					end
-				end,
-				desc = "Enable treesitter for ruby",
-			})
+			-- Install missing parsers on startup
+			local ts = require("nvim-treesitter")
+			local available = ts.get_available()
+			for _, parser in ipairs(parsers) do
+				if vim.tbl_contains(available, parser) and not pcall(vim.treesitter.language.add, parser) then
+					ts.install(parser)
+				end
+			end
 		end,
 	},
 	-- }}}
