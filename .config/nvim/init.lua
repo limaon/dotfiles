@@ -117,7 +117,6 @@ function _G.MyTabLine()
 end
 vim.opt.tabline = "%!v:lua.MyTabLine()"
 
-
 -- Utility function to create autocommand groups
 local function create_augroup(name, autocmds)
 	return vim.api.nvim_create_augroup(name, { clear = true }), autocmds or {}
@@ -372,8 +371,6 @@ end, "Language-specific settings")
 --  See `:help vim.keymap.set()`
 local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
-
-
 
 -- Select all
 keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
@@ -929,14 +926,9 @@ require("lazy").setup({
 				},
 			})
 
-			local capabilities = require("blink.cmp").get_lsp_capabilities()
-
-			vim.lsp.config("clangd", {
-				capabilities = capabilities,
-			})
+			vim.lsp.config("clangd", {})
 
 			vim.lsp.config("texlab", {
-				capabilities = capabilities,
 				settings = {
 					texlab = {
 						build = {
@@ -954,7 +946,6 @@ require("lazy").setup({
 			})
 
 			vim.lsp.config("lua_ls", {
-				capabilities = capabilities,
 				on_init = function(client)
 					if client.workspace_folders then
 						local path = client.workspace_folders[1].name
@@ -995,7 +986,6 @@ require("lazy").setup({
 			})
 
 			vim.lsp.config("ts_ls", {
-				capabilities = capabilities,
 				init_options = { hostInfo = "neovim" },
 				settings = {
 					typescript = {
@@ -1114,8 +1104,6 @@ require("lazy").setup({
 			{ "<leader>sm", "<cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
 		},
 		config = function()
-			local ok_blink, blink = pcall(require, "blink.cmp")
-
 			require("supermaven-nvim").setup({
 				ignore_filetypes = {
 					"help",
@@ -1132,10 +1120,6 @@ require("lazy").setup({
 				disable_inline_completion = false,
 				disable_keymaps = true,
 				condition = function()
-					if ok_blink and blink and blink.is_visible() then
-						return true
-					end
-
 					local line_count = vim.api.nvim_buf_line_count(0)
 					if line_count > 5000 then
 						return true
@@ -1150,21 +1134,7 @@ require("lazy").setup({
 				end,
 			})
 
-			if ok_blink and blink then
-				vim.api.nvim_create_autocmd("User", {
-					pattern = "BlinkCmpMenuOpen",
-					callback = function()
-						local preview = require("supermaven-nvim.completion_preview")
-						preview:dispose_inlay()
-					end,
-				})
-			end
-
 			vim.keymap.set("i", "<Tab>", function()
-				if ok_blink and blink and blink.is_visible() then
-					return vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
-				end
-
 				local ok_luasnip, luasnip = pcall(require, "luasnip")
 				if ok_luasnip and luasnip.expandable() then
 					luasnip.expand()
@@ -1180,251 +1150,6 @@ require("lazy").setup({
 				return vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
 			end, { desc = "Smart Tab: blink > luasnip > supermaven > tab" })
 		end,
-	},
-	-- }}}
-
-	-- [[ blink.cmp ]] {{{
-	{ -- Autocompletion
-		"saghen/blink.cmp",
-		event = { "InsertEnter" },
-		dependencies = {
-			{
-				"L3MON4D3/LuaSnip",
-				version = "v2.*",
-				build = "make install_jsregexp",
-				config = function()
-					local ok, luasnip = pcall(require, "luasnip")
-					if not ok then
-						return
-					end
-					local ls = luasnip
-					require("luasnip.loaders.from_vscode").lazy_load({ paths = { "~/.config/nvim/snippets" } })
-				ls.config.set_config({
-					history = true,
-					enable_autosnippets = true,
-				})
-					vim.keymap.set({ "i" }, "<C-K>", function()
-						ls.expand()
-					end, { silent = true })
-					vim.keymap.set({ "i", "s" }, "<C-L>", function()
-						ls.jump(1)
-					end, { silent = true })
-					vim.keymap.set({ "i", "s" }, "<C-J>", function()
-						ls.jump(-1)
-					end, { silent = true })
-					vim.keymap.set({ "i", "s" }, "<C-E>", function()
-						if ls.choice_active() then
-							ls.change_choice(1)
-						end
-					end, { silent = true })
-				end,
-			},
-			"rafamadriz/friendly-snippets",
-		},
-		version = "1.*",
-		---@module 'blink.cmp'
-		---@type blink.cmp.Config
-		opts = {
-			enabled = function()
-				local disabled = false
-				disabled = disabled or (vim.bo.buftype == "prompt")
-				disabled = disabled or (vim.bo.filetype == "snacks_input")
-				disabled = disabled or (vim.fn.reg_recording() ~= "")
-				disabled = disabled or (vim.fn.reg_executing() ~= "")
-				return not disabled
-			end,
-			keymap = {
-				preset = "default",
-				["<C-y>"] = { "select_and_accept", "fallback" },
-				["<S-Tab>"] = {
-					function(cmp)
-						if cmp.is_menu_visible() then
-							return cmp.select_prev()
-						elseif cmp.snippet_active() then
-							return cmp.snippet_backward()
-						end
-					end,
-					"fallback",
-				},
-				["<c-l>"] = { "snippet_forward", "fallback" },
-				["<c-h>"] = { "snippet_backward", "fallback" },
-			},
-			appearance = {
-				use_nvim_cmp_as_default = false,
-				nerd_font_variant = "normal",
-			},
-			completion = {
-				ghost_text = { enabled = false },
-				documentation = {
-					auto_show = true,
-					auto_show_delay_ms = 1000,
-					update_delay_ms = 100,
-					treesitter_highlighting = true,
-					window = {
-						max_width = math.min(80, vim.o.columns),
-						max_height = 16,
-						border = "rounded",
-						winblend = 0,
-						winhighlight = "Normal:BlinkCmpDoc,FloatBorder:BlinkCmpDocBorder,EndOfBuffer:BlinkCmpDoc",
-						scrollbar = false,
-					},
-				},
-				list = {
-					selection = {
-						preselect = function(_)
-							return not require("blink.cmp").snippet_active({ direction = 1 })
-						end,
-						auto_insert = function(_)
-							return vim.bo.filetype ~= "markdown"
-						end,
-					},
-					max_items = 3,
-				},
-				menu = {
-					enabled = true,
-					auto_show = function()
-						local buf = vim.api.nvim_get_current_buf()
-						local cache_key = "blink_cmp_auto_show_" .. buf
-						local last_check = vim.b[cache_key] or 0
-						local now = vim.uv.hrtime()
-
-						if now - last_check < 100000000 then
-							return true
-						end
-						vim.b[cache_key] = now
-
-						local row, col = unpack(vim.api.nvim_win_get_cursor(0))
-						local ok, node = pcall(vim.treesitter.get_node, {
-							pos = { row - 1, math.max(0, col - 1) },
-							ignore_injections = false,
-						})
-					local reject = {
-						"comment",
-						"line_comment",
-						"block_comment",
-						"comment_content",
-					}
-						if ok and node and node_has_type(node, reject) then
-							return false
-						end
-						return true
-					end,
-					max_height = 5,
-					min_width = 16,
-					border = "none",
-					winblend = 10,
-					winhighlight = "Normal:BlinkCmpMenu,FloatBorder:BlinkCmpMenuBorder,CursorLine:BlinkCmpMenuSelection,Search:None",
-					scrollbar = false,
-					scrolloff = 2,
-					direction_priority = { "s", "n" },
-					draw = {
-						align_to = "cursor",
-						padding = { 0, 1 },
-						columns = { { "label", "label_description", gap = 0 }, { "kind_icon", "kind" } },
-						components = {
-							kind_icon = {
-								text = function(ctx)
-									local kind_icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
-									return kind_icon
-								end,
-								highlight = function(ctx)
-									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
-									return hl
-								end,
-							},
-							kind = {
-								highlight = function(ctx)
-									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
-									return hl
-								end,
-							},
-							label = { width = { fill = true, max = 30 } },
-						},
-					},
-				},
-				keyword = { range = "prefix" },
-				accept = { auto_brackets = { enabled = true } },
-			},
-			sources = {
-				default = function()
-					local ok, node = pcall(vim.treesitter.get_node)
-					if ok and node and node:type():find("string") then
-						return { "path" }
-					end
-					return {
-						"lsp",
-						"path",
-						"snippets",
-						"buffer",
-					}
-				end,
-
-				providers = {
-					lsp = { fallbacks = { "lazydev" } },
-					lazydev = {
-						name = "LazyDev",
-						module = "lazydev.integrations.blink",
-					},
-					path = {
-						opts = {
-							trailing_slash = true,
-							label_trailing_slash = true,
-							get_cwd = function()
-								return vim.fn.expand("%:p:h")
-							end,
-						},
-					},
-					snippets = {
-						score_offset = -1,
-						opts = {
-							use_show_condition = true,
-							show_autosnippets = true,
-							prefer_doc_trig = false,
-							use_label_description = true,
-						},
-					},
-					buffer = {
-						score_offset = -3,
-						opts = {
-							use_cache = true,
-							max_sync_buffer_size = 5000,
-							max_async_buffer_size = 50000,
-						},
-					},
-				},
-			},
-			snippets = {
-				preset = "luasnip",
-			},
-			fuzzy = {
-				implementation = "prefer_rust_with_warning",
-				max_typos = function(keyword)
-					return math.floor(#keyword / 4)
-				end,
-				frecency = {
-					enabled = true,
-					path = vim.fn.stdpath("state") .. "/blink/cmp/frecency.dat",
-					unsafe_no_lock = false,
-				},
-				use_proximity = true,
-				sorts = {
-					"exact",
-					"score",
-					"sort_text",
-				},
-				prebuilt_binaries = {
-					download = true,
-				},
-			},
-			signature = {
-				enabled = true,
-				window = {
-					max_width = 50,
-					border = "rounded",
-					winblend = 10,
-				},
-			},
-		},
 	},
 	-- }}}
 
@@ -1506,7 +1231,6 @@ require("lazy").setup({
 
 			local skip_filetypes = {
 				"TelescopePrompt",
-				"blink-cmp-menu",
 				"snacks_input",
 				"",
 			}
