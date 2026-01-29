@@ -290,7 +290,6 @@ local language_settings = {
 		window = {
 			wrap = false,
 			linebreak = true,
-			spell = true,
 			conceallevel = 0,
 		},
 	},
@@ -299,7 +298,6 @@ local language_settings = {
 		window = {
 			wrap = false,
 			linebreak = true,
-			spell = true,
 			conceallevel = 0,
 		},
 	},
@@ -951,6 +949,23 @@ require("lazy").setup({
 				},
 			})
 
+			vim.lsp.config("phpactor", {
+				cmd = { "phpactor", "language-server" },
+				filetypes = { "php" },
+				root_markers = { "composer.json", ".git", ".phpactor.json", ".phpactor.yml" },
+				init_options = {
+					["language_server_phpstan.enabled"] = false,
+					["language_server_psalm.enabled"] = false,
+				},
+				settings = {
+					phpactor = {
+						completion = {
+							insertUseDeclaration = true,
+						},
+					},
+				},
+			})
+
 			vim.lsp.config("ts_ls", {
 				init_options = { hostInfo = "neovim" },
 				settings = {
@@ -986,6 +1001,7 @@ require("lazy").setup({
 			})
 
 			local ensure_installed = {
+				"phpactor",
 				"texlab",
 				"lua_ls",
 				"ts_ls",
@@ -1001,6 +1017,7 @@ require("lazy").setup({
 				ensure_installed = {},
 			})
 
+			vim.lsp.enable("phpactor")
 			vim.lsp.enable("texlab")
 			vim.lsp.enable("lua_ls")
 			vim.lsp.enable("ts_ls")
@@ -1217,6 +1234,8 @@ require("lazy").setup({
 				"luadoc",
 				"markdown",
 				"markdown_inline",
+				"php",
+				"phpdoc",
 				"vim",
 				"vimdoc",
 			}
