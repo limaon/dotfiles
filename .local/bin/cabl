@@ -297,7 +297,7 @@ if [[ $locale == ja ]]; then
 			--eos-format='\n' \
 			--unk-format='\n' <<< "$*" |
 			sed '/^ *$/d' |
-			{ dmenu-alt || echo "$*" ;} |
+			{ dmenu || echo "$*" ;} |
 			tee >(xclip) |
 			xclip -selection clipboard
 	}
@@ -608,7 +608,7 @@ fi
 
 __ask_action() {
 	declare -F | awk '!/ __.+$/ {gsub("_", " ", $3); print $3}' |
-		dmenu-alt -p "Plumb ${search_text:0:30} to?" -i
+		dmenu -p "Plumb ${search_text:0:30} to?" -i
 }
 
 __main() {

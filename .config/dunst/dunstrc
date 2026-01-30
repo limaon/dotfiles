@@ -59,7 +59,7 @@ sticky_history = true
 history_length = 10
 
 ### Misc/Advanced ###
-dmenu = "dmenu-alt"
+dmenu = "dmenu"
 # dmenu = "dmenu -p dunst"
 browser = "xdg-open"
 always_run_script = true
