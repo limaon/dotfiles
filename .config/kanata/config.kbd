@@ -35,9 +35,13 @@
   l-mod  (tap-hold 200 200 l ralt)
   sc-mod (tap-hold 200 200 ; rmet)
 
-  ;; Layer toggle: Insert switches between plain (default) and hrm
+  ;; Layer toggle: RSFT switches between plain (default) and hrm
   lyr-hrm   (layer-switch hrm)
   lyr-plain (layer-switch plain)
+
+  ;; RSFT: tap to toggle Home Row Mods, hold for normal shift
+  rsft-hrm-toggle (tap-hold 200 200 @lyr-hrm rsft)
+  rsft-plain-toggle (tap-hold 200 200 @lyr-plain rsft)
 )
 
 ;; Physical keyboard layout (US QWERTY)
@@ -55,17 +59,17 @@
   caps 1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   esc  a    s    d    f    g    h    j    k    l    ;    '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lsft z    x    c    v    b    n    m    ,    .    /    @rsft-hrm-toggle
   lctl lmet lalt spc  ralt rmet rctl
-  @lyr-hrm
+  ins
 )
 
-;; Home Row Mods layer (Insert to toggle)
+;; Home Row Mods layer (RSFT to toggle back to plain)
 (deflayer hrm
   caps 1    2    3    4    5    6    7    8    9    0    -    =    bspc
   tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
   esc  @a-mod @s-mod @d-mod @f-mod  g    h    @j-mod @k-mod @l-mod @sc-mod '    ret
-  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lsft z    x    c    v    b    n    m    ,    .    /    @rsft-plain-toggle
   lctl lmet lalt spc  ralt rmet rctl
-  @lyr-plain
+  ins
 )
