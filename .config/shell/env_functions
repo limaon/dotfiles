@@ -197,7 +197,6 @@ FZF_EXCLUDE_DIRS=(
     "*.swo"
     "*.swm"
     "*.swn"
-    "*.swo"
     "*.swl"
     "*.spp"
     # Irrelevant/large files and folders often found in $HOME/.config
@@ -205,7 +204,6 @@ FZF_EXCLUDE_DIRS=(
     ".Trash"
     "*.lock"
     "*.sqlite"
-    "*.log"
     "Cache"
     "cache"
     ".local"
