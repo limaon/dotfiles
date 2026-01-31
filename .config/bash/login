@@ -24,6 +24,9 @@ shopt -s cmdhist
 
 # Share history across tmux panes/sessions in real-time
 # Uses bash-preexec's precmd_functions array to sync history
+# NOTE: Requires bash-preexec framework (provided by bash-it or standalone)
+# Install standalone: curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.config/bash/bash-preexec.sh
+# Then add: [[ -f ~/.config/bash/bash-preexec.sh ]] && . ~/.config/bash/bash-preexec.sh
 _share_history() {
     history -a;  # Append current session's commands to history file
     history -c;  # Clear in-memory history
