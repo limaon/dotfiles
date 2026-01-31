@@ -15,13 +15,21 @@ shopt -s extglob
 shopt -s globstar
 shopt -s dotglob
 shopt -s direxpand
-shopt -s failglob          # Fail if glob doesn't match
-shopt -s nullglob           # Expand empty globs to empty string
+shopt -s nullglob           # Expand empty globs to empty string (failglob removed - conflicts)
 
 # Shell options - history
 shopt -s histverify
 shopt -s lithist
 shopt -s cmdhist
+
+# Share history across tmux panes/sessions in real-time
+# Uses bash-preexec's precmd_functions array to sync history
+_share_history() {
+    history -a;  # Append current session's commands to history file
+    history -c;  # Clear in-memory history
+    history -r;  # Reload history file (now contains all panes' commands)
+}
+precmd_functions+=(_share_history)
 
 # Shell options - other
 shopt -s checkwinsize
