@@ -65,7 +65,7 @@ ssource() {
 # Example: mkcd new_folder
 mkcd() {
     mkdir -p "$1"
-    cd "$1" || exit
+    cd "$1" || return 1
 }
 
 # Usage: remorphans
