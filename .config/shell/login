@@ -215,4 +215,12 @@ fi
 # fi
 
 
+# Terminal color settings (moved from interactive)
+export GROFF_NO_SGR=1
+export CLICOLOR=1
+export COLORFGBG="default;default"
+
+# A.I defaults (moved from interactive)
+export AI_PROVIDER=phind
+
 # vim:ft=sh

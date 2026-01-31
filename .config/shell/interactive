@@ -86,8 +86,7 @@ alias aurlist='pacman -Qm'
 alias refl='sudo reflector --verbose --country $(curl -s --max-time 2 ifconfig.co/country | tr -d "\n") --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
 # alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
 
-# A.I defaults
-export AI_PROVIDER=phind
+# A.I aliases (AI_PROVIDER exported in login)
 alias llm="tgpt -q --provider \$AI_PROVIDER"
 alias genimg='tgpt --img --out ~/Pictures/out-ai-image.jpg --height 512 --width 512'
 
@@ -127,9 +126,7 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto --binary-file=without-match'
 fi
 
-export GROFF_NO_SGR=1
-export CLICOLOR=1
-export COLORFGBG="default;default"
+# Color exports moved to login file
 
 # gnome-terminal doesn't advertise its 256 colour support.
 if [ "$COLORTERM" = gnome-terminal ] && [ "$TERM" = xterm ]; then
