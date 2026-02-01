@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Volume Block for i3blocks (handles both sink and source)
+# Audio/PulseAudio Block for i3blocks (handles sink output and source input)
 set -euo pipefail
 
 # Determine if we're handling sink or source
