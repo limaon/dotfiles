@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
-
-# Prints current volume.
-#
-# Pamixer options:
-# --list-sinks          list sinks
-# --list-sources        list sources
-# "instance" field of block should be "sink 0", "source 1", etc.
+# Volume (master) Block for i3blocks
+set -euo pipefail
 
 instance() {
   pamixer "${DEVICE[@]}" "$@"
@@ -21,14 +16,8 @@ mixer() {
 
 if [[ -n "${BLOCK_INSTANCE:-}" ]]; then
   read -r -a DEVICE <<<"--$BLOCK_INSTANCE"
-fi
-
-if [[ "${BLOCK_INSTANCE:-}" == *source* ]]; then
-  readonly block_icon=''
-  readonly block_icon_mute=''
 else
-  readonly block_icon='󰕾'
-  readonly block_icon_mute=''
+  DEVICE=()
 fi
 
 # Handle mouse actions
@@ -42,16 +31,16 @@ esac
 # Output status
 case $(instance --get-mute) in
   "0" | "false")
-    echo "$block_icon $(instance --get-volume)%"
+    VOL=$(instance --get-volume)
+    echo "VOL:${VOL}"
+    echo "#00ff00"
     ;;
   "1" | "true")
-    echo "$block_icon_mute MUTE"
-    echo "$block_icon_mute"
-    echo "#AAAAAA"
+    echo "VOL: Muted"
+    echo "#ff0000"
     ;;
   *)
-    echo UNK
-    echo E
-    echo "#FF1A1A"
+    echo "VOL: UNK"
+    echo "#ff0000"
     ;;
 esac

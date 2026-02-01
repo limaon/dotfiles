@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Wireless Block for i3blocks
+set -euo pipefail
+
+INSTANCE="${BLOCK_INSTANCE:-_first_}"
+
+if [[ "$INSTANCE" == "_first_" ]]; then
+    # Find first wireless interface
+    INTERFACE=$(iw dev 2>/dev/null | awk '/Interface/{print $2; exit}')
+else
+    INTERFACE="$INSTANCE"
+fi
+
+# Check if interface exists
+if [[ -z "$INTERFACE" ]]; then
+    echo "W:down"
+    echo "#ff0000"
+    exit 0
+fi
+
+# Check if connected
+IW_OUTPUT=$(iw dev "$INTERFACE" link 2>/dev/null || true)
+
+if [[ -z "$IW_OUTPUT" ]] || ! echo "$IW_OUTPUT" | grep -q "Connected"; then
+    echo "W:down"
+    echo "#ff0000"
+    exit 0
+fi
+
+# Get ESSID
+ESSID=$(echo "$IW_OUTPUT" | grep -oP 'SSID: \K.*' | tr -d '\n')
+
+# Get signal quality (0-70 typical range)
+SIGNAL=$(echo "$IW_OUTPUT" | grep -oP 'signal: \K-?[0-9]+' || echo "-70")
+SIGNAL_ABS=${SIGNAL#-}  # Remove minus sign
+
+# Calculate quality (0-100)
+if (( SIGNAL_ABS > 90 )); then
+    QUALITY=0
+elif (( SIGNAL_ABS > 70 )); then
+    QUALITY=20
+elif (( SIGNAL_ABS > 60 )); then
+    QUALITY=40
+elif (( SIGNAL_ABS > 50 )); then
+    QUALITY=60
+elif (( SIGNAL_ABS > 40 )); then
+    QUALITY=80
+else
+    QUALITY=100
+fi
+
+# Get bitrate
+BITRATE=$(echo "$IW_OUTPUT" | grep -oP 'tx bitrate: \K[0-9.]*' || echo "0")
+
+# Get IP address
+IP=$(ip -4 addr show "$INTERFACE" | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
+
+# Color based on signal
+if (( QUALITY < 30 )); then
+    COLOR="#ff0000"
+elif (( QUALITY < 60 )); then
+    COLOR="#ff9900"
+else
+    COLOR="#00ff00"
+fi
+
+if [[ -n "$IP" ]]; then
+    echo "W:(${QUALITY} at ${ESSID}, ${BITRATE}M) IP:${IP}"
+else
+    echo "W:(${QUALITY} at ${ESSID}, ${BITRATE}M)"
+fi
+echo "$COLOR"

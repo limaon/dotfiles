@@ -24,6 +24,10 @@ display_current_date_and_time() {
 }
 
 handle_mouse_click_events() {
+    if [[ -z "${BLOCK_BUTTON:-}" ]]; then
+        return
+    fi
+
     case $BLOCK_BUTTON in
         1)
             local calendar_output=$(display_current_month_calendar)

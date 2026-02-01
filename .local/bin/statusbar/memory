@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Memory Usage Block for i3blocks
+set -euo pipefail
+
+MEM_INFO=$(free | grep Mem)
+TOTAL=$(echo "$MEM_INFO" | awk '{print $2}')
+USED=$(echo "$MEM_INFO" | awk '{print $3}')
+PERCENT=$(( USED * 100 / TOTAL ))
+
+# Format used memory in GB
+USED_GB=$(( USED / 1024 / 1024 ))
+
+# Color based on threshold (same as i3status: < 10% free = degraded)
+FREE_PERCENT=$(( 100 - PERCENT ))
+
+if (( FREE_PERCENT < 10 )); then
+    COLOR="#ff0000"
+    FULL_TEXT="MEN: ${USED_GB}GB (${PERCENT}%)"
+else
+    COLOR="#00ff00"
+    FULL_TEXT="MEN: ${USED_GB}GB (${PERCENT}%)"
+fi
+
+echo "$FULL_TEXT"
+echo "$COLOR"

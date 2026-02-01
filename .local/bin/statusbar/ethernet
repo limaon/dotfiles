@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Ethernet Block for i3blocks
+set -euo pipefail
+
+INSTANCE="${BLOCK_INSTANCE:-_first_}"
+
+if [[ "$INSTANCE" == "_first_" ]]; then
+    # Find first ethernet interface
+    INTERFACE=$(ip link show 2>/dev/null | awk -F: '$0 !~ "lo|virbr|docker|veth" && $2 ~ /^[es]/ {print $2; getline; if ($0 ~ /state UP/) {print; exit}}' | head -n1)
+    INTERFACE=$(echo "$INTERFACE" | tr -d ' ')
+else
+    INTERFACE="$INSTANCE"
+fi
+
+# Check if interface exists and is up
+if [[ -z "$INTERFACE" ]] || ! ip link show "$INTERFACE" &>/dev/null; then
+    exit 0
+fi
+
+STATE=$(ip link show "$INTERFACE" | grep -oP 'state \K\w+')
+
+if [[ "$STATE" != "UP" ]]; then
+    exit 0
+fi
+
+# Get IP address
+IP=$(ip -4 addr show "$INTERFACE" | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
+
+if [[ -z "$IP" ]]; then
+    exit 0
+fi
+
+# Get speed (if available)
+SPEED_FILE="/sys/class/net/${INTERFACE}/speed"
+if [[ -f "$SPEED_FILE" ]]; then
+    SPEED=$(cat "$SPEED_FILE" 2>/dev/null)
+    echo "E: ${IP} (${SPEED}M)"
+else
+    echo "E: ${IP}"
+fi
+echo "#00ff00"
