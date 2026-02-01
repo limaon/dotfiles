@@ -1,91 +1,91 @@
 # Usage: indirect_expand VARIABLE_NAME
-# Expands the value of the specified environment variable indirectly.
+# Expands to value of specified environment variable indirectly.
 # Example: indirect_expand PATH
 indirect_expand() {
-    env | sed -n "s/^$1=//p"
+  env | sed -n "s/^$1=//p"
 }
 
 # Usage: pathremove /path/to/bin [VARIABLE_NAME]
-# Removes the specified directory from the given PATH variable (default is PATH).
+# Removes specified directory from given PATH variable (default is PATH).
 # Example: pathremove ~/bin PATH
 pathremove() {
-    local IFS=':'
-    local newpath
-    local dir
-    local var=${2:-PATH}
-    # Bash has ${!var}, but this is not portable.
-    for dir in $(indirect_expand "$var"); do
-        IFS=''
-        if [ "$dir" != "$1" ]; then
-            newpath=$newpath:$dir
-        fi
-    done
-    export "$var"="${newpath#:}"
+  local IFS=':'
+  local newpath
+  local dir
+  local var=${2:-PATH}
+  # Bash has ${!var}, but this is not portable.
+  for dir in $(indirect_expand "$var"); do
+    IFS=''
+    if [ "$dir" != "$1" ]; then
+      newpath=$newpath:$dir
+    fi
+  done
+  export "$var"="${newpath#:}"
 }
 
 # Usage: pathprepend /path/to/bin [VARIABLE_NAME]
-# Prepends the specified directory to the given PATH variable (default is PATH).
+# Prepends specified directory to given PATH variable (default is PATH).
 # Example: pathprepend ~/bin PATH
 pathprepend() {
-    # Remove the path if it already exists to move it to the front
-    pathremove "$1" "$2"
-    # [ -d "${1}" ] || return
-    local var
-    var="${2:-PATH}"
-    local value
-    value=$(indirect_expand "$var")
-    export "${var}"="${1}${value:+:${value}}"
+  # Remove path if it already exists to move it to front
+  pathremove "$1" "$2"
+  # [ -d "${1}" ] || return
+  local var
+  var="${2:-PATH}"
+  local value
+  value=$(indirect_expand "$var")
+  export "${var}"="${1}${value:+:${value}}"
 }
 
 # Usage: pathappend /path/to/bin [VARIABLE_NAME]
-# Appends the specified directory to the given PATH variable (default is PATH).
+# Appends specified directory to given PATH variable (default is PATH).
 # Example: pathappend ~/bin PATH
 pathappend() {
-    pathremove "${1}" "${2}"
-    #[ -d "${1}" ] || return
-    local var
-    var=${2:-PATH}
-    local value
-    value=$(indirect_expand "$var")
-    export "$var"="${value:+${value}:}${1}"
+  pathremove "${1}" "${2}"
+  #[ -d "${1}" ] || return
+  local var
+  var=${2:-PATH}
+  local value
+  value=$(indirect_expand "$var")
+  export "$var"="${value:+${value}:}${1}"
 }
 
 # Usage: ssource filename
-# Sources the specified file if it is readable.
+# Sources specified file if it is readable.
 # Example: ssource myscript.sh
 ssource() {
-    if [ -r "$1" ]; then
-        # shellcheck disable=SC1090
-        . "$1"
-    fi
+  if [ -r "$1" ]; then
+    # shellcheck disable=SC1090
+    . "$1"
+  fi
 }
 
 # Usage: mkcd directory_name
 # Creates a directory and changes into it.
 # Example: mkcd new_folder
 mkcd() {
-    mkdir -p "$1"
-    cd "$1" || return 1
+  mkdir -p "$1"
+  cd "$1" || return 1
 }
 
 # Usage: remorphans
 # Uninstalls all orphaned packages (packages no longer required as dependencies).
 remorphans() {
-    local packages=()
-    local package
+  local packages=()
+  local package
 
-    while IFS= read -r package; do
-        packages+=("$package")
-    done < <(pacman -Qdtq)
+  while IFS= read -r package; do
+    packages+=("$package")
+  done < <(pacman -Qdtq)
 
-    echo "Found ${#packages[*]} orphans."
-    if ! [[ ${#packages[*]} -eq 0 ]]; then
-        sudo pacman -Rns "${packages[@]}"
-    fi
+  echo "Found ${#packages[*]} orphans."
+  if ! [[ ${#packages[*]} -eq 0 ]]; then
+    sudo pacman -Rns "${packages[@]}"
+  fi
 }
 
 # Usage: lf [options]
-# Launches the lf file manager and returns to the last visited directory after exit.
+# Launches lf file manager and returns to last visited directory after exit.
 lfcd () {
   local dir
   dir="$(command lf -print-last-dir "$@")"
@@ -96,244 +96,244 @@ lfcd () {
 
 # Helper function to build FZF command with exclusions
 _build_fzf_cmd() {
-    local cmd_type=$1
-    local tool=$2
-    local base_cmd
-    local fzf_cmd
-    local dir
+  local cmd_type=$1
+  local tool=$2
+  local base_cmd
+  local fzf_cmd
+  local dir
 
-    case "$tool" in
-        fd)
-            base_cmd="fd --type $cmd_type --hidden --follow"
-            fzf_cmd="$base_cmd"
-            for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-                fzf_cmd="$fzf_cmd --exclude \"$dir\""
-            done
-            ;;
-        rg)
-            if [ "$cmd_type" = "f" ]; then
-                base_cmd="rg --files --hidden --follow"
-                fzf_cmd="$base_cmd"
-                for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-                    fzf_cmd="$fzf_cmd --glob \"!$dir/*\""
-                done
-            else
-                # rg doesn't support directories, use find
-                base_cmd="find . -type d"
-                fzf_cmd="$base_cmd"
-                for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-                    fzf_cmd="$fzf_cmd -not -path \"*/$dir/*\""
-                done
-            fi
-            ;;
-        find)
-            base_cmd="find . -type $cmd_type"
-            fzf_cmd="$base_cmd"
-            for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
-                fzf_cmd="$fzf_cmd -not -path \"*/$dir/*\""
-            done
-            ;;
-    esac
+  case "$tool" in
+    fd)
+      base_cmd="fd --type $cmd_type --hidden --follow"
+      fzf_cmd="$base_cmd"
+      for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+        fzf_cmd="$fzf_cmd --exclude \"$dir\""
+      done
+      ;;
+    rg)
+      if [ "$cmd_type" = "f" ]; then
+        base_cmd="rg --files --hidden --follow"
+        fzf_cmd="$base_cmd"
+        for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+          fzf_cmd="$fzf_cmd --glob \"!$dir/*\""
+        done
+      else
+        # rg doesn't support directories, use find
+        base_cmd="find . -type d"
+        fzf_cmd="$base_cmd"
+        for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+          fzf_cmd="$fzf_cmd -not -path \"*/$dir/*\""
+        done
+      fi
+      ;;
+    find)
+      base_cmd="find . -type $cmd_type"
+      fzf_cmd="$base_cmd"
+      for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+        fzf_cmd="$fzf_cmd -not -path \"*/$dir/*\""
+      done
+      ;;
+  esac
 
-    printf '%s' "$fzf_cmd"
+  printf '%s' "$fzf_cmd"
 }
 
 # Helper function to run fzf with fallback
 _fzf_select() {
-    local fzf_command=$1
-    local fallback_cmd=$2
+  local fzf_command=$1
+  local fallback_cmd=$2
 
-    if [ -n "$fzf_command" ]; then
-        eval "$fzf_command" 2>/dev/null | fzf-tmux -p +m
-    else
-        eval "$fallback_cmd" 2>/dev/null | fzf-tmux -p +m
-    fi
+  if [ -n "$fzf_command" ]; then
+    eval "$fzf_command" 2>/dev/null | fzf-tmux -p +m
+  else
+    eval "$fallback_cmd" 2>/dev/null | fzf-tmux -p +m
+  fi
 }
 
 FZF_EXCLUDE_DIRS=(
-    # Common unnecessary directories
-    ".git"
-    "node_modules"
-    ".cache"
-    ".cargo"
-    ".yarn"
-    ".svn"
-    # Python-specific non-relevant files and folders
-    "__pycache__"
-    "*.pyc"
-    "*.pyo"
-    "*.pyd"
-    "*.egg-info"
-    "*.eggs"
-    ".env"
-    ".venv"
-    "env"
-    "venv"
-    ".mypy_cache"
-    ".pytest_cache"
-    ".tox"
-    ".coverage"
-    ".hypothesis"
-    ".idea"
-    ".ropeproject"
-    "*.log"
-    "*.db"
-    "pip-selfcheck.json"
-    # Media and binary assets
-    "*.png"
-    "*.mp4"
-    "*.mp3"
-    "*.jpg"
-    "*.jpeg"
-    "*.bin"
-    "*.svg"
-    "*.gz"
-    "*.tar"
-    "*.tgz"
-    "*.zip"
-    # Swap and temporary files
-    "*/.swap*"
-    "*.swp"
-    "*.swo"
-    "*.swm"
-    "*.swn"
-    "*.swl"
-    "*.spp"
-    # Irrelevant/large files and folders often found in $HOME/.config
-    ".DS_Store"
-    ".Trash"
-    "*.lock"
-    "*.sqlite"
-    "Cache"
-    "cache"
-    ".local"
-    "*.bak"
-    ".recently-used"
-    "Code/CachedData"
-    "Code/Crashpad"
-    "Code/logs"
-    "Code/Service Worker/CacheStorage"
-    "google-chrome"
-    "chromium"
-    "BraveSoftware"
-    "VSCodium"
-    "Electron"
-    "kitty/session"
-    "nvim/backup"
-    "nvim/swap"
-    "nvim/shada"
-    "nvim/undo"
-    "btop/themes"
-    "btop/logs"
-    # Irrelevant/large files and folders often found in $HOME/.local
-    ".local/share/Trash"
-    ".local/share/flatpak"
-    ".local/share/baloo"
-    ".local/share/Steam"
-    ".local/share/akonadi"
-    ".local/share/recently-used.xbel"
-    ".local/share/nvim/backup"
-    ".local/share/nvim/swap"
-    ".local/share/nvim/shada"
-    ".local/share/nvim/undo"
-    ".local/share/virtualenvs"
-    ".local/share/gnome-shell"
-    ".local/share/gvfs-metadata"
-    ".local/share/gvfs-metadata/*"
-    ".local/share/Trash/*"
-    ".local/share/containers"
-    ".local/state"
-    ".local/cache"
-    ".local/log"
-    ".local/bin/__pycache__"
-    ".local/bin/*.pyc"
+  # Common unnecessary directories
+  ".git"
+  "node_modules"
+  ".cache"
+  ".cargo"
+  ".yarn"
+  ".svn"
+  # Python-specific non-relevant files and folders
+  "__pycache__"
+  "*.pyc"
+  "*.pyo"
+  "*.pyd"
+  "*.egg-info"
+  "*.eggs"
+  ".env"
+  ".venv"
+  "env"
+  "venv"
+  ".mypy_cache"
+  ".pytest_cache"
+  ".tox"
+  ".coverage"
+  ".hypothesis"
+  ".idea"
+  ".ropeproject"
+  "*.log"
+  "*.db"
+  "pip-selfcheck.json"
+  # Media and binary assets
+  "*.png"
+  "*.mp4"
+  "*.mp3"
+  "*.jpg"
+  "*.jpeg"
+  "*.bin"
+  "*.svg"
+  "*.gz"
+  "*.tar"
+  "*.tgz"
+  "*.zip"
+  # Swap and temporary files
+  "*/.swap*"
+  "*.swp"
+  "*.swo"
+  "*.swm"
+  "*.swn"
+  "*.swl"
+  "*.spp"
+  # Irrelevant/large files and folders often found in $HOME/.config
+  ".DS_Store"
+  ".Trash"
+  "*.lock"
+  "*.sqlite"
+  "Cache"
+  "cache"
+  ".local"
+  "*.bak"
+  ".recently-used"
+  "Code/CachedData"
+  "Code/Crashpad"
+  "Code/logs"
+  "Code/Service Worker/CacheStorage"
+  "google-chrome"
+  "chromium"
+  "BraveSoftware"
+  "VSCodium"
+  "Electron"
+  "kitty/session"
+  "nvim/backup"
+  "nvim/swap"
+  "nvim/shada"
+  "nvim/undo"
+  "btop/themes"
+  "btop/logs"
+  # Irrelevant/large files and folders often found in $HOME/.local
+  ".local/share/Trash"
+  ".local/share/flatpak"
+  ".local/share/baloo"
+  ".local/share/Steam"
+  ".local/share/akonadi"
+  ".local/share/recently-used.xbel"
+  ".local/share/nvim/backup"
+  ".local/share/nvim/swap"
+  ".local/share/nvim/shada"
+  ".local/share/nvim/undo"
+  ".local/share/virtualenvs"
+  ".local/share/gnome-shell"
+  ".local/share/gvfs-metadata"
+  ".local/share/gvfs-metadata/*"
+  ".local/share/Trash/*"
+  ".local/share/containers"
+  ".local/state"
+  ".local/cache"
+  ".local/log"
+  ".local/bin/__pycache__"
+  ".local/bin/*.pyc"
 )
 # Build FZF commands based on available tools
 if command -v fd >/dev/null 2>&1; then
-    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'fd')"
-    export FZF_DEFAULT_COMMAND
-    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'fd')"
-    export FZF_DIR_COMMAND
+  FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'fd')"
+  export FZF_DEFAULT_COMMAND
+  FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'fd')"
+  export FZF_DIR_COMMAND
 elif command -v rg >/dev/null 2>&1; then
-    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'rg')"
-    export FZF_DEFAULT_COMMAND
-    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'rg')"
-    export FZF_DIR_COMMAND
+  FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'rg')"
+  export FZF_DEFAULT_COMMAND
+  FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'rg')"
+  export FZF_DIR_COMMAND
 else
-    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'find')"
-    export FZF_DEFAULT_COMMAND
-    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'find')"
-    export FZF_DIR_COMMAND
+  FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'find')"
+  export FZF_DEFAULT_COMMAND
+  FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'find')"
+  export FZF_DIR_COMMAND
 fi
 # export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
 # Usage: locatefall
-# Uses fzf to locate a file in the current directory and changes into it if it's a directory, or opens it in the editor if it's a file.
+# Uses fzf to locate a file in current directory and changes into it if it's a directory, or opens it in editor if it's a file.
 fall() {
-    local file
-    local dir
-    dir="$(pwd)"
-    file=$(locate "${dir}/" 2>/dev/null | fzf-tmux -p +m) && if [ -d "$file" ]; then cd "$file" || exit; else ${EDITOR:-vim} "$file"; fi
+  local file
+  local dir
+  dir="$(pwd)"
+  file=$(locate "${dir}/" 2>/dev/null | fzf-tmux -p +m) && if [ -d "$file" ]; then cd "$file" || exit; else ${EDITOR:-vim} "$file"; fi
 }
 
 
 # Usage: fe
-# Finds and edits a file in the current directory, excluding certain paths and file types.
+# Finds and edits a file in current directory, excluding certain paths and file types.
 fe() {
-    local file
-    local fallback_cmd='find . -type f -not \( -path "*/.git*" -o -path "*/.cache*" -o -path "*/.cargo*" -o -path "*/.yarn*" -o -path "*/chromium*" -o -path "*/.svn*" -o -path "*.png" -o -path "*.mp4" -o -path "*.mp3" -o -path "*.jpg" -o -path "*.jpeg" -o -path "*.bin" -o -path "*.svg" -o -path "*.gz" -o -path "*.tar" -o -path "*.tgz" -o -path "*.zip" \) ! -size 0 -print'
+  local file
+  local fallback_cmd='find . -type f -not \( -path "*/.git*" -o -path "*/.cache*" -o -path "*/.cargo*" -o -path "*/.yarn*" -o -path "*/chromium*" -o -path "*/.svn*" -o -path "*.png" -o -path "*.mp4" -o -path "*.mp3" -o -path "*.jpg" -o -path "*.jpeg" -o -path "*.bin" -o -path "*.svg" -o -path "*.gz" -o -path "*.tar" -o -path "*.tgz" -o -path "*.zip" \) ! -size 0 -print'
 
-    file="$(_fzf_select "$FZF_DEFAULT_COMMAND" "$fallback_cmd")"
-    [ -n "$file" ] && ${EDITOR:-vim} "$file"
+  file="$(_fzf_select "$FZF_DEFAULT_COMMAND" "$fallback_cmd")"
+  [ -n "$file" ] && ${EDITOR:-vim} "$file"
 }
 
 
 # Usage: fcd
 # Changes to a directory selected via fzf, excluding certain paths.
 fcd() {
-    local dir
-    local fallback_cmd='find . -not \( -path "*/.*" -prune \) -not \( -path "*/Library/*" -prune \) -not \( -path "*/Applications/*" -prune \) -not \( -ipath "*/cache/*" -prune \) -type d -print'
+  local dir
+  local fallback_cmd='find . -not \( -path "*/.*" -prune \) -not \( -path "*/Library/*" -prune \) -not \( -path "*/Applications/*" -prune \) -not \( -ipath "*/cache/*" -prune \) -type d -print'
 
-    dir="$(_fzf_select "$FZF_DIR_COMMAND" "$fallback_cmd")"
-    [ -n "$dir" ] && cd "$dir" || return
+  dir="$(_fzf_select "$FZF_DIR_COMMAND" "$fallback_cmd")"
+  [ -n "$dir" ] && cd "$dir" || return
 }
 
 # Usage: fkill [signal]
 # Kills processes selected via fzf. Default signal is SIGKILL (9).
 fkill() {
-    local pids
-    pids=$(ps -ef | sed 1d | fzf-tmux -p -m | awk '{print $2}')
-    [ -n "$pids" ] && echo "$pids" | xargs kill "-${1:-9}"
+  local pids
+  pids=$(ps -ef | sed 1d | fzf-tmux -p -m | awk '{print $2}')
+  [ -n "$pids" ] && echo "$pids" | xargs kill "-${1:-9}"
 }
 
 # Usage: fps
 # Displays currently running processes using fzf for selection.
 fps() {
-    ps aux | sed 1d | fzf-tmux -p -m
+  ps aux | sed 1d | fzf-tmux -p -m
 }
 
 # Usage: fhist
 # Searches command history using fzf.
 fhist() {
-    local cmd
-    cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' |
-          fzf-tmux -p +s --tac)
-    [[ -z $cmd ]] && return
-    history -s "$cmd"
-    printf '%s\n' "$cmd"
+  local cmd
+  cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' |
+        fzf-tmux -p +s --tac)
+  [[ -z $cmd ]] && return
+  history -s "$cmd"
+  printf '%s\n' "$cmd"
 }
 
 
 _replace_slash_with_semicolon() {
-    local line=${READLINE_LINE}
-    local pos=${READLINE_POINT}
-    if [ $pos -gt 0 ] && [ "${line:$((pos-1)):1}" = "/" ]; then
-        READLINE_LINE="${line:0:pos-1};${line:pos}"
-        READLINE_POINT=$((pos))
-    else
-        READLINE_LINE="${line:0:pos};${line:pos}"
-        READLINE_POINT=$((pos+1))
-    fi
+  local line=${READLINE_LINE}
+  local pos=${READLINE_POINT}
+  if [ $pos -gt 0 ] && [ "${line:$((pos-1)):1}" = "/" ]; then
+    READLINE_LINE="${line:0:pos-1};${line:pos}"
+    READLINE_POINT=$((pos))
+  else
+    READLINE_LINE="${line:0:pos};${line:pos}"
+    READLINE_POINT=$((pos+1))
+  fi
 }
 [[ $- == *i* ]] && bind -x '"\;": _replace_slash_with_semicolon'
 

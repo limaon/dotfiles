@@ -30,16 +30,16 @@ export XDG_DATA_HOME="${HOME}/.local/share"
 export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_STATE_HOME="${HOME}/.local/state"
 if [ -f "${XDG_CONFIG_HOME}"/user-dirs.dirs ]; then
-    # shellcheck disable=SC1091
-    . "${XDG_CONFIG_HOME}"/user-dirs.dirs
-    export XDG_DESKTOP_DIR
-    export XDG_DOWNLOAD_DIR
-    export XDG_TEMPLATES_DIR
-    export XDG_PUBLICSHARE_DIR
-    export XDG_DOCUMENTS_DIR
-    export XDG_MUSIC_DIR
-    export XDG_PICTURES_DIR
-    export XDG_VIDEOS_DIR
+  # shellcheck disable=SC1091
+  . "${XDG_CONFIG_HOME}"/user-dirs.dirs
+  export XDG_DESKTOP_DIR
+  export XDG_DOWNLOAD_DIR
+  export XDG_TEMPLATES_DIR
+  export XDG_PUBLICSHARE_DIR
+  export XDG_DOCUMENTS_DIR
+  export XDG_MUSIC_DIR
+  export XDG_PICTURES_DIR
+  export XDG_VIDEOS_DIR
 fi
 
 
@@ -165,9 +165,9 @@ export GEM_HOME
 
 # make less more friendly for non-text input files, see lesspipe(1)
 if command -v lesspipe >/dev/null 2>&1; then
-    eval "$(lesspipe)"
+  eval "$(lesspipe)"
 elif command -v lesspipe.sh >/dev/null 2>&1; then
-    export LESSOPEN="|lesspipe.sh %s"
+  export LESSOPEN="|lesspipe.sh %s"
 fi
 
 # Path settings
@@ -184,7 +184,7 @@ ssource ~/.config/shell/login_local
 
 # Add all directories in `~/.local/bin` to $PATH
 if [[ -d "$HOME/.local/bin" ]]; then
-    pathprepend "$HOME/.local/bin" PATH
+  pathprepend "$HOME/.local/bin" PATH
 fi
 
 ## Source asdf-vm settings
@@ -194,7 +194,7 @@ fi
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 export PATH="${HOME}/.local/share/cargo/bin:$PATH"
 if command -v asdf >/dev/null 2>&1; then
-    . <(asdf completion bash)
+  . <(asdf completion bash)
 fi
 
 
@@ -202,7 +202,7 @@ fi
 ## Java setup for asdf
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=gasp -Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java"
 if [[ -f "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash" ]]; then
-    source "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash"
+  source "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash"
 fi
 
 # source fzf completion file

@@ -28,9 +28,9 @@ shopt -s cmdhist
 # Install standalone: curl https://raw.githubusercontent.com/rcaloras/bash-preexec/master/bash-preexec.sh -o ~/.config/bash/bash-preexec.sh
 # Then add: [[ -f ~/.config/bash/bash-preexec.sh ]] && . ~/.config/bash/bash-preexec.sh
 _share_history() {
-    history -a;  # Append current session's commands to history file
-    history -c;  # Clear in-memory history
-    history -r;  # Reload history file (now contains all panes' commands)
+  history -a;  # Append current session's commands to history file
+  history -c;  # Clear in-memory history
+  history -r;  # Reload history file (now contains all panes' commands)
 }
 precmd_functions+=(_share_history)
 

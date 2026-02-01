@@ -4,9 +4,9 @@ BASH_IT=~/.config/bash_it
 
 # Check if the directory exists
 if [ ! -d "$BASH_IT" ]; then
-    echo "Directory does not exist. Cloning..."
-    # Clone the repository with a depth of 1 (to save bandwidth)
-    git clone --depth=1 https://github.com/Bash-it/bash-it.git ${BASH_IT}
+  echo "Directory does not exist. Cloning..."
+  # Clone the repository with a depth of 1 (to save bandwidth)
+  git clone --depth=1 https://github.com/Bash-it/bash-it.git ${BASH_IT}
 fi
 export BASH_IT=~/.config/bash_it
 

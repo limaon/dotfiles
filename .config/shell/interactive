@@ -116,21 +116,21 @@ alias lf=lfcd
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias dir='dir --color=auto'
-    alias vdir='vdir --color=auto'
-    alias diff='diff --color=auto'
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias dir='dir --color=auto'
+  alias vdir='vdir --color=auto'
+  alias diff='diff --color=auto'
 
-    alias grep='grep --color=auto -d skip --binary-file=without-match'
-    alias fgrep='fgrep --color=auto --binary-file=without-match'
-    alias egrep='egrep --color=auto --binary-file=without-match'
+  alias grep='grep --color=auto -d skip --binary-file=without-match'
+  alias fgrep='fgrep --color=auto --binary-file=without-match'
+  alias egrep='egrep --color=auto --binary-file=without-match'
 fi
 
 # Color exports moved to login file
 
 # gnome-terminal doesn't advertise its 256 colour support.
 if [ "$COLORTERM" = gnome-terminal ] && [ "$TERM" = xterm ]; then
-    export TERM=xterm-256color
+  export TERM=xterm-256color
 fi
 
 
