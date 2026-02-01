@@ -38,7 +38,9 @@ mixer() {
   if command -v pavucontrol &>/dev/null; then
     i3-msg -q exec pavucontrol
   else
-    i3-msg -q exec 'i3-sensible-terminal -e pulsemixer'
+    i3-sensible-terminal -e pulsemixer &
+    sleep 0.3
+    i3-msg '[title="pulsemixer"] floating enable'
   fi
 }
 
