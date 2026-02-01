@@ -1,14 +1,37 @@
 #!/usr/bin/env bash
+# Volume Block for i3blocks (handles both sink and source)
+set -euo pipefail
 
-# Prints current volume.
-#
-# Pamixer options:
-# --list-sinks          list sinks
-# --list-sources        list sources
-# "instance" field of block should be "sink 0", "source 1", etc.
+# Determine if we're handling sink or source
+if [[ "${BLOCK_INSTANCE:-}" == *source* ]]; then
+  # Microphone (input)
+  DEVICE_TYPE="source"
+  readonly ICON_NORMAL=''
+  readonly ICON_MUTE=''
+else
+  # Speakers (output)
+  DEVICE_TYPE="sink"
+  readonly ICON_NORMAL='󰕾'
+  readonly ICON_MUTE='󰝟'
+fi
 
 instance() {
-  pamixer "${DEVICE[@]}" "$@"
+  case "$DEVICE_TYPE" in
+    source)
+      if [[ "${BLOCK_INSTANCE:-}" == "default-source" ]]; then
+        pamixer --default-source "$@"
+      else
+        pamixer --source "${BLOCK_INSTANCE#source }" "$@"
+      fi
+      ;;
+    sink)
+      if [[ -n "${BLOCK_INSTANCE:-}" && "${BLOCK_INSTANCE:-}" != "default" ]]; then
+        pamixer --sink "$BLOCK_INSTANCE" "$@"
+      else
+        pamixer "$@"
+      fi
+      ;;
+  esac
 }
 
 mixer() {
@@ -18,18 +41,6 @@ mixer() {
     i3-msg -q exec 'i3-sensible-terminal -e pulsemixer'
   fi
 }
-
-if [[ -n "${BLOCK_INSTANCE:-}" ]]; then
-  read -r -a DEVICE <<<"--$BLOCK_INSTANCE"
-fi
-
-if [[ "${BLOCK_INSTANCE:-}" == *source* ]]; then
-  readonly block_icon=''
-  readonly block_icon_mute=''
-else
-  readonly block_icon='󰕾'
-  readonly block_icon_mute=''
-fi
 
 # Handle mouse actions
 case "${BLOCK_BUTTON:-}" in
@@ -42,16 +53,15 @@ esac
 # Output status
 case $(instance --get-mute) in
   "0" | "false")
-    echo "$block_icon $(instance --get-volume)%"
+    echo "$ICON_NORMAL $(instance --get-volume)%"
+    echo "#00ff00"
     ;;
   "1" | "true")
-    echo "$block_icon_mute MUTE"
-    echo "$block_icon_mute"
+    echo "$ICON_MUTE MUTE"
     echo "#AAAAAA"
     ;;
   *)
-    echo UNK
-    echo E
+    echo "$ICON_NORMAL UNK"
     echo "#FF1A1A"
     ;;
 esac
