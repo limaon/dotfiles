@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# CPU Usage Block for i3blocks
+set -euo pipefail
+
+CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+CPU_PERCENT=${CPU_USAGE%.*}
+
+# Color based on threshold
+if (( CPU_PERCENT > 75 )); then
+    COLOR="#ff0000"
+else
+    COLOR="#ffffff"
+fi
+
+echo "CPU > ${CPU_PERCENT}%"   # full_text
+echo "CPU > ${CPU_PERCENT}%"   # short_text
+echo "$COLOR"                  # color
+
+case $BLOCK_BUTTON in
+    1) notify-send -r 9901 -i utilities-system-monitor "USAGE - ${CPU_PERCENT}%" "$(ps -eo comm,%cpu --sort=-%cpu | tail -n +2 | head -5 | awk '{bg = (NR % 2 == 0) ? "#5b5b5b" : "#444444"; printf "<span background=\"%s\">%-12s  %5s%%</span>\n", bg, $1, $2}')" & ;;
+    3) notify-send -r 9901 -i preferences-system-performance "INFO" "$(lscpu | grep -E '^CPU\(s\):|^Thread|^Core.*socket|^Model name' | awk -F: '
+  /^CPU\(s\)/ { cores = $2; gsub(/[ \t]+/, "", cores) }
+  /Thread/ { threads = $2; gsub(/[ \t]+/, "", threads) }
+  /Core.*socket/ { socket_cores = $2; gsub(/[ \t]+/, "", socket_cores) }
+  /Model/ {
+    model = substr($0, index($0, ":") + 2)
+    gsub(/^[ \t]+|[ \t]+$/, "", model)
+  }
+  END {
+    printf "<span foreground=\"#ffd966\">CPU:</span> <b>%s</b> cores / <b>%s</b> threads\n", cores, cores * threads
+    printf "<span foreground=\"#ffd966\">Model:</span> %s\n", model
+  }')" & ;;
+esac
+
