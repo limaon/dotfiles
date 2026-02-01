@@ -9,13 +9,13 @@ readonly COLOR_RED="#ff0000"
 readonly COLOR_CYAN="#00ffff"
 
 # Icons (Nerd Font)
-readonly ICON_ETH="󰈀"
-readonly ICON_WIFI="󰤨"
+readonly ICON_ETH=" 󰈀 "
+readonly ICON_WIFI=" 󰤨 "
 readonly ICON_VPN="󰒂"
-readonly ICON_DISCONNECTED="󰤮"
+readonly ICON_DISCONNECTED=" 󰲛 "
 
 # Notification ID for replacement
-readonly NOTIFY_ID=9902
+readonly NOTIFY_ID=9901
 
 get_color() {
   local value="$1"
@@ -114,15 +114,14 @@ get_wifi_bitrate() {
 }
 
 show_network_processes() {
-  local body
-  if command -v ss &>/dev/null; then
-    body=$(ss -tunp 2>/dev/null | awk 'NR>1 {print $1, $5, $6}' | head -n5)
-  elif command -v netstat &>/dev/null; then
-    body=$(netstat -tunp 2>/dev/null | awk 'NR>2 {print $1, $4, $5}' | head -n5)
-  else
-    body="No network tools available"
-  fi
-  notify-send -i org.gnome.SystemMonitor -r "$NOTIFY_ID" "Network Processes" "$body" &
+  local tcp_count udp_count procs body
+  tcp_count=$(ss -tn state established 2>/dev/null | tail -n +2 | wc -l)
+  udp_count=$(ss -un 2>/dev/null | tail -n +2 | wc -l)
+  procs=$(ss -tunp 2>/dev/null | grep -oP 'users:\(\("\K[^"]+' | sort -u | head -5 | paste -sd, -)
+  [[ -z "$procs" ]] && procs="nenhum"
+  body="Conexões: ${tcp_count} TCP, ${udp_count} UDP
+Processos: ${procs}"
+  notify-send -i org.gnome.SystemMonitor -r "$NOTIFY_ID" "Network" "$body" &
 }
 
 show_network_info() {
@@ -204,12 +203,12 @@ main() {
       output="$ICON_WIFI $essid (${signal}%) $ICON_VPN VPN ($ip)"
       color="$COLOR_CYAN"
     else
-      output="$ICON_WIFI $essid (${signal}%)"
+      output="$ICON_WIFI $essid (${signal}%) ($ip)"
       color=$(get_color "$signal")
     fi
   else
     # No connection - show disconnected icon
-    echo "$ICON_DISCONNECTED"
+    echo "$ICON_DISCONNECTED No network"
     echo "$ICON_DISCONNECTED"
     echo "$COLOR_RED"
     exit 0
