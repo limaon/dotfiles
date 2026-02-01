@@ -2,10 +2,51 @@
 # CPU Usage Block for i3blocks
 set -euo pipefail
 
+# Color helper function
+get_color() {
+    local value=$1
+    local type=$2
+
+    case "$type" in
+        cpu_usage)  # Higher is worse
+            if (( value < 50 )); then
+                echo "#00ff00"
+            elif (( value < 80 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        temperature)  # Higher is worse
+            if (( value < 50 )); then
+                echo "#00ff00"
+            elif (( value < 75 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        frequency)  # Higher is better for current usage
+            local max_freq=$3
+            local percent=$(( value * 100 / max_freq ))
+            if (( percent > 80 )); then
+                echo "#00ff00"
+            elif (( percent > 40 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff9900"
+            fi
+            ;;
+        *)
+            echo "#ffffff"
+            ;;
+    esac
+}
+
 CPU_USAGE=$(top -bn1 | grep "Cpu(s)" | sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
 CPU_PERCENT=${CPU_USAGE%.*}
 
-# Color based on threshold
+# Color based on threshold (white normally, red when high)
 if (( CPU_PERCENT > 75 )); then
     COLOR="#ff0000"
 else
@@ -16,19 +57,74 @@ echo "CPU > ${CPU_PERCENT}%"   # full_text
 echo "CPU > ${CPU_PERCENT}%"   # short_text
 echo "$COLOR"                  # color
 
-case $BLOCK_BUTTON in
-    1) notify-send -r 9901 -i utilities-system-monitor "USAGE - ${CPU_PERCENT}%" "$(ps -eo comm,%cpu --sort=-%cpu | tail -n +2 | head -5 | awk '{bg = (NR % 2 == 0) ? "#5b5b5b" : "#444444"; printf "<span background=\"%s\">%-12s  %5s%%</span>\n", bg, $1, $2}')" & ;;
-    3) notify-send -r 9901 -i preferences-system-performance "INFO" "$(lscpu | grep -E '^CPU\(s\):|^Thread|^Core.*socket|^Model name' | awk -F: '
-  /^CPU\(s\)/ { cores = $2; gsub(/[ \t]+/, "", cores) }
-  /Thread/ { threads = $2; gsub(/[ \t]+/, "", threads) }
-  /Core.*socket/ { socket_cores = $2; gsub(/[ \t]+/, "", socket_cores) }
-  /Model/ {
-    model = substr($0, index($0, ":") + 2)
-    gsub(/^[ \t]+|[ \t]+$/, "", model)
-  }
-  END {
-    printf "<span foreground=\"#ffd966\">CPU:</span> <b>%s</b> cores / <b>%s</b> threads\n", cores, cores * threads
-    printf "<span foreground=\"#ffd966\">Model:</span> %s\n", model
-  }')" & ;;
+case "${BLOCK_BUTTON:-}" in
+    1)
+        # Left click - show top 5 CPU processes
+        PROCESSES=$(ps -eo comm,%cpu --sort=-%cpu | tail -n +2 | head -5 | awk '{bg = (NR % 2 == 0) ? "#1a1a1a" : "#2a2a2a"; printf "<span background=\"%s\">%-12s  %5s%%</span>\n", bg, $1, $2}')
+        notify-send "Top 5 CPU Processes" "$PROCESSES" -i "org.gnome.SystemMonitor" -a "i3blocks" -r 9901 -t 5000 &
+        ;;
+    3)
+        # Get CPU info
+        CPU_INFO=$(lscpu | grep -E '^CPU\(s\):|Thread\(s\) per core|Core\(s\) per socket|Model name|max MHz|min MHz')
+        CORES=$(echo "$CPU_INFO" | grep "^CPU(s):" | awk '{print $2}')
+        THREADS_PER_CORE=$(echo "$CPU_INFO" | grep "Thread" | awk '{print $4}')
+        CORES_PER_SOCKET=$(echo "$CPU_INFO" | grep "Core.*socket" | awk '{print $4}')
+        TOTAL_THREADS=$(( CORES ))
+        MODEL=$(echo "$CPU_INFO" | grep "Model name" | cut -d: -f2 | sed 's/^[ \t]*//')
+        MAX_MHZ=$(echo "$CPU_INFO" | grep "max MHz" | sed 's/.*:\s*//' | awk '{print int($1)}')
+        MIN_MHZ=$(echo "$CPU_INFO" | grep "min MHz" | sed 's/.*:\s*//' | awk '{print int($1)}')
+
+        # Get current frequency
+        CURRENT_MHZ=$(cat /proc/cpuinfo | grep "cpu MHz" | head -1 | awk -F: '{print int($2)}')
+
+        # Get temperature
+        TEMP_RAW=$(cat /sys/class/thermal/thermal_zone0/temp 2>/dev/null || echo "0")
+        TEMP=$(( TEMP_RAW / 1000 ))
+
+        # Get cache info
+        L1_CACHE=$(lscpu | grep "L1d cache" | awk '{print $3" "$4}')
+        L2_CACHE=$(lscpu | grep "L2 cache" | awk '{print $3" "$4}')
+        L3_CACHE=$(lscpu | grep "L3 cache" | awk '{print $3" "$4}')
+
+        # Get per-core usage (simplified)
+        CORE_BARS=""
+        for i in $(seq 0 $((CORES - 1))); do
+            # Get usage for this core
+            CORE_STAT=$(grep "^cpu${i} " /proc/stat)
+            USER=$(echo "$CORE_STAT" | awk '{print $2}')
+            NICE=$(echo "$CORE_STAT" | awk '{print $3}')
+            SYSTEM=$(echo "$CORE_STAT" | awk '{print $4}')
+            IDLE=$(echo "$CORE_STAT" | awk '{print $5}')
+            TOTAL=$(( USER + NICE + SYSTEM + IDLE ))
+            USAGE=$(( (TOTAL - IDLE) * 100 / TOTAL ))
+
+            # Color based on usage
+            if (( USAGE < 33 )); then
+                BAR_CHAR="▁"
+                COLOR="#00ff00"
+            elif (( USAGE < 66 )); then
+                BAR_CHAR="▂"
+                COLOR="#ffcc00"
+            else
+                BAR_CHAR="▃"
+                COLOR="#ff0000"
+            fi
+            CORE_BARS="${CORE_BARS}<span foreground=\"${COLOR}\">${BAR_CHAR}</span>"
+        done
+
+        # Get colors based on metrics
+        TEMP_COLOR=$(get_color "$TEMP" "temperature")
+        FREQ_COLOR=$(get_color "$CURRENT_MHZ" "frequency" "$MAX_MHZ")
+
+        # Build info message
+        INFO="<b>Model:</b> ${MODEL}"
+        INFO="${INFO}\n<b>Cores:</b> <span foreground=\"#00ff00\">${CORES}</span> físicos / <span foreground=\"#00ff00\">${TOTAL_THREADS}</span> threads"
+        INFO="${INFO}\n<b>Freq:</b> <span foreground=\"${FREQ_COLOR}\">${CURRENT_MHZ} MHz</span> (min: ${MIN_MHZ} / máx: ${MAX_MHZ})"
+        INFO="${INFO}\n<b>Temp:</b> <span foreground=\"${TEMP_COLOR}\">${TEMP}°C</span>"
+        INFO="${INFO}\n<b>Cache:</b> L1: ${L1_CACHE} / L2: ${L2_CACHE} / L3: ${L3_CACHE}"
+        INFO="${INFO}\n<b>Uso por core:</b> ${CORE_BARS}"
+
+        notify-send "CPU Info" "$INFO" -i "preferences-system-performance" -a "i3blocks" -r 9901 -t 8000 &
+        ;;
 esac
 

@@ -2,6 +2,63 @@
 # Memory Usage Block for i3blocks
 set -euo pipefail
 
+# Color helper function
+get_color() {
+    local value=$1
+    local type=$2
+
+    case "$type" in
+        used)
+            if (( value < 50 )); then
+                echo "#00ff00"
+            elif (( value < 80 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        available)  # Higher is better
+            if (( value > 50 )); then
+                echo "#00ff00"
+            elif (( value > 20 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        cache)  # Lower is better
+            if (( value < 30 )); then
+                echo "#00ff00"
+            elif (( value < 50 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        swap_gb)  # Lower is better
+            if (( value == 0 )); then
+                echo "#00ff00"
+            elif (( value < 4 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        top_process)  # Lower is better
+            if (( value < 5 )); then
+                echo "#00ff00"
+            elif (( value < 10 )); then
+                echo "#ffcc00"
+            else
+                echo "#ff0000"
+            fi
+            ;;
+        *)
+            echo "#ffffff"
+            ;;
+    esac
+}
+
 MEM_INFO=$(free | grep Mem)
 TOTAL=$(echo "$MEM_INFO" | awk '{print $2}')
 USED=$(echo "$MEM_INFO" | awk '{print $3}')
@@ -31,18 +88,66 @@ echo "$COLOR"
 case "${BLOCK_BUTTON:-}" in
     1)
         # Left click - show top 5 memory processes
-        ps aux --sort=-%mem | head -n 6 | awk 'NR>1 {
-            printf "<span foreground=\"#00ff00\">%s</span> <b>%s</b> - <span foreground=\"#ffffff\">%.1f%%</span>\n", $1, $11, $4
-        }' | while IFS= read -r line; do
-            notify-send "Top 5 Memory Processes" "${line}" -i "drive-harddisk" -a "i3blocks" -r 9903 -t 5000 &
-        done &
+        PROCESSES=$(ps aux --sort=-%mem | head -n 6 | awk 'NR>1 {
+            print $11, $4
+        }' | while read -r proc mem; do
+            printf "<span foreground=\"#ffffff\">%s</span>: <b>%s%%</b>\n" "$(basename "$proc")" "$mem"
+        done)
+        notify-send "Top 5 Memory Processes" "$PROCESSES" -i "org.gnome.SystemMonitor" -a "i3blocks" -r 9901 -t 5000 &
         ;;
     3)
         # Right click - show detailed memory info
         TOTAL_GB=$(( TOTAL / 1024 / 1024 ))
         USED_GB=$(( USED / 1024 / 1024 ))
         FREE_GB=$(( (TOTAL - USED) / 1024 / 1024 ))
-        INFO="<b>Total:</b> <span foreground=\"#00ff00\">${TOTAL_GB}GB</span>\n<b>Used:</b> <span foreground=\"#ff9900\">${USED_GB}GB</span> (${PERCENT}%)\n<b>Free:</b> <span foreground=\"#00ff00\">${FREE_GB}GB</span> (${FREE_PERCENT}%)"
-        notify-send "Memory Info" "$INFO" -i "memory" -a "i3blocks" -r 9904 -t 5000 &
+
+        # Get additional memory metrics
+        SHARED=$(echo "$MEM_INFO" | awk '{print $5}')
+        CACHE=$(echo "$MEM_INFO" | awk '{print $6}')
+        AVAILABLE=$(echo "$MEM_INFO" | awk '{print $7}')
+
+        SHARED_GB=$(( SHARED / 1024 / 1024 ))
+        CACHE_GB=$(( CACHE / 1024 / 1024 ))
+        AVAILABLE_GB=$(( AVAILABLE / 1024 / 1024 ))
+        AVAILABLE_PERCENT=$(( AVAILABLE * 100 / TOTAL ))
+        CACHE_PERCENT=$(( CACHE * 100 / TOTAL ))
+
+        # Get colors based on usage
+        USED_COLOR=$(get_color "$PERCENT" "used")
+        AVAILABLE_COLOR=$(get_color "$AVAILABLE_PERCENT" "available")
+        CACHE_COLOR=$(get_color "$CACHE_PERCENT" "cache")
+
+        # Swap info
+        SWAP_INFO=$(free | grep Swap)
+        if [[ -n "$SWAP_INFO" ]]; then
+            SWAP_TOTAL=$(echo "$SWAP_INFO" | awk '{print $2}')
+            SWAP_USED=$(echo "$SWAP_INFO" | awk '{print $3}')
+            if (( SWAP_TOTAL > 0 )); then
+                SWAP_USED_GB=$(( SWAP_USED / 1024 / 1024 ))
+                SWAP_PERCENT=$(( SWAP_USED * 100 / SWAP_TOTAL ))
+                SWAP_COLOR=$(get_color "$SWAP_USED_GB" "swap_gb")
+                SWAP_LINE="\n<b>Swap:</b> <span foreground=\"${SWAP_COLOR}\">${SWAP_USED_GB}GB</span> (${SWAP_PERCENT}%)"
+            else
+                SWAP_LINE="\n<b>Swap:</b> <span foreground=\"#00ff00\">disabled</span>"
+            fi
+        else
+            SWAP_LINE=""
+        fi
+
+        # Top memory consumer
+        TOP_PROCESS=$(ps aux --sort=-%mem | head -n 2 | tail -n 1)
+        TOP_NAME=$(echo "$TOP_PROCESS" | awk '{print $11}' | xargs basename)
+        TOP_PERCENT=$(echo "$TOP_PROCESS" | awk '{print $4}')
+        TOP_COLOR=$(get_color "$TOP_PERCENT" "top_process")
+
+        # Build info message
+        INFO="<b>Total:</b> <span foreground=\"#00ff00\">${TOTAL_GB}GB</span>\n<b>Used:</b> <span foreground=\"${USED_COLOR}\">${USED_GB}GB</span> (${PERCENT}%)\n<b>Free:</b> <span foreground=\"#00ff00\">${FREE_GB}GB</span> (${FREE_PERCENT}%)"
+        INFO="${INFO}\n<b>Available:</b> <span foreground=\"${AVAILABLE_COLOR}\">${AVAILABLE_GB}GB</span> (${AVAILABLE_PERCENT}%)"
+        INFO="${INFO}\n<b>Cache:</b> <span foreground=\"${CACHE_COLOR}\">${CACHE_GB}GB</span> (${CACHE_PERCENT}%)"
+        INFO="${INFO}\n<b>Shared:</b> <span foreground=\"#9999ff\">${SHARED_GB}GB</span>"
+        INFO="${INFO}${SWAP_LINE}"
+        INFO="${INFO}\n<b>Top:</b> <span foreground=\"${TOP_COLOR}\">${TOP_NAME}</span> (${TOP_PERCENT}%)"
+
+        notify-send "Memory Info" "$INFO" -i "preferences-system-performance" -a "i3blocks" -r 9901 -t 8000 &
         ;;
 esac
