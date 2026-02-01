@@ -13,7 +13,7 @@ fi
 
 # Check if interface exists
 if [[ -z "$INTERFACE" ]]; then
-    echo "W:down"
+    echo "󰤭"
     echo "#ff0000"
     exit 0
 fi
@@ -22,7 +22,7 @@ fi
 IW_OUTPUT=$(iw dev "$INTERFACE" link 2>/dev/null || true)
 
 if [[ -z "$IW_OUTPUT" ]] || ! echo "$IW_OUTPUT" | grep -q "Connected"; then
-    echo "W:down"
+    echo "󰤭"
     echo "#ff0000"
     exit 0
 fi
@@ -65,8 +65,8 @@ else
 fi
 
 if [[ -n "$IP" ]]; then
-    echo "W:(${QUALITY} at ${ESSID}, ${BITRATE}M) IP:${IP}"
+    echo "󰤨 ${ESSID} (${QUALITY}%) ${IP}"
 else
-    echo "W:(${QUALITY} at ${ESSID}, ${BITRATE}M)"
+    echo "󰤨 ${ESSID} (${QUALITY}%)"
 fi
 echo "$COLOR"

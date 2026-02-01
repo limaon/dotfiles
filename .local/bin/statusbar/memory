@@ -15,11 +15,10 @@ FREE_PERCENT=$(( 100 - PERCENT ))
 
 if (( FREE_PERCENT < 10 )); then
     COLOR="#ff0000"
-    FULL_TEXT="MEN: ${USED_GB}GB (${PERCENT}%)"
 else
     COLOR="#00ff00"
-    FULL_TEXT="MEN: ${USED_GB}GB (${PERCENT}%)"
 fi
+FULL_TEXT=" ${USED_GB}GB (${PERCENT}%)"
 
 echo "$FULL_TEXT"
 echo "$COLOR"

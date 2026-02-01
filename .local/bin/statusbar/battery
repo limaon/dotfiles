@@ -25,12 +25,31 @@ get_color_for_capacity() {
   fi
 }
 
+# Returns battery icon based on capacity
+get_battery_icon() {
+  local -r capacity=$1
+  if ((capacity >= 90)); then
+    echo "󰁹"
+  elif ((capacity >= 70)); then
+    echo "󰂁"
+  elif ((capacity >= 50)); then
+    echo "󰁿"
+  elif ((capacity >= 30)); then
+    echo "󰁽"
+  elif ((capacity >= 10)); then
+    echo "󰁻"
+  else
+    echo "󰂎"
+  fi
+}
+
 # Returns the status of the battery
 get_discharging_status() {
   local -r battery=$1
   local -r capacity=$(cat -- "$battery/capacity" 2>&1)
   local -r color=$(get_color_for_capacity "$capacity")
-  echo "<span color='$color'>BAT:</span>"
+  local -r icon=$(get_battery_icon "$capacity")
+  echo "<span color='$color'>${icon}</span>"
 }
 
 # Returns the general battery status
@@ -41,10 +60,10 @@ get_battery_status() {
   local -r color=$(get_color_for_capacity "$capacity")
 
   case $status in
-    "Full") echo "<span color='$COLOR_GREEN'>FULL:</span>" ;;
-    "Charging") echo "<span color='$COLOR_BLUE'>CHR:</span>" ;;
-    "Not charging") echo "<span color='$COLOR_GRAY'>NC:</span>" ;;
-    "Unknown") echo "<span color='$COLOR_GRAY'>UNK:</span>" ;;
+    "Full") echo "<span color='$COLOR_GREEN'>󰁹</span>" ;;
+    "Charging") echo "<span color='$COLOR_BLUE'>󰂄</span>" ;;
+    "Not charging") echo "<span color='$COLOR_GRAY'>󰂃</span>" ;;
+    "Unknown") echo "<span color='$COLOR_GRAY'>󰂑</span>" ;;
     "Discharging") get_discharging_status "$battery" ;;
     *) echo ERR ;;
   esac

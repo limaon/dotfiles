@@ -34,8 +34,8 @@ fi
 SPEED_FILE="/sys/class/net/${INTERFACE}/speed"
 if [[ -f "$SPEED_FILE" ]]; then
     SPEED=$(cat "$SPEED_FILE" 2>/dev/null)
-    echo "E: ${IP} (${SPEED}M)"
+    echo "󰈀 ${IP} (${SPEED}M)"
 else
-    echo "E: ${IP}"
+    echo "󰈀 ${IP}"
 fi
 echo "#00ff00"

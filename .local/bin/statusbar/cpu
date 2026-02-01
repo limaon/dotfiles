@@ -14,5 +14,5 @@ else
     COLOR="#00ff00"
 fi
 
-echo "CPU: ${CPU_PERCENT}%"
+echo " ${CPU_PERCENT}%"
 echo "$COLOR"
