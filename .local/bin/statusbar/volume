@@ -15,7 +15,7 @@ mixer() {
 }
 
 if [[ -n "${BLOCK_INSTANCE:-}" ]]; then
-  read -r -a DEVICE <<<"--$BLOCK_INSTANCE"
+  read -r -a DEVICE <<<"--sink $BLOCK_INSTANCE"
 else
   DEVICE=()
 fi
