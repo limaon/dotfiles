@@ -1,98 +1,153 @@
 #!/usr/bin/env bash
+# i3blocks module - battery status
+# Shows battery percentage with status icon and color-coded thresholds
+# Left click: battery summary | Right click: detailed battery info
+set -euo pipefail
 
-# Colors for different battery levels
-COLOR_GREEN="#00FF00"
-COLOR_YELLOW="#F5F6FA"
-COLOR_ORANGE="#FFA500"
-COLOR_ORANGERED="#FF4500"
-COLOR_RED="#FF0000"
-COLOR_BLUE="#4D4DFF"
-COLOR_GRAY="#808080"
+command -v notify-send >/dev/null 2>&1 || {
+  echo "Error: 'notify-send' not found"
+  exit 1
+}
 
-# Returns color based on capacity
-get_color_for_capacity() {
-  local -r capacity=$1
-  if ((capacity >= 90)); then
-    echo "$COLOR_GREEN"
-  elif ((capacity >= 50)); then
-    echo "$COLOR_YELLOW"
-  elif ((capacity >= 15)); then
-    echo "$COLOR_ORANGE"
-  elif ((capacity >= 10)); then
-    echo "$COLOR_ORANGERED"
-  else
-    echo "$COLOR_RED"
+readonly BATTERY_PATH="/sys/class/power_supply"
+
+get_color() {
+  local -r percent="$1"
+  local -r status="$2"
+
+  # Charging/Full = blue/green
+  if [[ "$status" == "Charging" ]]; then
+    echo "#00BFFF"
+    return
+  elif [[ "$status" == "Full" ]]; then
+    echo "#00FF00"
+    return
+  fi
+
+  # Discharging thresholds
+  if (( percent <= 10 )); then
+    echo "#FF0000"
+  elif (( percent <= 20 )); then
+    echo "#FF4500"
+  elif (( percent <= 35 )); then
+    echo "#FFAE00"
   fi
 }
 
-# Returns battery icon based on capacity
-get_battery_icon() {
-  local -r capacity=$1
-  if ((capacity >= 90)); then
-    echo "󰁹"
-  elif ((capacity >= 70)); then
-    echo "󰂁"
-  elif ((capacity >= 50)); then
-    echo "󰁿"
-  elif ((capacity >= 30)); then
-    echo "󰁽"
-  elif ((capacity >= 10)); then
-    echo "󰁻"
-  else
-    echo "󰂎"
-  fi
-}
-
-# Returns the status of the battery
-get_discharging_status() {
-  local -r battery=$1
-  local -r capacity=$(cat -- "$battery/capacity" 2>&1)
-  local -r color=$(get_color_for_capacity "$capacity")
-  local -r icon=$(get_battery_icon "$capacity")
-  echo "<span color='$color'>${icon}</span>"
-}
-
-# Returns the general battery status
-get_battery_status() {
-  local -r battery=$1
-  local -r status=$(cat -- "$battery/status" 2>&1)
-  local -r capacity=$(cat -- "$battery/capacity" 2>&1)
-  local -r color=$(get_color_for_capacity "$capacity")
-
-  case $status in
-    "Full") echo "<span color='$COLOR_GREEN'>󰁹</span>" ;;
-    "Charging") echo "<span color='$COLOR_BLUE'>󰂄</span>" ;;
-    "Not charging") echo "<span color='$COLOR_GRAY'>󰂃</span>" ;;
-    "Unknown") echo "<span color='$COLOR_GRAY'>󰂑</span>" ;;
-    "Discharging") get_discharging_status "$battery" ;;
-    *) echo ERR ;;
+get_status_label() {
+  local -r status="$1"
+  case "$status" in
+    "Charging")     echo "CHR" ;;
+    "Discharging")  echo "BAT" ;;
+    "Full")         echo "FULL" ;;
+    "Not charging") echo "NC" ;;
+    *)              echo "UNK" ;;
   esac
 }
 
-# Returns the brightness
-get_screen_brightness() {
-  brillo -G | awk '{printf "%.1f",$0}'
-}
 
-handle_i3blocks_actions() {
-  case $BLOCK_BUTTON in
-    1) notify-send -r 9991 --urgency=low -i "brightness-systray" "Screen brightness" "$(get_screen_brightness)%" ;;
-    3) notify-send -r 9991 --urgency=low -i "icon" "Battery module:" \
-        " <b>NC</b>: not charging<br>\ <b>UNK</b>: stagnant charge<br>\ <b>CHR</b>: charging<br>\ <b>FULL</b>: charged<br>\ - Scroll to change adjust brightness." ;;
-    4) pkexec brillo -U 2 ;;
-    5) pkexec brillo -A 2 ;;
-    6) "$TERMINAL" -e "$EDITOR" "$0" ;;
-  esac
-}
 
-handle_i3blocks_actions
+get_time_remaining() {
+  local -r battery="$1"
+  local -r status="$2"
 
-# Print information about battery
-for battery in /sys/class/power_supply/BAT?*; do
-  if [[ -d $battery ]]; then
-    CAPACITY=$(cat -- "$battery/capacity" 2>&1)
-    COLOR=$(get_color_for_capacity "$CAPACITY")
-    printf -- '%s<span color="%s">%d%%</span>' \
-      "$(get_battery_status "$battery")" "$COLOR" "$CAPACITY"
+  # Try to get time from energy values
+  local energy_now energy_full power_now
+  energy_now=$(cat "$battery/energy_now" 2>/dev/null || cat "$battery/charge_now" 2>/dev/null || echo "0")
+  energy_full=$(cat "$battery/energy_full" 2>/dev/null || cat "$battery/charge_full" 2>/dev/null || echo "0")
+  power_now=$(cat "$battery/power_now" 2>/dev/null || cat "$battery/current_now" 2>/dev/null || echo "0")
+
+  if (( power_now > 0 )); then
+    local minutes
+    if [[ "$status" == "Charging" ]]; then
+      minutes=$(( (energy_full - energy_now) * 60 / power_now ))
+    else
+      minutes=$(( energy_now * 60 / power_now ))
+    fi
+    local hours=$(( minutes / 60 ))
+    local mins=$(( minutes % 60 ))
+    printf "%dh%02dm" "$hours" "$mins"
+  else
+    echo "N/A"
   fi
-done | sed 's/ *$/\n/'
+}
+
+notify_summary() {
+  local -r battery="$1"
+  local -r capacity="$2"
+  local -r status="$3"
+  local -r label=$(get_status_label "$status")
+  local -r time=$(get_time_remaining "$battery" "$status")
+
+  local msg="${label}: ${capacity}%"
+  if [[ "$time" != "N/A" ]]; then
+    if [[ "$status" == "Charging" ]]; then
+      msg="${msg} (${time} to full)"
+    elif [[ "$status" == "Discharging" ]]; then
+      msg="${msg} (${time} remaining)"
+    fi
+  fi
+
+  notify-send -r 9901 -i "battery" -t 3000 "Battery" "$msg" &
+}
+
+notify_details() {
+  local -r battery="$1"
+  local -r capacity="$2"
+  local -r status="$3"
+
+  local energy_full energy_full_design health
+  energy_full=$(cat "$battery/energy_full" 2>/dev/null || cat "$battery/charge_full" 2>/dev/null || echo "0")
+  energy_full_design=$(cat "$battery/energy_full_design" 2>/dev/null || cat "$battery/charge_full_design" 2>/dev/null || echo "0")
+
+  if (( energy_full_design > 0 )); then
+    health=$(( energy_full * 100 / energy_full_design ))
+  else
+    health="N/A"
+  fi
+
+  local cycle_count
+  cycle_count=$(cat "$battery/cycle_count" 2>/dev/null || echo "N/A")
+
+  local msg="Status: ${status}
+Capacity: ${capacity}%
+Health: ${health}%
+Cycles: ${cycle_count}"
+
+  notify-send -r 9901 -i "battery" -t 0 "Battery Details" "$msg" &
+}
+
+# Find first battery
+battery=""
+for b in "$BATTERY_PATH"/BAT*; do
+  if [[ -d "$b" ]]; then
+    battery="$b"
+    break
+  fi
+done
+
+# No battery found
+if [[ -z "$battery" ]]; then
+  echo "No battery"
+  echo "No battery"
+  exit 0
+fi
+
+# Read battery info
+capacity=$(cat "$battery/capacity" 2>/dev/null || echo "0")
+status=$(cat "$battery/status" 2>/dev/null || echo "Unknown")
+
+# Handle click events
+case ${BLOCK_BUTTON:-} in
+  1) notify_summary "$battery" "$capacity" "$status" ;;
+  3) notify_details "$battery" "$capacity" "$status" ;;
+esac
+
+# Get display values
+label=$(get_status_label "$status")
+color=$(get_color "$capacity" "$status")
+
+# Output: full_text, short_text, color
+echo "${label}: ${capacity}%"
+echo "${label}: ${capacity}%"
+[[ -n "$color" ]] && echo "$color"
