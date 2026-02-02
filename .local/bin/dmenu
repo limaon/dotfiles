@@ -1,0 +1,2 @@
+#!/bin/bash
+dmenu -i -fn "Terminus:size=14" "$@"

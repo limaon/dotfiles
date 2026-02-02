@@ -22,7 +22,7 @@ write() {
   notification=$(printf '%s' "$clip" | sed ':a;N;$!ba;s/\n/'"$placeholder"'/g') ;}
 
 sel() {
-  selection=$(tac "$histfile" | dmenu -l 5 -i -p "Clipboard history:")
+  selection=$(tac "$histfile" | dmenu -l 5 -p "Clipboard history:")
   [ -n "$selection" ] && echo "$selection" | sed "s/$placeholder/\n/g" | xclip -i -selection clipboard && notification="Copied to clipboard!" ;}
 
 case "$1" in

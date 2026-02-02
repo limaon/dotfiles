@@ -12,7 +12,7 @@ mark_weekend() {
 
 mark_day() {
   sed \
-    -e 's/..7m/<b><span color="white">/;' \
+    -e 's/..7m/<b><span color="#6aa84f">/;' \
     -e 's/..0m/<\/span><\/b>/;'
 }
 

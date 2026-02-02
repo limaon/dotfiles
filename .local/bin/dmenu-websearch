@@ -24,7 +24,7 @@ urlencode() {
 prompt() {
   local prompt="$1"
   shift
-  printf '%s\n' "$@" | dmenu -i -p "$prompt"
+  printf '%s\n' "$@" | dmenu -p "$prompt"
 }
 
 # Defining options
