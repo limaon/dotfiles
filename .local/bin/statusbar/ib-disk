@@ -1,41 +1,73 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# i3blocks module - disk space usage
+# Shows available space with color-coded warning thresholds
+# Left click: detailed notification | Right click: show 10 biggest directories
+set -euo pipefail
 
-# Status bar module for disk space
+for cmd in df notify-send i3-msg; do
+  command -v "$cmd" >/dev/null 2>&1 || {
+    echo "Error: '$cmd' not found"
+    exit 1
+  }
+done
 
 readonly DIR="${BLOCK_INSTANCE:-/}"
 
-notify_stats() {
-	local -r stats=$(
-		df -hl --output=target,used,size,pcent -x devtmpfs -x tmpfs -x efivarfs |
-			sed 's/^\/home.*$/<b><span color=\"white\">&<\/span><\/b>/'
-	)
-	notify-send -i "drive-harddisk-system" -t 0 "Disk space" "$stats"
+get_color() {
+  local -r percent="$1"
+  if (( percent >= 90 )); then
+    echo "#FF0000"
+  elif (( percent > 80 )); then
+    echo "#FFAE00"
+  elif (( percent > 70 )); then
+    echo "#FFF600"
+  fi
 }
 
-case $BLOCK_BUTTON in
-1) notify_stats ;;
-3) i3-msg -q exec "$TERMINAL -e ncdu '$DIR'" ;;
-6) i3-msg -q exec "$TERMINAL -e $EDITOR '$0'" ;;
+notify_stats() {
+  local -r stats=$(
+    df -hl --output=target,avail,pcent -x devtmpfs -x tmpfs -x efivarfs |
+      tail -n +2
+  )
+  notify-send -r 9901 -i "drive-harddisk-system" -t 0 "Disk Usage" "${stats}"
+}
+
+notify_biggest_dirs() {
+  local -r dirs=$(
+    du -sh "${DIR}"/* 2>/dev/null | sort -hr | head -10 | awk -v home="$HOME" '{
+      sub(home, "~", $2)
+      printf "%-35s %s\n", $2, $1
+    }'
+  )
+  notify-send -r 9901 -i "drive-harddisk-system" -t 0 "Biggest dirs in ${DIR}" "${dirs}"
+}
+
+case ${BLOCK_BUTTON:-} in
+  1) notify_stats & ;;
+  3) notify_biggest_dirs & ;;
 esac
 
 df -h "$DIR" --output=avail,pcent,target | awk '
 /[0-9]/ {
-	if ($3 ~ "/home") {
-		dir_icon=""
-	} else {
-		dir_icon=""
-	}
+  dir_path = $3
+  avail = $1
+  pcent = $2
 
-	print $3 " " $1
-	print dir_icon " " $1
+  # Remove % and convert to number
+  sub("%", "", pcent)
+  pcent = pcent + 0
 
-	# color
-	if ($2 > 90) {
-		print("#FF0000")
-	} else if ($2 > 80) {
-		print("#FFAE00")
-	} else if ($2 > 70) {
-		print("#FFF600")
-	}
-	exit
+  # Output format: full_text, short_text, color
+  print dir_path " " avail
+  print dir_path " " avail
+
+  # Color based on usage
+  if (pcent >= 90) {
+    print "#FF0000"
+  } else if (pcent > 80) {
+    print "#FFAE00"
+  } else if (pcent > 70) {
+    print "#FFF600"
+  }
+  exit
 }'
