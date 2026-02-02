@@ -1,55 +1,39 @@
 #!/usr/bin/env bash
+# i3blocks module - calendar/date
+# Shows current date in "Feb 01 (Sat)" format
+# Left click: current month calendar notification
+set -euo pipefail
 
-readonly ICON_CALENDAR='󰃭'
-readonly ICON_CLOCK=''
-
-colorize_weekend_days() {
-    sed -e 's|Su|<span color="red">&</span>|' \
-        -e 's|Sa|<span color="lightblue">&</span>|'
+command -v notify-send >/dev/null 2>&1 || {
+  echo "Error: 'notify-send' not found"
+  exit 1
 }
 
-bold_current_day() {
-    sed -e "s/..7m/<b><span color=\"white\">/;" \
-        -e "s/..0m/<\/span><\/b>/;"
+mark_weekend() {
+  sed \
+    -e 's|Su|<span color="red">&</span>|' \
+    -e 's|Sa|<span color="lightblue">&</span>|'
 }
 
-display_current_month_calendar() {
-    cal -m -c1 -1 --color=always | colorize_weekend_days
+mark_day() {
+  sed \
+    -e 's/..7m/<b><span color="white">/;' \
+    -e 's/..0m/<\/span><\/b>/;'
 }
 
-display_current_date_and_time() {
-    local current_date=$(date '+%b %d (%a)')
-    local current_time=$(date '+%H:%M')
-    echo "${current_date} ${current_time}"
+show_cal() {
+  cal -m --color=always | mark_weekend | mark_day
 }
 
-handle_mouse_click_events() {
-    if [[ -z "${BLOCK_BUTTON:-}" ]]; then
-        return
-    fi
-
-    case $BLOCK_BUTTON in
-        1)
-            local calendar_output=$(display_current_month_calendar)
-            local formatted_calendar=$(tail +2 <<< "$calendar_output" | bold_current_day)
-            notify-send -i "text-vcalendar" "$(head -1 <<< "$calendar_output")" "$formatted_calendar"
-            if command -v calcurse &>/dev/null; then
-                local appointments=$(calcurse -D ~/.config/calcurse -d3)
-                notify-send -i "task-due" "Appointments" "$appointments"
-            fi
-            ;;
-        2)
-            setsid -f i3-sensible-terminal -e calcurse -D ~/.config/calcurse &
-            ;;
-        6)
-            setsid -f i3-sensible-terminal -e "$EDITOR" "$0" &
-            ;;
-    esac
+notify_calendar() {
+  notify-send -r 9901 -i "office-calendar" -t 10 "<-=-=-=-=-=-=-=-=-=->" "$(show_cal)" &
 }
 
-main() {
-    display_current_date_and_time
-    handle_mouse_click_events
-}
+# Handle click events
+case ${BLOCK_BUTTON:-} in
+  1) notify_calendar ;;
+esac
 
-main
+# Output: full_text, short_text
+date '+%b %d (%a)'
+date '+%d.%m'
