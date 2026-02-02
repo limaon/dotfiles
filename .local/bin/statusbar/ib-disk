@@ -26,17 +26,18 @@ get_color() {
 
 notify_stats() {
   local -r stats=$(
-    df -hl --output=target,avail,pcent -x devtmpfs -x tmpfs -x efivarfs |
-      tail -n +2
+    df -hl "$DIR" --output=avail,pcent | awk 'NR==2 {
+      printf "%s available (%s used)\n", $1, $2
+    }'
   )
   notify-send -r 9901 -i "drive-harddisk-system" -t 0 "Disk Usage" "${stats}"
 }
 
 notify_biggest_dirs() {
   local -r dirs=$(
-    du -sh "${DIR}"/* 2>/dev/null | sort -hr | head -10 | awk -v home="$HOME" '{
-      sub(home, "~", $2)
-      printf "%-35s %s\n", $2, $1
+    du -sh "${DIR}"/* 2>/dev/null | sort -hr | head -5 | awk '{
+      n=split($2, a, "/")
+      print a[n] ": " $1
     }'
   )
   notify-send -r 9901 -i "drive-harddisk-system" -t 0 "Biggest dirs in ${DIR}" "${dirs}"
