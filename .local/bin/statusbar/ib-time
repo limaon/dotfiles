@@ -1,43 +1,39 @@
 #!/usr/bin/env bash
-# Date and Time Block for i3blocks (i3status format)
+# i3blocks module - date and time
+# Shows current date in "Feb 01 (Sat)" format
+# Left click: 3-month calendar with appointments
 set -euo pipefail
 
-display_current_month_calendar() {
-  cal -m -c1 -1
+command -v notify-send >/dev/null 2>&1 || {
+  echo "Error: 'notify-send' not found"
+  exit 1
 }
 
-display_current_date_and_time() {
-  date '+%d-%m-%Y %H:%M:%S'
+mark_weekend() {
+  sed \
+    -e 's|Su|<span color="red">&</span>|' \
+    -e 's|Sa|<span color="lightblue">&</span>|'
 }
 
-handle_mouse_click_events() {
-  if [[ -z "${BLOCK_BUTTON:-}" ]]; then
-    return
-  fi
-
-  case $BLOCK_BUTTON in
-    1)
-      local calendar_output
-      calendar_output=$(display_current_month_calendar)
-      notify-send -i "text-vcalendar" "$(head -1 <<< "$calendar_output")" "$(tail -n +2 <<< "$calendar_output")"
-      if command -v calcurse &>/dev/null; then
-        local appointments
-        appointments=$(calcurse -D ~/.config/calcurse -d3)
-        notify-send -i "task-due" "Appointments" "$appointments"
-      fi
-      ;;
-    2)
-      setsid -f i3-sensible-terminal -e calcurse -D ~/.config/calcurse &
-      ;;
-    6)
-      setsid -f i3-sensible-terminal -e "$EDITOR" "$0" &
-      ;;
-  esac
+mark_day() {
+  sed \
+    -e 's/..7m/<b><span color="white">/;' \
+    -e 's/..0m/<\/span><\/b>/;'
 }
 
-main() {
-  display_current_date_and_time
-  handle_mouse_click_events
+show_cal() {
+  cal -m --color=always | mark_weekend | mark_day
 }
 
-main
+notify_calendar() {
+  notify-send -r 9901 -i "office-calendar" -t 0 "Calendar" "$(show_cal)" &
+}
+
+# Handle click events
+case ${BLOCK_BUTTON:-} in
+  1) notify_calendar ;;
+esac
+
+# Output: full_text, short_text
+date '+%b %d (%a)'
+date '+%d.%m'
