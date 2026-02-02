@@ -39,9 +39,12 @@ detect_vpn() {
 
 detect_ethernet() {
   local iface
-  for iface in /sys/class/net/enp* /sys/class/net/eth*; do
+  # Check common ethernet prefixes: en* (eno, enp, ens, enx), eth*
+  for iface in /sys/class/net/en* /sys/class/net/eth*; do
     [[ -e "$iface" ]] || continue
     iface=$(basename "$iface")
+    # Skip virtual/bridge interfaces
+    [[ "$iface" =~ ^(br|veth|docker|virbr|tun|tap) ]] && continue
     if [[ "$(cat "/sys/class/net/$iface/operstate" 2>/dev/null)" == "up" ]]; then
       if ip addr show "$iface" 2>/dev/null | grep -q 'inet '; then
         echo "$iface"
