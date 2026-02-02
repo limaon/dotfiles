@@ -2,50 +2,43 @@
 # Audio/PulseAudio Block for i3blocks (handles sink output and source input)
 set -euo pipefail
 
-# Determine if we're handling sink or source
-if [[ "${BLOCK_INSTANCE:-}" == *source* ]]; then
-  # Microphone (input)
-  DEVICE_TYPE="source"
-  readonly ICON_NORMAL=''
-  readonly ICON_MUTE=''
-else
-  # Speakers (output)
-  DEVICE_TYPE="sink"
-  readonly ICON_NORMAL='󰕾'
-  readonly ICON_MUTE='󰝟'
-fi
+command -v pamixer >/dev/null || {
+  echo "ERROR: pamixer not installed"
+  exit 1
+}
+
+readonly BLOCK_INSTANCE="${BLOCK_INSTANCE:-}"
+readonly BLOCK_BUTTON="${BLOCK_BUTTON:-}"
 
 instance() {
-  case "$DEVICE_TYPE" in
-    source)
-      if [[ "${BLOCK_INSTANCE:-}" == "default-source" ]]; then
-        pamixer --default-source "$@"
-      else
-        pamixer --source "${BLOCK_INSTANCE#source }" "$@"
-      fi
-      ;;
-    sink)
-      if [[ -n "${BLOCK_INSTANCE:-}" && "${BLOCK_INSTANCE:-}" != "default" ]]; then
-        pamixer --sink "$BLOCK_INSTANCE" "$@"
-      else
-        pamixer "$@"
-      fi
-      ;;
-  esac
+  if [[ -n "$BLOCK_INSTANCE" ]]; then
+    pamixer --"$BLOCK_INSTANCE" "$@"
+  else
+    pamixer "$@"
+  fi
 }
 
 mixer() {
   if command -v pavucontrol &>/dev/null; then
     i3-msg -q exec pavucontrol
-  else
+  elif command -v i3-sensible-terminal &>/dev/null; then
     i3-sensible-terminal -e pulsemixer &
     sleep 0.3
     i3-msg '[title="pulsemixer"] floating enable'
   fi
 }
 
+# Determine icons based on instance
+if [[ "$BLOCK_INSTANCE" == *source* ]]; then
+  readonly block_icon=''
+  readonly block_icon_mute=''
+else
+  readonly block_icon='󰕾'
+  readonly block_icon_mute='󰝟'
+fi
+
 # Handle mouse actions
-case "${BLOCK_BUTTON:-}" in
+case $BLOCK_BUTTON in
   1) mixer ;;                  # left click, run pavucontrol
   3) instance --toggle-mute ;; # right click, mute/unmute
   4) instance --unmute -i 5 ;; # scroll up, increase
@@ -55,15 +48,16 @@ esac
 # Output status
 case $(instance --get-mute) in
   "0" | "false")
-    echo "$ICON_NORMAL $(instance --get-volume)%"
-    echo "#00ff00"
+    echo "$block_icon $(instance --get-volume | cut -d' ' -f1)%"
     ;;
   "1" | "true")
-    echo "$ICON_MUTE MUTE"
-    echo "#AAAAAA"
+    echo "$block_icon_mute MUTE"
+    echo "$block_icon_mute"
+    echo "#aaaaaa"
     ;;
   *)
-    echo "$ICON_NORMAL UNK"
-    echo "#FF1A1A"
+    echo ERROR
+    echo E
+    echo "#ff0000"
     ;;
 esac
