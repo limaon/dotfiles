@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# i3blocks module - date/time
+# Shows current date and time in "02-02-2026 14:35:42" format
+# Left click: current month calendar notification
+set -euo pipefail
+
+mark_weekend() {
+  sed \
+    -e 's|Su|<span color="red">&</span>|' \
+    -e 's|Sa|<span color="lightblue">&</span>|'
+}
+
+mark_day() {
+  sed \
+    -e 's/..7m/<b><span color="white">/;' \
+    -e 's/..0m/<\/span><\/b>/;'
+}
+
+show_cal() {
+  cal -m --color=always | mark_weekend | mark_day
+}
+
+case ${BLOCK_BUTTON:-} in
+  1) notify-send -r 9901 -i "office-calendar" -t 10000 "<-=-=-=-=-=-=-=-=-=->" "$(show_cal)" & ;;
+esac
+
+date '+%d-%m-%Y %H:%M:%S'
