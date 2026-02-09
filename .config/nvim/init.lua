@@ -6,7 +6,6 @@ vim.g.session_autoload = "no"
 vim.g.session_autosave = "no"
 vim.g.session_command_aliases = 1
 vim.g.autoformat = false
-vim.g.SUPERMAVEN_DISABLED = 1
 vim.g.markdown_recommended_style = 0
 vim.g.netrw_browse_split = 0
 vim.g.netrw_winsize = 25
@@ -790,14 +789,78 @@ require("lazy").setup({
 	{
 		"lervag/vimtex",
 		ft = "tex",
+		lazy = false,
 		config = function()
-			vim.g.vimtex_syntax_enabled = 0
-			vim.g.vimtex_view_method = "zathura"
+			-- vim.g.vimtex_mappings_enabled = 0
 			vim.g.vimtex_compiler_method = "latexmk"
+			vim.g.vimtex_compiler_latexmk = {
+				options = {
+					"-pdf",
+					"-interaction=nonstopmode",
+					"-synctex=1",
+					"-file-line-error",
+					"-shell-escape",
+				},
+			}
+			vim.g.vimtex_compiler_latexmk_engines = {
+				_ = "-xelatex",
+			}
+
+			vim.g.vimtex_view_method = "zathura"
+			vim.g.vimtex_view_general_options = {
+				"--unique",
+				"--synctex-editor-command",
+				'nvim --headless -c "VimtexInverseSearch %l %f"',
+			}
+
 			vim.g.vimtex_quickfix_mode = 0
-			vim.g.vimtex_view_general_options = "--unique file:@pdf#src:@line@tex"
-			vim.g.vimtex_format_enabled = 1
+			vim.g.vimtex_syntax_enabled = 1
+			vim.g.vimtex_syntax_conceal = {
+				math_delimiters = 1,
+				bangs = 1,
+				citations = 1,
+				frac = 1,
+			}
 			vim.g.vimtex_compiler_autowatch = 1
+			vim.g.vimtex_format_enabled = 1
+			vim.g.vimtex_fold_enabled = 1
+			vim.g.vimtex_fold_types = {
+				cmd_addplot = { lpos = "#" },
+				cmd_foldenv = 1,
+				cmd_multiline = 1,
+				cmd_singleline = 1,
+				cmd_startstop = 1,
+				comment = 1,
+				delim_inline = 0,
+				delim_math = 0,
+				brace = 1,
+				bracket = 1,
+			}
+			vim.g.vimtex_matchparen_enabled = 0
+			vim.g.vimtex_indent_enabled = 1
+			vim.g.vimtex_indent_on_ampersand = 1
+			vim.g.vimtex_indent_brace = 1
+			vim.g.vimtex_toc_config = {
+				name = "TOC",
+				layers = { "content", "todo", "include" },
+				resize = 0,
+				split_width = 40,
+				toc_depth = 3,
+				indent_levels = 2,
+				show_help = 1,
+				show_numbers = 1,
+				mode = 2,
+			}
+
+			-- local opts = { noremap = true, silent = true, buffer = true }
+			-- vim.keymap.set("n", "<leader>lc", "<cmd>VimtexCompile<cr>", opts)
+			-- vim.keymap.set("n", "<leader>lf", "<cmd>VimtexCompileSS<cr>", opts)
+			-- vim.keymap.set("n", "<leader>ls", "<cmd>VimtexStop<cr>", opts)
+			-- vim.keymap.set("n", "<leader>lv", "<cmd>VimtexView<cr>", opts)
+			-- vim.keymap.set("n", "<leader>lt", "<cmd>VimtexTocToggle<cr>", opts)
+			-- vim.keymap.set("n", "<leader>lo", "<cmd>VimtexOutput<cr>", opts)
+			-- vim.keymap.set("n", "<leader>le", "<cmd>VimtexErrors<cr>", opts)
+			-- vim.keymap.set("n", "<leader>lx", "<cmd>VimtexClean<cr>", opts)
 		end,
 	},
 
@@ -897,8 +960,15 @@ require("lazy").setup({
 					texlab = {
 						build = {
 							executable = "latexmk",
-							args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "%f" },
-							onSave = true,
+							args = {
+								"-xelatex",
+								"-pdf",
+								"-interaction=nonstopmode",
+								"-synctex=1",
+								"-file-line-error",
+								"%f",
+							},
+							onSave = false, -- Desativado para usar vimtex ao invés
 							forwardSearchAfter = false,
 						},
 						forwardSearch = {
@@ -1197,6 +1267,7 @@ require("lazy").setup({
 				lsp_completion = {
 					source_func = "completefunc",
 					auto_setup = true,
+					snippet_insert = nil,
 					process_items = function(items, base)
 						items = vim.tbl_filter(function(item)
 							local dominated_by_string = item.insertText
@@ -1204,17 +1275,17 @@ require("lazy").setup({
 								and vim.endswith(item.insertText, '"')
 							local dominated_by_comment = item.label
 								and (vim.startswith(item.label, "//") or vim.startswith(item.label, "--"))
-							return not dominated_by_string and not dominated_by_comment
+							local dominated_by_snippet = item.kind == 15
+							return not dominated_by_string and not dominated_by_comment and not dominated_by_snippet
 						end, items)
 						return MiniCompletion.default_process_items(items, base)
 					end,
 				},
 				fallback_action = "<C-n>",
 				mappings = {
-					force_twostep = "<C-Space>",
-					force_fallback = "<A-Space>",
 					scroll_down = "<C-f>",
 					scroll_up = "<C-b>",
+					confirm = "<C-y>",
 				},
 			})
 
