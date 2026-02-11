@@ -7,15 +7,8 @@ vim.g.session_autosave = "no"
 vim.g.session_command_aliases = 1
 vim.g.autoformat = false
 vim.g.markdown_recommended_style = 0
-vim.g.netrw_browse_split = 0
-vim.g.netrw_winsize = 25
-vim.g.netrw_liststyle = 3
-vim.g.netrw_dirhistmax = 0
-vim.g.netrw_banner = 1
-vim.g.netrw_home = vim.fn.getcwd()
-vim.g.netrw_localmovecmd = "mv -f"
-vim.g.netrw_localrmdir = "rm -rf"
-vim.g.netrw_list_hide = ".git,*.o,*.bak,*.pyc,*.swp,*.~,*.tmp,*.temp,node_modules,__pycache__"
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 -- }}}
 
 -- [[ Setting options ]] {{{
@@ -160,11 +153,6 @@ local basic_group = create_augroup("BasicAutocommands")
 create_autocmd("VimResized", basic_group, "*", function()
 	vim.api.nvim_command("wincmd =")
 end, "Resize all windows equally when Vim is resized")
-
--- Autoclose Netrw buffer
-create_autocmd("FileType", basic_group, "netrw", function()
-	vim.opt_local.bufhidden = "wipe"
-end, "Automatically close the Netrw buffer")
 
 -- Enter insert mode when opening the terminal
 create_autocmd("TermOpen", basic_group, "*", function()
@@ -385,7 +373,12 @@ keymap("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move lines down" })
 keymap("n", "J", "mzJ`z", { desc = "Join lines" })
 
 -- Open File browser
-keymap("n", "<leader>e", "<cmd>Explore<cr>", { desc = "Open Netrw" })
+keymap("n", "<leader>e", function()
+	local MiniFiles = require("mini.files")
+	if not MiniFiles.close() then
+		MiniFiles.open(vim.api.nvim_buf_get_name(0))
+	end
+end, { desc = "Open mini.files" })
 
 -- Replace World
 keymap(
@@ -1213,6 +1206,11 @@ require("lazy").setup({
 			MiniIcons.tweak_lsp_kind()
 			MiniIcons.mock_nvim_web_devicons()
 			require("mini.ai").setup({ n_lines = 500 })
+			require("mini.files").setup({
+				options = {
+					use_as_default_explorer = true,
+				},
+			})
 
 			local statusline = require("mini.statusline")
 			statusline.setup({
@@ -1367,7 +1365,7 @@ require("lazy").setup({
 				"gzip",
 				"matchit",
 				"matchparen",
-				-- "netrwPlugin",
+				"netrwPlugin",
 				"tarPlugin",
 				"tohtml",
 				"tutor",
