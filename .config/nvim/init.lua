@@ -7,8 +7,6 @@ vim.g.session_autosave = "no"
 vim.g.session_command_aliases = 1
 vim.g.autoformat = false
 vim.g.markdown_recommended_style = 0
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
 -- }}}
 
 -- [[ Setting options ]] {{{
@@ -165,24 +163,67 @@ create_autocmd("InsertLeave", basic_group, "*", function()
 end, "Disable paste mode when exiting insert mode")
 
 -- Autocommands to open non-textual files externally
-local openExternalFile = function()
-	local file = vim.fn.expand("%")
-	local command = nil
+local function is_uri(path)
+	return path:match("^[%w+.-]+://") ~= nil
+end
 
-	-- Detect the operating system and set the appropriate command
+local function get_external_file(args)
+	local bufnr = (args and args.buf) or 0
+	local file = (args and args.file) or ""
+	if file == "" then
+		file = vim.api.nvim_buf_get_name(bufnr)
+	end
+	if file == "" then
+		return ""
+	end
+	if is_uri(file) then
+		file = vim.uri_to_fname(file)
+	end
+	if vim.uv.fs_stat(file) then
+		return file
+	end
+	local expanded = vim.fn.expand("%:p")
+	if expanded ~= "" and vim.uv.fs_stat(expanded) then
+		return expanded
+	end
+	return ""
+end
+
+local function get_open_command(file)
 	if vim.fn.has("mac") == 1 then
-		command = { "open", file }
-	elseif vim.fn.has("unix") == 1 then
-		command = { "xdg-open", file }
-	elseif vim.fn.has("win32") == 1 then
-		command = { "cmd", "/c", "start", "", file }
-	else
-		vim.notify("Operating system not supported for opening files externally.", vim.log.levels.ERROR)
+		if vim.fn.executable("open") == 1 then
+			return { "open", file }
+		end
+		return nil
+	end
+	if vim.fn.has("wsl") == 1 and vim.fn.executable("wslview") == 1 then
+		return { "wslview", file }
+	end
+	if vim.fn.has("unix") == 1 and vim.fn.executable("xdg-open") == 1 then
+		return { "xdg-open", file }
+	end
+	return nil
+end
+
+local openExternalFile = function(args)
+	local bufnr = (args and args.buf) or 0
+	local file = get_external_file(args)
+	if file == "" then
+		vim.notify("No valid file to open.", vim.log.levels.WARN)
 		return
 	end
 
-	-- Execute the command asynchronously
-	vim.uv.spawn(command[1], { args = { unpack(command, 2) } }, function(return_code)
+	local command = get_open_command(file)
+	if not command then
+		vim.notify("No suitable command to open files externally.", vim.log.levels.ERROR)
+		return
+	end
+
+	local handle
+	handle = vim.uv.spawn(command[1], { args = { unpack(command, 2) } }, function(return_code)
+		if handle then
+			handle:close()
+		end
 		if return_code ~= 0 then
 			vim.schedule(function()
 				vim.notify("Failed to open file: " .. file, vim.log.levels.ERROR)
@@ -190,20 +231,20 @@ local openExternalFile = function()
 		end
 	end)
 
-	-- Close the current buffer without saving changes
-	vim.api.nvim_buf_delete(0, { force = true })
+	if not handle then
+		vim.notify("Failed to spawn external opener.", vim.log.levels.ERROR)
+		return
+	end
+
+	vim.api.nvim_buf_delete(bufnr, { force = true })
 end
 
 local external_group = create_augroup("OpenExternalFiles")
 local external_patterns = { "*.jpeg", "*.jpg", "*.pdf", "*.png", "*.svg", "*.ico" }
 
-create_autocmd(
-	"BufReadPost",
-	external_group,
-	external_patterns,
-	openExternalFile,
-	"Open non-textual files externally and close the buffer"
-)
+create_autocmd("BufReadPost", external_group, external_patterns, function(args)
+	openExternalFile(args)
+end, "Open non-textual files externally and close the buffer")
 
 -- Automatically regenerate spell file after editing dictionary
 create_autocmd("BufWritePost", basic_group, "*/spell/*.add", function()
@@ -249,7 +290,7 @@ end, "Remember cursor position when reopening files")
 -- Settings for text file types
 local text_group = create_augroup("TextFileSettings")
 create_autocmd({ "BufRead", "BufNewFile" }, text_group, "*.txt", function()
-	vim.opt_local.wrap = true
+	vim.opt_local.wrap = false
 	vim.opt_local.wrapmargin = 2
 	vim.opt_local.textwidth = 79
 end, "Settings for text files")
@@ -373,12 +414,7 @@ keymap("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move lines down" })
 keymap("n", "J", "mzJ`z", { desc = "Join lines" })
 
 -- Open File browser
-keymap("n", "<leader>e", function()
-	local MiniFiles = require("mini.files")
-	if not MiniFiles.close() then
-		MiniFiles.open(vim.api.nvim_buf_get_name(0))
-	end
-end, { desc = "Open mini.files" })
+keymap("n", "<leader>e", "<cmd>Ex<cr>", { desc = "Open netrw" })
 
 -- Replace World
 keymap(
@@ -844,16 +880,6 @@ require("lazy").setup({
 				show_numbers = 1,
 				mode = 2,
 			}
-
-			-- local opts = { noremap = true, silent = true, buffer = true }
-			-- vim.keymap.set("n", "<leader>lc", "<cmd>VimtexCompile<cr>", opts)
-			-- vim.keymap.set("n", "<leader>lf", "<cmd>VimtexCompileSS<cr>", opts)
-			-- vim.keymap.set("n", "<leader>ls", "<cmd>VimtexStop<cr>", opts)
-			-- vim.keymap.set("n", "<leader>lv", "<cmd>VimtexView<cr>", opts)
-			-- vim.keymap.set("n", "<leader>lt", "<cmd>VimtexTocToggle<cr>", opts)
-			-- vim.keymap.set("n", "<leader>lo", "<cmd>VimtexOutput<cr>", opts)
-			-- vim.keymap.set("n", "<leader>le", "<cmd>VimtexErrors<cr>", opts)
-			-- vim.keymap.set("n", "<leader>lx", "<cmd>VimtexClean<cr>", opts)
 		end,
 	},
 
@@ -1208,7 +1234,7 @@ require("lazy").setup({
 			require("mini.ai").setup({ n_lines = 500 })
 			require("mini.files").setup({
 				options = {
-					use_as_default_explorer = true,
+					use_as_default_explorer = false,
 				},
 			})
 
@@ -1365,7 +1391,7 @@ require("lazy").setup({
 				"gzip",
 				"matchit",
 				"matchparen",
-				"netrwPlugin",
+				-- "netrwPlugin",
 				"tarPlugin",
 				"tohtml",
 				"tutor",

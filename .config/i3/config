@@ -235,6 +235,7 @@ for_window [class="qBittorrent" title="^(?!.*qBittorrent).*$"] floating enable
 for_window [class="VirtualBox" title="^(?!.*Oracle VirtualBox Manager).*$"] floating enable
 for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
 for_window [class="mpv"] floating enable, move position center
+for_window [class="Zathura"] floating enable, resize set 800 720, move position center
 for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 
 # Set position of floating window
