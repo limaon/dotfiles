@@ -54,25 +54,33 @@ def _hastebin_redir(url: QUrl) -> bool:
     return False
 
 
+def _reddit_jina_redir(url: QUrl) -> bool:
+    """Redirect Reddit to r.jina.ai for text-only view."""
+    url.setHost("r.jina.ai")
+    url.setPath("/http://" + url.toString())
+    return True
+
+
 # Any return value other than a literal 'False' means we redirected
 # type: typing.Dict[str, typing.Callable[..., typing.Optional[bool]]]
 REDIRECT_MAP = {
-    "reddit.com": operator.methodcaller("setHost", "reddit.rtrace.io"),
-    "www.reddit.com": operator.methodcaller("setHost", "reddit.rtrace.io"),
-    "twitter.com": operator.methodcaller("setHost", "mobile.twitter.com"),
-    "www.twitter.com": operator.methodcaller("setHost", "mobile.twitter.com"),
-    "medium.com": operator.methodcaller("setHost", "md.vern.cc"),
-    "www.medium.com": operator.methodcaller("setHost", "md.vern.cc"),
-    # "youtube.com": operator.methodcaller('setHost', 'piped.video'),
-    # "www.youtube.com": operator.methodcaller('setHost', 'piped.video'),
-    # "en.wikipedia.org": operator.methodcaller("setHost", "wikiless.org"),
-    # "www.en.wikipedia.org": operator.methodcaller("setHost", "wikiless.org"),
+    # "reddit.com": _reddit_jina_redir,
+    # "www.reddit.com": _reddit_jina_redir,
+    "twitter.com": operator.methodcaller("setHost", "nitter.net"),
+    "www.twitter.com": operator.methodcaller("setHost", "nitter.net"),
+    "x.com": operator.methodcaller("setHost", "nitter.net"),
+    "youtube.com": operator.methodcaller("setHost", "invidious.snopyta.org"),
+    "www.youtube.com": operator.methodcaller("setHost", "invidious.snopyta.org"),
+    "tiktok.com": operator.methodcaller("setHost", "tok.habedieeh.re"),
+    "www.tiktok.com": operator.methodcaller("setHost", "tok.habedieeh.re"),
+    "imgur.com": operator.methodcaller("setHost", "rimgo.vern.cc"),
+    "www.imgur.com": operator.methodcaller("setHost", "rimgo.vern.cc"),
     # Pastebins
     "paste.debian.net": _debian_redir,
     "paste.the-compiler.org": _the_compiler_redir,
     # Causes an infinite loop if the paste does not exist...
     "pastebin.com": _pastebin_redir,
-    "hasteb.in": _hastebin_redir,
+    # "hasteb.in": _hastebin_redir,
     "hastebin.com": _hastebin_redir,
 }
 
@@ -113,33 +121,27 @@ c.fonts.completion.category = "bold default_size default_family"
 c.fonts.completion.entry = "default_size default_family"
 c.fonts.tooltip = "default_size default_family"
 c.fonts.downloads = "default_size default_family"
-c.fonts.web.size.default = 20
-c.fonts.web.size.default_fixed = 18
+c.fonts.web.size.default = 16
+c.fonts.web.size.default_fixed = 14
 c.fonts.web.size.minimum = 14
 c.fonts.web.size.minimum_logical = 12
 
 
 c.hints.auto_follow = "unique-match"
-c.hints.padding = {'bottom': 1, 'left': 3, 'right': 3, 'top': 1}
+c.hints.padding = {"bottom": 1, "left": 3, "right": 3, "top": 1}
 c.hints.uppercase = True
 
 # c.content.user_stylesheets = ["./styles/youtube-tweaks.css"]
 c.content.user_stylesheets = ["./styles/global.css"]
 
 # Dark mode
-c.colors.webpage.darkmode.enabled = False
 c.colors.webpage.preferred_color_scheme = "dark"
-c.colors.webpage.darkmode.algorithm = "lightness-cielab"
-c.colors.webpage.darkmode.policy.images = "never"
-c.colors.webpage.darkmode.policy.page = "always"
-c.colors.webpage.bg = "#303030"
-config.set('colors.webpage.darkmode.enabled', False, 'file://*')
 
 c.completion.shrink = True
 c.completion.use_best_match = True
 c.completion.open_categories = ["bookmarks", "history", "filesystem"]
-c.completion.height = '20%'
-c.completion.web_history.max_items = 2000
+c.completion.height = "20%"
+c.completion.web_history.max_items = 1000
 c.scrolling.bar = "when-searching"
 c.scrolling.smooth = False
 c.statusbar.widgets = ["progress", "keypress", "url", "history"]
@@ -147,9 +149,9 @@ c.statusbar.widgets = ["progress", "keypress", "url", "history"]
 # Browser Tabs
 c.tabs.title.format = "{index}: {audio}{current_title}"
 c.tabs.title.format_pinned = "{index}: {audio}{current_title}"
-c.tabs.padding = {'top': 2, 'bottom': 2, 'left': 10, 'right': 10}
+c.tabs.padding = {"top": 2, "bottom": 2, "left": 10, "right": 10}
 c.tabs.mousewheel_switching = False
-c.tabs.width = '8%'
+c.tabs.width = "8%"
 c.tabs.indicator.width = 0
 c.tabs.select_on_remove = "last-used"
 c.tabs.show = "multiple"
@@ -166,7 +168,7 @@ c.input.insert_mode.auto_load = False
 c.content.default_encoding = "utf-8"
 c.auto_save.session = True
 c.content.prefers_reduced_motion = False
-c.content.xss_auditing = True
+# XSS auditing disabled (deprecated and slow)
 c.content.javascript.modal_dialog = True
 c.content.javascript.clipboard = "access-paste"
 c.content.notifications.enabled = "ask"
@@ -185,10 +187,16 @@ c.downloads.remove_finished = 10000
 c.downloads.location.directory = "~/Downloads/"
 c.editor.command = ["kitty", "-e", "nvim", "+{line}", "{file}"]
 c.qt.highdpi = True
-c.qt.chromium.process_model = "process-per-site"
+c.qt.chromium.process_model = "process-per-site-instance"
 c.qt.chromium.low_end_device_mode = "auto"
 c.qt.args += [
-    "--widevine"
+    "--widevine",
+    # Performance optimizations
+    "--enable-gpu-rasterization",
+    "--enable-zero-copy",
+    "--enable-oop-rasterization",
+    "--disable-features=UseSkiaRenderer",
+    "--enable-features=VaapiVideoDecoder",
 ]
 
 
@@ -202,6 +210,7 @@ bindings = {
     ",m": "spawn -u view_in_mpv",
     ",M": "hint links spawn -u view_in_mpv {hint-url}",
     ",f": "hint all spawn -d firefox {hint-url}",
+    "ss": "tab-give",
 }
 for key, bind in bindings.items():
     config.bind(key, bind)
@@ -216,8 +225,7 @@ c.fileselect.multiple_files.command = ["kitty", "sh", "-c", "lf > {}"]
 config.set("content.webgl", False, "*")
 config.set("content.canvas_reading", False)
 config.set("content.geolocation", False)
-config.set("content.webrtc_ip_handling_policy",
-           "default-public-interface-only")
+config.set("content.webrtc_ip_handling_policy", "default-public-interface-only")
 config.set("content.cookies.accept", "all")
 config.set("content.cookies.store", True)
 
