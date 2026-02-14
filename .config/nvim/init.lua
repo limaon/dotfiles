@@ -483,22 +483,14 @@ require("lazy").setup({
 			local ok, theme = pcall(require, "solarized-osaka")
 			if ok then
 				theme.setup({
-					style = "storm",
-					light_style = "day",
-					terminal_colors = true,
 					transparent = true,
-					lualine_bold = false,
 					use_background = false,
+					day_brightness = 0.6,
 					styles = {
-						comments = { italic = false },
-						keywords = { italic = false },
 						sidebars = "normal",
 						floats = "normal",
 					},
 					sidebars = { "qf", "vista_kind", "terminal", "packer", "help" },
-					dim_inactive = false,
-					hide_inactive_statusline = false,
-					day_brightness = 0.6,
 					on_highlights = function(_, colors)
 						vim.api.nvim_set_hl(0, "TelescopeNormal", { bg = colors.bg, fg = colors.base0 })
 						vim.api.nvim_set_hl(0, "TelescopeBorder", { bg = colors.bg, fg = colors.base01 })
@@ -541,35 +533,8 @@ require("lazy").setup({
 				changedelete = { text = "~" },
 				untracked = { text = "┆" },
 			},
-			signs_staged = {
-				add = { text = "+" },
-				change = { text = "~" },
-				delete = { text = "_" },
-				topdelete = { text = "‾" },
-				changedelete = { text = "~" },
-			},
-			signs_staged_enable = true,
-			signcolumn = true,
-			numhl = false,
-			linehl = false,
-			word_diff = false,
-			watch_gitdir = { enable = true, follow_files = true },
-			auto_attach = true,
-			attach_to_untracked = false,
-			current_line_blame = false,
-			current_line_blame_opts = {
-				virt_text = false,
-				virt_text_pos = "eol",
-				virt_text_priority = 100,
-				delay = 1000,
-				ignore_whitespace = false,
-				use_focus = true,
-			},
-			sign_priority = 6,
 			update_debounce = 250,
-			status_formatter = nil,
-			max_file_length = 40000,
-			preview_config = { border = "single", style = "minimal", relative = "cursor", row = 0, col = 1 },
+			preview_config = { border = "single" },
 			on_attach = function(bufnr)
 				local gsigns = require("gitsigns")
 				local function map(mode, lhs, rhs, desc)
@@ -685,24 +650,10 @@ require("lazy").setup({
 					prompt_prefix = ">> ",
 					selection_caret = "=> ",
 					entry_prefix = "  ",
-					initial_mode = "insert",
-					border = true,
 					borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
 
 					-- Behavior
-					wrap_results = true,
 					scroll_strategy = "limit",
-					sorting_strategy = "descending",
-					selection_strategy = "reset",
-
-					-- Exibition
-					path_display = { "truncate" },
-					color_devicons = true,
-
-					-- Preview
-					preview = {
-						treesitter = false,
-					},
 
 					-- Ignored
 					file_ignore_patterns = {
@@ -1148,7 +1099,6 @@ require("lazy").setup({
 		},
 
 		opts = {
-			notify_on_error = true,
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "isort", "black" },
@@ -1161,64 +1111,17 @@ require("lazy").setup({
 				["*"] = { "codespell" },
 				["_"] = { "trim_whitespace" },
 			},
+			format_on_save = {
+				lsp_format = "fallback",
+				timeout_ms = 500,
+			},
+			format_after_save = {
+				lsp_format = "fallback",
+			},
+			default_format_opts = {
+				lsp_format = "fallback",
+			},
 		},
-		format_on_save = {
-			lsp_format = "fallback",
-			timeout_ms = 500,
-		},
-		format_after_save = {
-			lsp_format = "fallback",
-		},
-		default_format_opts = {
-			lsp_format = "fallback",
-		},
-	},
-	-- }}}
-
-	-- [[ Windsurf (Codeium) ]] {{{
-	{
-		"Exafunction/windsurf.nvim",
-		event = "VeryLazy",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		keys = {
-			{ "<leader>sm", "<cmd>Codeium Toggle<CR>", desc = "Toggle Codeium" },
-		},
-		config = function()
-			local ignored = {
-				help = true,
-				gitcommit = true,
-				gitrebase = true,
-				TelescopePrompt = true,
-				dap_repl = true,
-			}
-
-			require("codeium").setup({
-				enable_cmp_source = false,
-				virtual_text = {
-					enabled = true,
-					idle_delay = 75,
-					map_keys = true,
-					filetypes = ignored,
-					key_bindings = {
-						accept = "<Tab>",
-						next = "<M-]>",
-						prev = "<M-[>",
-					},
-				},
-			})
-
-			vim.api.nvim_set_hl(0, "CodeiumSuggestion", { fg = "#586E75", ctermfg = 244 })
-
-			vim.api.nvim_create_autocmd("BufEnter", {
-				callback = function()
-					local line_count = vim.api.nvim_buf_line_count(0)
-					local bufname = vim.api.nvim_buf_get_name(0)
-					if line_count > 5000 or vim.endswith(bufname, ".env") then
-						vim.b.codeium_enabled = false
-					end
-				end,
-			})
-		end,
 	},
 	-- }}}
 
@@ -1290,11 +1193,11 @@ require("lazy").setup({
 			-- Two-stage LSP completion (LSP first, then fallback)
 			require("mini.completion").setup({
 				window = {
-					info = { height = 25, width = 40, border = "rounded" },
-					signature = { height = 25, width = 40, border = "rounded" },
+					info = { width = 40, border = "rounded" },
+					signature = { width = 40, border = "rounded" },
 				},
 				lsp_completion = {
-					-- Filter out strings, comments, and snippets from completion items
+					-- Filter out strings and comments from completion items (keep snippets!)
 					process_items = function(items, base)
 						items = vim.tbl_filter(function(item)
 							local dominated_by_string = item.insertText
@@ -1302,14 +1205,10 @@ require("lazy").setup({
 								and vim.endswith(item.insertText, '"')
 							local dominated_by_comment = item.label
 								and (vim.startswith(item.label, "//") or vim.startswith(item.label, "--"))
-							local dominated_by_snippet = item.kind == 15
-							return not dominated_by_string and not dominated_by_comment and not dominated_by_snippet
+							return not dominated_by_string and not dominated_by_comment
 						end, items)
 						return MiniCompletion.default_process_items(items, base)
 					end,
-				},
-				mappings = {
-					confirm = "<C-y>",
 				},
 			})
 
@@ -1406,6 +1305,8 @@ require("lazy").setup({
 		},
 	},
 })
+
+-- }}}
 
 -- }}}
 
