@@ -1269,15 +1269,6 @@ require("lazy").setup({
 				},
 			})
 
-			-- === Navigation ===
-
-			-- File system explorer (not set as default explorer)
-			require("mini.files").setup({
-				options = {
-					use_as_default_explorer = false,
-				},
-			})
-
 			-- === Text Editing ===
 
 			-- Extended text objects (a/i) with 500 lines search range
@@ -1297,7 +1288,6 @@ require("lazy").setup({
 
 			-- Two-stage LSP completion (LSP first, then fallback)
 			require("mini.completion").setup({
-				delay = { completion = 100, info = 100, signature = 50 },
 				window = {
 					info = { height = 25, width = 40, border = "rounded" },
 					signature = { height = 25, width = 40, border = "rounded" },
@@ -1320,10 +1310,7 @@ require("lazy").setup({
 						return MiniCompletion.default_process_items(items, base)
 					end,
 				},
-				fallback_action = "<C-n>",
 				mappings = {
-					scroll_down = "<C-f>",
-					scroll_up = "<C-b>",
 					confirm = "<C-y>",
 				},
 			})
@@ -1334,9 +1321,7 @@ require("lazy").setup({
 			-- === Whitespace ===
 
 			-- Highlight trailing whitespace in normal buffers only
-			require("mini.trailspace").setup({
-				only_in_normal_buffers = true,
-			})
+			require("mini.trailspace").setup()
 		end,
 	},
 	-- }}}
