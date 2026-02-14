@@ -1281,6 +1281,7 @@ require("lazy").setup({
 			local gen_loader = require("mini.snippets").gen_loader
 			require("mini.snippets").setup({
 				snippets = {
+					gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.lua"),
 					gen_loader.from_lang(),
 				},
 			})
