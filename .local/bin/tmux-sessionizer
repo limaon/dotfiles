@@ -269,9 +269,13 @@ find_dirs() {
     # list TMUX sessions
     if [[ -n "${TMUX}" ]]; then
         current_session=$(tmux display-message -p '#S')
-        tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null | grep -vFx "[TMUX] $current_session"
+        tmux list-sessions -F "#{session_name}" 2>/dev/null | grep -vFx "$current_session" | while IFS= read -r name; do
+            printf '%s\t[TMUX] %s\n' "$name" "$name"
+        done
     else
-        tmux list-sessions -F "[TMUX] #{session_name}" 2>/dev/null
+        tmux list-sessions -F "#{session_name}" 2>/dev/null | while IFS= read -r name; do
+            printf '%s\t[TMUX] %s\n' "$name" "$name"
+        done
     fi
 
     # note: TS_SEARCH_PATHS is an array of paths to search for directories
@@ -286,7 +290,14 @@ find_dirs() {
             path="$entry"
         fi
 
-        [[ -d "$path" ]] && find "$path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print
+        if [[ -d "$path" ]]; then
+            local resolved_path
+            resolved_path=$(cd "$path" && pwd)
+            find "$resolved_path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print | while IFS= read -r dir; do
+                local relative="${dir#"$resolved_path"/}"
+                printf '%s\t%s\n' "$dir" "$relative"
+            done
+        fi
     done
 }
 
@@ -362,16 +373,15 @@ if [[ ! -z $session_cmd ]]; then
 elif [[ ! -z $user_selected ]]; then
     selected="$user_selected"
 else
-    selected=$(find_dirs | fzf)
+    selected=$(find_dirs | fzf --delimiter=$'\t' --with-nth=2)
 fi
 
 if [[ -z $selected ]]; then
     exit 0
 fi
 
-if [[ "$selected" =~ ^\[TMUX\]\ (.+)$ ]]; then
-    selected="${BASH_REMATCH[1]}"
-fi
+# extract fullpath/session name (column 1) from TAB-delimited fzf output
+selected=$(printf '%s' "$selected" | cut -f1)
 
 selected_name=$(basename "$selected" | tr . _)
 
