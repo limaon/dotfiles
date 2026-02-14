@@ -67,16 +67,21 @@ PERCENT=$(( USED * 100 / TOTAL ))
 # Free percentage for threshold
 FREE_PERCENT=$(( 100 - PERCENT ))
 
+# Calculate used memory in GB
+USED_GB=$(awk "BEGIN {printf \"%.1f\", $USED / 1024 / 1024}")
+TOTAL_GB=$(awk "BEGIN {printf \"%.1f\", $TOTAL / 1024 / 1024}")
+FREE_GB=$(awk "BEGIN {printf \"%.1f\", ($TOTAL - $USED) / 1024 / 1024}")
+
 # Format output (matching i3status style)
 if (( FREE_PERCENT < 10 )); then
     # Degraded state - show free memory
-    FULL_TEXT="MEMORY: ${FREE_PERCENT}%"
-    SHORT_TEXT="${FREE_PERCENT}%"
+    FULL_TEXT="MEM: ${FREE_GB}GB"
+    SHORT_TEXT="${FREE_GB}GB"
     COLOR="#ff0000"
 else
     # Normal - show used memory
-    FULL_TEXT="MEM > ${PERCENT}%"
-    SHORT_TEXT="${PERCENT}%"
+    FULL_TEXT="MEM > ${USED_GB}GB"
+    SHORT_TEXT="${USED_GB}GB"
     COLOR="#ffffff"
 fi
 
