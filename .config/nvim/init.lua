@@ -7,6 +7,7 @@ vim.g.session_autosave = "no"
 vim.g.session_command_aliases = 1
 vim.g.autoformat = false
 vim.g.markdown_recommended_style = 0
+vim.g.netrw_liststyle = 3
 -- }}}
 
 -- [[ Setting options ]] {{{
@@ -378,6 +379,11 @@ end, { desc = "Split below" })
 keymap("n", "sv", function()
 	split_and_switch("vsplit")
 end, { desc = "Split right" })
+
+-- Toggle diagnostics
+vim.keymap.set("n", "<leader>dd", function()
+	vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+end, { desc = "Toggle diagnostics" })
 
 -- Move to window
 keymap("n", "sh", "<c-w>h", { desc = "Go to left window" })
@@ -900,6 +906,9 @@ require("lazy").setup({
 						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
 
+					-- Disable LSP diagnostics by default
+					vim.diagnostic.enable(false)
+
 					map("K", function()
 						vim.lsp.buf.hover({ border = "rounded" })
 					end, "Hover")
@@ -1166,59 +1175,49 @@ require("lazy").setup({
 	},
 	-- }}}
 
-	-- [[ Supermaven ]] {{{
+	-- [[ Windsurf (Codeium) ]] {{{
 	{
-		"supermaven-inc/supermaven-nvim",
+		"Exafunction/windsurf.nvim",
 		event = "VeryLazy",
+		dependencies = { "nvim-lua/plenary.nvim" },
 		keys = {
-			{ "<leader>sm", "<cmd>SupermavenToggle<CR>", desc = "Toggle Supermaven" },
+			{ "<leader>sm", "<cmd>Codeium Toggle<CR>", desc = "Toggle Codeium" },
 		},
 		config = function()
-			require("supermaven-nvim").setup({
-				ignore_filetypes = {
-					"help",
-					"gitcommit",
-					"gitrebase",
-					"TelescopePrompt",
-					"dap_repl",
-				},
-				color = {
-					suggestion_color = "#586E75",
-					cterm = 244,
-				},
-				log_level = "warn",
-				disable_inline_completion = false,
-				disable_keymaps = true,
-				condition = function()
-					local line_count = vim.api.nvim_buf_line_count(0)
-					if line_count > 5000 then
-						return true
-					end
+			local ignored = {
+				help = true,
+				gitcommit = true,
+				gitrebase = true,
+				TelescopePrompt = true,
+				dap_repl = true,
+			}
 
-					local bufname = vim.api.nvim_buf_get_name(0)
-					if vim.endswith(bufname, ".env") then
-						return true
-					end
-
-					return false
-				end,
+			require("codeium").setup({
+				enable_cmp_source = false,
+				virtual_text = {
+					enabled = true,
+					idle_delay = 75,
+					map_keys = true,
+					filetypes = ignored,
+					key_bindings = {
+						accept = "<Tab>",
+						next = "<M-]>",
+						prev = "<M-[>",
+					},
+				},
 			})
 
-			vim.keymap.set("i", "<Tab>", function()
-				local ok_luasnip, luasnip = pcall(require, "luasnip")
-				if ok_luasnip and luasnip.expandable() then
-					luasnip.expand()
-					return
-				end
+			vim.api.nvim_set_hl(0, "CodeiumSuggestion", { fg = "#586E75", ctermfg = 244 })
 
-				local preview = require("supermaven-nvim.completion_preview")
-				if preview.has_suggestion() then
-					preview.on_accept_suggestion()
-					return
-				end
-
-				return vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
-			end, { desc = "Smart Tab: blink > luasnip > supermaven > tab" })
+			vim.api.nvim_create_autocmd("BufEnter", {
+				callback = function()
+					local line_count = vim.api.nvim_buf_line_count(0)
+					local bufname = vim.api.nvim_buf_get_name(0)
+					if line_count > 5000 or vim.endswith(bufname, ".env") then
+						vim.b.codeium_enabled = false
+					end
+				end,
+			})
 		end,
 	},
 	-- }}}
@@ -1227,17 +1226,15 @@ require("lazy").setup({
 	{
 		"echasnovski/mini.nvim",
 		config = function()
+			-- === UI Utilities ===
+
+			-- Icon provider with LSP integration and nvim-web-devicons mock
 			local MiniIcons = require("mini.icons")
 			MiniIcons.setup()
 			MiniIcons.tweak_lsp_kind()
 			MiniIcons.mock_nvim_web_devicons()
-			require("mini.ai").setup({ n_lines = 500 })
-			require("mini.files").setup({
-				options = {
-					use_as_default_explorer = false,
-				},
-			})
 
+			-- Custom statusline with mode, spell, wrap, git, diff, diagnostics, lsp, and fileinfo sections
 			local statusline = require("mini.statusline")
 			statusline.setup({
 				use_icons = vim.g.have_nerd_font,
@@ -1252,9 +1249,12 @@ require("lazy").setup({
 						local diagnostics = statusline.section_diagnostics({ trunc_width = 75 })
 						local lsp = statusline.section_lsp({ trunc_width = 75 })
 						local fileinfo = statusline.section_fileinfo({ trunc_width = 120 })
+
+						-- Custom highlight groups for Solarized Osaka theme
 						vim.api.nvim_set_hl(0, "MiniStatuslineIndicators", { bg = "#586E75", fg = "#00141A" })
 						vim.api.nvim_set_hl(0, "MiniStatuslineDevinfo", { bg = "#657B83", fg = "#00141A" })
 						vim.api.nvim_set_hl(0, "MiniStatuslineFileinfo", { bg = "#657B83", fg = "#00141A" })
+
 						return statusline.combine_groups({
 							{ hl = mode_hl, strings = { mode:upper() } },
 							{ hl = "MiniStatuslineIndicators", strings = { spell, wrap } },
@@ -1269,11 +1269,24 @@ require("lazy").setup({
 				},
 			})
 
-			require("mini.pairs").setup()
-			require("mini.trailspace").setup({
-				only_in_normal_buffers = true,
+			-- === Navigation ===
+
+			-- File system explorer (not set as default explorer)
+			require("mini.files").setup({
+				options = {
+					use_as_default_explorer = false,
+				},
 			})
 
+			-- === Text Editing ===
+
+			-- Extended text objects (a/i) with 500 lines search range
+			require("mini.ai").setup({ n_lines = 500 })
+
+			-- Auto-brackets and auto-quotes
+			require("mini.pairs").setup()
+
+			-- Snippet management with LSP server integration
 			local gen_loader = require("mini.snippets").gen_loader
 			require("mini.snippets").setup({
 				snippets = {
@@ -1282,16 +1295,18 @@ require("lazy").setup({
 			})
 			MiniSnippets.start_lsp_server()
 
+			-- Two-stage LSP completion (LSP first, then fallback)
 			require("mini.completion").setup({
 				delay = { completion = 100, info = 100, signature = 50 },
 				window = {
-					info = { height = 25, width = 80, border = "rounded" },
-					signature = { height = 25, width = 80, border = "rounded" },
+					info = { height = 25, width = 40, border = "rounded" },
+					signature = { height = 25, width = 40, border = "rounded" },
 				},
 				lsp_completion = {
 					source_func = "completefunc",
 					auto_setup = true,
 					snippet_insert = nil,
+					-- Filter out strings, comments, and snippets from completion items
 					process_items = function(items, base)
 						items = vim.tbl_filter(function(item)
 							local dominated_by_string = item.insertText
@@ -1313,7 +1328,15 @@ require("lazy").setup({
 				},
 			})
 
+			-- LSP capabilities integration
 			vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
+
+			-- === Whitespace ===
+
+			-- Highlight trailing whitespace in normal buffers only
+			require("mini.trailspace").setup({
+				only_in_normal_buffers = true,
+			})
 		end,
 	},
 	-- }}}
