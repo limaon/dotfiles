@@ -1294,9 +1294,6 @@ require("lazy").setup({
 					signature = { height = 25, width = 40, border = "rounded" },
 				},
 				lsp_completion = {
-					source_func = "completefunc",
-					auto_setup = true,
-					snippet_insert = nil,
 					-- Filter out strings, comments, and snippets from completion items
 					process_items = function(items, base)
 						items = vim.tbl_filter(function(item)
