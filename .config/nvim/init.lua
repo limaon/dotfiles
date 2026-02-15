@@ -1229,31 +1229,53 @@ require("lazy").setup({
 					info = { width = 40, border = "rounded" },
 					signature = { width = 40, border = "rounded" },
 				},
-				lsp_completion = {
-					-- Filter out strings and comments from completion items, and snippets when in comments
-					process_items = function(items, base)
-						local synID = vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)
+			lsp_completion = {
+				-- Filter out strings and comments from completion items, and snippets when in comments
+				process_items = function(items, base)
+					-- Check if cursor is inside a comment using line content (more reliable than synID)
+					local in_comment = false
+					local line = vim.api.nvim_get_current_line()
+					local col = vim.api.nvim_win_get_cursor(0)[2]
+					local before_cursor = line:sub(1, col)
+
+					-- Check for C/C++ comment markers anywhere before cursor
+					-- Match // for line comments or /* for block comments
+					if before_cursor:match('//') or before_cursor:match('/%*') then
+						in_comment = true
+					end
+
+					-- Also check if we're after the closing */
+					if before_cursor:match('%*/') then
+						in_comment = false
+					end
+
+					-- Also try syntax highlighting check if available
+					local synID = vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)
+					if synID > 0 then
 						local synName = vim.fn.synIDattr(synID, "name")
 						local synParts = vim.split(synName, " ")
-						local in_comment = vim.list_contains(synParts, "Comment")
+						if vim.list_contains(synParts, "Comment") then
+							in_comment = true
+						end
+					end
 
-						items = vim.tbl_filter(function(item)
-							local insertText = item.insertText or item.label or ""
-							local label = item.label or ""
+					items = vim.tbl_filter(function(item)
+						local insertText = item.insertText or item.label or ""
+						local label = item.label or ""
 
-							local dominated_by_string = vim.startswith(insertText, '"')
-								and vim.endswith(insertText, '"')
-							local dominated_by_comment = vim.startswith(label, "//") or vim.startswith(label, "--")
+						local dominated_by_string = vim.startswith(insertText, '"')
+							and vim.endswith(insertText, '"')
+						local dominated_by_comment = vim.startswith(label, "//") or vim.startswith(label, "--")
 
-							local COMPLETION_ITEM_KIND = vim.lsp.protocol.CompletionItemKind
-							local is_snippet = item.kind == COMPLETION_ITEM_KIND.Snippet
-							local should_exclude_snippet = in_comment and is_snippet
+						local COMPLETION_ITEM_KIND = vim.lsp.protocol.CompletionItemKind
+						local is_snippet = item.kind == COMPLETION_ITEM_KIND.Snippet
+						local should_exclude_snippet = in_comment and is_snippet
 
-							return not dominated_by_string and not dominated_by_comment and not should_exclude_snippet
-						end, items)
-						return MiniCompletion.default_process_items(items, base)
-					end,
-				},
+						return not dominated_by_string and not dominated_by_comment and not should_exclude_snippet
+					end, items)
+					return MiniCompletion.default_process_items(items, base)
+				end,
+			},
 			})
 
 			-- Map <C-y> to accept first suggestion without selecting
