@@ -19,11 +19,7 @@
   },
   "media query": {
     "prefix": "media",
-    "body": [
-      "@media (max-width: ${1:768px}) {",
-      "\t${2:/* styles */}",
-      "}"
-    ],
+    "body": ["@media (max-width: ${1:768px}) {", "\t${2:/* styles */}", "}"],
     "description": "Media query"
   },
   "keyframes": {
@@ -66,3 +62,4 @@
     "description": "Center element absolutely"
   }
 }
+

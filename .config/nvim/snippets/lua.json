@@ -1,55 +1,32 @@
 {
   "function": {
     "prefix": "func",
-    "body": [
-      "function ${1:name}(${2:args})",
-      "\t${3:-- body}",
-      "end"
-    ],
+    "body": ["function ${1:name}(${2:args})", "\t${3:-- body}", "end"],
     "description": "Function definition"
   },
   "local function": {
     "prefix": "lfunc",
-    "body": [
-      "local function ${1:name}(${2:args})",
-      "\t${3:-- body}",
-      "end"
-    ],
+    "body": ["local function ${1:name}(${2:args})", "\t${3:-- body}", "end"],
     "description": "Local function definition"
   },
   "if statement": {
     "prefix": "if",
-    "body": [
-      "if ${1:condition} then",
-      "\t${2:-- body}",
-      "end"
-    ],
+    "body": ["if ${1:condition} then", "\t${2:-- body}", "end"],
     "description": "If statement"
   },
   "elseif": {
     "prefix": "elseif",
-    "body": [
-      "elseif ${1:condition} then",
-      "\t${2:-- body}"
-    ],
+    "body": ["elseif ${1:condition} then", "\t${2:-- body}"],
     "description": "Elseif clause"
   },
   "for loop": {
     "prefix": "for",
-    "body": [
-      "for ${1:i} = ${2:1}, ${3:10} do",
-      "\t${4:-- body}",
-      "end"
-    ],
+    "body": ["for ${1:i} = ${2:1}, ${3:10} do", "\t${4:-- body}", "end"],
     "description": "For loop"
   },
   "while loop": {
     "prefix": "while",
-    "body": [
-      "while ${1:condition} do",
-      "\t${2:-- body}",
-      "end"
-    ],
+    "body": ["while ${1:condition} do", "\t${2:-- body}", "end"],
     "description": "While loop"
   },
   "require": {
@@ -63,3 +40,4 @@
     "description": "Print statement"
   }
 }
+

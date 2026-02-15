@@ -2,39 +2,47 @@
   "name": "my-custom-snippets",
   "description": "Custom snippets for various languages",
   "version": "1.0.0",
-    "contributes": {
+  "contributes": {
     "snippets": [
       {
-        "language": "lua",
-        "path": "./lua.json"
+        "language": "c",
+        "path": "./c.json"
       },
       {
-        "language": "python",
-        "path": "./python.json"
-      },
-      {
-        "language": "javascript",
-        "path": "./javascript.json"
-      },
-      {
-        "language": "typescript",
-        "path": "./typescript.json"
-      },
-      {
-        "language": "html",
-        "path": "./html.json"
+        "language": "cpp",
+        "path": "./cpp.json"
       },
       {
         "language": "css",
         "path": "./css.json"
       },
       {
-        "language": "sh",
-        "path": "./sh.json"
+        "language": "html",
+        "path": "./html.json"
+      },
+      {
+        "language": "javascript",
+        "path": "./javascript.json"
+      },
+      {
+        "language": "lua",
+        "path": "./lua.json"
       },
       {
         "language": "markdown",
         "path": "./markdown.json"
+      },
+      {
+        "language": "python",
+        "path": "./python.json"
+      },
+      {
+        "language": "sh",
+        "path": "./sh.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./typescript.json"
       }
     ]
   }

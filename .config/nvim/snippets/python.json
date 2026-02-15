@@ -19,34 +19,22 @@
   },
   "if statement": {
     "prefix": "if",
-    "body": [
-      "if ${1:condition}:",
-      "\t${2:pass}"
-    ],
+    "body": ["if ${1:condition}:", "\t${2:pass}"],
     "description": "If statement"
   },
   "elif": {
     "prefix": "elif",
-    "body": [
-      "elif ${1:condition}:",
-      "\t${2:pass}"
-    ],
+    "body": ["elif ${1:condition}:", "\t${2:pass}"],
     "description": "Elif statement"
   },
   "for loop": {
     "prefix": "for",
-    "body": [
-      "for ${1:item} in ${2:iterable}:",
-      "\t${3:pass}"
-    ],
+    "body": ["for ${1:item} in ${2:iterable}:", "\t${3:pass}"],
     "description": "For loop"
   },
   "while loop": {
     "prefix": "while",
-    "body": [
-      "while ${1:condition}:",
-      "\t${2:pass}"
-    ],
+    "body": ["while ${1:condition}:", "\t${2:pass}"],
     "description": "While loop"
   },
   "try-except": {
@@ -76,10 +64,7 @@
   },
   "main guard": {
     "prefix": "ifmain",
-    "body": [
-      "if __name__ == \"__main__\":",
-      "\t${1:main()}"
-    ],
+    "body": ["if __name__ == \"__main__\":", "\t${1:main()}"],
     "description": "Main guard"
   }
 }
