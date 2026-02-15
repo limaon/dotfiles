@@ -1194,88 +1194,59 @@ require("lazy").setup({
 			-- Workaround: Fix mini.snippets autocmd not being created with group parameter
 			-- This ensures LSP client auto-attaches to buffers for completion integration
 			vim.defer_fn(function()
-				local snippets_client = vim.lsp.get_clients({ name = 'mini.snippets' })[1]
+				local snippets_client = vim.lsp.get_clients({ name = "mini.snippets" })[1]
 				if snippets_client then
 					-- Check if autocmd already exists to prevent duplication
 					local existing_autocmd = vim.api.nvim_get_autocmds({
-						group = 'MiniSnippetsLsp',
-						event = 'BufEnter'
+						group = "MiniSnippetsLsp",
+						event = "BufEnter",
 					})[1]
 					if existing_autocmd then
-						return  -- Autocmd already created, skip
+						return -- Autocmd already created, skip
 					end
 
 					local attach = function(buf_id)
-						if not vim.api.nvim_buf_is_valid(buf_id) then return end
+						if not vim.api.nvim_buf_is_valid(buf_id) then
+							return
+						end
 						vim.lsp.buf_attach_client(buf_id, snippets_client.id)
 					end
 					-- Clear existing autocmds and create new one with correct group
-					local group = vim.api.nvim_create_augroup('MiniSnippetsLsp', { clear = true })
-					vim.api.nvim_create_autocmd('BufEnter', {
+					local group = vim.api.nvim_create_augroup("MiniSnippetsLsp", { clear = true })
+					vim.api.nvim_create_autocmd("BufEnter", {
 						group = group,
 						callback = vim.schedule_wrap(function(ev)
 							attach(ev.buf)
 						end),
-						desc = "Auto attach 'mini.snippets' LSP server"
+						desc = "Auto attach 'mini.snippets' LSP server",
 					})
 				else
 					vim.notify("mini.snippets LSP client not found after delay", vim.log.levels.WARN)
 				end
 			end, 100)
 
-			-- Two-stage LSP completion (LSP first, then fallback)
+			-- LSP completion setup
 			require("mini.completion").setup({
 				window = {
 					info = { width = 40, border = "rounded" },
 					signature = { width = 40, border = "rounded" },
 				},
-			lsp_completion = {
-				-- Filter out strings and comments from completion items, and snippets when in comments
-				process_items = function(items, base)
-					-- Check if cursor is inside a comment using line content (more reliable than synID)
-					local in_comment = false
-					local line = vim.api.nvim_get_current_line()
-					local col = vim.api.nvim_win_get_cursor(0)[2]
-					local before_cursor = line:sub(1, col)
+				lsp_completion = {
+					-- Filter out strings and comments from completion items
+					process_items = function(items, base)
+						items = vim.tbl_filter(function(item)
+							local insertText = item.insertText or item.label or ""
+							local label = item.label or ""
 
-					-- Check for C/C++ comment markers anywhere before cursor
-					-- Match // for line comments or /* for block comments
-					if before_cursor:match('//') or before_cursor:match('/%*') then
-						in_comment = true
-					end
+							local dominated_by_string = vim.startswith(insertText, '"')
+								and vim.endswith(insertText, '"')
+							local dominated_by_comment = vim.startswith(label, "//") or vim.startswith(label, "--")
 
-					-- Also check if we're after the closing */
-					if before_cursor:match('%*/') then
-						in_comment = false
-					end
-
-					-- Also try syntax highlighting check if available
-					local synID = vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)
-					if synID > 0 then
-						local synName = vim.fn.synIDattr(synID, "name")
-						local synParts = vim.split(synName, " ")
-						if vim.list_contains(synParts, "Comment") then
-							in_comment = true
-						end
-					end
-
-					items = vim.tbl_filter(function(item)
-						local insertText = item.insertText or item.label or ""
-						local label = item.label or ""
-
-						local dominated_by_string = vim.startswith(insertText, '"')
-							and vim.endswith(insertText, '"')
-						local dominated_by_comment = vim.startswith(label, "//") or vim.startswith(label, "--")
-
-						local COMPLETION_ITEM_KIND = vim.lsp.protocol.CompletionItemKind
-						local is_snippet = item.kind == COMPLETION_ITEM_KIND.Snippet
-						local should_exclude_snippet = in_comment and is_snippet
-
-						return not dominated_by_string and not dominated_by_comment and not should_exclude_snippet
-					end, items)
-					return MiniCompletion.default_process_items(items, base)
-				end,
-			},
+							return not dominated_by_string and not dominated_by_comment
+						end, items)
+						return MiniCompletion.default_process_items(items, base)
+					end,
+				},
 			})
 
 			-- Map <C-y> to accept first suggestion without selecting
