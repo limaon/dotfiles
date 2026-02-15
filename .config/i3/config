@@ -336,7 +336,7 @@ mode "$mode_system" {
 }
 
 ### Get attachments (i3wm) ###
-set $share_attach  (c)olorpick  | (r)ecmedia | (m)onitorselect
+set $share_attach  (C)OLORPICK  | (R)ECMEDIA | (M)ONITORSELECT
 mode "$share_attach" {
   bindsym --release c exec --no-startup-id color-pick, mode "default"
   bindsym r exec --no-startup-id dmenurecord, mode "default"
