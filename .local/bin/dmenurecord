@@ -1,227 +1,250 @@
 #!/usr/bin/env bash
-# Screen recording utility with dmenu selection
+
 # Usage:
-#   $0            - Ask for recording type via dmenu
-#   $0 screencast - Record both audio and screen
-#   $0 video      - Record only screen
-#   $0 audio      - Record only audio
-#   $0 kill       - Kill existing recording
+# `$0`: Ask for recording type via dmenu
+# `$0 screencast`: Record both audio and screen
+# `$0 video`: Record only screen
+# `$0 audio`: Record only audio
+# `$0 kill`: Kill existing recording
 #
 # If there is already a running instance, user will be prompted to end it.
 # https://trac.ffmpeg.org/wiki/Encode/H.264
 
 set -euo pipefail
 
-# Dependency check
-for cmd in ffmpeg dmenu xrandr pactl notify-send; do
-  command -v "$cmd" >/dev/null 2>&1 || {
-    echo "Error: '$cmd' not found"
-    exit 1
-  }
-done
-
-# Use XDG_RUNTIME_DIR for temp files (safer than /tmp)
-readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
-readonly PID_FILE="${RUNTIME_DIR}/recordingpid"
-readonly ICON_FILE="${RUNTIME_DIR}/recordingicon"
-
 die() {
-  notify-send -u critical "${0##*/}" "$*" &
-  echo "$*" >&2
-  exit 1
+	setsid -f notify-send "${0##*/}" "$*" &
+	echo "$*" >&2
+	exit 1
 }
 
 if ! xrandr | grep -qF 'connected primary'; then
-  die "No primary display assigned"
+	die "No primary display assigned"
 fi
 
-dest_dir=$(xdg-user-dir VIDEOS)
+dest_dir="$HOME/Videos"
 readonly dest_dir
-if [[ -z "$dest_dir" ]] || [[ ! -d "$dest_dir" ]]; then
-  die "Can't find the Videos directory."
-fi
+audio_dir="$HOME/Music"
+readonly audio_dir
 
 screen_resolution() {
-  xrandr | grep -Po 'connected primary \K[^ ]*?(?=\+)'
+	# first monitor only
+	xrandr | grep -Po 'connected primary \K[^ ]*?(?=\+)'
 }
 
-screen_offset() {
-  xrandr | grep -Po 'connected primary [^ ]*?\+\K[^ ]*' | sed 's/+/,/'
-}
+getdim() { xrandr | grep -oP '(?<=current ).*(?=,)' | tr -d ' ' ;}
 
-notify_end() {
-  notify-send "$(basename -- "$0")" "Stopped recording."
-}
+notify_end() { notify-send "$(basename -- "$0")" "Stopped recording."; }
 
 updateicon() {
-  echo "$1" > "$ICON_FILE"
-  pkill -RTMIN+9 "${STATUSBAR:-i3blocks}"
+	echo "$1" >/tmp/recordingicon
+	pkill -RTMIN+9 "${STATUSBAR:-i3blocks}"
 }
 
 timestamp() {
-  date -u '+%Y-%b-%d_%H-%M-%S'
+	date -u '+%Y-%b-%d_%H-%M-%S'
 }
 
 killrecording() {
-  [[ -f "$PID_FILE" ]] || return 0
-
-  local recpid
-  recpid=$(cat -- "$PID_FILE")
-  [[ -z "$recpid" ]] && return 0
-
-  # Kill with SIGTERM, allowing finishing touches
-  kill -15 "$recpid" 2>/dev/null || true
-  rm -f -- "$PID_FILE"
-  updateicon ""
-
-  # Wait for graceful shutdown, then force kill if needed
-  sleep 3
-  if kill -0 "$recpid" 2>/dev/null; then
-    kill -9 "$recpid" 2>/dev/null || true
-  fi
-
-  notify_end
-  exit 0
+	recpid="$(cat -- /tmp/recordingpid)"
+	if [[ -z $recpid ]]; then
+		return
+	fi
+	# kill with SIGTERM, allowing finishing touches.
+	if kill -15 "$recpid"; then notify_end; fi
+	rm -f -- /tmp/recordingpid
+	updateicon ""
+	# even after SIGTERM, ffmpeg may still run, so SIGKILL it.
+	sleep 3
+	if kill -9 "$recpid"; then notify_end; fi
+	exit
 }
 
 trim_spaces() {
-  sed 's/^ *//g; s/ *$//g;'
+	sed 's/^ *//g; s/ *$//g;'
 }
 
 find_monitor() {
-  # Try to find monitor/speaker source, fallback to default
-  pactl list sources 2>/dev/null |
-    grep -i -B 1 -P 'Description:.*monitor|Description:.*speaker' |
-    grep 'Name:' |
-    head -1 |
-    cut -d: -f2 |
-    trim_spaces
+	pactl list sources |
+		grep -i -B 1 -P 'Description:.*monitor.*speaker|Description: Monitor of Built-in Audio Analog Stereo' |
+		cut -d: -f2 |
+		head -1 |
+		trim_spaces
 }
 
 find_microphone() {
-  # Try to find microphone source, fallback to default
-  pactl list sources 2>/dev/null |
-    grep -i -B 1 -P 'Description:.*microphone|Description:.*mic' |
-    grep 'Name:' |
-    head -1 |
-    cut -d: -f2 |
-    trim_spaces
+	pactl list sources |
+		grep -i -B 1 -P 'Description:.*digital microphone' |
+		cut -d: -f2 |
+		head -1 |
+		trim_spaces
 }
 
 __ffmpeg() {
-  local -r input=${1:?}
-  local -r video_resolution=${2:?}
-  local -r output=${3:?}
+	local -r input=${1:?}
+	local -r video_resolution=${2:?}
+	local -r output=${3:?}
 
-  local -r PA_MONITOR=$(find_monitor)
-  local -r PA_MIC=$(find_microphone)
+	# Run `pactl list sources`
+	local -r PA_MONITOR=$(find_monitor)
+	local -r PA_MIC=$(find_microphone)
 
-  local -a inputs=()
-  if [[ -n "$PA_MONITOR" ]]; then
-    inputs+=(-f pulse -thread_queue_size 1024 -i "$PA_MONITOR")
-  else
-    die "Monitor audio source not found."
-  fi
+	local -a inputs=()
+	if [[ -n $PA_MONITOR ]]; then
+		inputs+=(  -f pulse -thread_queue_size 1024 -i "$PA_MONITOR"  )
 
-  if [[ -n "$PA_MIC" ]]; then
-    inputs+=(-f pulse -thread_queue_size 1024 -i "$PA_MIC")
-    inputs+=(-filter_complex "[1:a][2:a]amix=inputs=2:duration=longest:dropout_transition=0[aout]")
-    inputs+=(-map "[aout]")
-  else
-    inputs+=(-map "1:a")
-  fi
+	else
+		die "Monitor wasn't found."
+	fi
+	if [[ -n $PA_MIC ]]; then
+		inputs+=(  -f pulse -thread_queue_size 1024 -i "$PA_MIC"  )
+		inputs+=(  -filter_complex "[1:a][2:a]amix=inputs=2:duration=longest:dropout_transition=0[aout]"   )
+		inputs+=( -map "[aout]"  )
+	else
+		inputs+=( -map "1:a"  )
+	fi
 
-  exec ffmpeg -y \
-    -f x11grab \
-    -framerate 30 \
-    -s "$video_resolution" \
-    -i "$input" \
-    -use_wallclock_as_timestamps 1 \
-    "${inputs[@]}" \
-    -map 0:v \
-    -r 30 \
-    -c:v libx264 \
-    -crf 10 \
-    -preset ultrafast \
-    -c:a aac \
-    -b:a 256k \
-    -ac 2 \
-    -qp 0 \
-    -profile:v baseline \
-    -movflags +faststart \
-    -pix_fmt yuv420p \
-    -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" \
-    "$output"
+	exec ffmpeg -y \
+		-f x11grab \
+		-framerate 30 \
+		-s "$video_resolution" \
+		-i "$input" \
+		-use_wallclock_as_timestamps 1 \
+		"${inputs[@]}" \
+		-map 0:v \
+		-r 30 \
+		-c:v libx264 \
+		-crf 10 \
+		-preset ultrafast \
+		-c:a aac \
+		-b:a 256k \
+		-ac 2 \
+		-qp 0 \
+		-profile:v baseline \
+		-movflags +faststart \
+		-pix_fmt yuv420p \
+		-vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" \
+		"$output"
+}
+
+screen_offset() {
+	xrandr | grep -Po 'connected primary [^ ]*?\+\K[^ ]*' | sed 's/+/,/'
 }
 
 screencast() {
-  __ffmpeg "$DISPLAY+$(screen_offset)" "$(screen_resolution)" "$dest_dir/screencast-$(timestamp).mp4" &
-  echo $! > "$PID_FILE"
-  updateicon "REC"
+	__ffmpeg "$DISPLAY+$(screen_offset)" "$(screen_resolution)" "$dest_dir/screencast-$(timestamp).mp4" &
+	echo $! >/tmp/recordingpid
+	updateicon " 󰇄  REC  "
 }
 
 selected_area() {
-  command -v slop >/dev/null 2>&1 || die "slop not installed"
-  local X Y W H
-  read -r X Y W H <<<"$(slop -f "%x %y %w %h")"
-  __ffmpeg "${DISPLAY}+${X},${Y}" "${W}x${H}" "$dest_dir/screencast-area-$(timestamp).mp4" &
-  echo $! > "$PID_FILE"
-  updateicon "REC"
+	set -x
+	read -r X Y W H <<<"$(slop -f "%x %y %w %h")"
+	__ffmpeg "${DISPLAY}+${X},${Y}" "${W}x${H}" "$dest_dir/screencast-area-$(timestamp).mp4" &
+	echo $! >/tmp/recordingpid
+	updateicon " 󰇄  REC  "
 }
 
 video() {
-  ffmpeg \
-    -an \
-    -f x11grab \
-    -framerate 30 \
-    -s "$(screen_resolution)" \
-    -i "$DISPLAY+$(screen_offset)" \
-    -c:v libx264 \
-    -qp 0 \
-    -r 30 \
-    -pix_fmt yuv420p \
-    -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" \
-    -movflags +faststart \
-    -profile:v baseline \
-    "$dest_dir/video-$(timestamp).mkv" &
-  echo $! > "$PID_FILE"
-  updateicon "REC"
-}
-
-webcam() {
-  local -r device="${1:-/dev/video0}"
-  local -r resolution="${2:-640x480}"
-
-  [[ -e "$device" ]] || die "Webcam not found: $device"
-
-  ffmpeg \
-    -f v4l2 \
-    -i "$device" \
-    -s "$resolution" \
-    "$dest_dir/webcam-$(timestamp).mkv" &
-  echo $! > "$PID_FILE"
-  updateicon "CAM"
+	ffmpeg \
+		-an \
+		-f x11grab \
+		-framerate 30 \
+		-s "$(screen_resolution)" \
+		-i "$DISPLAY" \
+		-c:v libx264 \
+		-qp 0 \
+		-r 30 \
+		-pix_fmt yuv420p \
+		-vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" \
+		-movflags +faststart \
+		-profile:v baseline \
+		"$dest_dir/video-$(timestamp).mkv" &
+	echo $! >/tmp/recordingpid
+	updateicon " 󰇄  REC "
 }
 
 webcamhidef() {
-  webcam "/dev/video0" "1920x1080"
+	ffmpeg \
+		-f v4l2 \
+		-i /dev/video0 \
+		-s 1920x1080 \
+		"$dest_dir/webcam-$(timestamp).mkv" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC "
+}
+
+webcam() {
+	ffmpeg \
+		-f v4l2 \
+		-i /dev/video0 \
+		-s 640x480 \
+		"$dest_dir/webcam-$(timestamp).mkv" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC "
 }
 
 audio() {
-  local -r file_path="$dest_dir/audio-$(timestamp).flac"
-  ffmpeg \
-    -f alsa -i default \
-    -c:a flac \
-    "$file_path" &
-  echo $! > "$PID_FILE"
-  updateicon "MIC"
+	FILE_PATH="$audio_dir/audio-$(timestamp).flac"
+	ffmpeg \
+		-f alsa -i default \
+		-c:a flac \
+		"${FILE_PATH:?}" &
+	echo $! >/tmp/recordingpid
+	updateicon "   REC "
+}
+
+audio_anki() {
+	ankiconnect_request() {
+		curl --silent localhost:8765 -X POST -d "${1:?}"
+	}
+	store_file() {
+		local -r path=${1:?} name=${2:?}
+		local request='{
+			"action": "storeMediaFile",
+			"version": 6,
+			"params": {
+				"filename": "<name>",
+				"path": "<path>"
+			}
+		}'
+		request=${request/<name>/$name}
+		request=${request/<path>/$path}
+		ankiconnect_request "$request"
+	}
+	workdir="/tmp/audacity"
+
+	mkdir -p -- "$workdir"
+	cd "$workdir" || return 1
+
+	audio
+
+	# While ffmpeg is running...
+	wait
+
+	audacity "${FILE_PATH:?}"
+
+	if ! ls ./*.*; then return; fi
+	cm ftogg
+
+	local audiofiles bn path
+	for file in ./*.ogg; do
+		bn=$(basename -- "$file")
+		path=$(readlink -f -- "$file")
+		audiofiles="${audiofiles}[sound:$bn]"
+		store_file "$path" "$bn"
+	done
+	rm -rf -- "$workdir"
+	printf "%s" "$audiofiles" | xclip -selection clipboard
+	rm -- "${FILE_PATH:?}"
 }
 
 dmenu_recording_style() {
-  cat <<-EOF | dmenu -l 30 -p "Select recording style:"
+	cat <<-EOF | dmenu -i -p "Select recording style:"
 		screencast
 		video
 		audio
+		audio+add to anki
 		webcam
 		webcam (hi-def)
 		selected area
@@ -229,35 +252,37 @@ dmenu_recording_style() {
 }
 
 askrecording() {
-  case "$(dmenu_recording_style)" in
-    'screencast') screencast ;;
-    'video') video ;;
-    'audio') audio ;;
-    'webcam') webcam ;;
-    'webcam (hi-def)') webcamhidef ;;
-    'selected area') selected_area ;;
-  esac
+	case "$(dmenu_recording_style)" in
+	'screencast') screencast ;;
+	'video') video ;;
+	'audio') audio ;;
+	'audio+add to anki') audio_anki ;;
+	'webcam') webcam ;;
+	'webcam (hi-def)') webcamhidef ;;
+	'selected area') selected_area ;;
+	esac
 }
 
 asktoend() {
-  local -r response=$(printf "No\\nYes" | dmenu -p "Recording still active. End recording?")
-  if [[ "$response" = "Yes" ]]; then
-    killrecording
-  fi
+	local -r response=$(printf "No\\nYes" | dmenu -i -p "Recording still active. End recording?")
+	if [[ "$response" = "Yes" ]]; then
+		killrecording
+	fi
 }
 
 case "${1-}" in
-  screencast) screencast ;;
-  audio) audio ;;
-  video) video ;;
-  selected*) selected_area ;;
-  kill) killrecording ;;
-  *)
-    if [[ -f "$PID_FILE" ]]; then
-      asktoend
-      exit
-    else
-      askrecording
-    fi
-    ;;
+screencast) screencast ;;
+audio) audio ;;
+video) video ;;
+selected*) selected_area ;;
+kill) killrecording ;;
+*)
+	if [[ -f /tmp/recordingpid ]]; then
+		asktoend
+		exit
+	else
+		askrecording
+	fi
+	;;
 esac
+
