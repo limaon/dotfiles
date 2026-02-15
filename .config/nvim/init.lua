@@ -1185,11 +1185,43 @@ require("lazy").setup({
 			local MiniSnippets = require("mini.snippets")
 			MiniSnippets.setup({
 				snippets = {
-					gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.lua"),
+					gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.json"),
 					gen_loader.from_lang(),
 				},
 			})
-			MiniSnippets.start_lsp_server()
+			MiniSnippets.start_lsp_server({ match = false })
+
+			-- Workaround: Fix mini.snippets autocmd not being created with group parameter
+			-- This ensures LSP client auto-attaches to buffers for completion integration
+			vim.defer_fn(function()
+				local snippets_client = vim.lsp.get_clients({ name = 'mini.snippets' })[1]
+				if snippets_client then
+					-- Check if autocmd already exists to prevent duplication
+					local existing_autocmd = vim.api.nvim_get_autocmds({
+						group = 'MiniSnippetsLsp',
+						event = 'BufEnter'
+					})[1]
+					if existing_autocmd then
+						return  -- Autocmd already created, skip
+					end
+
+					local attach = function(buf_id)
+						if not vim.api.nvim_buf_is_valid(buf_id) then return end
+						vim.lsp.buf_attach_client(buf_id, snippets_client.id)
+					end
+					-- Clear existing autocmds and create new one with correct group
+					local group = vim.api.nvim_create_augroup('MiniSnippetsLsp', { clear = true })
+					vim.api.nvim_create_autocmd('BufEnter', {
+						group = group,
+						callback = vim.schedule_wrap(function(ev)
+							attach(ev.buf)
+						end),
+						desc = "Auto attach 'mini.snippets' LSP server"
+					})
+				else
+					vim.notify("mini.snippets LSP client not found after delay", vim.log.levels.WARN)
+				end
+			end, 100)
 
 			-- Two-stage LSP completion (LSP first, then fallback)
 			require("mini.completion").setup({
@@ -1211,8 +1243,7 @@ require("lazy").setup({
 
 							local dominated_by_string = vim.startswith(insertText, '"')
 								and vim.endswith(insertText, '"')
-							local dominated_by_comment = vim.startswith(label, "//")
-								or vim.startswith(label, "--")
+							local dominated_by_comment = vim.startswith(label, "//") or vim.startswith(label, "--")
 
 							local COMPLETION_ITEM_KIND = vim.lsp.protocol.CompletionItemKind
 							local is_snippet = item.kind == COMPLETION_ITEM_KIND.Snippet

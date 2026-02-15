@@ -1,11 +1,207 @@
 {
-  "For Loop": {
-    "prefix": "forin",
+  "Shebang bash": {
+    "prefix": "shebang",
+    "body": ["#!/usr/bin/env bash", "", "set -euo pipefail"],
+    "description": "Bash shebang with safe options"
+  },
+  "Shebang sh": {
+    "prefix": "shebang-sh",
+    "body": ["#!/usr/bin/env sh", ""],
+    "description": "Basic sh shebang"
+  },
+  "Local variable": {
+    "prefix": "local",
+    "body": ["local ${1:var_name}=\"${2:value}\""],
+    "description": "Local variable"
+  },
+  "Function": {
+    "prefix": "func",
     "body": [
-      "for ${1:item} in ${2:$(ls)}; do",
-      "  ${0:# commands}",
+      "${1:function_name}() {",
+      "  local ${2:arg1}=\"${3:$1}\"",
+      "  ${0:# code}",
+      "}"
+    ],
+    "description": "Function definition"
+  },
+  "If statement": {
+    "prefix": "if",
+    "body": ["if [ ${1:condition} ]; then", "  ${0:# code}", "fi"],
+    "description": "If block"
+  },
+  "If-else": {
+    "prefix": "ife",
+    "body": [
+      "if [ ${1:condition} ]; then",
+      "  ${2:# true code}",
+      "else",
+      "  ${0:# false code}",
+      "fi"
+    ],
+    "description": "If-else block"
+  },
+  "If-elif-else": {
+    "prefix": "ifelif",
+    "body": [
+      "if [ ${1:condition1} ]; then",
+      "  ${2:# code 1}",
+      "elif [ ${3:condition2} ]; then",
+      "  ${4:# code 2}",
+      "else",
+      "  ${0:# else code}",
+      "fi"
+    ],
+    "description": "If-elif-else block"
+  },
+  "For loop (file)": {
+    "prefix": "for",
+    "body": ["for ${1:file} in ${2:*}; do", "  ${0:# code}", "done"],
+    "description": "For loop over files"
+  },
+  "For loop (seq)": {
+    "prefix": "forseq",
+    "body": ["for ((i=${1:0}; i<${2:10}; i++)); do", "  ${0:# code}", "done"],
+    "description": "For loop with numeric sequence"
+  },
+  "For loop (command)": {
+    "prefix": "forin",
+    "body": ["for ${1:item} in ${2:$(ls)}; do", "  ${0:# code}", "done"],
+    "description": "Basic shell for loop"
+  },
+  "While loop": {
+    "prefix": "while",
+    "body": ["while [ ${1:condition} ]; do", "  ${0:# code}", "done"],
+    "description": "While loop"
+  },
+  "Case statement": {
+    "prefix": "case",
+    "body": [
+      "case \"${1:$1}\" in",
+      "  ${2:pattern1})",
+      "    ${3:# code 1}",
+      "    ;;",
+      "  ${4:pattern2})",
+      "    ${5:# code 2}",
+      "    ;;",
+      "  *)",
+      "    ${0:# default code}",
+      "    ;;",
+      "esac"
+    ],
+    "description": "Case block"
+  },
+  "Test equal": {
+    "prefix": "ifeq",
+    "body": ["[ \"${1:$var1}\" = \"${2:$var2}\" ]"],
+    "description": "Equality test"
+  },
+  "Test file exists": {
+    "prefix": "iff",
+    "body": ["[ -f \"${1:file}\" ]"],
+    "description": "Test if file exists"
+  },
+  "Test directory exists": {
+    "prefix": "ifd",
+    "body": ["[ -d \"${1:dir}\" ]"],
+    "description": "Test if directory exists"
+  },
+  "Test empty string": {
+    "prefix": "ifz",
+    "body": ["[ -z \"${1:$var}\" ]"],
+    "description": "Test if string is empty"
+  },
+  "Read input": {
+    "prefix": "read",
+    "body": ["read -r -p \"${1:Prompt}: \" ${2:var_name}"],
+    "description": "Read user input"
+  },
+  "Echo with color": {
+    "prefix": "echo",
+    "body": ["echo -e \"\\033[${1:32}m${2:msg}\\033[0m\""],
+    "description": "Echo with ANSI color"
+  },
+  "Redirect output": {
+    "prefix": "redirect",
+    "body": ["${1:command} 2>&1 | tee ${2:output.log}"],
+    "description": "Redirect stdout and stderr"
+  },
+  "Trap signal": {
+    "prefix": "trap",
+    "body": ["trap '${1:cleanup}' ${2:EXIT INT TERM}"],
+    "description": "Trap for cleanup signals"
+  },
+  "Array": {
+    "prefix": "array",
+    "body": ["local ${1:arr}=(${2:element1 element2 element3})"],
+    "description": "Declare array"
+  },
+  "Array loop": {
+    "prefix": "foreach",
+    "body": [
+      "for ${1:item} in \"${${2:arr}[@]}\"; do",
+      "  ${0:# code}",
       "done"
     ],
-    "description": "Loop básico em shell"
+    "description": "Loop over array"
+  },
+  "Simple getopts": {
+    "prefix": "getopts",
+    "body": [
+      "while getopts \"${1:vh}\" opt; do",
+      "  case $opt in",
+      "    ${2:v})",
+      "      ${3:# verbose}",
+      "      ;;",
+      "    ${4:h})",
+      "      ${5:# help}",
+      "      ;;",
+      "    *)",
+      "      echo \"Usage: $0 [${6:options}]\" 1>&2",
+      "      exit 1",
+      "      ;;",
+      "  esac",
+      "done"
+    ],
+    "description": "Basic getopts for arguments"
+  },
+  "Check root": {
+    "prefix": "ifroot",
+    "body": [
+      "if [ \"$EUID\" -ne 0 ]; then",
+      "  echo \"Please run as root\"",
+      "  exit 1",
+      "fi"
+    ],
+    "description": "Check if running as root"
+  },
+  "Backup file": {
+    "prefix": "backup",
+    "body": ["cp -v \"${1:file}\" \"${1:file}.$(date +%Y%m%d_%H%M%S).bak\""],
+    "description": "Create file backup"
+  },
+  "Mkdir with exists check": {
+    "prefix": "mkdir",
+    "body": ["mkdir -p \"${1:dir}\""],
+    "description": "Create directory if not exists"
+  },
+  "Log function": {
+    "prefix": "log",
+    "body": [
+      "log() {",
+      "  echo \"[$(date +'%Y-%m-%d %H:%M:%S')] ${1:msg}\"",
+      "  echo \"[$(date +'%Y-%m-%d %H:%M:%S')] ${1:msg}\" >> \"${2:logfile}\"",
+      "}"
+    ],
+    "description": "Log function"
+  },
+  "Error function": {
+    "prefix": "error",
+    "body": [
+      "error() {",
+      "  echo \"ERROR: ${1:msg}\" >&2",
+      "  exit ${2:1}",
+      "}"
+    ],
+    "description": "Error function"
   }
 }
