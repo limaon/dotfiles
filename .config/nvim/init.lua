@@ -1182,7 +1182,8 @@ require("lazy").setup({
 
 			-- Snippet management with LSP server integration
 			local gen_loader = require("mini.snippets").gen_loader
-			require("mini.snippets").setup({
+			local MiniSnippets = require("mini.snippets")
+			MiniSnippets.setup({
 				snippets = {
 					gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.lua"),
 					gen_loader.from_lang(),
@@ -1197,20 +1198,49 @@ require("lazy").setup({
 					signature = { width = 40, border = "rounded" },
 				},
 				lsp_completion = {
-					-- Filter out strings and comments from completion items (keep snippets!)
+					-- Filter out strings and comments from completion items, and snippets when in comments
 					process_items = function(items, base)
+						local synID = vim.fn.synID(vim.fn.line("."), vim.fn.col("."), 1)
+						local synName = vim.fn.synIDattr(synID, "name")
+						local synParts = vim.split(synName, " ")
+						local in_comment = vim.list_contains(synParts, "Comment")
+
 						items = vim.tbl_filter(function(item)
-							local dominated_by_string = item.insertText
-								and vim.startswith(item.insertText, '"')
-								and vim.endswith(item.insertText, '"')
-							local dominated_by_comment = item.label
-								and (vim.startswith(item.label, "//") or vim.startswith(item.label, "--"))
-							return not dominated_by_string and not dominated_by_comment
+							local insertText = item.insertText or item.label or ""
+							local label = item.label or ""
+
+							local dominated_by_string = vim.startswith(insertText, '"')
+								and vim.endswith(insertText, '"')
+							local dominated_by_comment = vim.startswith(label, "//")
+								or vim.startswith(label, "--")
+
+							local COMPLETION_ITEM_KIND = vim.lsp.protocol.CompletionItemKind
+							local is_snippet = item.kind == COMPLETION_ITEM_KIND.Snippet
+							local should_exclude_snippet = in_comment and is_snippet
+
+							return not dominated_by_string and not dominated_by_comment and not should_exclude_snippet
 						end, items)
 						return MiniCompletion.default_process_items(items, base)
 					end,
 				},
 			})
+
+			-- Map <C-y> to accept first suggestion without selecting
+			local function accept_first_suggestion()
+				if vim.fn.pumvisible() == 1 then
+					local info = vim.fn.complete_info()
+					if info.selected == -1 then
+						-- Select first item and confirm: Ctrl-P (0x10) + Ctrl-Y (0x19)
+						return "\16\25"
+					else
+						-- Confirm current selection: Ctrl-Y (0x19)
+						return "\25"
+					end
+				end
+				-- Fallback: Ctrl-_ (0x1F) - undo
+				return "\31"
+			end
+			vim.keymap.set("i", "<C-y>", accept_first_suggestion, { expr = true })
 
 			-- LSP capabilities integration
 			vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
