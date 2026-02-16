@@ -29,27 +29,9 @@ display_off() {
 
 # Optimized screen lock function
 lock_screen() {
-    # Configure DPMS for fast response (5s standby/suspend/off)
     xset dpms 8 120 300
-
-    # Pause any media players (mpc is for MPD)
     mpc pause >/dev/null 2>&1 || true
-
-    # Create temporary image file in RAM disk for faster access
-    local TEMP_IMG
-    TEMP_IMG=$(mktemp /dev/shm/i3lock-XXXXXX.png)
-
-    # Optimized image processing pipeline:
-    # 1. Capture screen with maim (low quality png)
-    # 2. Resize down to 10% then back up (pixelation effect)
-    # 3. Save to temp file
-    # 4. Lock with i3lock using the processed image
-    maim --hidecursor --format=png --quality 3 -q 2>/dev/null | \
-        convert - -resize 10% -resize 1000% -quality 5 "$TEMP_IMG" 2>/dev/null
-
-    i3lock -i "$TEMP_IMG" -n
-
-    rm -f "$TEMP_IMG"
+    i3lock -n -c 00141A
     display_back_time
 }
 
