@@ -78,7 +78,7 @@ bindsym $mod+b exec --no-startup-id dmenu-websearch
 
 # Cabl (primary)
 bindsym $mod+c exec --no-startup-id cabl
-bindsym $mod+Ctrl+c exec --no-startup-id camtoggle
+bindsym $mod+Ctrl+c exec --no-startup-id camview
 
 # Open clipboard content dmenu
 bindsym $mod+Shift+v exec --no-startup-id cabl clip

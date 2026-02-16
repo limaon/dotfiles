@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+#
+# camview - Webcam Viewer
+# A script to view your webcam feed using mpv with configurable settings.
+
+set -euo pipefail
+
+# Default values
+DEFAULT_WIDTH="250"
+DEFAULT_HEIGHT="250"
+DEFAULT_FRAMERATE="30"
+DEFAULT_TITLE="mpv Webcam"
+
+# Initialize variables
+DEVICE=""
+WIDTH="$DEFAULT_WIDTH"
+HEIGHT="$DEFAULT_HEIGHT"
+FRAMERATE="$DEFAULT_FRAMERATE"
+TITLE="$DEFAULT_TITLE"
+
+# Check if mpv is installed
+check_dependencies() {
+  if ! command -v mpv &> /dev/null; then
+    error_exit "mpv is not installed. Please install it first."
+  fi
+}
+
+# Function to find the first available webcam device
+find_webcam_device() {
+  local device
+  for device in /dev/video*; do
+    if [[ -c "$device" ]]; then
+      echo "$device"
+      return
+    fi
+  done
+  echo ""
+}
+
+# Function to validate numeric range
+validate_range() {
+  local value="$1"
+  local min="$2"
+  local max="$3"
+  local name="$4"
+
+  if [[ ! "$value" =~ ^[0-9]+$ ]]; then
+    error_exit "Invalid $name: '$value' must be a positive integer."
+  fi
+
+  if [[ "$value" -lt "$min" ]] || [[ "$value" -gt "$max" ]]; then
+    error_exit "$name must be between $min and $max (got: $value)."
+  fi
+}
+
+# Function to check if a device exists and is accessible
+check_device() {
+  local device="$1"
+  if [[ ! -e "$device" ]]; then
+    error_exit "Device not found: $device"
+  fi
+  if [[ ! -c "$device" ]]; then
+    error_exit "Not a valid character device: $device"
+  fi
+  if [[ ! -r "$device" ]]; then
+    error_exit "Device not readable (check permissions): $device"
+  fi
+}
+
+# Function to display an error message and exit
+error_exit() {
+  local message="$1"
+  echo "ERROR: $message" >&2
+  if command -v notify-send &> /dev/null; then
+    notify-send "Camview" "$message" 2>/dev/null || true
+  fi
+  exit 1
+}
+
+# Function to display usage information
+display_usage() {
+  cat << EOF
+Usage: $(basename "$0") [OPTIONS]
+
+A webcam viewer using mpv with configurable settings.
+
+Options:
+  -w, --width WIDTH      Set the width of the video (default: $DEFAULT_WIDTH)
+                         Valid range: 64-1920
+
+  -h, --height HEIGHT    Set the height of the video (default: $DEFAULT_HEIGHT)
+                         Valid range: 64-1080
+
+  -f, --framerate FPS    Set the framerate of the video (default: $DEFAULT_FRAMERATE)
+                         Valid range: 1-120
+
+  -d, --device DEVICE    Specify the webcam device path
+                         Default: first available /dev/video* device
+
+  --help                 Display this help message
+
+Keyboard Controls:
+  q                      Close the viewer
+  Space                  Pause/Resume
+  f                      Toggle fullscreen
+
+Examples:
+  $(basename "$0")                           # Use default settings (250x250 @ 30fps)
+  $(basename "$0") -w 640 -h 480             # View at 640x480 resolution
+  $(basename "$0") -f 60                     # View at 60fps
+  $(basename "$0") -d /dev/video1            # Use specific webcam device
+  $(basename "$0") -w 1920 -h 1080 -f 30     # Full HD resolution at 30fps
+EOF
+  exit 0
+}
+
+# Main execution
+main() {
+  # Check dependencies first
+  check_dependencies
+
+  # Parse parameters
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -w|--width)
+        if [[ -z "${2:-}" ]]; then
+          error_exit "Option $1 requires an argument."
+        fi
+        WIDTH="$2"
+        shift 2
+        ;;
+      -h|--height)
+        if [[ -z "${2:-}" ]]; then
+          error_exit "Option $1 requires an argument."
+        fi
+        HEIGHT="$2"
+        shift 2
+        ;;
+      -f|--framerate)
+        if [[ -z "${2:-}" ]]; then
+          error_exit "Option $1 requires an argument."
+        fi
+        FRAMERATE="$2"
+        shift 2
+        ;;
+      -d|--device)
+        if [[ -z "${2:-}" ]]; then
+          error_exit "Option $1 requires an argument."
+        fi
+        DEVICE="$2"
+        shift 2
+        ;;
+      --help)
+        display_usage
+        ;;
+      *)
+        error_exit "Unknown argument: $1. Use --help for usage information."
+        ;;
+    esac
+  done
+
+  # Validate numeric values
+  validate_range "$WIDTH" 64 1920 "width"
+  validate_range "$HEIGHT" 64 1080 "height"
+  validate_range "$FRAMERATE" 1 120 "framerate"
+
+  # Find or use specified webcam device
+  if [[ -z "$DEVICE" ]]; then
+    DEVICE="$(find_webcam_device)"
+    if [[ -z "$DEVICE" ]]; then
+      error_exit "No webcam device found. Please ensure your webcam is connected."
+    fi
+  fi
+
+  # Verify device exists and is accessible
+  check_device "$DEVICE"
+
+  # Run mpv with the specified settings
+  # Note: --input-conf removed to allow window controls (e.g., 'q' to quit)
+  mpv \
+    --no-osc \
+    --no-osd-bar \
+    --geometry=-0-0 \
+    --autofit="${WIDTH}x${HEIGHT}" \
+    --title="$TITLE" \
+    --profile=low-latency \
+    av://v4l2:"$DEVICE" \
+    --demuxer-lavf-format=video4linux2 \
+    --demuxer-lavf-o="video_size=${WIDTH}x${HEIGHT}" \
+    --demuxer-lavf-o="framerate=${FRAMERATE}"
+}
+
+# Run main function
+main "$@"
