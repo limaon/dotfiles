@@ -6,8 +6,8 @@
 set -euo pipefail
 
 # Default values
-DEFAULT_WIDTH="250"
-DEFAULT_HEIGHT="250"
+DEFAULT_WIDTH="128"
+DEFAULT_HEIGHT="128"
 DEFAULT_FRAMERATE="30"
 DEFAULT_TITLE="mpv Webcam"
 
@@ -18,23 +18,110 @@ HEIGHT="$DEFAULT_HEIGHT"
 FRAMERATE="$DEFAULT_FRAMERATE"
 TITLE="$DEFAULT_TITLE"
 
-# Check if mpv is installed
+# Check if mpv and dmenu are installed
 check_dependencies() {
   if ! command -v mpv &> /dev/null; then
     error_exit "mpv is not installed. Please install it first."
   fi
+
+  # Only check dmenu if device not specified manually
+  if [[ -z "$DEVICE" ]] && ! command -v dmenu &> /dev/null; then
+    error_exit "dmenu is not installed. Required for camera selection."
+  fi
 }
 
-# Function to find the first available webcam device
-find_webcam_device() {
-  local device
-  for device in /dev/video*; do
-    if [[ -c "$device" ]]; then
-      echo "$device"
-      return
+# Function to test if a device can actually capture video
+test_device_capture() {
+  local device="$1"
+
+  # Try v4l2-ctl quick test if available
+  if command -v v4l2-ctl &> /dev/null; then
+    if v4l2-ctl --device="$device" --all &> /dev/null; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+
+  # Fallback: try reading 3 frames with mpv in test mode
+  if timeout 3 mpv \
+    --no-osc \
+    --no-osd-bar \
+    --mute=yes \
+    --vo=null \
+    --frames=3 \
+    av://v4l2:"$device" \
+    --demuxer-lavf-format=video4linux2 \
+    &> /dev/null; then
+    return 0
+  fi
+
+  return 1
+}
+
+# Function to list all available camera devices
+list_available_cameras() {
+  local devices=()
+  for dev in /dev/video*; do
+    if [[ -c "$dev" ]] && [[ -r "$dev" ]]; then
+      # Only include devices that can actually capture video
+      if test_device_capture "$dev"; then
+        devices+=("$dev")
+      fi
     fi
   done
-  echo ""
+  printf '%s\n' "${devices[@]}"
+}
+
+# Function to get camera name from device
+get_device_name() {
+  local device="$1"
+  local name="Unknown Camera"
+
+  if command -v v4l2-ctl &> /dev/null; then
+    name=$(v4l2-ctl --device="$device" --info 2>/dev/null | \
+           grep "Card type" | cut -d':' -f2- | sed 's/^[[:space:]]*//')
+    name="${name:-Unknown Camera}"
+  fi
+
+  echo "$name"
+}
+
+# Function to select camera via dmenu
+select_camera_with_dmenu() {
+  local cam_count camera_choice
+
+  cam_count=$(list_available_cameras | wc -l)
+
+  # If only one camera, use it automatically
+  if [[ "$cam_count" -eq 1 ]]; then
+    list_available_cameras
+    return
+  fi
+
+  # If no cameras, error
+  if [[ "$cam_count" -eq 0 ]]; then
+    error_exit "No cameras found in /dev/video*"
+  fi
+
+  # Multiple cameras: dmenu to select with names
+  local camera_list=""
+  while IFS= read -r dev; do
+    local name
+    name=$(get_device_name "$dev")
+    camera_list+="$dev|$name"$'\n'
+  done < <(list_available_cameras)
+
+  # Remove trailing newline to avoid empty item in dmenu
+  camera_list="${camera_list%$'\n'}"
+
+  camera_choice=$(echo "$camera_list" | dmenu -i -p "Select camera:" | cut -d'|' -f1)
+
+  if [[ -z "$camera_choice" ]]; then
+    error_exit "No camera selected"
+  fi
+
+  echo "$camera_choice"
 }
 
 # Function to validate numeric range
@@ -57,20 +144,56 @@ validate_range() {
 check_device() {
   local device="$1"
   if [[ ! -e "$device" ]]; then
-    error_exit "Device not found: $device"
+    error_exit "Device not found: $device" "$device"
   fi
   if [[ ! -c "$device" ]]; then
-    error_exit "Not a valid character device: $device"
+    error_exit "Not a valid character device: $device" "$device"
   fi
   if [[ ! -r "$device" ]]; then
-    error_exit "Device not readable (check permissions): $device"
+    error_exit "Device not readable (check permissions): $device" "$device"
+  fi
+
+  # Test if device can actually capture video
+  if ! test_device_capture "$device"; then
+    error_exit "Device failed capture test. May not be a working video device." "$device"
   fi
 }
 
 # Function to display an error message and exit
 error_exit() {
   local message="$1"
+  local device="${2:-}"
+
   echo "ERROR: $message" >&2
+
+  # Provide device-specific hints if device parameter provided
+  if [[ -n "$device" ]]; then
+    echo "Device: $device" >&2
+
+    # Check if device is busy (another process using it)
+    if [[ -e "$device" ]] && command -v lsof &> /dev/null; then
+      if lsof "$device" &> /dev/null; then
+        echo "Hint: Device is currently in use by another process." >&2
+        echo "  Try: lsof $device to see which process" >&2
+      fi
+    fi
+
+    # Suggest v4l2-ctl for debugging if available
+    if command -v v4l2-ctl &> /dev/null; then
+      echo "Hint: Check device capabilities:" >&2
+      echo "  v4l2-ctl --device=$device --all" >&2
+    fi
+
+    # Permission hints
+    if [[ -e "$device" && ! -r "$device" ]]; then
+      echo "Hint: Permission denied. Try:" >&2
+      echo "  sudo chmod 666 $device" >&2
+      echo "  Or add your user to the 'video' group:" >&2
+      echo "  sudo usermod -a -G video \$USER" >&2
+      echo "  (Then log out and back in)" >&2
+    fi
+  fi
+
   if command -v notify-send &> /dev/null; then
     notify-send "Camview" "$message" 2>/dev/null || true
   fi
@@ -95,7 +218,7 @@ Options:
                          Valid range: 1-120
 
   -d, --device DEVICE    Specify the webcam device path
-                         Default: first available /dev/video* device
+                          Default: prompt to select via dmenu (or auto-select if only one)
 
   --help                 Display this help message
 
@@ -105,13 +228,96 @@ Keyboard Controls:
   f                      Toggle fullscreen
 
 Examples:
-  $(basename "$0")                           # Use default settings (250x250 @ 30fps)
-  $(basename "$0") -w 640 -h 480             # View at 640x480 resolution
-  $(basename "$0") -f 60                     # View at 60fps
-  $(basename "$0") -d /dev/video1            # Use specific webcam device
-  $(basename "$0") -w 1920 -h 1080 -f 30     # Full HD resolution at 30fps
+   $(basename "$0")                           # Prompt to select camera (or auto-select if only one)
+   $(basename "$0") -w 640 -h 480             # View at 640x480 resolution
+   $(basename "$0") -f 60                     # View at 60fps
+   $(basename "$0") -d /dev/video1            # Use specific webcam device
+   $(basename "$0") -w 1920 -h 1080 -f 30     # Full HD resolution at 30fps
 EOF
   exit 0
+}
+
+# Function to validate and adjust resolution to what device supports
+validate_resolution() {
+  local device="$1"
+  local requested_width="$2"
+  local requested_height="$3"
+
+  # If v4l2-ctl not available, return requested resolution with warning
+  if ! command -v v4l2-ctl &> /dev/null; then
+    echo "Warning: v4l2-ctl not installed, cannot validate resolution support." >&2
+    echo "$requested_width $requested_height"
+    return
+  fi
+
+  # Get list of supported resolutions
+  local resolutions
+  resolutions=$(v4l2-ctl --device="$device" --list-formats-ext 2>/dev/null | \
+    grep -oE '[0-9]+x[0-9]+' | sort -u | tr '\n' ' ')
+
+  # If no resolutions found, return requested resolution with warning
+  if [[ -z "$resolutions" ]]; then
+    echo "Warning: Could not determine supported resolutions for $device" >&2
+    echo "$requested_width $requested_height"
+    return
+  fi
+
+  # Check if exact resolution is supported
+  local requested_res="${requested_width}x${requested_height}"
+  for res in $resolutions; do
+    if [[ "$res" == "$requested_res" ]]; then
+      echo "$requested_width $requested_height"
+      return
+    fi
+  done
+
+  # Find closest resolution
+  local best_width=0
+  local best_height=0
+  local best_diff=-1
+
+  for res in $resolutions; do
+    local res_width res_height
+    res_width=$(echo "$res" | cut -d'x' -f1)
+    res_height=$(echo "$res" | cut -d'x' -f2)
+
+    # Calculate difference from requested resolution
+    local width_diff=$((res_width - requested_width))
+    local height_diff=$((res_height - requested_height))
+    local diff=$((width_diff * width_diff + height_diff * height_diff))
+
+    # Prefer resolutions at or below requested resolution
+    if [[ $res_width -le $requested_width && $res_height -le $requested_height ]]; then
+      if [[ $best_diff -eq -1 || $diff -lt $best_diff ]]; then
+        best_diff=$diff
+        best_width=$res_width
+        best_height=$res_height
+      fi
+    fi
+  done
+
+  # If no resolution below requested, pick the smallest available
+  if [[ $best_diff -eq -1 ]]; then
+    for res in $resolutions; do
+      local res_width res_height
+      res_width=$(echo "$res" | cut -d'x' -f1)
+      res_height=$(echo "$res" | cut -d'x' -f2)
+      local total=$((res_width + res_height))
+
+      if [[ $best_width -eq 0 || $total -lt $((best_width + best_height)) ]]; then
+        best_width=$res_width
+        best_height=$res_height
+      fi
+    done
+  fi
+
+  # Output warning if resolution was adjusted
+  if [[ $best_width -ne $requested_width || $best_height -ne $requested_height ]]; then
+    echo "Warning: Resolution ${requested_width}x${requested_height} not supported by $device" >&2
+    echo "  Using closest resolution: ${best_width}x${best_height}" >&2
+  fi
+
+  echo "$best_width $best_height"
 }
 
 # Main execution
@@ -166,21 +372,23 @@ main() {
 
   # Find or use specified webcam device
   if [[ -z "$DEVICE" ]]; then
-    DEVICE="$(find_webcam_device)"
-    if [[ -z "$DEVICE" ]]; then
-      error_exit "No webcam device found. Please ensure your webcam is connected."
-    fi
+    DEVICE="$(select_camera_with_dmenu)"
   fi
 
   # Verify device exists and is accessible
   check_device "$DEVICE"
+
+  # Validate and adjust resolution to what device supports
+  local validated_res
+  validated_res=$(validate_resolution "$DEVICE" "$WIDTH" "$HEIGHT")
+  read -r WIDTH HEIGHT <<< "$validated_res"
 
   # Run mpv with the specified settings
   # Note: --input-conf removed to allow window controls (e.g., 'q' to quit)
   mpv \
     --no-osc \
     --no-osd-bar \
-    --geometry=-0-0 \
+    --geometry=-0+0 \
     --autofit="${WIDTH}x${HEIGHT}" \
     --title="$TITLE" \
     --profile=low-latency \
