@@ -1,91 +1,94 @@
-#!/usr/bin/env bash
+#!/bin/bash
+# Display configuration script with xrandr and autorandr
 
-# A UI for detecting and selecting all displays. Probes xrandr for connected
-# displays and lets user select one to use. User may also select "manual
-# selection" which opens arandr.
+set -euo pipefail
 
-twoscreen() { # If multi-monitor is selected and there are two screens.
+# Cleanup on exit
+cleanup() {
+    echo "Cleaning up..."
+}
+trap cleanup EXIT INT TERM
 
-    mirror=$(printf "no\\nyes" | dmenu -p "Mirror displays?")
-    # Mirror displays using native resolution of external display and a scaled
-    # version for the internal display
-    if [ "$mirror" = "yes" ]; then
-        external=$(echo "$screens" | dmenu -p "Optimize resolution for:")
-        internal=$(echo "$screens" | grep -v "$external")
+# Check dependencies
+check_dependencies() {
+    local deps="xrandr dmenu notify-send awk grep sed"
+    for dep in $deps; do
+        if ! command -v "$dep" &>/dev/null; then
+            echo "Error: Missing required dependency: $dep" >&2
+            exit 1
+        fi
+    done
+}
 
-        res_external=$(xrandr --query | sed -n "/^$external/,/\+/p" | \
-            tail -n 1 | awk '{print $1}')
-        res_internal=$(xrandr --query | sed -n "/^$internal/,/\+/p" | \
-            tail -n 1 | awk '{print $1}')
-
-        res_ext_x=$(echo "$res_external" | sed 's/x.*//')
-        res_ext_y=$(echo "$res_external" | sed 's/.*x//')
-        res_int_x=$(echo "$res_internal" | sed 's/x.*//')
-        res_int_y=$(echo "$res_internal" | sed 's/.*x//')
-
-        # scale_x=$(echo "$res_ext_x / $res_int_x" | bc -l)
-        # scale_y=$(echo "$res_ext_y / $res_int_y" | bc -l)
-	export LC_NUMERIC=C
-	scale_x=$(awk -v rext="$res_ext_x" -v rint="$res_int_x" \
-		'BEGIN {printf "%.6f", rext/rint}')
-	scale_y=$(awk -v rext="$res_ext_y" -v rint="$res_int_y" \
-		'BEGIN {printf "%.6f", rext/rint}')
-
-        xrandr --output "$external" --auto --scale 1.0x1.0 \
-            --output "$internal" --auto --same-as "$external" \
-            --scale "$scale_x"x"$scale_y"
-    else
-
-        primary=$(echo "$screens" | dmenu -p "Select primary display:")
-        secondary=$(echo "$screens" | grep -v ^"$primary"$)
-        direction=$(printf "left\\nright" | dmenu -p "What side of $primary should $secondary be on?")
-        xrandr \
-		--output "$primary" --auto --scale 1.0x1.0 \
-		--output "$secondary" "--$direction-of" "$primary" --auto --scale 1.0x1.0
+# Validate display exists
+validate_display() {
+    local display="$1"
+    local available="$2"
+    if ! echo "$available" | grep -Fxq "$display"; then
+        echo "Error: Display '$display' not found" >&2
+        exit 1
     fi
-    }
+}
 
-morescreen() { # If multi-monitor is selected and there are more than two screens.
-	primary=$(echo "$screens" | dmenu -p "Select primary display:")
-	secondary=$(echo "$screens" | grep -v ^"$primary"$ | dmenu -p "Select secondary display:")
-	direction=$(printf "left\\nright" | dmenu -p "What side of $primary should $secondary be on?")
-	tertiary=$(echo "$screens" | grep -v ^"$primary"$ | grep -v ^"$secondary"$ | dmenu -p "Select third display:")
-	xrandr --output "$primary" --auto --output "$secondary" --"$direction"-of "$primary" --auto --output "$tertiary" --"$(printf "left\\nright" | grep -v "$direction")"-of "$primary" --auto
-	}
+# Safe xrandr wrapper
+safe_xrandr() {
+    local desc="$1"
+    shift
+    if ! xrandr "$@" 2>&1; then
+        echo "Error: Failed to $desc" >&2
+        exit 1
+    fi
+}
 
-multimon() { # Multi-monitor handler.
-	case "$(echo "$screens" | wc -l)" in
-		2) twoscreen ;;
-		*) morescreen ;;
-	esac ;}
+# Get connected screens
+screens=$(xrandr -q | grep " connected" | awk '{print $1}')
+screen_count=$(echo "$screens" | wc -l)
 
-onescreen() { # If only one output available or chosen.
-	xrandr \
-		--output "$1" --auto --scale 1.0x1.0 \
-		$(echo "$allposs" | grep -v "\b$1" | awk '{print "--output", $1, "--off"}' | paste -sd ' ' -)
-	}
+# Show menu
+chosen=$(printf '%s\nmulti-monitor\nload autorandr profile' "$screens" | dmenu -p "Select display arrangement:")
 
-postrun() { # Stuff to run to clean up.
-	setbg		# Fix background if screen size/arangement has changed.
-	{ killall dunst ; setsid -f dunst ;} >/dev/null 2>&1 # Restart dunst to ensure proper location on screen
-	}
+if [ -z "$chosen" ]; then
+    echo "No selection made" >&2
+    exit 0
+fi
 
-# Get all possible displays
-allposs=$(xrandr -q | grep "connected")
-
-# Get all connected screens.
-screens=$(echo "$allposs" | awk '/ connected/ {print $1}')
-
-# If there's only one screen
-[ "$(echo "$screens" | wc -l)" -lt 2 ] &&
-	{ onescreen "$screens"; postrun; notify-send " Only one screen detected." "Using it in its optimal settings...";  exit ;}
-
-# Get user choice including multi-monitor and manual selection:
-chosen=$(printf -- '%s\nmulti-monitor\nmanual selection' "$screens" | dmenu -p "Select display arangement:") &&
-case "$chosen" in
-	"manual selection") arandr ;;
-	"multi-monitor") multimon ;;
-	*) onescreen "$chosen" ;;
-esac
-
-postrun
+# Check if user selected a display
+if echo "$screens" | grep -Fxq "$chosen"; then
+    # Single display mode
+    safe_xrandr "configure single display" --output "$chosen" --auto
+    echo "Configured: $chosen"
+elif [ "$chosen" = "multi-monitor" ]; then
+    # Multi-monitor mode
+    if [ "$screen_count" -lt 2 ]; then
+        echo "Error: Need at least 2 displays for multi-monitor" >&2
+        exit 1
+    fi
+    primary=$(echo "$screens" | dmenu -p "Select primary display:")
+    validate_display "$primary" "$screens"
+    secondary=$(echo "$screens" | grep -Fxv "$primary")
+    direction=$(printf "left\nright" | dmenu -p "What side of $primary should $secondary be on?")
+    safe_xrandr "configure two-screen setup" --output "$primary" --auto --primary --output "$secondary" --"$direction"-of "$primary" --auto
+    echo "Configured: $primary + $secondary ($direction)"
+elif [ "$chosen" = "load autorandr profile" ]; then
+    # Load autorandr profile
+    profiles=$(autorandr --list 2>/dev/null || echo "")
+    if [ -z "$profiles" ]; then
+        echo "Error: No autorandr profiles found" >&2
+        exit 1
+    fi
+    profile_name=$(echo "$profiles" | dmenu -p "Select profile to load:")
+    if [ -z "$profile_name" ]; then
+        echo "Profile loading cancelled" >&2
+        exit 0
+    fi
+    if ! echo "$profiles" | grep -Fxq "$profile_name"; then
+        echo "Error: Invalid profile name" >&2
+        exit 1
+    fi
+    if autorandr --load "$profile_name"; then
+        echo "Profile '$profile_name' loaded"
+    else
+        echo "Error: Failed to load profile" >&2
+        exit 1
+    fi
+fi
