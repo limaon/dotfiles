@@ -1,6 +1,6 @@
 #!/bin/bash
-# Display configuration script with xrandr and autorandr
 
+# Display configuration script with xrandr and autorandr
 set -euo pipefail
 
 # Cleanup on exit
