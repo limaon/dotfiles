@@ -383,13 +383,13 @@ cmd delete ${{
     printf "%s\n\t" "$fx"
     printf "Permenantly delete?[y/N]"
     read ans
-    if [ $ans = "y" ] && rm -rf -- $fx; then
+    if [ "$ans" = "y" ] && rm -rf -- $fx; then
     notify-send "  File(s) deleted." "$fx"
   fi
 }}
 
 cmd trash ${{
-  files=$(printf "$fx" | tr '\n' ';')
+  files=$(printf '%s' "$fx" | tr '\n' ';')
   while [ "$files" ]; do
     file=${files%%;*}
 
@@ -579,14 +579,14 @@ cmd tar ${{
   printf "Archive Name: "
   read archive_name
   set -f
-  tar -czvf "${archive_name}.tar.gz" -C "$(dirname "$f")" $(basename -a $fx)
+  tar -czvf "${archive_name}.tar.gz" -C "$(dirname "$f")" $(basename -a -- $fx)
 }}
 
 cmd zip-files ${{
   printf "Enter zip archive name: "
   read name
   unset files
-  echo "$fx" | while read -r l ; do { file="$(echo "$l" | rev | cut -d '/' -f 1 | rev)" ; zip -r "$name" "$file" ;} ; done
+  printf '%s\n' $fx | while read -r l; do zip -r "$name" "$(basename -- "$l")"; done
   clear
 }}
 
@@ -627,8 +627,8 @@ cmd chmod ${{
   printf "chmod: "
   read ans
 
-  for file in "$fx"; do
-    chmod $ans $file
+  for file in $fx; do
+    chmod "$ans" "$file"
   done
 
   lf -remote 'send reload'
@@ -642,8 +642,8 @@ cmd chown ${{
   printf "chown: "
   read ans
 
-  for file in "$fx"; do
-    sudo chown $ans $file
+  for file in $fx; do
+    sudo chown "$ans" "$file"
   done
 
   lf -remote 'send reload'
@@ -680,7 +680,7 @@ cmd bulk-rename ${{
 }}
 
 cmd stop ${{
-  kill -TSTP $(ps -p $$ -o 'ppid=')
+  kill -TSTP "$(ps -p $$ -o 'ppid=')"
 }}
 
 

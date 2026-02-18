@@ -71,7 +71,7 @@ bindsym $mod+q kill
 
 # start dmenu (a program launcher).
 # bindsym $mod+d exec --no-startup-id dmenu-desktop
-bindsym $mod+d exec --no-startup-id i3-dmenu-desktop --dmenu='dmenu -i -fn "Terminus:size=14"'
+bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # Web search
 bindsym $mod+b exec --no-startup-id dmenu-websearch
@@ -289,7 +289,7 @@ bar {
   position bottom
   mode dock
 
-  # tray_output primary
+  tray_output primary
   tray_padding 2
   strip_workspace_numbers yes
   workspace_buttons yes
@@ -314,6 +314,9 @@ exec --no-startup-id xss-lock \
   --transfer-sleep-lock \
   --notifier "dunstify -u critical -r 9999 'Session' 'Screen will lock in 30 seconds'" \
   -- sysact lock
+
+# Clipboard monitoring
+exec --no-startup-id dmenu-cliphist watch &
 
 
 # Exit i3 (logs you out of your X session)
@@ -379,6 +382,7 @@ bindsym --release XF86MonBrightnessUp exec --no-startup-id xf86-control brightne
 bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control brightness down
 
 # Clipboard
-bindsym $mod+p exec --no-startup-id dmenu_cliphist sel
-bindsym $mod+o exec --no-startup-id dmenu_cliphist add
+bindsym $mod+p exec --no-startup-id dmenu-cliphist sel
+bindsym $mod+o exec --no-startup-id dmenu-cliphist add
+bindsym $mod+Shift+m exec --no-startup-id pkill -f "dmenu-cliphist watch" || dmenu-cliphist watch &
 

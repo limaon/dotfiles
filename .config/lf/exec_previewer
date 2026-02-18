@@ -38,10 +38,10 @@ show_image() {
 
 thumb_video()  { ffmpegthumbnailer -m -s 0 -i "$1" -o "${CACHE}.jpg"; }
 thumb_pdf()    { pdftoppm -jpeg -f 1 -singlefile "$1" "$CACHE";        }
-thumb_office() {                                  \
+thumb_office() {
   libreoffice --convert-to jpg --headless "$1" --outdir "$CACHEDIR" &>/dev/null
   mv "$CACHEDIR/$(basename "${1%.*}").jpg" "${CACHE}.jpg" 2>/dev/null; }
-thumb_svg()    { setsid rsvg-convert -w 1024 -h 1024 -o "${CACHE}.png" "$1"; }
+thumb_svg()    { rsvg-convert -w 1024 -h 1024 -o "${CACHE}.png" "$1"; }
 
 preview_tar()  { tar  tf "$1" | head -n 50; }
 preview_gzip() { tar -ztf "$1" | head -n 50; }
@@ -69,7 +69,7 @@ preview_audio() {
 
 preview_torrent() {
   if command -v transmission-show >/dev/null; then
-    transmission-show --magnet "$1" | fold -s -w "$(( $2 - 4 ))"
+    transmission-show --magnet "$1" | fold -s -w "$(($2 - 4))"
   elif command -v aria2c >/dev/null; then
     aria2c -S "$1" | sed 's/^/│ /'
   elif command -v btshowmetainfo >/dev/null; then
@@ -122,11 +122,17 @@ case "$filetype" in
   */*office*|*/*document*)
     if have_kitty; then
       preview_with_thumbnail office "$@"
+    elif command -v pistol &>/dev/null; then
+      pistol "$@"
     else
-      pistol "$@"                 # text fallback
+      cat -n -- "$1"
     fi                                                                ;;
   application/x-iso9660-image)
-    iso-info --no-header -l "$1"                                      ;;
+    if command -v iso-info &>/dev/null; then
+      iso-info --no-header -l "$1"
+    else
+      echo "[ISO preview unavailable]"
+    fi                                                                ;;
   application/x-bittorrent)
     preview_torrent "$1"                                              ;;
   application/x-gtar|application/gtar|application/x-tar|application/tar)
