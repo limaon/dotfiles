@@ -78,7 +78,6 @@ bindsym $mod+b exec --no-startup-id dmenu-websearch
 
 # Cabl (primary)
 bindsym $mod+c exec --no-startup-id cabl
-bindsym $mod+Ctrl+c exec --no-startup-id camview
 
 # Open clipboard content dmenu
 bindsym $mod+Shift+v exec --no-startup-id cabl clip
@@ -339,9 +338,10 @@ mode "$mode_system" {
 }
 
 ### Get attachments (i3wm) ###
-set $share_attach  (C)OLORPICK  | (R)ECMEDIA | (M)ONITORSELECT
+set $share_attach  (C)OLORPICK | (W)EBCAM | (R)ECMEDIA | (M)ONITORSELECT
 mode "$share_attach" {
   bindsym --release c exec --no-startup-id color-pick, mode "default"
+  bindsym --release w exec --no-startup-id camview, mode "default"
   bindsym r exec --no-startup-id dmenurecord, mode "default"
   bindsym --release m exec --no-startup-id displayselect, mode "default"
 
