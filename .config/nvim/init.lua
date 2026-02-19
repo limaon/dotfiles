@@ -113,18 +113,6 @@ local function create_augroup(name, autocmds)
 	return vim.api.nvim_create_augroup(name, { clear = true }), autocmds or {}
 end
 
--- Checks if the given node or any of its parent nodes has a type listed in 'types'
--- This is for disable autocompletion menu
-local function node_has_type(node, types)
-	while node do
-		if vim.tbl_contains(types, node:type()) then
-			return true
-		end
-		node = node:parent()
-	end
-	return false
-end
-
 -- Utility function to create autocommands
 local function create_autocmd(event, group, pattern, callback, desc)
 	vim.api.nvim_create_autocmd(event, {
@@ -909,14 +897,14 @@ require("lazy").setup({
 				jump = { float = true },
 				float = { border = "rounded", source = "if_many" },
 				underline = { severity = vim.diagnostic.severity.ERROR },
-				signs = vim.g.have_nerd_font and {
+				signs = {
 					text = {
-						[vim.diagnostic.severity.ERROR] = "󰅚 ",
-						[vim.diagnostic.severity.WARN] = "󰀪 ",
-						[vim.diagnostic.severity.INFO] = "󰋽 ",
-						[vim.diagnostic.severity.HINT] = "󰌶 ",
+						[vim.diagnostic.severity.ERROR] = "E",
+						[vim.diagnostic.severity.WARN] = "W",
+						[vim.diagnostic.severity.INFO] = "I",
+						[vim.diagnostic.severity.HINT] = "H",
 					},
-				} or {},
+				},
 				virtual_text = {
 					source = "if_many",
 					spacing = 2,
@@ -1225,55 +1213,61 @@ require("lazy").setup({
 				end
 			end, 100)
 
-			-- LSP completion setup
-			require("mini.completion").setup({
-				window = {
-					info = { width = 40, border = "rounded" },
-					signature = { width = 40, border = "rounded" },
-				},
-				lsp_completion = {
-					-- Filter out strings and comments from completion items
-					process_items = function(items, base)
-						items = vim.tbl_filter(function(item)
-							local insertText = item.insertText or item.label or ""
-							local label = item.label or ""
-
-							local dominated_by_string = vim.startswith(insertText, '"')
-								and vim.endswith(insertText, '"')
-							local dominated_by_comment = vim.startswith(label, "//") or vim.startswith(label, "--")
-
-							return not dominated_by_string and not dominated_by_comment
-						end, items)
-						return MiniCompletion.default_process_items(items, base)
-					end,
-				},
-			})
-
-			-- Map <C-y> to accept first suggestion without selecting
-			local function accept_first_suggestion()
-				if vim.fn.pumvisible() == 1 then
-					local info = vim.fn.complete_info()
-					if info.selected == -1 then
-						-- Select first item and confirm: Ctrl-P (0x10) + Ctrl-Y (0x19)
-						return "\16\25"
-					else
-						-- Confirm current selection: Ctrl-Y (0x19)
-						return "\25"
-					end
-				end
-				-- Fallback: Ctrl-_ (0x1F) - undo
-				return "\31"
-			end
-			vim.keymap.set("i", "<C-y>", accept_first_suggestion, { expr = true })
-
-			-- LSP capabilities integration
-			vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
-
 			-- === Whitespace ===
 
 			-- Highlight trailing whitespace in normal buffers only
 			require("mini.trailspace").setup()
 		end,
+	},
+	-- }}}
+
+	-- [[ blink.cmp - Autocomplete ]] {{{
+	{
+		"saghen/blink.cmp",
+		dependencies = "echasnovski/mini.nvim",
+		version = "1.*",
+
+		---@module 'blink.cmp'
+		---@type blink.cmp.Config
+		opts = {
+			keymap = { preset = "default" },
+			appearance = {
+				nerd_font_variant = "mono",
+			},
+			completion = {
+				list = {
+					max_items = 6,
+				},
+				documentation = { auto_show = false },
+				menu = {
+					draw = {
+						align_to = "cursor",
+						columns = { { "kind_icon" }, { "label", "label_description", gap = 1 } },
+						components = {
+							kind_icon = {
+								text = function(ctx)
+									local icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
+									return icon
+								end,
+								highlight = function(ctx)
+									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
+									return hl
+								end,
+							},
+							label = {
+								width = { max = 18 },
+							},
+						},
+					},
+				},
+			},
+			snippets = { preset = "mini_snippets" },
+			sources = {
+				default = { "lsp", "path", "snippets", "buffer" },
+			},
+			fuzzy = { implementation = "prefer_rust_with_warning" },
+		},
+		opts_extend = { "sources.default" },
 	},
 	-- }}}
 
