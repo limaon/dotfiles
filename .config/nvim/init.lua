@@ -5,7 +5,7 @@ vim.g.have_nerd_font = false
 vim.g.session_autoload = "no"
 vim.g.session_autosave = "no"
 vim.g.session_command_aliases = 1
-vim.g.autoformat = false
+vim.g.disable_autoformat = true
 vim.g.markdown_recommended_style = 0
 vim.g.netrw_liststyle = 3
 -- }}}
@@ -294,12 +294,63 @@ create_autocmd({ "BufNewFile", "BufRead" }, make_group, "CMakeLists.txt", functi
 	vim.bo.filetype = "cmake"
 end, "Set filetype to cmake for CMakeLists.txt")
 
+local template_group = create_augroup("TemplateFiletypes")
+create_autocmd({ "BufNewFile", "BufRead" }, template_group, "*.phtml", function()
+	vim.bo.filetype = "phtml"
+end, "Set filetype to phtml for template files")
+
 -- Language-specific settings (indentation handled by vim-sleuth)
 local language_settings = {
 	python = {
 		buffer = {
 			formatoptions = "croq",
 			cinwords = "if,elif,else,for,while,try,except,finally,def,class,with",
+		},
+	},
+	php = {
+		buffer = {
+			autoindent = true,
+			smartindent = true,
+		},
+	},
+	html = {
+		buffer = {
+			expandtab = true,
+			tabstop = 2,
+			shiftwidth = 2,
+			softtabstop = 2,
+		},
+	},
+	css = {
+		buffer = {
+			expandtab = true,
+			tabstop = 2,
+			shiftwidth = 2,
+			softtabstop = 2,
+		},
+	},
+	scss = {
+		buffer = {
+			expandtab = true,
+			tabstop = 2,
+			shiftwidth = 2,
+			softtabstop = 2,
+		},
+	},
+	less = {
+		buffer = {
+			expandtab = true,
+			tabstop = 2,
+			shiftwidth = 2,
+			softtabstop = 2,
+		},
+	},
+	phtml = {
+		buffer = {
+			expandtab = true,
+			tabstop = 2,
+			shiftwidth = 2,
+			softtabstop = 2,
 		},
 	},
 	markdown = {
@@ -986,21 +1037,60 @@ require("lazy").setup({
 				},
 			})
 
-			vim.lsp.config("phpactor", {
-				cmd = { "phpactor", "language-server" },
-				filetypes = { "php" },
-				root_markers = { "composer.json", ".git", ".phpactor.json", ".phpactor.yml" },
-				init_options = {
-					["language_server_phpstan.enabled"] = false,
-					["language_server_psalm.enabled"] = false,
-				},
+			vim.lsp.config("intelephense", {
+				cmd = { "intelephense", "--stdio" },
+				filetypes = { "php", "phtml" },
+				root_markers = { ".git", "composer.json" },
 				settings = {
-					phpactor = {
+					intelephense = {
+						files = {
+							maxSize = 1000000,
+						},
+
+						environment = {
+							phpVersion = "8.2.0",
+						},
+
+						diagnostics = {
+							enable = true,
+							run = "onType",
+							undefinedVariables = true,
+							undefinedFunctions = true,
+							undefinedMethods = true,
+							typeErrors = true,
+							unusedSymbols = false, -- reduz ruido em projeto pequeno
+							relaxedTypeCheck = true, -- mais permissivo
+						},
+
 						completion = {
 							insertUseDeclaration = true,
+							triggerParameterHints = true,
+							maxItems = 40,
+						},
+
+						format = {
+							enable = false, -- deixa formatacao para pint/conform
+						},
+
+						inlayHint = {
+							parameterNames = false,
+							parameterTypes = false,
+							returnTypes = false,
+						},
+
+						codeLens = {
+							references = { enable = false },
+							implementations = { enable = false },
+							usages = { enable = false },
+							overrides = { enable = false },
+							parent = { enable = false },
 						},
 					},
 				},
+			})
+
+			vim.lsp.config("emmet_language_server", {
+				filetypes = { "php", "phtml", "html", "css", "javascriptreact", "typescriptreact" },
 			})
 
 			vim.lsp.config("ts_ls", {
@@ -1037,8 +1127,40 @@ require("lazy").setup({
 				},
 			})
 
+			vim.lsp.config("cssls", {})
+			vim.lsp.config("pyright", {
+				settings = {
+					pyright = {
+						disableOrganizeImports = false,
+					},
+					python = {
+						analysis = {
+							typeCheckingMode = "basic",
+							diagnosticMode = "openFilesOnly",
+							autoSearchPaths = true,
+							useLibraryCodeForTypes = true,
+							autoImportCompletions = true,
+							diagnosticSeverityOverrides = {
+								reportMissingImports = "warning",
+								reportMissingTypeStubs = "none",
+								reportUnknownVariableType = "none",
+								reportUnknownMemberType = "none",
+								reportUnknownArgumentType = "none",
+								reportUnknownLambdaType = "none",
+								reportUnknownParameterType = "none",
+								reportUnknownReturnType = "none",
+								reportUnusedImport = "warning",
+								reportUnusedVariable = "information",
+							},
+						},
+					},
+				},
+			})
+
 			local ensure_installed = {
-				"phpactor",
+				"css-lsp",
+				"emmet-language-server",
+				"pyright",
 				"texlab",
 				"lua_ls",
 				"ts_ls",
@@ -1054,7 +1176,10 @@ require("lazy").setup({
 				ensure_installed = {},
 			})
 
-			vim.lsp.enable("phpactor")
+			vim.lsp.enable("intelephense")
+			vim.lsp.enable("emmet_language_server")
+			vim.lsp.enable("cssls")
+			vim.lsp.enable("pyright")
 			vim.lsp.enable("texlab")
 			vim.lsp.enable("lua_ls")
 			vim.lsp.enable("ts_ls")
@@ -1076,39 +1201,35 @@ require("lazy").setup({
 				mode = { "n", "v" },
 				desc = "[F]ormat buffer or range",
 			},
-			{
-				"<leader>F",
-				function()
-					vim.g.disable_autoformat = not vim.g.disable_autoformat
-					print("Autoformat " .. (vim.g.disable_autoformat and "disabled" or "enabled"))
-				end,
-				desc = "Toggle autoformat on save",
-			},
 		},
-
 		opts = {
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "isort", "black" },
+				html = { "prettierd", "prettier", stop_after_first = true },
+				css = { "prettierd", "prettier", stop_after_first = true },
+				scss = { "prettierd", "prettier", stop_after_first = true },
+				less = { "prettierd", "prettier", stop_after_first = true },
 				javascript = { "prettierd", "prettier", stop_after_first = true },
 				typescript = { "prettierd", "prettier", stop_after_first = true },
 				typescriptreact = { "prettierd", lsp_format = "fallback" },
 				json = { "prettierd", "prettier", stop_after_first = true },
 				jsonc = { "prettierd", "prettier", stop_after_first = true },
-				php = { "php_cs_fixer", "pint" },
+				php = { "pint" },
+				phtml = { "prettierd", "prettier", stop_after_first = true },
 				["*"] = { "codespell" },
 				["_"] = { "trim_whitespace" },
 			},
-			format_on_save = {
-				lsp_format = "fallback",
-				timeout_ms = 500,
-			},
-			format_after_save = {
-				lsp_format = "fallback",
-			},
-			default_format_opts = {
-				lsp_format = "fallback",
-			},
+			format_on_save = function(bufnr)
+				if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+					return
+				end
+				return {
+					lsp_format = "fallback",
+					timeout_ms = 500,
+				}
+			end,
+			format_after_save = nil,
 		},
 	},
 	-- }}}
@@ -1277,44 +1398,36 @@ require("lazy").setup({
 		lazy = false,
 		build = ":TSUpdate",
 		config = function()
-			local parsers = {
+			vim.treesitter.language.register("php", "phtml")
+
+			local filetypes = {
+				"bash",
+				"c",
+				"cpp",
+				"css",
+				"diff",
+				"html",
 				"lua",
 				"luadoc",
 				"markdown",
 				"markdown_inline",
+				"query",
+				"python",
 				"php",
 				"phpdoc",
+				"scss",
 				"vim",
 				"vimdoc",
 			}
 
-			-- Auto-enable treesitter for supported filetypes
+			require("nvim-treesitter").install(filetypes)
+
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = "*",
-				callback = function(args)
-					local max_filesize = 100 * 1024 -- 100 KB
-					local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
-					if ok and stats and stats.size > max_filesize then
-						return
-					end
-
-					local ft = vim.bo[args.buf].filetype
-					local lang = vim.treesitter.language.get_lang(ft)
-					if lang and vim.treesitter.language.add(lang) then
-						vim.treesitter.start(args.buf, lang)
-					end
+				pattern = filetypes,
+				callback = function()
+					vim.treesitter.start()
 				end,
-				desc = "Enable treesitter highlighting",
 			})
-
-			-- Install missing parsers on startup
-			local ts = require("nvim-treesitter")
-			local available = ts.get_available()
-			for _, parser in ipairs(parsers) do
-				if vim.tbl_contains(available, parser) and not pcall(vim.treesitter.language.add, parser) then
-					ts.install(parser)
-				end
-			end
 		end,
 	},
 	-- }}}

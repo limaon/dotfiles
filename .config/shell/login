@@ -224,4 +224,23 @@ export COLORFGBG="default;default"
 # A.I defaults (moved from interactive)
 export AI_PROVIDER=phind
 
+
+# OpenCode - environment base
+export OPENCODE_AUTO_SHARE=false
+export OPENCODE_CONFIG="$HOME/.config/opencode/opencode.json"
+export OPENCODE_CONFIG_DIR="$HOME/.config/opencode"
+export OPENCODE_DISABLE_AUTOUPDATE=true
+export OPENCODE_DISABLE_PRUNE=false
+export OPENCODE_DISABLE_TERMINAL_TITLE=false
+export OPENCODE_DISABLE_DEFAULT_PLUGINS=false
+export OPENCODE_DISABLE_LSP_DOWNLOAD=false
+export OPENCODE_DISABLE_AUTOCOMPACT=false
+export OPENCODE_DISABLE_CLAUDE_CODE=false
+export OPENCODE_DISABLE_CLAUDE_CODE_PROMPT=false
+export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=false
+export OPENCODE_DISABLE_MODELS_FETCH=false
+export OPENCODE_DISABLE_FILETIME_CHECK=false
+export OPENCODE_CLIENT="cli"
+
 # vim:ft=sh
+
