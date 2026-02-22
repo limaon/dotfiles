@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "username": "limaon",
-  "default_agent": "OpenAgent",
   "theme": "solarized-osaka",
   "autoupdate": true,
   "snapshot": false,
