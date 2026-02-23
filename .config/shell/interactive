@@ -87,8 +87,7 @@ alias refl='sudo reflector --verbose --country $(curl -s --max-time 2 ifconfig.c
 # alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
 
 # A.I aliases (AI_PROVIDER exported in login)
-alias llm="tgpt -q --provider \$AI_PROVIDER"
-alias genimg='tgpt --img --out ~/Pictures/out-ai-image.jpg --height 512 --width 512'
+alias llm="opencode run"
 
 ## ls defaults
 alias ls="ls --color=always --group-directories-first --time-style=+'%d.%m.%Y %H:%M' --classify"
