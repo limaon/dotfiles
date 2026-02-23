@@ -174,7 +174,6 @@ Concise rules for building accessible, fast, delightful UIs. Use MUST/SHOULD/NEV
 
 - Avoid destructive operations like `rm -rf`; use safer alternatives like `trash`
 - Do not use `sudo` unless absolutely necessary. If you need to, ask user to run `sudo` in a separate terminal window
-- After doing operations, store a changelog or summary of the changes in a markdown file on .opencode/CHANGELOG.md
 - Always store documentation in a markdown file on /docs, don't put it in the root directory
 
 ## Code Quality & Standards

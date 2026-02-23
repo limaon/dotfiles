@@ -77,7 +77,7 @@ task(
 
 //  Using registry path
 task(
-  subagent_type=".opencode/agent/TaskManager.md",
+  subagent_type="~/.config/opencode/agent/TaskManager.md",
   ...
 )
 ```
@@ -249,13 +249,13 @@ task(
 
 //  Use direct operations instead
 // 1. Use glob to find context files
-glob(pattern="**/*.md", path=".opencode/context")
+glob(pattern="**/*.md", path="~/.config/opencode/context")
 
 // 2. Use grep to search content
-grep(pattern="registry", path=".opencode/context")
+grep(pattern="registry", path="~/.config/opencode/context")
 
 // 3. Read relevant files directly
-read(filePath=".opencode/context/openagents-repo/core-concepts/registry.md")
+read(filePath="~/.config/opencode/context/openagents-repo/core-concepts/registry.md")
 ```
 
 ---
@@ -272,7 +272,7 @@ read(filePath=".opencode/context/openagents-repo/core-concepts/registry.md")
 
 1. **Find incorrect invocations**:
    ```bash
-   grep -r 'subagent_type="subagents/' .opencode/agent --include="*.md"
+   grep -r 'subagent_type="subagents/' ~/.config/opencode/agent --include="*.md"
    ```
 
 2. **Replace with correct format**:
@@ -339,7 +339,7 @@ if subagent_type not in available_types:
 
 **Solutions**:
 1. Check registry for correct name
-2. Verify subagent exists in `.opencode/agent/subagents/`
+2. Verify subagent exists in `~/.config/opencode/agent/subagents/`
 3. Use exact name from registry `name` field
 4. If subagent not registered, use direct operations instead
 
@@ -366,7 +366,7 @@ if subagent_type not in available_types:
 ## Related Files
 
 - **Registry**: `registry.json` - Component catalog
-- **Subagents**: `.opencode/agent/subagents/` - Subagent definitions
+- **Subagents**: `~/.config/opencode/agent/subagents/` - Subagent definitions
 - **Validation**: `scripts/registry/validate-registry.sh`
 
 ---

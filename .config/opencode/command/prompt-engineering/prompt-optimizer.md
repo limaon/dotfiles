@@ -203,9 +203,9 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
           <pattern>key→value | key2→value2 | key3→value3</pattern>
           <before>
             Task-to-Context Mapping:
-            - Writing docs → .opencode/context/core/standards/documentation.md
-            - Writing code → .opencode/context/core/standards/code-quality.md
-            - Writing tests → .opencode/context/core/standards/test-coverage.md
+            - Writing docs → ~/.config/opencode/context/core/standards/documentation.md
+            - Writing code → ~/.config/opencode/context/core/standards/code-quality.md
+            - Writing tests → ~/.config/opencode/context/core/standards/test-coverage.md
           </before>
           <after>
             Task→Context Map:
@@ -274,10 +274,10 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         5. Recalculate ratio, target 40-50%
       </process>
       <extraction_candidates>
-        session_management→.opencode/context/core/session-management.md
-        context_discovery→.opencode/context/core/context-discovery.md
-        detailed_examples→.opencode/context/core/examples.md
-        implementation_specs→.opencode/context/core/specifications.md
+        session_management→~/.config/opencode/context/core/session-management.md
+        context_discovery→~/.config/opencode/context/core/context-discovery.md
+        detailed_examples→~/.config/opencode/context/core/examples.md
+        implementation_specs→~/.config/opencode/context/core/specifications.md
       </extraction_candidates>
       <checkpoint>Instruction ratio 40-50%, external refs created, functionality preserved</checkpoint>
     </stage>
@@ -486,7 +486,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         - **Note**: Effectiveness improvements are model/task-specific
 
         ### Files Created (if applicable)
-        - `.opencode/context/core/[name].md` - [description]
+        - `~/.config/opencode/context/core/[name].md` - [description]
 
         ---
 
@@ -501,7 +501,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         **Deployment Readiness**: Ready | Needs Testing | Requires Customization
 
         **Required Context Files** (if any):
-        - `.opencode/context/core/[file].md`
+        - `~/.config/opencode/context/core/[file].md`
 
         **Breaking Changes**: None | [List if any]
 
@@ -593,9 +593,9 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
   <example id="2" category="inline_mapping">
     <before>
       Task-to-Context Mapping:
-      - Writing docs → .opencode/context/core/standards/documentation.md
-      - Writing code → .opencode/context/core/standards/code-quality.md
-      - Writing tests → .opencode/context/core/standards/test-coverage.md
+      - Writing docs → ~/.config/opencode/context/core/standards/documentation.md
+      - Writing code → ~/.config/opencode/context/core/standards/code-quality.md
+      - Writing tests → ~/.config/opencode/context/core/standards/test-coverage.md
     </before>
     <after>
       Task→Context Map:
@@ -678,7 +678,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
 </principles>
 
 <references>
-  <optimization_report ref=".opencode/context/core/prompt-optimization-report.md">
+  <optimization_report ref="~/.config/opencode/context/core/prompt-optimization-report.md">
     Detailed before/after metrics from OpenAgent optimization
   </optimization_report>
   <research_patterns ref="docs/agents/research-backed-prompt-design.md">

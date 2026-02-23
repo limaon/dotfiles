@@ -42,9 +42,9 @@ Status: in_progress
 - {file 4} - {purpose}
 
 ## Static Context Available
-- .opencode/context/core/standards/code-quality.md (for code quality)
-- .opencode/context/core/standards/test-coverage.md (for test requirements)
-- .opencode/context/core/{standards|workflows}/{other-relevant}.md
+- ~/.config/opencode/context/core/standards/code-quality.md (for code quality)
+- ~/.config/opencode/context/core/standards/test-coverage.md (for test requirements)
+- ~/.config/opencode/context/core/{standards|workflows}/{other-relevant}.md
 
 ## Constraints/Notes
 {Important context, preferences, compatibility}

@@ -120,7 +120,7 @@ Agents:
 
 ## Subagents
 
-**Location**: `.opencode/agent/subagents/`
+**Location**: `~/.config/opencode/agent/subagents/`
 
 **Purpose**: Delegated specialists for specific subtasks
 
@@ -166,16 +166,16 @@ The system supports multiple path formats for backward compatibility:
 
 ```bash
 # Short ID (backward compatible)
-"openagent" → resolves to → ".opencode/agent/core/openagent.md"
+"openagent" → resolves to → "~/.config/opencode/agent/core/openagent.md"
 
 # Category path
-"core/openagent" → resolves to → ".opencode/agent/core/openagent.md"
+"core/openagent" → resolves to → "~/.config/opencode/agent/core/openagent.md"
 
 # Full category path
-"development/frontend-specialist" → resolves to → ".opencode/agent/development/frontend-specialist.md"
+"development/frontend-specialist" → resolves to → "~/.config/opencode/agent/development/frontend-specialist.md"
 
 # Subagent path
-"TestEngineer" → resolves to → ".opencode/agent/TestEngineer.md"
+"TestEngineer" → resolves to → "~/.config/opencode/agent/TestEngineer.md"
 ```
 
 ### Resolution Rules
@@ -189,7 +189,7 @@ The system supports multiple path formats for backward compatibility:
 
 ## Prompt Variants
 
-**Location**: `.opencode/prompts/{category}/{agent}/`
+**Location**: `~/.config/opencode/prompts/{category}/{agent}/`
 
 **Purpose**: Model-specific prompt optimizations
 
@@ -222,7 +222,7 @@ Agents should load relevant context files based on task type:
 <!-- Context: standards/code | Priority: critical -->
 ```
 
-Loads: `.opencode/context/core/standards/code-quality.md`
+Loads: `~/.config/opencode/context/core/standards/code-quality.md`
 
 ### Category Context
 
@@ -230,7 +230,7 @@ Loads: `.opencode/context/core/standards/code-quality.md`
 <!-- Context: development/react-patterns | Priority: high -->
 ```
 
-Loads: `.opencode/context/development/react-patterns.md`
+Loads: `~/.config/opencode/context/development/react-patterns.md`
 
 ### Multiple Contexts
 
@@ -245,7 +245,7 @@ Loads: `.opencode/context/development/react-patterns.md`
 ### 1. Creation
 ```bash
 # Create agent file
-touch .opencode/agent/{category}/{agent-name}.md
+touch ~/.config/opencode/agent/{category}/{agent-name}.md
 
 # Add frontmatter and content
 # (See guides/adding-agent.md for details)

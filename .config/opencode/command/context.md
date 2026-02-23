@@ -25,7 +25,7 @@ dependencies:
   </rule>
 
   <rule id="lazy_load">
-    ALWAYS read required context files from .opencode/context/core/context-system/ BEFORE executing operations.
+    ALWAYS read required context files from ~/.config/opencode/context/core/context-system/ BEFORE executing operations.
   </rule>
 </critical_rules>
 
@@ -176,7 +176,7 @@ When invoked without arguments: `/context`
   </operation>
 </lazy_load_map>
 
-**All files located in**: `.opencode/context/core/context-system/`
+**All files located in**: `~/.config/opencode/context/core/context-system/`
 
 ---
 
@@ -186,7 +186,7 @@ When invoked without arguments: `/context`
   <!-- Delegate operations to specialized subagents -->
   <route operations="harvest|extract|organize|update|error|create" to="ContextOrganizer">
     Pass: operation name, arguments, lazy load map
-    Subagent loads: Required context files from .opencode/context/core/context-system/
+    Subagent loads: Required context files from ~/.config/opencode/context/core/context-system/
     Subagent executes: Multi-stage workflow per operation
   </route>
 
@@ -202,7 +202,7 @@ When invoked without arguments: `/context`
 
 ### Structure
 ```
-.opencode/context/core/context-system/
+~/.config/opencode/context/core/context-system/
  operations/     # How to do things (harvest, extract, organize, update)
  standards/      # What to follow (mvi, structure, templates)
  guides/         # Step-by-step (workflows, compact, creation)
@@ -277,7 +277,7 @@ After any operation:
 
 ## Full Documentation
 
-**Context System Location**: `.opencode/context/core/context-system/`
+**Context System Location**: `~/.config/opencode/context/core/context-system/`
 
 **Structure**:
 - `operations/` - Detailed operation workflows

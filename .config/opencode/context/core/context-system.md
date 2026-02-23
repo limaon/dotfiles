@@ -85,7 +85,7 @@ Extract valuable context from AI summaries/overviews, then delete them. Workspac
 **Use for**: Repository-specific context (e.g., `openagents-repo/`)
 
 ```
-.opencode/context/{category}/
+~/.config/opencode/context/{category}/
  navigation.md              # Fast, token-efficient navigation
  quick-start.md             # Optional: 2-minute orientation
 
@@ -121,7 +121,7 @@ Extract valuable context from AI summaries/overviews, then delete them. Workspac
 **Use for**: Multi-technology development context (e.g., `development/`)
 
 ```
-.opencode/context/{category}/
+~/.config/opencode/context/{category}/
  navigation.md                       # Main navigation
  {concern}-navigation.md             # Specialized navigation (optional)
 
@@ -221,7 +221,7 @@ development/
 
 ### 1. Core Standards (Universal)
 
-Location: `.opencode/context/core/standards/`
+Location: `~/.config/opencode/context/core/standards/`
 
 **Purpose**: Universal standards that apply to ALL development
 

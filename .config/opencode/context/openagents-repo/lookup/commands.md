@@ -267,7 +267,7 @@ cat .tmp/sessions/{session-id}/events.json | jq
 
 ```bash
 # 1. Create agent file
-touch .opencode/agent/{category}/{agent-name}.md
+touch ~/.config/opencode/agent/{category}/{agent-name}.md
 # (Add frontmatter and content)
 
 # 2. Create test structure
@@ -328,13 +328,13 @@ gh release create v0.X.Y --title "v0.X.Y" --notes "See CHANGELOG.md"
 
 ```bash
 # Find agent
-find .opencode/agent -name "{agent-name}.md"
+find ~/.config/opencode/agent -name "{agent-name}.md"
 
 # Find tests
 find evals/agents -name "*.yaml"
 
 # Find context
-find .opencode/context -name "*.md"
+find ~/.config/opencode/context -name "*.md"
 
 # Find scripts
 find scripts -name "*.sh"

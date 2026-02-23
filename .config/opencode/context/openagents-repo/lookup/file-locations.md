@@ -8,7 +8,7 @@
 
 ```
 opencode-agents/
- .opencode/
+ ~/.config/opencode/
     agent/
        core/                    # Core system agents
        development/             # Dev specialists
@@ -66,14 +66,14 @@ opencode-agents/
 
 | Component | Location |
 |-----------|----------|
-| **Core agents** | `.opencode/agent/core/` |
-| **Category agents** | `.opencode/agent/{category}/` |
-| **Subagents** | `.opencode/agent/subagents/` |
-| **Commands** | `.opencode/command/` |
-| **Context files** | `.opencode/context/` |
-| **Prompt variants** | `.opencode/prompts/{category}/{agent}/` |
-| **Tools** | `.opencode/tool/` |
-| **Plugins** | `.opencode/plugin/` |
+| **Core agents** | `~/.config/opencode/agent/core/` |
+| **Category agents** | `~/.config/opencode/agent/{category}/` |
+| **Subagents** | `~/.config/opencode/agent/subagents/` |
+| **Commands** | `~/.config/opencode/command/` |
+| **Context files** | `~/.config/opencode/context/` |
+| **Prompt variants** | `~/.config/opencode/prompts/{category}/{agent}/` |
+| **Tools** | `~/.config/opencode/tool/` |
+| **Plugins** | `~/.config/opencode/plugin/` |
 | **Agent tests** | `evals/agents/{category}/{agent}/` |
 | **Eval framework** | `evals/framework/src/` |
 | **Registry scripts** | `scripts/registry/` |
@@ -89,11 +89,11 @@ opencode-agents/
 
 | What | Where |
 |------|-------|
-| **New core agent** | `.opencode/agent/core/{name}.md` |
-| **New category agent** | `.opencode/agent/{category}/{name}.md` |
-| **New subagent** | `.opencode/agent/subagents/{category}/{name}.md` |
-| **New command** | `.opencode/command/{name}.md` |
-| **New context** | `.opencode/context/{category}/{name}.md` |
+| **New core agent** | `~/.config/opencode/agent/core/{name}.md` |
+| **New category agent** | `~/.config/opencode/agent/{category}/{name}.md` |
+| **New subagent** | `~/.config/opencode/agent/subagents/{category}/{name}.md` |
+| **New command** | `~/.config/opencode/command/{name}.md` |
+| **New context** | `~/.config/opencode/context/{category}/{name}.md` |
 | **Agent tests** | `evals/agents/{category}/{agent}/tests/` |
 | **Test config** | `evals/agents/{category}/{agent}/config/config.yaml` |
 | **Documentation** | `docs/{section}/{topic}.md` |
@@ -118,51 +118,51 @@ README.md                            # Main documentation
 ### Core Agents
 
 ```
-.opencode/agent/core/openagent.md
-.opencode/agent/core/opencoder.md
+~/.config/opencode/agent/core/openagent.md
+~/.config/opencode/agent/core/opencoder.md
 ```
 
 ### Meta Agents
 
 ```
-.opencode/agent/meta/system-builder.md
+~/.config/opencode/agent/meta/system-builder.md
 ```
 
 ### Development Agents
 
 ```
-.opencode/agent/development/frontend-specialist.md
-.opencode/agent/development/backend-specialist.md
-.opencode/agent/development/devops-specialist.md
-.opencode/agent/development/codebase-agent.md
+~/.config/opencode/agent/development/frontend-specialist.md
+~/.config/opencode/agent/development/backend-specialist.md
+~/.config/opencode/agent/development/devops-specialist.md
+~/.config/opencode/agent/development/codebase-agent.md
 ```
 
 ### Content Agents
 
 ```
-.opencode/agent/content/copywriter.md
-.opencode/agent/content/technical-writer.md
+~/.config/opencode/agent/content/copywriter.md
+~/.config/opencode/agent/content/technical-writer.md
 ```
 
 ### Key Subagents
 
 ```
-.opencode/agent/TestEngineer.md
-.opencode/agent/CodeReviewer.md
-.opencode/agent/CoderAgent.md
-.opencode/agent/TaskManager.md
-.opencode/agent/DocWriter.md
+~/.config/opencode/agent/TestEngineer.md
+~/.config/opencode/agent/CodeReviewer.md
+~/.config/opencode/agent/CoderAgent.md
+~/.config/opencode/agent/TaskManager.md
+~/.config/opencode/agent/DocWriter.md
 ```
 
 ### Core Context
 
 ```
-.opencode/context/core/standards/code-quality.md
-.opencode/context/core/standards/documentation.md
-.opencode/context/core/standards/test-coverage.md
-.opencode/context/core/standards/security-patterns.md
-.opencode/context/core/workflows/task-delegation.md
-.opencode/context/core/workflows/code-review.md
+~/.config/opencode/context/core/standards/code-quality.md
+~/.config/opencode/context/core/standards/documentation.md
+~/.config/opencode/context/core/standards/test-coverage.md
+~/.config/opencode/context/core/standards/security-patterns.md
+~/.config/opencode/context/core/workflows/task-delegation.md
+~/.config/opencode/context/core/workflows/code-review.md
 ```
 
 ### Registry Scripts
@@ -198,24 +198,24 @@ evals/framework/src/types/            # TypeScript types
 ### Agents
 
 ```
-.opencode/agent/{category}/{agent-name}.md
+~/.config/opencode/agent/{category}/{agent-name}.md
 ```
 
 **Examples**:
-- `.opencode/agent/core/openagent.md`
-- `.opencode/agent/development/frontend-specialist.md`
-- `.opencode/agent/TestEngineer.md`
+- `~/.config/opencode/agent/core/openagent.md`
+- `~/.config/opencode/agent/development/frontend-specialist.md`
+- `~/.config/opencode/agent/TestEngineer.md`
 
 ### Context
 
 ```
-.opencode/context/{category}/{topic}.md
+~/.config/opencode/context/{category}/{topic}.md
 ```
 
 **Examples**:
-- `.opencode/context/core/standards/code-quality.md`
-- `.opencode/context/development/react-patterns.md`
-- `.opencode/context/content-creation/principles/copywriting-frameworks.md`
+- `~/.config/opencode/context/core/standards/code-quality.md`
+- `~/.config/opencode/context/development/react-patterns.md`
+- `~/.config/opencode/context/content-creation/principles/copywriting-frameworks.md`
 
 ### Tests
 
@@ -265,13 +265,13 @@ scripts/{purpose}/{action}-{target}.sh
 
 ```bash
 # By name
-find .opencode/agent -name "{agent-name}.md"
+find ~/.config/opencode/agent -name "{agent-name}.md"
 
 # By category
-ls .opencode/agent/{category}/
+ls ~/.config/opencode/agent/{category}/
 
 # All agents
-find .opencode/agent -name "*.md" -not -path "*/subagents/*"
+find ~/.config/opencode/agent -name "*.md" -not -path "*/subagents/*"
 ```
 
 ### Find Test File
@@ -288,10 +288,10 @@ find evals/agents -name "*.yaml"
 
 ```bash
 # By category
-ls .opencode/context/{category}/
+ls ~/.config/opencode/context/{category}/
 
 # All context
-find .opencode/context -name "*.md"
+find ~/.config/opencode/context -name "*.md"
 ```
 
 ### Find Script

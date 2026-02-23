@@ -7,19 +7,19 @@ description: "Interactive system builder that creates complete context-aware AI 
 <context>
   <system_context>AI-powered context-aware system builder using hierarchical agent patterns, XML optimization, and research-backed architecture</system_context>
   <domain_context>System architecture design with modular context management, intelligent routing, and workflow orchestration</domain_context>
-  <task_context>Transform user requirements into complete .opencode folder systems with orchestrators, subagents, context files, workflows, and commands</task_context>
+  <task_context>Transform user requirements into complete ~/.config/opencode folder systems with orchestrators, subagents, context files, workflows, and commands</task_context>
   <execution_context>Interactive interview process followed by automated generation of tailored architecture</execution_context>
 </context>
 
 <role>Expert System Architect specializing in context-aware AI systems, hierarchical agent design, and modular knowledge organization</role>
 
-<task>Guide users through requirements gathering and generate complete, production-ready .opencode folder systems customized to their domain and use cases</task>
+<task>Guide users through requirements gathering and generate complete, production-ready ~/.config/opencode folder systems customized to their domain and use cases</task>
 
 <workflow_execution>
   <stage id="0" name="DetectExistingProject">
-    <action>Detect existing .opencode structure and offer merge options</action>
+    <action>Detect existing ~/.config/opencode structure and offer merge options</action>
     <process>
-      1. Check if .opencode/ directory exists
+      1. Check if ~/.config/opencode/ directory exists
       2. Scan for existing agents (agent/*.md, agent/subagents/*.md)
       3. Scan for existing commands (command/*.md)
       4. Scan for existing context files (context/*/*.md)
@@ -29,7 +29,7 @@ description: "Interactive system builder that creates complete context-aware AI 
     </process>
     <detection_logic>
       <check_directory>
-        IF .opencode/ exists:
+        IF ~/.config/opencode/ exists:
           existing_project = true
           Scan contents
         ELSE:
@@ -62,7 +62,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       <if test="no_existing_project">
         ## Fresh Build
 
-        No existing .opencode system detected.
+        No existing ~/.config/opencode system detected.
 
         I'll create a complete new system for you.
 
@@ -71,7 +71,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       <if test="existing_project_found">
         ## Existing Project Detected
 
-        Found existing .opencode system with:
+        Found existing ~/.config/opencode system with:
         - **Agents**: {agent_count} ({agent_names})
         - **Subagents**: {subagent_count} ({subagent_names})
         - **Commands**: {command_count} ({command_names})
@@ -95,7 +95,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         - Best for: Multi-domain projects with distinct needs
 
         **Option 3: Replace Existing System**
-        -   Backup existing to .opencode.backup.{timestamp}/
+        -   Backup existing to ~/.config/opencode.backup.{timestamp}/
         -   Create fresh system (existing work preserved in backup)
         -   Use with caution
         - Best for: Complete system redesign
@@ -121,7 +121,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </create_separate>
       <replace_existing>
         merge_mode = "replace"
-        backup_path = ".opencode.backup.{timestamp}"
+        backup_path = "~/.config/opencode.backup.{timestamp}"
         preserve_existing = false
         create_fresh = true
       </replace_existing>
@@ -142,7 +142,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       <for_fresh_build>
         ## Building Your Context-Aware AI System
 
-        I'll guide you through creating a complete .opencode system tailored to your needs.
+        I'll guide you through creating a complete ~/.config/opencode system tailored to your needs.
 
         **Process Overview**:
         - Phase 1: Domain & Purpose (2-3 questions)
@@ -152,7 +152,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         - Phase 5: Review & Confirmation
 
         **What You'll Get**:
-        - Complete .opencode/ folder structure
+        - Complete ~/.config/opencode/ folder structure
         - Main orchestrator agent for your domain
         - 3-5 specialized subagents
         - Organized context files (domain, processes, standards, templates)
@@ -166,7 +166,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       <for_extend_existing>
         ## Extending Your Existing System
 
-        I'll help you add new capabilities to your existing .opencode system.
+        I'll help you add new capabilities to your existing ~/.config/opencode system.
 
         **Process Overview**:
         - Phase 1: New Domain & Purpose (2-3 questions)
@@ -553,7 +553,7 @@ description: "Interactive system builder that creates complete context-aware AI 
   </stage>
 
   <stage id="7" name="GenerateSystem">
-    <action>Route to system-builder agent to generate complete .opencode structure</action>
+    <action>Route to system-builder agent to generate complete ~/.config/opencode structure</action>
     <prerequisites>User confirmation received</prerequisites>
     <routing>
       <route to="@system-builder">
@@ -565,7 +565,7 @@ description: "Interactive system builder that creates complete context-aware AI 
           - File structure plan
         </pass_data>
         <expected_return>
-          - Generated .opencode/ folder structure
+          - Generated ~/.config/opencode/ folder structure
           - All agent files with XML optimization
           - Organized context files
           - Workflow definitions
@@ -595,12 +595,12 @@ description: "Interactive system builder that creates complete context-aware AI 
       ##  Your Context-Aware AI System is Ready!
 
       **System**: {domain_name} AI System
-      **Location**: `.opencode/`
+      **Location**: `~/.config/opencode/`
 
       ###  Generated Structure
 
       ```
-      .opencode/
+      ~/.config/opencode/
        agent/
           {domain}-orchestrator.md
           subagents/
@@ -640,7 +640,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       ```
 
       **3. Review Your Orchestrator**:
-      - Open: `.opencode/agent/{domain}-orchestrator.md`
+      - Open: `~/.config/opencode/agent/{domain}-orchestrator.md`
       - Review routing logic and workflows
       - Understand context allocation strategy
 
@@ -678,10 +678,10 @@ description: "Interactive system builder that creates complete context-aware AI 
 
       ###  Documentation
 
-      - **System Guide**: `.opencode/navigation.md`
-      - **Architecture**: `.opencode/ARCHITECTURE.md`
-      - **Context Management**: `.opencode/context/navigation.md`
-      - **Workflow Guide**: `.opencode/workflows/navigation.md`
+      - **System Guide**: `~/.config/opencode/navigation.md`
+      - **Architecture**: `~/.config/opencode/ARCHITECTURE.md`
+      - **Context Management**: `~/.config/opencode/context/navigation.md`
+      - **Workflow Guide**: `~/.config/opencode/workflows/navigation.md`
 
       ###  Next Steps
 
@@ -852,7 +852,7 @@ description: "Interactive system builder that creates complete context-aware AI 
   </architecture_summary>
 
   <generated_system>
-    Complete .opencode/ folder with all agents, context, workflows, commands, and documentation
+    Complete ~/.config/opencode/ folder with all agents, context, workflows, commands, and documentation
   </generated_system>
 
   <usage_documentation>

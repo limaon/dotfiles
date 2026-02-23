@@ -16,28 +16,28 @@ Create a new data analyst agent for the OpenAgents repository. This agent will s
 ## Relevant Standards (Load These Before Starting)
 
 **Core Standards**:
-- `.opencode/context/core/standards/code-quality.md` → Modular, functional code patterns
-- `.opencode/context/core/standards/test-coverage.md` → Testing requirements and TDD
-- `.opencode/context/core/standards/documentation.md` → Documentation standards
+- `~/.config/opencode/context/core/standards/code-quality.md` → Modular, functional code patterns
+- `~/.config/opencode/context/core/standards/test-coverage.md` → Testing requirements and TDD
+- `~/.config/opencode/context/core/standards/documentation.md` → Documentation standards
 
 **Core Workflows**:
-- `.opencode/context/core/workflows/feature-breakdown.md` → Task breakdown methodology
+- `~/.config/opencode/context/core/workflows/feature-breakdown.md` → Task breakdown methodology
 
 ## Repository-Specific Context (Load These Before Starting)
 
 **Quick Start** (ALWAYS load first):
-- `.opencode/context/openagents-repo/quick-start.md` → Repo orientation and common commands
+- `~/.config/opencode/context/openagents-repo/quick-start.md` → Repo orientation and common commands
 
 **Core Concepts** (Load based on task type):
-- `.opencode/context/openagents-repo/core-concepts/agents.md` → How agents work
-- `.opencode/context/openagents-repo/core-concepts/evals.md` → How testing works
-- `.opencode/context/openagents-repo/core-concepts/registry.md` → How registry works
-- `.opencode/context/openagents-repo/core-concepts/categories.md` → How organization works
+- `~/.config/opencode/context/openagents-repo/core-concepts/agents.md` → How agents work
+- `~/.config/opencode/context/openagents-repo/core-concepts/evals.md` → How testing works
+- `~/.config/opencode/context/openagents-repo/core-concepts/registry.md` → How registry works
+- `~/.config/opencode/context/openagents-repo/core-concepts/categories.md` → How organization works
 
 **Guides** (Load for specific workflows):
-- `.opencode/context/openagents-repo/guides/adding-agent.md` → Step-by-step agent creation
-- `.opencode/context/openagents-repo/guides/testing-agent.md` → Testing workflow
-- `.opencode/context/openagents-repo/guides/updating-registry.md` → Registry workflow
+- `~/.config/opencode/context/openagents-repo/guides/adding-agent.md` → Step-by-step agent creation
+- `~/.config/opencode/context/openagents-repo/guides/testing-agent.md` → Testing workflow
+- `~/.config/opencode/context/openagents-repo/guides/updating-registry.md` → Registry workflow
 
 ## Key Requirements
 
@@ -48,7 +48,7 @@ Create a new data analyst agent for the OpenAgents repository. This agent will s
 - Include examples where helpful
 
 **From Repository Context**:
-- Agent file must be in `.opencode/agent/data/` directory (category-based organization)
+- Agent file must be in `~/.config/opencode/agent/data/` directory (category-based organization)
 - Must include proper frontmatter metadata (id, name, description, category, type, version, etc.)
 - Must follow naming convention: `data-analyst.md` (kebab-case)
 - Must include tags for discoverability
@@ -62,7 +62,7 @@ Create a new data analyst agent for the OpenAgents repository. This agent will s
 - Type: `agent`
 
 **File Structure**:
-- Agent file: `.opencode/agent/data/data-analyst.md`
+- Agent file: `~/.config/opencode/agent/data/data-analyst.md`
 - Eval directory: `evals/agents/data/data-analyst/`
 - Eval config: `evals/agents/data/data-analyst/config/eval-config.yaml`
 - Eval tests: `evals/agents/data/data-analyst/tests/`
@@ -82,7 +82,7 @@ Create a new data analyst agent for the OpenAgents repository. This agent will s
 ## Files to Create/Modify
 
 **Create**:
-- `.opencode/agent/data/data-analyst.md` - Main agent definition with frontmatter and prompt
+- `~/.config/opencode/agent/data/data-analyst.md` - Main agent definition with frontmatter and prompt
 - `evals/agents/data/data-analyst/config/eval-config.yaml` - Eval configuration
 - `evals/agents/data/data-analyst/tests/smoke-test.yaml` - Basic smoke test
 - `evals/agents/data/data-analyst/tests/data-analysis-test.yaml` - Data analysis capability test
@@ -90,7 +90,7 @@ Create a new data analyst agent for the OpenAgents repository. This agent will s
 
 **Modify**:
 - `registry.json` - Add data-analyst agent entry
-- `.opencode/context/index.md` - Add data category context if needed
+- `~/.config/opencode/context/index.md` - Add data category context if needed
 
 ## Success Criteria
 
@@ -170,7 +170,7 @@ Create a complete data analyst agent for the OpenAgents repository following all
    - Testing requirements (core-concepts/evals.md)
 
 2. **Create Agent File**:
-   - Create `.opencode/agent/data/data-analyst.md`
+   - Create `~/.config/opencode/agent/data/data-analyst.md`
    - Add frontmatter with all required metadata
    - Write agent prompt with:
      - Context section (system, domain, task, execution context)

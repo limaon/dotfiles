@@ -12,7 +12,7 @@
 ## Project Structure
 
 ```
-.opencode/
+~/.config/opencode/
  agent/           # AI agents for specific tasks
     subagents/   # Specialized subagents
     *.md         # Primary agents
@@ -61,7 +61,7 @@ You are [doing specific task].
 **Request:** $ARGUMENTS
 
 **Context Loaded:**
-@.opencode/context/core/essential-patterns.md
+@~/.config/opencode/context/core/essential-patterns.md
 @[additional context files]
 
 Execute [task] now.

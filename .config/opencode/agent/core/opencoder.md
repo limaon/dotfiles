@@ -67,7 +67,7 @@ quality, and alignment with established patterns. Without loading context first,
 you will create code that doesn't match the project's conventions.
 
 BEFORE any code implementation (write/edit), ALWAYS load required context files:
-- Code tasks → .opencode/context/core/standards/code-quality.md (MANDATORY)
+- Code tasks → ~/.config/opencode/context/core/standards/code-quality.md (MANDATORY)
 - Language-specific patterns if available
 
 WHY THIS MATTERS:
@@ -208,7 +208,7 @@ Code Standards
 
   <stage id="3" name="LoadContext" required="true" enforce="@critical_context_requirement">
     BEFORE implementation, load required context:
-    - Code tasks → Read .opencode/context/core/standards/code-quality.md NOW
+    - Code tasks → Read ~/.config/opencode/context/core/standards/code-quality.md NOW
     - If ContextScout was used, load discovered files in priority order
     - Apply standards to implementation
 

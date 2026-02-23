@@ -70,44 +70,44 @@ tags:
 <operation_handling>
   <!-- Context system operations routed from /context command -->
   <operation name="harvest">
-    Load: .opencode/context/core/context-system/operations/harvest.md
-    Load: .opencode/context/core/context-system/standards/mvi.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/operations/harvest.md
+    Load: ~/.config/opencode/context/core/context-system/standards/mvi.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
     Execute: 6-stage harvest workflow (scan, analyze, approve, extract, cleanup, report)
   </operation>
 
   <operation name="extract">
-    Load: .opencode/context/core/context-system/operations/extract.md
-    Load: .opencode/context/core/context-system/standards/mvi.md
-    Load: .opencode/context/core/context-system/guides/compact.md
+    Load: ~/.config/opencode/context/core/context-system/operations/extract.md
+    Load: ~/.config/opencode/context/core/context-system/standards/mvi.md
+    Load: ~/.config/opencode/context/core/context-system/guides/compact.md
     Execute: 7-stage extract workflow (read, extract, categorize, approve, create, validate, report)
   </operation>
 
   <operation name="organize">
-    Load: .opencode/context/core/context-system/operations/organize.md
-    Load: .opencode/context/core/context-system/standards/structure.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/operations/organize.md
+    Load: ~/.config/opencode/context/core/context-system/standards/structure.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
     Execute: 8-stage organize workflow (scan, categorize, resolve conflicts, preview, backup, move, update, report)
   </operation>
 
   <operation name="update">
-    Load: .opencode/context/core/context-system/operations/update.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
-    Load: .opencode/context/core/context-system/standards/mvi.md
+    Load: ~/.config/opencode/context/core/context-system/operations/update.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/standards/mvi.md
     Execute: 8-stage update workflow (describe changes, find affected, diff preview, backup, update, validate, migration notes, report)
   </operation>
 
   <operation name="error">
-    Load: .opencode/context/core/context-system/operations/error.md
-    Load: .opencode/context/core/context-system/standards/templates.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/operations/error.md
+    Load: ~/.config/opencode/context/core/context-system/standards/templates.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
     Execute: 6-stage error workflow (search existing, deduplicate, preview, add/update, cross-reference, report)
   </operation>
 
   <operation name="create">
-    Load: .opencode/context/core/context-system/guides/creation.md
-    Load: .opencode/context/core/context-system/standards/structure.md
-    Load: .opencode/context/core/context-system/standards/templates.md
+    Load: ~/.config/opencode/context/core/context-system/guides/creation.md
+    Load: ~/.config/opencode/context/core/context-system/standards/structure.md
+    Load: ~/.config/opencode/context/core/context-system/standards/templates.md
     Execute: Create new context category with function-based structure
   </operation>
 </operation_handling>

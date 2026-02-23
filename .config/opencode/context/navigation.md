@@ -7,7 +7,7 @@
 ## Structure
 
 ```
-.opencode/context/
+~/.config/opencode/context/
  core/                   # Universal standards & workflows
  openagents-repo/        # OpenAgents repository work
  development/            # Software development (all stacks)

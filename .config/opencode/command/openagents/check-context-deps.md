@@ -61,13 +61,13 @@ Validates consistency between:
     Scan agent files for context references:
 
     **Search patterns**:
-    - `.opencode/context/` (direct path references)
-    - `@.opencode/context/` (@ symbol references)
+    - `~/.config/opencode/context/` (direct path references)
+    - `@~/.config/opencode/context/` (@ symbol references)
     - `context:` (dependency declarations in frontmatter)
 
     **Locations**:
-    - `.opencode/agent/**/*.md` (all agents and subagents)
-    - `.opencode/command/**/*.md` (commands that use context)
+    - `~/.config/opencode/agent/**/*.md` (all agents and subagents)
+    - `~/.config/opencode/command/**/*.md` (commands that use context)
 
     **Extract**:
     - Agent/command ID
@@ -95,7 +95,7 @@ Validates consistency between:
 
     **Check existence**:
     ```bash
-    test -f .opencode/context/core/standards/code-quality.md
+    test -f ~/.config/opencode/context/core/standards/code-quality.md
     ```
 
     **Check registry**:
@@ -127,8 +127,8 @@ Validates consistency between:
     ### opencoder
     **Uses but not declared**:
     - context:core/standards/code (referenced 3 times)
-      - Line 64: "Code tasks → .opencode/context/core/standards/code-quality.md (MANDATORY)"
-      - Line 170: "Read .opencode/context/core/standards/code-quality.md NOW"
+      - Line 64: "Code tasks → ~/.config/opencode/context/core/standards/code-quality.md (MANDATORY)"
+      - Line 170: "Read ~/.config/opencode/context/core/standards/code-quality.md NOW"
       - Line 229: "NEVER execute write/edit without loading required context first"
 
     **Current dependencies**: subagent:task-manager, subagent:coder-agent
@@ -229,28 +229,28 @@ Validates consistency between:
 
 **Find direct path references**:
 ```bash
-grep -rn "\.opencode/context/" .opencode/agent/ .opencode/command/
+grep -rn "\~/.config/opencode/context/" ~/.config/opencode/agent/ ~/.config/opencode/command/
 ```
 
 **Find @ references**:
 ```bash
-grep -rn "@\.opencode/context/" .opencode/agent/ .opencode/command/
+grep -rn "@\~/.config/opencode/context/" ~/.config/opencode/agent/ ~/.config/opencode/command/
 ```
 
 **Find dependency declarations**:
 ```bash
-grep -rn "^\s*-\s*context:" .opencode/agent/ .opencode/command/
+grep -rn "^\s*-\s*context:" ~/.config/opencode/agent/ ~/.config/opencode/command/
 ```
 
 ### Path Normalization
 
 **Convert to dependency format**:
-- `.opencode/context/core/standards/code-quality.md` → `context:core/standards/code`
-- `@.opencode/context/openagents-repo/quick-start.md` → `context:openagents-repo/quick-start`
+- `~/.config/opencode/context/core/standards/code-quality.md` → `context:core/standards/code`
+- `@~/.config/opencode/context/openagents-repo/quick-start.md` → `context:openagents-repo/quick-start`
 - `context/core/standards/code` → `context:core/standards/code`
 
 **Rules**:
-1. Strip `.opencode/` prefix
+1. Strip `~/.config/opencode/` prefix
 2. Strip `.md` extension
 3. Add `context:` prefix for dependencies
 
@@ -281,12 +281,12 @@ task(
 
     TASK:
     1. Use grep to find all references to context files in:
-       - .opencode/agent/**/*.md
-       - .opencode/prompts/**/*.md
+       - ~/.config/opencode/agent/**/*.md
+       - ~/.config/opencode/prompts/**/*.md
 
     2. Search for these patterns:
-       - ".opencode/context/core/" (direct paths)
-       - "@.opencode/context/" (@ references)
+       - "~/.config/opencode/context/core/" (direct paths)
+       - "@~/.config/opencode/context/" (@ references)
        - "context:" in frontmatter (dependency declarations)
 
     3. For each agent file found:
@@ -295,7 +295,7 @@ task(
        - Check registry.json for declared dependencies
        - Identify missing dependency declarations
 
-    4. For each context file in .opencode/context/core/:
+    4. For each context file in ~/.config/opencode/context/core/:
        - Count how many agents reference it
        - Check if it exists in registry.json
        - Identify unused context files
@@ -369,9 +369,9 @@ Run /check-context-deps --fix to auto-update frontmatter
 Analyzing agent: contextscout
 
 Context files referenced:
- .opencode/context/core/context-system.md (1 reference)
+ ~/.config/opencode/context/core/context-system.md (1 reference)
   - Line 15: "Load: context:core/context-system"
- .opencode/context/core/context-system/standards/mvi.md (2 references)
+ ~/.config/opencode/context/core/context-system/standards/mvi.md (2 references)
   - Line 16: "Load: context:core/context-system/standards/mvi"
   - Line 89: "MVI-aware prioritization"
 
@@ -423,11 +423,11 @@ Next: Run ./scripts/registry/auto-detect-components.sh to update registry
 - **Read-only by default** - Only reports findings, doesn't modify files
 - **Use `--fix` to update** - Auto-adds missing dependencies to frontmatter
 - **After fixing** - Run `./scripts/registry/auto-detect-components.sh --auto-add` to sync registry
-- **Dependency format** - `context:path/to/file` (no `.opencode/` prefix, no `.md` extension)
+- **Dependency format** - `context:path/to/file` (no `~/.config/opencode/` prefix, no `.md` extension)
 - **Scans both** - Direct path references and @ references
 
 ## Related
 
 - **Registry validation**: `./scripts/registry/validate-registry.sh`
 - **Auto-detect components**: `./scripts/registry/auto-detect-components.sh`
-- **Context guide**: `.opencode/context/openagents-repo/quality/registry-dependencies.md`
+- **Context guide**: `~/.config/opencode/context/openagents-repo/quality/registry-dependencies.md`

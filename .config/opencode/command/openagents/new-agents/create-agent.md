@@ -43,7 +43,7 @@ Create a new agent with minimal, high-signal prompts following "right altitude" 
   </step_1>
 
   <step_2 name="CreateMinimalPrompt">
-    Create `.opencode/agent/{agent-name}.md` with ~500 token system prompt:
+    Create `~/.config/opencode/agent/{agent-name}.md` with ~500 token system prompt:
 
     ```markdown
     ---
@@ -142,7 +142,7 @@ Create a new agent with minimal, high-signal prompts following "right altitude" 
   </step_3>
 
   <step_4 name="CreateProjectContext">
-    Create `.opencode/context/project/{agent-name}-context.md` (CLAUDE.md pattern):
+    Create `~/.config/opencode/context/project/{agent-name}-context.md` (CLAUDE.md pattern):
 
     ```markdown
     # {Agent Name} Context
@@ -253,7 +253,7 @@ Create a new agent with minimal, high-signal prompts following "right altitude" 
     {
       "name": "{agent-name}",
       "type": "agent",
-      "path": ".opencode/agent/{agent-name}.md",
+      "path": "~/.config/opencode/agent/{agent-name}.md",
       "description": "{description}",
       "category": "primary",
       "status": "experimental",
@@ -290,8 +290,8 @@ Create a new agent with minimal, high-signal prompts following "right altitude" 
     ##  Agent Created: {agent-name}
 
     ### Files Created
-    - `.opencode/agent/{agent-name}.md` - Minimal system prompt (~500 tokens)
-    - `.opencode/context/project/{agent-name}-context.md` - Project context (CLAUDE.md pattern)
+    - `~/.config/opencode/agent/{agent-name}.md` - Minimal system prompt (~500 tokens)
+    - `~/.config/opencode/context/project/{agent-name}-context.md` - Project context (CLAUDE.md pattern)
     - `evals/agents/{agent-name}/config/config.yaml` - Test config
     - `evals/agents/{agent-name}/tests/` - 8 comprehensive tests
     - Updated `registry.json`
@@ -473,8 +473,8 @@ Create a new agent with minimal, high-signal prompts following "right altitude" 
   </research>
 
   <examples>
-    - `.opencode/agent/core/opencoder.md` - Development specialist example
-    - `.opencode/agent/core/openagent.md` - Universal orchestrator example
-    - `.opencode/agent/development/frontend-specialist.md` - Category agent example
+    - `~/.config/opencode/agent/core/opencoder.md` - Development specialist example
+    - `~/.config/opencode/agent/core/openagent.md` - Universal orchestrator example
+    - `~/.config/opencode/agent/development/frontend-specialist.md` - Category agent example
   </examples>
 </references>

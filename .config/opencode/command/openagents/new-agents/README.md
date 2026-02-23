@@ -281,10 +281,10 @@ Based on failure modes found in production:
 When you create a new agent, the system generates:
 
 ```
-.opencode/agent/{agent-name}.md
+~/.config/opencode/agent/{agent-name}.md
    Minimal system prompt (~500 tokens)
 
-.opencode/context/project/{agent-name}-context.md
+~/.config/opencode/context/project/{agent-name}-context.md
    Project context (CLAUDE.md pattern)
 
 evals/agents/{agent-name}/
@@ -377,8 +377,8 @@ npm test -- --agent=my-agent-name --test=planning-approval-001
 
 For questions or issues:
 1. Check existing agents:
-   - Core agents: `.opencode/agent/core/openagent.md`, `.opencode/agent/core/opencoder.md`
-   - Development agents: `.opencode/agent/development/frontend-specialist.md`
-   - Content agents: `.opencode/agent/content/copywriter.md`
+   - Core agents: `~/.config/opencode/agent/core/openagent.md`, `~/.config/opencode/agent/core/opencoder.md`
+   - Development agents: `~/.config/opencode/agent/development/frontend-specialist.md`
+   - Content agents: `~/.config/opencode/agent/content/copywriter.md`
 2. Review test examples: `evals/agents/openagent/tests/`
 3. See research docs: `docs/agents/research-backed-prompt-design.md`

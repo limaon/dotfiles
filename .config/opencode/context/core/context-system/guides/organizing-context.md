@@ -348,7 +348,7 @@ frontend/
 
 List all files:
 ```bash
-find .opencode/context/{category} -name "*.md" | sort
+find ~/.config/opencode/context/{category} -name "*.md" | sort
 ```
 
 Categorize each file:
@@ -412,7 +412,7 @@ Follow navigation design guide (navigation-design.md)
 
 Find and update all cross-references:
 ```bash
-grep -r "old-path" .opencode/context/
+grep -r "old-path" ~/.config/opencode/context/
 # Update to new paths
 ```
 

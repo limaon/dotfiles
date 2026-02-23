@@ -48,7 +48,7 @@ The registry is a centralized catalog (`registry.json`) that tracks all componen
   "id": "frontend-specialist",
   "name": "Frontend Specialist",
   "type": "agent",
-  "path": ".opencode/agent/development/frontend-specialist.md",
+  "path": "~/.config/opencode/agent/development/frontend-specialist.md",
   "description": "Expert in React, Vue, and modern CSS",
   "category": "development",
   "tags": ["react", "vue", "css", "frontend"],
@@ -72,12 +72,12 @@ The registry is a centralized catalog (`registry.json`) that tracks all componen
 
 ## Auto-Detect System
 
-The auto-detect system scans `.opencode/` and automatically updates the registry.
+The auto-detect system scans `~/.config/opencode/` and automatically updates the registry.
 
 ### How It Works
 
 ```
-1. Scan .opencode/ directory
+1. Scan ~/.config/opencode/ directory
 2. Find all .md files with frontmatter
 3. Extract metadata (description, category, type, tags)
 4. Validate paths exist
@@ -100,11 +100,11 @@ The auto-detect system scans `.opencode/` and automatically updates the registry
 
 ### What Gets Detected
 
- **Agents** - `.opencode/agent/{category}/*.md`
- **Subagents** - `.opencode/agent/subagents/**/*.md`
- **Commands** - `.opencode/command/**/*.md`
- **Tools** - `.opencode/tool/**/index.ts`
- **Contexts** - `.opencode/context/**/*.md`
+ **Agents** - `~/.config/opencode/agent/{category}/*.md`
+ **Subagents** - `~/.config/opencode/agent/subagents/**/*.md`
+ **Commands** - `~/.config/opencode/command/**/*.md`
+ **Tools** - `~/.config/opencode/tool/**/index.ts`
+ **Contexts** - `~/.config/opencode/context/**/*.md`
 
 ### Frontmatter Requirements
 
@@ -146,7 +146,7 @@ tags: ["tag1", "tag2"]     # Optional
 
 ```bash
 # Example errors
-ERROR: Path does not exist: .opencode/agent/core/missing.md
+ERROR: Path does not exist: ~/.config/opencode/agent/core/missing.md
 ERROR: Duplicate ID: frontend-specialist
 ERROR: Invalid category: invalid-category
 ERROR: Missing dependency: subagent:nonexistent
@@ -245,7 +245,7 @@ The install system uses the registry to distribute components.
 5. Show component selection UI
 6. Resolve dependencies
 7. Download components from GitHub
-8. Install to .opencode/
+8. Install to ~/.config/opencode/
 9. Handle collisions (skip/overwrite/backup)
 ```
 
@@ -321,7 +321,7 @@ When installing components that already exist:
 ### Interactive Mode
 
 ```bash
-File exists: .opencode/agent/core/openagent.md
+File exists: ~/.config/opencode/agent/core/openagent.md
 [S]kip, [O]verwrite, [B]ackup, [A]ll skip, [F]orce all?
 ```
 

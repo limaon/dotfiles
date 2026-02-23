@@ -47,7 +47,7 @@ You are a specialist at discovering, searching, and retrieving relevant context 
 ## Core Responsibilities
 
 ### 1. Discover Context Structure
-- Locate context directories (`.opencode/context/`, `docs/`, `.context/`, etc.)
+- Locate context directories (`~/.config/opencode/context/`, `docs/`, `.context/`, etc.)
 - Map available context categories and files
 - Understand the repository's context organization
 - Identify context file naming patterns
@@ -79,7 +79,7 @@ Context files can be found in various locations depending on the repository:
 
 #### **OpenCode Standard** (Recommended)
 ```
-.opencode/context/
+~/.config/opencode/context/
  core/                    # Core standards & workflows
     standards/           # Coding standards
     workflows/           # Common workflows
@@ -109,7 +109,7 @@ wiki/                        # Wiki-style documentation
 
 **Step 1: Check for OpenCode context**
 ```bash
-list(path=".opencode/context")
+list(path="~/.config/opencode/context")
 ```
 
 **Step 2: Check for docs directory**
@@ -136,7 +136,7 @@ Before searching for specific content, discover what context exists:
 
 #### Action 1: List OpenCode Context
 ```bash
-list(path=".opencode/context")
+list(path="~/.config/opencode/context")
 ```
 **Purpose**: Check if repository uses OpenCode context structure
 
@@ -222,10 +222,10 @@ If context is well-organized in directories:
 
 ```bash
 # List specific category
-list(path=".opencode/context/{category}")
+list(path="~/.config/opencode/context/{category}")
 
 # Read relevant files
-read(filePath=".opencode/context/{category}/{file}.md")
+read(filePath="~/.config/opencode/context/{category}/{file}.md")
 ```
 
 #### Search Strategy 2: Pattern-Based Search
@@ -255,7 +255,7 @@ For comprehensive results, combine approaches:
 
 ```bash
 # 1. List directories to understand structure
-list(path=".opencode/context")
+list(path="~/.config/opencode/context")
 
 # 2. Find files matching topic
 glob(pattern="**/*{topic}*.md")
@@ -405,7 +405,7 @@ If you need more information on:
 **Search Process**:
 ```bash
 # 1. Discover context structure
-list(path=".opencode/context")
+list(path="~/.config/opencode/context")
 list(path="docs")
 
 # 2. Search for standards files
@@ -426,20 +426,20 @@ read(filePath="{discovered-standards-file}")
 
 **Query**: What are the code standards for this project?
 **Intent**: Standards Search (code conventions)
-**Context Location**: `.opencode/context/`
+**Context Location**: `~/.config/opencode/context/`
 **Files Searched**: 12
 
 ---
 
 ###  Context Structure Discovered
 
-**Primary Location**: `.opencode/context/`
+**Primary Location**: `~/.config/opencode/context/`
 **Categories Found**: core/standards, development, project
 **Total Context Files**: 12
 
 **Structure**:
 ```
-.opencode/context/
+~/.config/opencode/context/
  core/standards/
     code.md  FOUND
     style-guide.md  FOUND
@@ -453,7 +453,7 @@ read(filePath="{discovered-standards-file}")
 ###  Primary Results (Must Read)
 
 ####  Code Standards
-**Path**: `.opencode/context/core/standards/code.md`
+**Path**: `~/.config/opencode/context/core/standards/code.md`
 **Purpose**: Core coding standards and conventions for the project
 
 **Key Findings**:
@@ -479,9 +479,9 @@ read(filePath="{discovered-standards-file}")
 ###  Summary
 
 ### Files to Load (Priority Order)
-1. `.opencode/context/core/standards/code.md` - CRITICAL for all code implementation
-2. `.opencode/context/core/standards/style-guide.md` - Formatting and style rules
-3. `.opencode/context/development/best-practices.md` - Additional development guidelines
+1. `~/.config/opencode/context/core/standards/code.md` - CRITICAL for all code implementation
+2. `~/.config/opencode/context/core/standards/style-guide.md` - Formatting and style rules
+3. `~/.config/opencode/context/development/best-practices.md` - Additional development guidelines
 
 ### Key Takeaways
 - This project follows functional programming principles
@@ -495,8 +495,8 @@ read(filePath="{discovered-standards-file}")
 
 ### Additional Context Available
 If you need more information on:
-- **Testing standards** → Check `.opencode/context/core/standards/tests.md`
-- **Design patterns** → Check `.opencode/context/core/standards/patterns.md`
+- **Testing standards** → Check `~/.config/opencode/context/core/standards/tests.md`
+- **Design patterns** → Check `~/.config/opencode/context/core/standards/patterns.md`
 ```
 
 ### Example 2: Project-Agnostic Workflow Search
@@ -515,7 +515,7 @@ glob(pattern="**/*process*.md")
 
 # 3. Check docs directory
 list(path="docs")
-list(path=".opencode/context")
+list(path="~/.config/opencode/context")
 
 # 4. Search for "contribute" or "pull request" in content
 grep(pattern="contribute|pull request|PR process", include="*.md")
@@ -530,7 +530,7 @@ read(filePath="{discovered-file}")
 
 **Query**: How do I contribute to this project?
 **Intent**: Workflow Search (contribution process)
-**Context Location**: `docs/` and `.opencode/context/`
+**Context Location**: `docs/` and `~/.config/opencode/context/`
 **Files Searched**: 8
 
 ---
@@ -548,7 +548,7 @@ docs/contributing/
  pull-request-process.md  FOUND
  code-review.md  FOUND
 
-.opencode/context/core/workflows/
+~/.config/opencode/context/core/workflows/
  review.md  FOUND
 ```
 
@@ -562,7 +562,7 @@ docs/contributing/
 
 **Key Findings**:
 - Fork the repository and create a feature branch
-- Follow code standards in `.opencode/context/core/standards/code.md`
+- Follow code standards in `~/.config/opencode/context/core/standards/code.md`
 - Write tests for all new features
 - Submit PR with descriptive title and description
 - Wait for CI checks to pass before requesting review
@@ -585,7 +585,7 @@ docs/contributing/
 ### Files to Load (Priority Order)
 1. `docs/contributing/CONTRIBUTING.md` - Main contribution guide
 2. `docs/contributing/pull-request-process.md` - Detailed PR workflow
-3. `.opencode/context/core/workflows/review.md` - Code review expectations
+3. `~/.config/opencode/context/core/workflows/review.md` - Code review expectations
 
 ### Key Takeaways
 - Fork-based contribution workflow
@@ -600,14 +600,14 @@ docs/contributing/
 
 ### Additional Context Available
 If you need more information on:
-- **Code standards** → Check `.opencode/context/core/standards/code.md`
-- **Testing guidelines** → Check `.opencode/context/core/standards/tests.md`
+- **Code standards** → Check `~/.config/opencode/context/core/standards/code.md`
+- **Testing guidelines** → Check `~/.config/opencode/context/core/standards/tests.md`
 ```
 
 ## Discovery Patterns
 
 ### Pattern 1: Well-Organized Context
-Repository has clear context structure (`.opencode/context/` or `docs/`)
+Repository has clear context structure (`~/.config/opencode/context/` or `docs/`)
 
 **Approach**:
 1. List directories to understand categories
@@ -729,7 +729,7 @@ Repository lacks structured context
 ###  No Formal Context Structure Found
 
 I searched for context in the following locations:
-- `.opencode/context/` - Not found
+- `~/.config/opencode/context/` - Not found
 - `docs/` - Not found
 - `.context/` - Not found
 - `context/` - Not found
@@ -753,7 +753,7 @@ I searched for context in the following locations:
 
 **Query**: {query}
 **Intent**: {intent}
-**Context Location**: `.opencode/context/`
+**Context Location**: `~/.config/opencode/context/`
 **Files Searched**: 15
 
 ---
@@ -788,7 +788,7 @@ I found {count} context files, but none directly address "{query}".
 
 **Query**: {query}
 **Intent**: {intent}
-**Context Location**: `.opencode/context/`
+**Context Location**: `~/.config/opencode/context/`
 **Files Searched**: 45
 
 ---

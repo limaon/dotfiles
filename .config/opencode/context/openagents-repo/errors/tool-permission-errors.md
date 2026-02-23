@@ -222,4 +222,4 @@ After fixing tool permissions:
 - `guides/testing-subagents.md` - How to test subagents
 - `examples/subagent-prompt-structure.md` - Prompt structure with tool emphasis
 
-**Reference**: `.opencode/agent/ContextScout.md` (lines 14-28, tool configuration)
+**Reference**: `~/.config/opencode/agent/ContextScout.md` (lines 14-28, tool configuration)

@@ -35,7 +35,7 @@ Adding a new agent involves:
 
 ```bash
 # Create agent file
-touch .opencode/agent/{category}/{agent-name}.md
+touch ~/.config/opencode/agent/{category}/{agent-name}.md
 ```
 
 ### Add Frontmatter and Content
@@ -201,7 +201,7 @@ EOF
 
 ```bash
 # 1. Create agent file
-cat > .opencode/agent/development/api-specialist.md << 'EOF'
+cat > ~/.config/opencode/agent/development/api-specialist.md << 'EOF'
 ---
 description: "Expert in REST and GraphQL API design"
 category: "development"

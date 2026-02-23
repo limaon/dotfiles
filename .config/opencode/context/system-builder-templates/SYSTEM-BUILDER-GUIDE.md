@@ -4,7 +4,7 @@ Complete guide for using the `/build-context-system` command to create custom co
 
 ## Overview
 
-The system builder creates complete `.opencode` folder architectures tailored to your domain and use cases. It follows research-backed patterns from Stanford and Anthropic for optimal AI agent performance.
+The system builder creates complete `~/.config/opencode` folder architectures tailored to your domain and use cases. It follows research-backed patterns from Stanford and Anthropic for optimal AI agent performance.
 
 ## Quick Start
 
@@ -21,9 +21,9 @@ This launches an interactive interview that guides you through:
 
 ## What You Get
 
-### Complete .opencode Structure
+### Complete ~/.config/opencode Structure
 ```
-.opencode/
+~/.config/opencode/
  agent/
     {domain}-orchestrator.md      # Main coordinator
     subagents/
@@ -448,7 +448,7 @@ After your system is generated:
 
 ## Resources
 
-- **Templates**: `.opencode/context/system-builder-templates/`
+- **Templates**: `~/.config/opencode/context/system-builder-templates/`
 - **Examples**: See generated systems for reference
 - **Documentation**: navigation.md, ARCHITECTURE.md, TESTING.md
 - **Patterns**: Review template files for best practices

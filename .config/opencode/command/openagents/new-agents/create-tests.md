@@ -40,7 +40,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
   <stage id="1" name="AnalyzeAgent">
     <action>Read and analyze target agent to understand its behavior</action>
     <process>
-      1. Read agent file from `.opencode/agent/{agent-name}.md`
+      1. Read agent file from `~/.config/opencode/agent/{agent-name}.md`
 
       2. Extract key characteristics:
          - Agent type (primary/subagent)

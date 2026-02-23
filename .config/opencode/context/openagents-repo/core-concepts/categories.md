@@ -111,7 +111,7 @@ Categories are domain-based groupings that organize agents, context files, and t
 ### Directory Layout
 
 ```
-.opencode/
+~/.config/opencode/
  agent/{category}/           # Agents by category
  context/{category}/         # Context by category
  prompts/{category}/         # Prompt variants by category
@@ -121,14 +121,14 @@ evals/agents/{category}/        # Tests by category
 ### Example: Development Category
 
 ```
-.opencode/agent/development/
+~/.config/opencode/agent/development/
  0-category.json             # Category metadata
  frontend-specialist.md
  backend-specialist.md
  devops-specialist.md
  codebase-agent.md
 
-.opencode/context/development/
+~/.config/opencode/context/development/
  navigation.md
  clean-code.md
  react-patterns.md
@@ -206,13 +206,13 @@ The system resolves agent paths flexibly:
 
 ```bash
 # Short ID (backward compatible)
-"openagent" → ".opencode/agent/core/openagent.md"
+"openagent" → "~/.config/opencode/agent/core/openagent.md"
 
 # Category path
-"development/frontend-specialist" → ".opencode/agent/development/frontend-specialist.md"
+"development/frontend-specialist" → "~/.config/opencode/agent/development/frontend-specialist.md"
 
 # Subagent path
-"TestEngineer" → ".opencode/agent/TestEngineer.md"
+"TestEngineer" → "~/.config/opencode/agent/TestEngineer.md"
 ```
 
 ---
@@ -223,10 +223,10 @@ The system resolves agent paths flexibly:
 
 ```bash
 # Create agent directory
-mkdir -p .opencode/agent/{category}
+mkdir -p ~/.config/opencode/agent/{category}
 
 # Create context directory
-mkdir -p .opencode/context/{category}
+mkdir -p ~/.config/opencode/context/{category}
 
 # Create eval directory
 mkdir -p evals/agents/{category}
@@ -235,7 +235,7 @@ mkdir -p evals/agents/{category}
 ### Step 2: Add Category Metadata
 
 ```bash
-cat > .opencode/agent/{category}/0-category.json << 'EOF'
+cat > ~/.config/opencode/agent/{category}/0-category.json << 'EOF'
 {
   "name": "Category Name",
   "description": "Brief description",
@@ -249,7 +249,7 @@ EOF
 ### Step 3: Add Context README
 
 ```bash
-cat > .opencode/context/{category}/navigation.md << 'EOF'
+cat > ~/.config/opencode/context/{category}/navigation.md << 'EOF'
 # Category Name Context
 
 Context files for {category} specialists.
@@ -315,7 +315,7 @@ EOF
 ### Category Context Structure
 
 ```
-.opencode/context/{category}/
+~/.config/opencode/context/{category}/
  navigation.md               # Overview
  {topic-1}.md           # Specific topic
  {topic-2}.md           # Specific topic
@@ -330,7 +330,7 @@ Agents load category context based on task:
 <!-- Context: development/react-patterns | Priority: high -->
 ```
 
-Loads: `.opencode/context/development/react-patterns.md`
+Loads: `~/.config/opencode/context/development/react-patterns.md`
 
 ---
 
@@ -364,7 +364,7 @@ Loads: `.opencode/context/development/react-patterns.md`
 ### Old Structure (Flat)
 
 ```
-.opencode/agent/
+~/.config/opencode/agent/
  openagent.md
  opencoder.md
  frontend-specialist.md
@@ -374,7 +374,7 @@ Loads: `.opencode/context/development/react-patterns.md`
 ### New Structure (Category-Based)
 
 ```
-.opencode/agent/
+~/.config/opencode/agent/
  core/
     openagent.md
     opencoder.md

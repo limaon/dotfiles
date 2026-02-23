@@ -22,7 +22,7 @@ tools:
 
 <context>
   <system_context>
-    Context-aware AI system generator that creates complete .opencode folder architectures
+    Context-aware AI system generator that creates complete ~/.config/opencode folder architectures
     tailored to user domains, use cases, and requirements
   </system_context>
   <domain_context>
@@ -30,7 +30,7 @@ tools:
     intelligent routing, and research-backed XML optimization
   </domain_context>
   <task_context>
-    Transform interview responses and requirements into production-ready .opencode systems
+    Transform interview responses and requirements into production-ready ~/.config/opencode systems
     with orchestrators, subagents, context files, workflows, and custom commands
   </task_context>
   <execution_context>
@@ -46,7 +46,7 @@ tools:
 </role>
 
 <task>
-  Generate complete, production-ready .opencode folder systems by coordinating specialized
+  Generate complete, production-ready ~/.config/opencode folder systems by coordinating specialized
   subagents to analyze requirements, create optimized agents, organize context files,
   design workflows, and implement custom commands
 </task>
@@ -224,7 +224,7 @@ tools:
           - validation_report (quality scores for each agent)
         </expected_return>
         <integration>
-          Write agent files to .opencode/agent/ directory structure
+          Write agent files to ~/.config/opencode/agent/ directory structure
         </integration>
       </route>
     </routing>
@@ -254,7 +254,7 @@ tools:
           - context_readme (guide to context organization)
         </expected_return>
         <integration>
-          Write context files to .opencode/context/ directory structure
+          Write context files to ~/.config/opencode/context/ directory structure
         </integration>
       </route>
     </routing>
@@ -282,7 +282,7 @@ tools:
           - workflow_selection_logic (when to use each workflow)
         </expected_return>
         <integration>
-          Write workflow files to .opencode/workflows/ directory
+          Write workflow files to ~/.config/opencode/workflows/ directory
           Update orchestrator with workflow selection logic
         </integration>
       </route>
@@ -312,7 +312,7 @@ tools:
           - command_usage_guide (how to use each command)
         </expected_return>
         <integration>
-          Write command files to .opencode/command/ directory
+          Write command files to ~/.config/opencode/command/ directory
         </integration>
       </route>
     </routing>
@@ -451,7 +451,7 @@ tools:
       ###  Directory Structure
 
       ```
-      .opencode/
+      ~/.config/opencode/
        agent/
           {domain}-orchestrator.md          # Main coordinator
           subagents/
@@ -519,10 +519,10 @@ tools:
       **1. Review Your System**:
       ```bash
       # Read the main README
-      cat .opencode/navigation.md
+      cat ~/.config/opencode/navigation.md
 
       # Review your orchestrator
-      cat .opencode/agent/{domain}-orchestrator.md
+      cat ~/.config/opencode/agent/{domain}-orchestrator.md
       ```
 
       **2. Test Your First Command**:
@@ -537,7 +537,7 @@ tools:
 
       ###  Testing Checklist
 
-      Follow `.opencode/TESTING.md` for complete testing guide:
+      Follow `~/.config/opencode/TESTING.md` for complete testing guide:
 
       - [ ] Test orchestrator with simple request
       - [ ] Test each subagent independently
@@ -550,12 +550,12 @@ tools:
 
       ###  Documentation
 
-      - **System Overview**: `.opencode/navigation.md`
-      - **Architecture Guide**: `.opencode/ARCHITECTURE.md`
-      - **Quick Start**: `.opencode/QUICK-START.md`
-      - **Testing Guide**: `.opencode/TESTING.md`
-      - **Context Organization**: `.opencode/context/navigation.md`
-      - **Workflow Guide**: `.opencode/workflows/navigation.md`
+      - **System Overview**: `~/.config/opencode/navigation.md`
+      - **Architecture Guide**: `~/.config/opencode/ARCHITECTURE.md`
+      - **Quick Start**: `~/.config/opencode/QUICK-START.md`
+      - **Testing Guide**: `~/.config/opencode/TESTING.md`
+      - **Context Organization**: `~/.config/opencode/context/navigation.md`
+      - **Workflow Guide**: `~/.config/opencode/workflows/navigation.md`
 
       ###  Optimization Tips
 

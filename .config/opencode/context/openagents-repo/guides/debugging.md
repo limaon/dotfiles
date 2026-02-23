@@ -26,7 +26,7 @@ cd evals/framework && npm run eval:sdk -- --agent=core/openagent --pattern="smok
 
 **Symptoms**:
 ```
-ERROR: Path does not exist: .opencode/agent/core/missing.md
+ERROR: Path does not exist: ~/.config/opencode/agent/core/missing.md
 ```
 
 **Diagnosis**:
@@ -59,7 +59,7 @@ ERROR: Path does not exist: .opencode/agent/core/missing.md
 **Diagnosis**:
 ```bash
 # Check frontmatter
-head -10 .opencode/agent/{category}/{agent}.md
+head -10 ~/.config/opencode/agent/{category}/{agent}.md
 
 # Dry run auto-detect
 ./scripts/registry/auto-detect-components.sh --dry-run
@@ -73,7 +73,7 @@ head -10 .opencode/agent/{category}/{agent}.md
 **Fix**:
 ```bash
 # Add frontmatter
-cat > .opencode/agent/{category}/{agent}.md << 'EOF'
+cat > ~/.config/opencode/agent/{category}/{agent}.md << 'EOF'
 ---
 description: "Brief description"
 category: "category"
@@ -209,7 +209,7 @@ REGISTRY_URL="file://$(pwd)/registry.json" ./install.sh --list
 
 **Symptoms**:
 ```
-File exists: .opencode/agent/core/openagent.md
+File exists: ~/.config/opencode/agent/core/openagent.md
 ```
 
 **Solutions**:
@@ -243,7 +243,7 @@ ERROR: Agent not found: development/frontend-specialist
 **Diagnosis**:
 ```bash
 # Check file exists
-ls -la .opencode/agent/development/frontend-specialist.md
+ls -la ~/.config/opencode/agent/development/frontend-specialist.md
 
 # Check registry
 cat registry.json | jq '.components.agents[] | select(.id == "frontend-specialist")'
@@ -342,7 +342,7 @@ Auto-detect takes too long
 Limit scope:
 ```bash
 # Only scan specific directory
-./scripts/registry/auto-detect-components.sh --path .opencode/agent/development/
+./scripts/registry/auto-detect-components.sh --path ~/.config/opencode/agent/development/
 ```
 
 ---
