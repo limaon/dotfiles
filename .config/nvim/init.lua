@@ -194,7 +194,7 @@ local function get_open_command(file)
 	return nil
 end
 
-local openExternalFile = function(args)
+local open_external_file = function(args)
 	local bufnr = (args and args.buf) or 0
 	local file = get_external_file(args)
 	if file == "" then
@@ -232,7 +232,7 @@ local external_group = create_augroup("OpenExternalFiles")
 local external_patterns = { "*.jpeg", "*.jpg", "*.pdf", "*.png", "*.svg", "*.ico" }
 
 create_autocmd("BufReadPost", external_group, external_patterns, function(args)
-	openExternalFile(args)
+	open_external_file(args)
 end, "Open non-textual files externally and close the buffer")
 
 -- Automatically regenerate spell file after editing dictionary
@@ -245,7 +245,7 @@ local concealing_group = create_augroup("DisableConcealing")
 local conceal_types = { "json", "jsonc", "markdown" }
 
 create_autocmd("FileType", concealing_group, conceal_types, function()
-	vim.opt.conceallevel = 0
+	vim.opt_local.conceallevel = 0
 end, "Disable concealing for specific file types")
 
 -- Highlight on yank (copying) text
@@ -253,19 +253,6 @@ local yank_group = create_augroup("HighlightYank")
 create_autocmd("TextYankPost", yank_group, "*", function()
 	vim.hl.on_yank()
 end, "Highlight text when yanked")
-
--- Sync syntax highlighting (optimized: only on file read, not on every buffer switch)
-local syntax_group = create_augroup("SyncSyntax")
-create_autocmd("BufReadPost", syntax_group, "*", function()
-	-- Only sync for text files, skip binary and very large files
-	if vim.bo.binary or vim.bo.filetype == "" then
-		return
-	end
-	if vim.api.nvim_buf_line_count(0) > 100000 then
-		return
-	end
-	vim.cmd("syntax sync maxlines=100")
-end, "Synchronize syntax highlighting when reading file")
 
 -- Remember cursor position when reopening files
 local cursor_group = create_augroup("RememberCursorPosition")
@@ -300,6 +287,13 @@ create_autocmd({ "BufNewFile", "BufRead" }, template_group, "*.phtml", function(
 end, "Set filetype to phtml for template files")
 
 -- Language-specific settings (indentation handled by vim-sleuth)
+local two_space_indent = {
+	expandtab = true,
+	tabstop = 2,
+	shiftwidth = 2,
+	softtabstop = 2,
+}
+
 local language_settings = {
 	python = {
 		buffer = {
@@ -313,46 +307,11 @@ local language_settings = {
 			smartindent = true,
 		},
 	},
-	html = {
-		buffer = {
-			expandtab = true,
-			tabstop = 2,
-			shiftwidth = 2,
-			softtabstop = 2,
-		},
-	},
-	css = {
-		buffer = {
-			expandtab = true,
-			tabstop = 2,
-			shiftwidth = 2,
-			softtabstop = 2,
-		},
-	},
-	scss = {
-		buffer = {
-			expandtab = true,
-			tabstop = 2,
-			shiftwidth = 2,
-			softtabstop = 2,
-		},
-	},
-	less = {
-		buffer = {
-			expandtab = true,
-			tabstop = 2,
-			shiftwidth = 2,
-			softtabstop = 2,
-		},
-	},
-	phtml = {
-		buffer = {
-			expandtab = true,
-			tabstop = 2,
-			shiftwidth = 2,
-			softtabstop = 2,
-		},
-	},
+	html = { buffer = vim.deepcopy(two_space_indent) },
+	css = { buffer = vim.deepcopy(two_space_indent) },
+	scss = { buffer = vim.deepcopy(two_space_indent) },
+	less = { buffer = vim.deepcopy(two_space_indent) },
+	phtml = { buffer = vim.deepcopy(two_space_indent) },
 	markdown = {
 		buffer = { formatoptions = "jcroql" },
 		window = {
@@ -397,7 +356,7 @@ local keymap = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
 -- Select all
-keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all" })
+keymap("n", "<M-a>", "gg<S-v>G", { desc = "Select all text" })
 
 -- Native tabs
 keymap("n", "te", ":tabfind ", { noremap = true, silent = false })
@@ -408,7 +367,7 @@ keymap("n", "td", "<cmd>tabclose<cr>", opts)
 
 -- Buffer
 keymap("n", "<tab>", "<cmd>bnext<cr>", { desc = "Next buffer" })
-keymap("n", "<s-tab>", "<cmd>bprevious<cr>", { desc = "Preivous buffer" })
+keymap("n", "<s-tab>", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 keymap("n", "<delete>", "<cmd>bdelete!<cr>", { desc = "Close current" })
 
 -- Split window
@@ -436,8 +395,8 @@ keymap("n", "<m-down>", "<cmd>resize -2<cr>", { desc = "Decrease window height" 
 keymap("n", "<m-left>", "<cmd>vertical resize +2<cr>", { desc = "Increase window width" })
 keymap("n", "<m-right>", "<cmd>vertical resize -2<cr>", { desc = "Decrease window width" })
 
-keymap("v", ">", ">gv", { desc = "Visual shifting" })
-keymap("v", "<", "<gv", { desc = "Visual shifting" })
+keymap("v", ">", ">gv", { desc = "Indent and keep selection" })
+keymap("v", "<", "<gv", { desc = "Outdent and keep selection" })
 
 -- Keep cursor in the middle of the screen
 keymap("n", "<c-d>", "<c-d>zz", { desc = "Scroll down" })
@@ -445,11 +404,11 @@ keymap("n", "<c-u>", "<c-u>zz", { desc = "Scroll up" })
 
 -- Keeping search centered
 keymap("n", "n", "nzzzv", { desc = "Next search result" })
-keymap("n", "N", "Nzzzv", { desc = "Prev search result" })
+keymap("n", "N", "Nzzzv", { desc = "Previous search result" })
 
 -- Clear search with <esc>
-keymap({ "i", "n" }, "<esc>", "<Cmd>nohlsearch<CR><Esc>", { desc = "Escape and clear hlsearch" })
-keymap("n", "/", "zn/", { desc = "Search & Pause Folds" })
+keymap({ "i", "n" }, "<esc>", "<Cmd>nohlsearch<CR><Esc>", { desc = "Clear search and escape" })
+keymap("n", "/", "zn/", { desc = "Search and pause folds" })
 
 -- Better UP / DOWN
 keymap("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move lines up" })
@@ -458,30 +417,51 @@ keymap("v", "K", ":m '<-2<cr>gv=gv", { desc = "Move lines down" })
 -- Keep cursor in place
 keymap("n", "J", "mzJ`z", { desc = "Join lines" })
 
--- Open File browser
-keymap("n", "<leader>e", "<cmd>Ex<cr>", { desc = "Open netrw" })
+-- Open file browser
+keymap("n", "<leader>e", "<cmd>Ex<cr>", { desc = "Open Netrw" })
 
--- Replace World
+-- Replace word
 keymap(
 	"n",
 	"<leader>s",
 	":%s/\\<<c-r><c-w>\\>/<c-r><c-w>/gI<left><left><left>",
 	{ silent = false, desc = "Replace word" }
 )
-keymap("n", "<leader>x", "<cmd>!chmod u+x %<CR>", { desc = "Excutable file" })
+keymap("n", "<leader>x", function()
+	local file = vim.api.nvim_buf_get_name(0)
+	if file == "" then
+		vim.notify("No file in current buffer.", vim.log.levels.WARN)
+		return
+	end
+
+	vim.system({ "chmod", "u+x", file }, { text = true }, function(result)
+		vim.schedule(function()
+			if result.code == 0 then
+				vim.notify("File is now executable.", vim.log.levels.INFO)
+				return
+			end
+
+			local err = (result.stderr or ""):gsub("%s+$", "")
+			if err == "" then
+				err = "unknown error"
+			end
+			vim.notify("Failed to set executable bit: " .. err, vim.log.levels.ERROR)
+		end)
+	end)
+end, { desc = "Make file executable" })
 
 -- Get terminal
 keymap("n", "<leader>tt", "<cmd>split term://bash<cr>", { silent = false, desc = "Horizontal terminal" })
 keymap("n", "<leader>tv", "<cmd>vsplit term://bash<cr>", { silent = false, desc = "Vertical terminal" })
 keymap("t", "<esc><esc>", "<c-\\><c-n>", { desc = "Exit terminal mode" })
-keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
+keymap("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostics [Q]uickfix list" })
 
 -- Function keys
-keymap("n", "<F1>", "<cmd>set rnu!<cr>", { desc = "Set relative number" })
-keymap("n", "<F2>", "<cmd>set spell!<cr>", { desc = "Spell language" })
-keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Alternate wrap option" })
-keymap("n", "<F4>", "z=", { desc = "Select a correct word" })
-keymap("i", "<F5>", "<c-x><c-s>", { desc = "Suggests a list of correct word" })
+keymap("n", "<F1>", "<cmd>set rnu!<cr>", { desc = "Toggle relative number" })
+keymap("n", "<F2>", "<cmd>set spell!<cr>", { desc = "Toggle spell check" })
+keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Toggle wrap" })
+keymap("n", "<F4>", "z=", { desc = "Show spelling suggestions" })
+keymap("i", "<F5>", "<c-x><c-s>", { desc = "Trigger spelling completion" })
 
 -- }}}
 
@@ -913,11 +893,11 @@ require("lazy").setup({
 					map("grt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype Definition")
 					map("<leader>df", vim.diagnostic.open_float, "[D]ianostic [F]loat")
 					map("[d", function()
-						vim.diagnostic.jump({ count = 1 })
+						vim.diagnostic.jump({ count = -1 })
 						vim.diagnostic.open_float()
 					end, "Prev diag")
 					map("]d", function()
-						vim.diagnostic.jump({ count = -1 })
+						vim.diagnostic.jump({ count = 1 })
 						vim.diagnostic.open_float()
 					end, "Next diag")
 
@@ -1300,39 +1280,52 @@ require("lazy").setup({
 			})
 			MiniSnippets.start_lsp_server({ match = false })
 
-			-- Workaround: Fix mini.snippets autocmd not being created with group parameter
-			-- This ensures LSP client auto-attaches to buffers for completion integration
-			vim.defer_fn(function()
-				local snippets_client = vim.lsp.get_clients({ name = "mini.snippets" })[1]
-				if snippets_client then
-					-- Check if autocmd already exists to prevent duplication
-					local existing_autocmd = vim.api.nvim_get_autocmds({
-						group = "MiniSnippetsLsp",
-						event = "BufEnter",
-					})[1]
-					if existing_autocmd then
-						return -- Autocmd already created, skip
-					end
-
-					local attach = function(buf_id)
-						if not vim.api.nvim_buf_is_valid(buf_id) then
-							return
-						end
-						vim.lsp.buf_attach_client(buf_id, snippets_client.id)
-					end
-					-- Clear existing autocmds and create new one with correct group
-					local group = vim.api.nvim_create_augroup("MiniSnippetsLsp", { clear = true })
-					vim.api.nvim_create_autocmd("BufEnter", {
-						group = group,
-						callback = vim.schedule_wrap(function(ev)
-							attach(ev.buf)
-						end),
-						desc = "Auto attach 'mini.snippets' LSP server",
-					})
-				else
-					vim.notify("mini.snippets LSP client not found after delay", vim.log.levels.WARN)
+			local function attach_snippets_client(buf_id)
+				if not vim.api.nvim_buf_is_valid(buf_id) then
+					return false
 				end
-			end, 100)
+
+				local snippets_client = vim.lsp.get_clients({ name = "mini.snippets" })[1]
+				if not snippets_client then
+					return false
+				end
+
+				local attached = vim.lsp.get_clients({ bufnr = buf_id, name = "mini.snippets" })[1]
+				if attached then
+					return true
+				end
+
+				return vim.lsp.buf_attach_client(buf_id, snippets_client.id)
+			end
+
+			local snippets_group = vim.api.nvim_create_augroup("MiniSnippetsLsp", { clear = true })
+			vim.api.nvim_create_autocmd("BufEnter", {
+				group = snippets_group,
+				callback = function(ev)
+					attach_snippets_client(ev.buf)
+				end,
+				desc = "Attach mini.snippets LSP server",
+			})
+
+			local retries = 0
+			local max_retries = 20
+			local function try_attach_open_buffers()
+				local attached_any = false
+				for _, buf_id in ipairs(vim.api.nvim_list_bufs()) do
+					if vim.api.nvim_buf_is_loaded(buf_id) and attach_snippets_client(buf_id) then
+						attached_any = true
+					end
+				end
+
+				if attached_any or retries >= max_retries then
+					return
+				end
+
+				retries = retries + 1
+				vim.defer_fn(try_attach_open_buffers, 100)
+			end
+
+			vim.defer_fn(try_attach_open_buffers, 50)
 
 			-- === Whitespace ===
 
@@ -1393,43 +1386,69 @@ require("lazy").setup({
 	-- }}}
 
 	-- [[ nvim-treesitter ]] {{{
+
 	{
 		"nvim-treesitter/nvim-treesitter",
-		lazy = false,
 		build = ":TSUpdate",
+		lazy = false,
 		config = function()
 			vim.treesitter.language.register("php", "phtml")
 
-			local filetypes = {
-				"bash",
-				"c",
-				"cpp",
-				"css",
-				"diff",
-				"html",
-				"lua",
-				"luadoc",
-				"markdown",
-				"markdown_inline",
-				"query",
-				"python",
-				"php",
-				"phpdoc",
-				"scss",
-				"vim",
-				"vimdoc",
-			}
+			local ts = require("nvim-treesitter")
+			ts.setup({})
+			local ts_config = require("nvim-treesitter.config")
 
-			require("nvim-treesitter").install(filetypes)
+			local install_requested = {}
+			local available_parsers = {}
+			for _, parser in ipairs(ts_config.get_available()) do
+				available_parsers[parser] = true
+			end
+			local ts_group = vim.api.nvim_create_augroup("TreeSitterAutoInstall", { clear = true })
 
 			vim.api.nvim_create_autocmd("FileType", {
-				pattern = filetypes,
-				callback = function()
-					vim.treesitter.start()
+				group = ts_group,
+				pattern = "*",
+				callback = function(args)
+					local bufnr = args.buf
+					local ft = vim.bo[bufnr].filetype
+					if ft == "" then
+						return
+					end
+
+					local lang = vim.treesitter.language.get_lang(ft) or ft
+					if not available_parsers[lang] then
+						return
+					end
+
+					local has_parser = pcall(vim.treesitter.get_parser, bufnr, lang)
+					if has_parser then
+						pcall(vim.treesitter.start, bufnr, lang)
+						return
+					end
+
+					if install_requested[lang] then
+						return
+					end
+
+					install_requested[lang] = true
+					local ok_install, job = pcall(ts.install, { lang })
+					if not ok_install or not job then
+						install_requested[lang] = nil
+						return
+					end
+
+					if #vim.api.nvim_list_uis() == 0 then
+						pcall(function()
+							job:wait(300000)
+						end)
+					end
+
+					pcall(vim.treesitter.start, bufnr, lang)
 				end,
 			})
 		end,
 	},
+
 	-- }}}
 }, {
 	ui = {
