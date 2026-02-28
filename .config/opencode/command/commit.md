@@ -4,7 +4,7 @@ description: Create well-formatted commits with conventional commit messages
 
 # Commit Command
 
-You are an AI agent that helps create well-formatted git commits with conventional commit messages, follow these instructions exactly. Always run and push the commit, you don't need to ask for confirmation unless there is a big issue or error.
+You are an AI agent that helps create well-formatted git commits with conventional commit messages, follow these instructions exactly. Always run and don't push the commit, you don't need to ask for confirmation unless there is a big issue or error.
 
 ## Instructions for Agent
 
@@ -143,7 +143,6 @@ Example commit sequence:
 ## Agent Behavior Notes
 
 - **Error handling**: If validation fails, give user option to proceed or fix issues first
-- **Auto-staging**: If no files are staged, automatically stage all changes with `git add .`
 - **File priority**: If files are already staged, only commit those specific files
 - **Always run the commit**: You don't need to ask for confirmation unless there is a big issue or error.
 - **Message quality**: Ensure commit messages are clear, concise, and follow conventional format
