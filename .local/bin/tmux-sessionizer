@@ -10,7 +10,7 @@ PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
 # ═══════════════════════════════════════════════════════════════════════════════
 #
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │ SEARCH PATHS                                                                │
+# │ SEARCH PATHS                                                               │
 # └────────────────────────────────────────────────────────────────────────────┘
 #
 # TS_SEARCH_PATHS:
@@ -27,7 +27,7 @@ PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
 #   Example: TS_MAX_DEPTH=2
 #
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │ SESSION COMMANDS (Isolated Windows)                                         │
+# │ SESSION COMMANDS (Isolated Windows)                                        │
 # └────────────────────────────────────────────────────────────────────────────┘
 #
 # Creates windows at indices 69, 70, 71... to avoid interfering
@@ -49,7 +49,7 @@ PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
 #   tmux-sessionizer -s 1 --hsplit  # Horizontal split (vertical layout)
 #
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │ LOGGING                                                                     │
+# │ LOGGING                                                                    │
 # └────────────────────────────────────────────────────────────────────────────┘
 #
 # TS_LOG:
@@ -65,21 +65,23 @@ PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
 #   TS_LOG_FILE="$HOME/.local/share/tmux-sessionizer/tmux-sessionizer.logs"
 #
 # ┌────────────────────────────────────────────────────────────────────────────┐
-# │ COMPLETE EXAMPLE                                                             │
+# │ COMPLETE EXAMPLE                                                           │
 # └────────────────────────────────────────────────────────────────────────────┘
 #
-# TS_SEARCH_PATHS=(~/ ~/projects ~/work)
-# TS_EXTRA_SEARCH_PATHS=(~/ghq:3 ~/Git:3 ~/.config:2)
-# TS_MAX_DEPTH=2
-# TS_SESSION_COMMANDS=("nvim" "htop" "lazydocker")
-# TS_LOG=file
+# TS_SEARCH_PATHS=(~/Desktop)
+# TS_EXTRA_SEARCH_PATHS=(~/.local:1 ~/.config:1)
+# TS_MAX_DEPTH=1
+# TS_SESSION_COMMANDS=("nvim" "htop")
+# TS_LOG=file | echo
 # ═══════════════════════════════════════════════════════════════════════════════
 
 if [[ -f "$CONFIG_FILE" ]]; then
+    # shellcheck source=/dev/null
     source "$CONFIG_FILE"
 fi
 
 if [[ -f "$CONFIG_FILE_NAME" ]]; then
+    # shellcheck source=/dev/null
     source "$CONFIG_FILE_NAME"
 fi
 
@@ -320,7 +322,7 @@ handle_session_cmd() {
 
 handle_window_session_cmd() {
     local current_session="$1"
-    start_index=$((69 + $session_idx))
+    start_index=$((69 + session_idx))
     target="$current_session:$start_index"
 
     log "target: $target command $session_cmd has-session=$(tmux has-session -t="$target" 2> /dev/null)"
@@ -328,9 +330,9 @@ handle_window_session_cmd() {
         switch_to "$target"
     else
         log "executing session command: tmux neww -dt $target $session_cmd"
-        tmux neww -dt $target "$session_cmd"
+        tmux neww -dt "$target" "$session_cmd"
         hydrate "$target" "$selected"
-        tmux select-window -t $target
+        tmux select-window -t "$target"
     fi
 }
 
@@ -339,7 +341,8 @@ handle_split_session_cmd() {
     cleanup_dead_panes
 
     # Check if pane already exists
-    local existing_pane_id=$(get_pane_id "$session_idx" "$split_type")
+    local existing_pane_id
+    existing_pane_id=$(get_pane_id "$session_idx" "$split_type")
 
     if [[ -n "$existing_pane_id" ]] && tmux list-panes -a -F "#{pane_id}" 2>/dev/null | grep -q "^${existing_pane_id}$"; then
         log "switching to existing pane $existing_pane_id"
@@ -359,7 +362,8 @@ handle_split_session_cmd() {
         fi
 
         log "creating new split: tmux split-window $split_flag -c $(pwd) $session_cmd"
-        local new_pane_id=$(tmux split-window $split_flag -c "$(pwd)" -P -F "#{pane_id}" "$session_cmd")
+        local new_pane_id
+        new_pane_id=$(tmux split-window $split_flag -c "$(pwd)" -P -F "#{pane_id}" "$session_cmd")
 
         if [[ -n "$new_pane_id" ]]; then
             set_pane_id "$session_idx" "$split_type" "$new_pane_id"
