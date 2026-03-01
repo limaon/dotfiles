@@ -71,6 +71,7 @@ PANE_CACHE_FILE="$PANE_CACHE_DIR/panes.cache"
 # TS_SEARCH_PATHS=(~/Desktop)
 # TS_EXTRA_SEARCH_PATHS=(~/.local:1 ~/.config:1)
 # TS_MAX_DEPTH=1
+# TS_REPO_CLONE_DIR=~/Desktop
 # TS_SESSION_COMMANDS=("nvim" "htop")
 # TS_LOG=file | echo
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -107,7 +108,20 @@ session_idx=""
 session_cmd=""
 user_selected=""
 split_type=""
+lifecycle_action=""
+create_target=""
+rename_target=""
+delete_target=""
 VERSION="0.1.0"
+
+set_lifecycle_action() {
+    local action="$1"
+    if [[ -n "$lifecycle_action" && "$lifecycle_action" != "$action" ]]; then
+        echo "Error: --create, --rename, and --delete cannot be combined"
+        exit 1
+    fi
+    lifecycle_action="$action"
+}
 
 while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -115,9 +129,20 @@ while [[ "$#" -gt 0 ]]; do
         echo "Usage: tmux-sessionizer [OPTIONS] [SEARCH_PATH]"
         echo "Options:"
         echo "  -h, --help             Display this help message"
+        echo "  -v, --version          Display version"
         echo "  -s, --session <name>   session command index."
         echo "  --vsplit               Create vertical split (horizontal layout) for session command"
         echo "  --hsplit               Create horizontal split (vertical layout) for session command"
+        echo "  --create <path|name>   Create a project directory and switch to its session (tmux only)"
+        echo "  --rename <path|name>   Rename current project directory and switch to updated session (tmux only)"
+        echo "  --delete [path|name]   Delete a project directory (asks for confirmation, tmux only)"
+        echo ""
+        echo "Examples:"
+        echo "  tmux-sessionizer --create my-project"
+        echo "  tmux-sessionizer --rename ~/projects/new-name"
+        echo "  tmux-sessionizer --delete"
+        echo "  tmux-sessionizer --delete my-project"
+        echo "  tmux-sessionizer -s 0 --vsplit"
         exit 0
         ;;
     -s | --session)
@@ -147,6 +172,31 @@ while [[ "$#" -gt 0 ]]; do
     --hsplit)
         split_type="hsplit"
         ;;
+    --create)
+        set_lifecycle_action "create"
+        create_target="$2"
+        if [[ -z "$create_target" || "$create_target" == -* ]]; then
+            echo "Error: --create requires a path or project name"
+            exit 1
+        fi
+        shift
+        ;;
+    --rename)
+        set_lifecycle_action "rename"
+        rename_target="$2"
+        if [[ -z "$rename_target" || "$rename_target" == -* ]]; then
+            echo "Error: --rename requires a new name or path"
+            exit 1
+        fi
+        shift
+        ;;
+    --delete)
+        set_lifecycle_action "delete"
+        if [[ -n "$2" && "$2" != -* ]]; then
+            delete_target="$2"
+            shift
+        fi
+        ;;
     -v | --version)
         echo "tmux-sessionizer version $VERSION"
         exit 0
@@ -166,6 +216,11 @@ if [[ -n "$split_type" && -z "$session_idx" ]]; then
     exit 1
 fi
 
+if [[ -n "$lifecycle_action" && -n "$session_idx" ]]; then
+    echo "Error: --create, --rename, and --delete cannot be combined with -s/--session"
+    exit 1
+fi
+
 sanity_check() {
     if ! command -v tmux &>/dev/null; then
         echo "tmux is not installed. Please install it first."
@@ -176,6 +231,191 @@ sanity_check() {
         echo "fzf is not installed. Please install it first."
         exit 1
     fi
+}
+
+is_repo_url() {
+    local input="$1"
+    [[ "$input" == https://github.com/* || "$input" == git@github.com:* || "$input" == git@codeberg.org:* || "$input" == https://codeberg.org/* || "$input" == https://git.ufam.edu.br/* || "$input" == git@git.ufam.edu.br:* ]]
+}
+
+default_clone_dir() {
+    local base
+    if [[ -n "$TS_REPO_CLONE_DIR" ]]; then
+        base="$TS_REPO_CLONE_DIR"
+    elif [[ ${#TS_SEARCH_PATHS[@]} -gt 0 ]]; then
+        base="${TS_SEARCH_PATHS[0]}"
+        base="${base%%:*}"
+    else
+        base="$HOME"
+    fi
+
+    base="${base/#\~/$HOME}"
+    printf '%s\n' "$base"
+}
+
+expand_path() {
+    local path="$1"
+    printf '%s\n' "${path/#\~/$HOME}"
+}
+
+resolve_base_relative_path() {
+    local input="$1"
+    if [[ "$input" == ~* || "$input" == /* ]]; then
+        expand_path "$input"
+        return
+    fi
+
+    local base
+    base=$(default_clone_dir)
+    printf '%s\n' "$base/$input"
+}
+
+current_project_dir() {
+    local current_path
+    if [[ -n "$TMUX" ]]; then
+        current_path=$(tmux display-message -p '#{pane_current_path}' 2>/dev/null)
+    fi
+
+    if [[ -z "$current_path" ]]; then
+        current_path="$PWD"
+    fi
+
+    printf '%s\n' "$(expand_path "$current_path")"
+}
+
+require_tmux_for_project_ops() {
+    if [[ -z "$TMUX" ]]; then
+        echo "Error: --create, --rename, and --delete must be run inside a tmux session"
+        exit 1
+    fi
+}
+
+resolve_rename_target_path() {
+    local current_dir="$1"
+    local target_input="$2"
+
+    if [[ "$target_input" == ~* || "$target_input" == /* ]]; then
+        expand_path "$target_input"
+        return
+    fi
+
+    local current_parent
+    current_parent=$(dirname "$current_dir")
+    printf '%s\n' "$current_parent/$target_input"
+}
+
+session_name_from_path() {
+    basename "$1" | tr . _
+}
+
+safe_delete_dir() {
+    local target="$1"
+    local resolved_target resolved_home
+
+    if [[ -z "$target" ]]; then
+        echo "Error: Refusing to delete an empty path"
+        exit 1
+    fi
+
+    if [[ ! -d "$target" ]]; then
+        echo "Error: '$target' is not a directory"
+        exit 1
+    fi
+
+    resolved_target=$(cd "$target" && pwd -P)
+    resolved_home=$(cd "$HOME" && pwd -P)
+
+    if [[ -z "$resolved_target" || "$resolved_target" == "/" || "$resolved_target" == "$resolved_home" ]]; then
+        echo "Error: Refusing to delete protected path '$resolved_target'"
+        exit 1
+    fi
+
+    echo "Project directory to delete: $resolved_target"
+    read -r -p "Delete project directory '$resolved_target'? [y/N]: " confirm
+    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+        echo "Delete canceled"
+        exit 0
+    fi
+
+    local target_session current_session
+    target_session=$(session_name_from_path "$resolved_target")
+
+    if [[ -n "$TMUX" ]]; then
+        current_session=$(tmux display-message -p '#S' 2>/dev/null)
+        if [[ -n "$current_session" && "$current_session" == "$target_session" ]]; then
+            if ! tmux switch-client -n 2>/dev/null; then
+                tmux detach-client
+                echo "No other session found; detached client"
+            else
+                echo "Switched to next tmux session"
+            fi
+        fi
+    fi
+
+    if has_session "$target_session"; then
+        tmux kill-session -t "$target_session"
+        echo "Closed tmux session: $target_session"
+    else
+        echo "No tmux session found for: $target_session"
+    fi
+
+    if ! rm -r "$resolved_target"; then
+        echo "Error: Failed to delete '$resolved_target'"
+        exit 1
+    fi
+
+    echo "Project deleted: $resolved_target"
+}
+
+resolve_selected_target() {
+    local input="$1"
+
+    if [[ -d "$input" ]]; then
+        selected="$input"
+        return
+    fi
+
+    if has_session "$input"; then
+        selected="$input"
+        return
+    fi
+
+    if is_repo_url "$input"; then
+        if ! command -v git &>/dev/null; then
+            echo "git is not installed. Please install it first."
+            exit 1
+        fi
+
+        local repo_name clone_base custom_target target_dir
+        repo_name=$(basename "$input" .git)
+        clone_base=$(default_clone_dir)
+        clone_base="${clone_base/#\~/$HOME}"
+
+        mkdir -p "$clone_base"
+
+        echo "Cloning repo '$repo_name' to '$clone_base'."
+        read -r -p "Clone destination (enter for '$clone_base/$repo_name'): " custom_target
+
+        if [[ -z "$custom_target" ]]; then
+            target_dir="$clone_base/$repo_name"
+        elif [[ "$custom_target" == ~* || "$custom_target" == /* ]]; then
+            target_dir="${custom_target/#\~/$HOME}"
+        else
+            target_dir="$clone_base/$custom_target"
+        fi
+
+        git clone "$input" "$target_dir"
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to clone repository"
+            exit 1
+        fi
+
+        echo "Repository cloned successfully to $target_dir"
+        selected="$target_dir"
+        return
+    fi
+
+    selected="$input"
 }
 
 switch_to() {
@@ -189,7 +429,7 @@ switch_to() {
 }
 
 has_session() {
-    tmux list-sessions | grep -q "^$1:"
+    tmux has-session -t="$1" 2>/dev/null
 }
 
 hydrate() {
@@ -266,6 +506,58 @@ if [[ ${#TS_EXTRA_SEARCH_PATHS[@]} -gt 0 ]]; then
     TS_SEARCH_PATHS+=("${TS_EXTRA_SEARCH_PATHS[@]}")
 fi
 
+if [[ -n "$lifecycle_action" ]]; then
+    require_tmux_for_project_ops
+fi
+
+if [[ "$lifecycle_action" == "create" ]]; then
+    selected=$(resolve_base_relative_path "$create_target")
+    if [[ -e "$selected" && ! -d "$selected" ]]; then
+        echo "Error: '$selected' exists and is not a directory"
+        exit 1
+    fi
+
+    mkdir -p "$selected"
+elif [[ "$lifecycle_action" == "rename" ]]; then
+    old_selected=$(current_project_dir)
+    if [[ ! -d "$old_selected" ]]; then
+        echo "Error: Current project directory '$old_selected' does not exist"
+        exit 1
+    fi
+
+    selected=$(resolve_rename_target_path "$old_selected" "$rename_target")
+    if [[ -z "$selected" ]]; then
+        echo "Error: Invalid rename target"
+        exit 1
+    fi
+
+    old_session_name=$(session_name_from_path "$old_selected")
+    selected=$(expand_path "$selected")
+
+    if [[ "$old_selected" != "$selected" ]]; then
+        if [[ -e "$selected" ]]; then
+            echo "Error: Rename target '$selected' already exists"
+            exit 1
+        fi
+
+        mv "$old_selected" "$selected"
+    fi
+
+    new_session_name=$(session_name_from_path "$selected")
+    if [[ "$old_session_name" != "$new_session_name" ]] && has_session "$old_session_name"; then
+        tmux rename-session -t "$old_session_name" "$new_session_name"
+    fi
+elif [[ "$lifecycle_action" == "delete" ]]; then
+    if [[ -n "$delete_target" ]]; then
+        selected=$(resolve_base_relative_path "$delete_target")
+    else
+        selected=$(current_project_dir)
+    fi
+
+    safe_delete_dir "$selected"
+    exit 0
+fi
+
 # utility function to find directories
 find_dirs() {
     # list TMUX sessions
@@ -296,6 +588,11 @@ find_dirs() {
             local resolved_path
             resolved_path=$(cd "$path" && pwd)
             find "$resolved_path" -mindepth 1 -maxdepth "${depth:-${TS_MAX_DEPTH:-1}}" -path '*/.git' -prune -o -type d -print | while IFS= read -r dir; do
+                local session_name
+                session_name=$(basename "$dir" | tr . _)
+                if tmux has-session -t="$session_name" 2>/dev/null; then
+                    continue
+                fi
                 local relative="${dir#"$resolved_path"/}"
                 printf '%s\t%s\n' "$dir" "$relative"
             done
@@ -374,10 +671,13 @@ handle_split_session_cmd() {
 
 if [[ ! -z $session_cmd ]]; then
     handle_session_cmd
+elif [[ -n "$lifecycle_action" ]]; then
+    :
 elif [[ ! -z $user_selected ]]; then
     selected="$user_selected"
 else
-    selected=$(find_dirs | fzf --delimiter=$'\t' --with-nth=2)
+    selected_output=$(find_dirs | fzf --delimiter=$'\t' --with-nth=2 --print-query)
+    selected="${selected_output##*$'\n'}"
 fi
 
 if [[ -z $selected ]]; then
@@ -386,6 +686,8 @@ fi
 
 # extract fullpath/session name (column 1) from TAB-delimited fzf output
 selected=$(printf '%s' "$selected" | cut -f1)
+
+resolve_selected_target "$selected"
 
 selected_name=$(basename "$selected" | tr . _)
 
