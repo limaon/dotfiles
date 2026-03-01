@@ -791,74 +791,6 @@ require("lazy").setup({
 
 	{ "Bilal2453/luvit-meta", lazy = true },
 
-	{
-		"lervag/vimtex",
-		ft = "tex",
-		lazy = false,
-		config = function()
-			-- vim.g.vimtex_mappings_enabled = 0
-			vim.g.vimtex_compiler_method = "latexmk"
-			vim.g.vimtex_compiler_latexmk = {
-				options = {
-					"-pdf",
-					"-interaction=nonstopmode",
-					"-synctex=1",
-					"-file-line-error",
-					"-shell-escape",
-				},
-			}
-			vim.g.vimtex_compiler_latexmk_engines = {
-				_ = "-xelatex",
-			}
-
-			vim.g.vimtex_view_method = "zathura"
-			vim.g.vimtex_view_general_options = {
-				"--unique",
-				"--synctex-editor-command",
-				'nvim --headless -c "VimtexInverseSearch %l %f"',
-			}
-
-			vim.g.vimtex_quickfix_mode = 0
-			vim.g.vimtex_syntax_enabled = 1
-			vim.g.vimtex_syntax_conceal = {
-				math_delimiters = 1,
-				bangs = 1,
-				citations = 1,
-				frac = 1,
-			}
-			vim.g.vimtex_compiler_autowatch = 1
-			vim.g.vimtex_format_enabled = 1
-			vim.g.vimtex_fold_enabled = 1
-			vim.g.vimtex_fold_types = {
-				cmd_addplot = { lpos = "#" },
-				cmd_foldenv = 1,
-				cmd_multiline = 1,
-				cmd_singleline = 1,
-				cmd_startstop = 1,
-				comment = 1,
-				delim_inline = 0,
-				delim_math = 0,
-				brace = 1,
-				bracket = 1,
-			}
-			vim.g.vimtex_matchparen_enabled = 0
-			vim.g.vimtex_indent_enabled = 1
-			vim.g.vimtex_indent_on_ampersand = 1
-			vim.g.vimtex_indent_brace = 1
-			vim.g.vimtex_toc_config = {
-				name = "TOC",
-				layers = { "content", "todo", "include" },
-				resize = 0,
-				split_width = 40,
-				toc_depth = 3,
-				indent_levels = 2,
-				show_help = 1,
-				show_numbers = 1,
-				mode = 2,
-			}
-		end,
-	},
-
 	-- [[ LSP Configuration with nvim-lspconfig ]] {{{
 	{
 		"neovim/nvim-lspconfig",
@@ -953,29 +885,14 @@ require("lazy").setup({
 
 			vim.lsp.config("clangd", {})
 
-			vim.lsp.config("texlab", {
-				settings = {
-					texlab = {
-						build = {
-							executable = "latexmk",
-							args = {
-								"-xelatex",
-								"-pdf",
-								"-interaction=nonstopmode",
-								"-synctex=1",
-								"-file-line-error",
-								"%f",
-							},
-							onSave = false, -- Desativado para usar vimtex ao invés
-							forwardSearchAfter = false,
-						},
-						forwardSearch = {
-							executable = "zathura",
-							args = { "--synctex-forward", "%l:1:%f", "%p" },
-						},
-					},
-				},
-			})
+		vim.lsp.config("tinymist", {
+			settings = {
+				exportPdf = "onSave",
+				formatterMode = "typstyle",
+				formatterIndentSize = 2,
+				formatterPrintWidth = 100,
+			},
+		})
 
 			vim.lsp.config("lua_ls", {
 				on_init = function(client)
@@ -1038,8 +955,8 @@ require("lazy").setup({
 							undefinedFunctions = true,
 							undefinedMethods = true,
 							typeErrors = true,
-							unusedSymbols = false, -- reduz ruido em projeto pequeno
-							relaxedTypeCheck = true, -- mais permissivo
+							unusedSymbols = false,
+							relaxedTypeCheck = true,
 						},
 
 						completion = {
@@ -1049,7 +966,7 @@ require("lazy").setup({
 						},
 
 						format = {
-							enable = false, -- deixa formatacao para pint/conform
+							enable = false,
 						},
 
 						inlayHint = {
@@ -1138,10 +1055,7 @@ require("lazy").setup({
 			})
 
 			local ensure_installed = {
-				"css-lsp",
 				"emmet-language-server",
-				"pyright",
-				"texlab",
 				"lua_ls",
 				"ts_ls",
 				"stylua",
@@ -1160,9 +1074,9 @@ require("lazy").setup({
 			vim.lsp.enable("emmet_language_server")
 			vim.lsp.enable("cssls")
 			vim.lsp.enable("pyright")
-			vim.lsp.enable("texlab")
 			vim.lsp.enable("lua_ls")
 			vim.lsp.enable("ts_ls")
+			vim.lsp.enable("tinymist")
 		end,
 	},
 	-- }}}
