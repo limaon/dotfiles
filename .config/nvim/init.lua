@@ -642,6 +642,45 @@ require("lazy").setup({
 		end,
 	},
 
+	{ -- SQL client inside Neovim (Dadbod)
+		"tpope/vim-dadbod",
+		cmd = { "DB", "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
+		dependencies = {
+			{
+				"kristijanhusak/vim-dadbod-ui",
+				cmd = { "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
+				init = function()
+					vim.g.db_ui_use_nerd_fonts = 1
+					vim.g.db_ui_show_database_icon = 1
+					vim.g.db_ui_win_position = "left"
+					vim.g.db_ui_winwidth = 35
+				end,
+			},
+			{
+				"kristijanhusak/vim-dadbod-completion",
+				ft = { "sql", "mysql", "plsql" },
+			},
+		},
+		init = function()
+			local db_url = os.getenv("DATABASE_URL")
+			if db_url and db_url ~= "" then
+				vim.g.db = db_url
+			end
+
+			vim.g.dbs = {
+				dev = os.getenv("DATABASE_URL_DEV"),
+				staging = os.getenv("DATABASE_URL_STAGING"),
+				prod = os.getenv("DATABASE_URL_PROD"),
+			}
+		end,
+		keys = {
+			{ "<leader>du", "<cmd>DBUIToggle<cr>", desc = "[D]atabase [U]I" },
+			{ "<leader>da", "<cmd>DBUIAddConnection<cr>", desc = "[D]atabase [A]dd Connection" },
+			{ "<leader>db", "<cmd>DBUIFindBuffer<cr>", desc = "[D]atabase Find [B]uffer" },
+			{ "<leader>dr", "<cmd>DB<cr>", desc = "[D]atabase [R]un Query" },
+		},
+	},
+
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
 		event = "VimEnter",
@@ -885,14 +924,14 @@ require("lazy").setup({
 
 			vim.lsp.config("clangd", {})
 
-		vim.lsp.config("tinymist", {
-			settings = {
-				exportPdf = "onSave",
-				formatterMode = "typstyle",
-				formatterIndentSize = 2,
-				formatterPrintWidth = 100,
-			},
-		})
+			vim.lsp.config("tinymist", {
+				settings = {
+					exportPdf = "onSave",
+					formatterMode = "typstyle",
+					formatterIndentSize = 2,
+					formatterPrintWidth = 100,
+				},
+			})
 
 			vim.lsp.config("lua_ls", {
 				on_init = function(client)
@@ -1132,15 +1171,6 @@ require("lazy").setup({
 	{
 		"echasnovski/mini.nvim",
 		config = function()
-			-- === UI Utilities ===
-
-			-- Icon provider with LSP integration and nvim-web-devicons mock
-			local MiniIcons = require("mini.icons")
-			MiniIcons.setup()
-			MiniIcons.tweak_lsp_kind()
-			MiniIcons.mock_nvim_web_devicons()
-
-			-- Custom statusline with mode, spell, wrap, git, diff, diagnostics, lsp, and fileinfo sections
 			local statusline = require("mini.statusline")
 			statusline.setup({
 				use_icons = vim.g.have_nerd_font,
@@ -1175,75 +1205,7 @@ require("lazy").setup({
 				},
 			})
 
-			-- === Text Editing ===
-
-			-- Extended text objects (a/i) with 500 lines search range
-			require("mini.ai").setup({ n_lines = 500 })
-
-			-- Auto-brackets and auto-quotes
 			require("mini.pairs").setup()
-
-			-- Snippet management with LSP server integration
-			local gen_loader = require("mini.snippets").gen_loader
-			local MiniSnippets = require("mini.snippets")
-			MiniSnippets.setup({
-				snippets = {
-					gen_loader.from_file(vim.fn.stdpath("config") .. "/snippets/global.json"),
-					gen_loader.from_lang(),
-				},
-			})
-			MiniSnippets.start_lsp_server({ match = false })
-
-			local function attach_snippets_client(buf_id)
-				if not vim.api.nvim_buf_is_valid(buf_id) then
-					return false
-				end
-
-				local snippets_client = vim.lsp.get_clients({ name = "mini.snippets" })[1]
-				if not snippets_client then
-					return false
-				end
-
-				local attached = vim.lsp.get_clients({ bufnr = buf_id, name = "mini.snippets" })[1]
-				if attached then
-					return true
-				end
-
-				return vim.lsp.buf_attach_client(buf_id, snippets_client.id)
-			end
-
-			local snippets_group = vim.api.nvim_create_augroup("MiniSnippetsLsp", { clear = true })
-			vim.api.nvim_create_autocmd("BufEnter", {
-				group = snippets_group,
-				callback = function(ev)
-					attach_snippets_client(ev.buf)
-				end,
-				desc = "Attach mini.snippets LSP server",
-			})
-
-			local retries = 0
-			local max_retries = 20
-			local function try_attach_open_buffers()
-				local attached_any = false
-				for _, buf_id in ipairs(vim.api.nvim_list_bufs()) do
-					if vim.api.nvim_buf_is_loaded(buf_id) and attach_snippets_client(buf_id) then
-						attached_any = true
-					end
-				end
-
-				if attached_any or retries >= max_retries then
-					return
-				end
-
-				retries = retries + 1
-				vim.defer_fn(try_attach_open_buffers, 100)
-			end
-
-			vim.defer_fn(try_attach_open_buffers, 50)
-
-			-- === Whitespace ===
-
-			-- Highlight trailing whitespace in normal buffers only
 			require("mini.trailspace").setup()
 		end,
 	},
@@ -1272,16 +1234,6 @@ require("lazy").setup({
 						align_to = "cursor",
 						columns = { { "kind_icon" }, { "label", "label_description", gap = 1 } },
 						components = {
-							kind_icon = {
-								text = function(ctx)
-									local icon, _, _ = require("mini.icons").get("lsp", ctx.kind)
-									return icon
-								end,
-								highlight = function(ctx)
-									local _, hl, _ = require("mini.icons").get("lsp", ctx.kind)
-									return hl
-								end,
-							},
 							label = {
 								width = { max = 18 },
 							},
@@ -1289,9 +1241,8 @@ require("lazy").setup({
 					},
 				},
 			},
-			snippets = { preset = "mini_snippets" },
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer" },
+				default = { "lsp", "path", "buffer" },
 			},
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
