@@ -642,45 +642,6 @@ require("lazy").setup({
 		end,
 	},
 
-	{ -- SQL client inside Neovim (Dadbod)
-		"tpope/vim-dadbod",
-		cmd = { "DB", "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
-		dependencies = {
-			{
-				"kristijanhusak/vim-dadbod-ui",
-				cmd = { "DBUI", "DBUIToggle", "DBUIAddConnection", "DBUIFindBuffer" },
-				init = function()
-					vim.g.db_ui_use_nerd_fonts = 1
-					vim.g.db_ui_show_database_icon = 1
-					vim.g.db_ui_win_position = "left"
-					vim.g.db_ui_winwidth = 35
-				end,
-			},
-			{
-				"kristijanhusak/vim-dadbod-completion",
-				ft = { "sql", "mysql", "plsql" },
-			},
-		},
-		init = function()
-			local db_url = os.getenv("DATABASE_URL")
-			if db_url and db_url ~= "" then
-				vim.g.db = db_url
-			end
-
-			vim.g.dbs = {
-				dev = os.getenv("DATABASE_URL_DEV"),
-				staging = os.getenv("DATABASE_URL_STAGING"),
-				prod = os.getenv("DATABASE_URL_PROD"),
-			}
-		end,
-		keys = {
-			{ "<leader>du", "<cmd>DBUIToggle<cr>", desc = "[D]atabase [U]I" },
-			{ "<leader>da", "<cmd>DBUIAddConnection<cr>", desc = "[D]atabase [A]dd Connection" },
-			{ "<leader>db", "<cmd>DBUIFindBuffer<cr>", desc = "[D]atabase Find [B]uffer" },
-			{ "<leader>dr", "<cmd>DB<cr>", desc = "[D]atabase [R]un Query" },
-		},
-	},
-
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
 		event = "VimEnter",
