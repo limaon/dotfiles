@@ -461,7 +461,8 @@ keymap("n", "<F1>", "<cmd>set rnu!<cr>", { desc = "Toggle relative number" })
 keymap("n", "<F2>", "<cmd>set spell!<cr>", { desc = "Toggle spell check" })
 keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Toggle wrap" })
 keymap("n", "<F4>", "z=", { desc = "Show spelling suggestions" })
-keymap("i", "<F5>", "<c-x><c-s>", { desc = "Trigger spelling completion" })
+keymap("n", "<F5>", "1z=", { desc = "Accept first spelling suggestion" })
+keymap("i", "<F5>", "<C-o>1z=", { desc = "Accept first spelling suggestion" })
 
 -- }}}
 
