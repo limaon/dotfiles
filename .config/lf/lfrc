@@ -153,7 +153,10 @@ cmd changedirectory ${{
 
 
 cmd hard-reload &{{
-  [ -d ~/.cache/lf ] && rm -rf ~/.cache/lf
+  if [ -d "$HOME/.cache/lf" ]; then
+    find "$HOME/.cache/lf" -mindepth 1 -delete 2>/dev/null
+    rmdir -- "$HOME/.cache/lf" 2>/dev/null || true
+  fi
   lf -remote "send $id reload"
 }}
 
@@ -166,15 +169,89 @@ cmd yank &{{
 }}
 
 cmd paste &{{
-  set -- $(cat ~/.local/share/lf/files)
-  mode="$1"
-  shift
+  files_db="$HOME/.local/share/lf/files"
+  [ -f "$files_db" ] || exit 1
+
+  mode="$(head -n 1 -- "$files_db")"
+  mapfile -t items < <(tail -n +2 -- "$files_db")
+  [ "${#items[@]}" -gt 0 ] || exit 0
+
   dest="$PWD"
+
+  format_bytes() {
+    if command -v numfmt >/dev/null 2>&1; then
+      numfmt --to=iec-i --suffix=B -- "$1" 2>/dev/null || printf '%s B' "$1"
+    else
+      printf '%s B' "$1"
+    fi
+  }
+
+  required_bytes_for_items() {
+    local total=0
+    local path bytes
+    for path in "$@"; do
+      [ -e "$path" ] || continue
+      bytes=$(du -sb -- "$path" 2>/dev/null | cut -f1)
+      if [ -z "$bytes" ]; then
+        bytes=$(stat -Lc%s -- "$path" 2>/dev/null || echo 0)
+      fi
+      total=$((total + bytes))
+    done
+    printf '%s\n' "$total"
+  }
+
+  available_bytes_for_dest() {
+    df -PB1 -- "$1" 2>/dev/null | awk 'NR==2 {print $4}'
+  }
+
+  is_same_filesystem() {
+    local src_dev dest_dev
+    src_dev=$(stat -c %d -- "$1" 2>/dev/null || echo "")
+    dest_dev=$(stat -c %d -- "$2" 2>/dev/null || echo "")
+    [ -n "$src_dev" ] && [ "$src_dev" = "$dest_dev" ]
+  }
+
+  require_space_or_abort() {
+    local required available required_h available_h
+    required=$(required_bytes_for_items "$@")
+    available=$(available_bytes_for_dest "$dest")
+    [ -n "$available" ] || available=0
+    if [ "$required" -gt "$available" ]; then
+      required_h=$(format_bytes "$required")
+      available_h=$(format_bytes "$available")
+      notify-send -u critical "Insufficient destination space" \
+        "Required: ${required_h}\nFree: ${available_h}\nDestination: ${dest}" \
+        2>/dev/null
+      lf -remote "send $id echoerr 'paste: insufficient space at ${dest}'"
+      exit 1
+    fi
+  }
+
+  check_dest_or_abort() {
+    local d="$1"
+    if [ ! -e "$d" ]; then
+      notify-send -u critical "Destination disappeared" \
+        "Path no longer exists: ${d}\nDevice may have been removed." \
+        2>/dev/null
+      lf -remote "send $id echoerr 'paste: destination gone — ${d}'"
+      exit 1
+    fi
+    if ! mountpoint -q "$d" 2>/dev/null && ! [ -w "$d" ]; then
+      notify-send -u critical "Destination not writable" \
+        "Cannot write to: ${d}\nCheck permissions or device status." \
+        2>/dev/null
+      lf -remote "send $id echoerr 'paste: destination not writable — ${d}'"
+      exit 1
+    fi
+  }
 
   case "$mode" in
     copy)
+      check_dest_or_abort "$dest"
+      require_space_or_abort "${items[@]}"
+
       NOTIFY_ID=2595
-      file_count=$(echo "$@" | wc -w)
+      file_count="${#items[@]}"
       current_file_num=0
       last_percent=-1
 
@@ -185,9 +262,10 @@ cmd paste &{{
                    -h "string:synchronous:lf-paste" \
                    2>/dev/null
 
+      set -o pipefail
       rsync -aAXHv --info=progress2 --update --no-compress \
             --partial --human-readable \
-            -- "$@" . 2>&1 |
+            -- "${items[@]}" . 2>&1 |
       stdbuf -i0 -o0 -e0 tr '\r' '\n' |
       while IFS= read -r line; do
         if echo "$line" | grep -qE '[0-9]+%'; then
@@ -219,13 +297,40 @@ cmd paste &{{
           fi
         fi
       done
+      rsync_exit="${PIPESTATUS[0]}"
+      if [ "${rsync_exit}" -ne 0 ]; then
+        notify-send -u critical "Copy failed" \
+          "rsync exited with code ${rsync_exit}. Some files may not have been copied." \
+          2>/dev/null
+        lf -remote "send $id echoerr 'paste: rsync failed (exit ${rsync_exit})'"
+        exit "${rsync_exit}"
+      fi
       ;;
     move)
-      mv -n -- "$@" .
+      all_same_fs=1
+      for item in "${items[@]}"; do
+        if ! is_same_filesystem "$item" "$dest"; then
+          all_same_fs=0
+          break
+        fi
+      done
+
+      if [ "$all_same_fs" -eq 0 ]; then
+        check_dest_or_abort "$dest"
+        require_space_or_abort "${items[@]}"
+      fi
+
+      if ! mv -n -- "${items[@]}" .; then
+        notify-send -u critical "Move failed" \
+          "mv exited with an error. Some files may not have been moved." \
+          2>/dev/null
+        lf -remote "send $id echoerr 'paste: mv failed'"
+        exit 1
+      fi
       ;;
   esac
 
-  rm ~/.local/share/lf/files
+  rm -f -- "$files_db"
 
   if [ "$mode" = "copy" ] && [ -n "${NOTIFY_ID:-}" ]; then
     notify-send -r "${NOTIFY_ID}" "  File(s) pasted." "Pasted to $dest"
@@ -246,14 +351,79 @@ cmd copyto ${{
 
   [[ -z "$dest" || ! -d "$dest" ]] && exit 1
 
+  mapfile -t items <<EOF
+$fx
+EOF
+  [ "${#items[@]}" -gt 0 ] || exit 0
+
+  format_bytes() {
+    if command -v numfmt >/dev/null 2>&1; then
+      numfmt --to=iec-i --suffix=B -- "$1" 2>/dev/null || printf '%s B' "$1"
+    else
+      printf '%s B' "$1"
+    fi
+  }
+
+  required_bytes_for_items() {
+    local total=0
+    local path bytes
+    for path in "$@"; do
+      [ -e "$path" ] || continue
+      bytes=$(du -sb -- "$path" 2>/dev/null | cut -f1)
+      if [ -z "$bytes" ]; then
+        bytes=$(stat -Lc%s -- "$path" 2>/dev/null || echo 0)
+      fi
+      total=$((total + bytes))
+    done
+    printf '%s\n' "$total"
+  }
+
+  available_bytes_for_dest() {
+    df -PB1 -- "$1" 2>/dev/null | awk 'NR==2 {print $4}'
+  }
+
+  check_dest_or_abort() {
+    local d="$1"
+    if [ ! -e "$d" ]; then
+      notify-send -u critical "Destination disappeared" \
+        "Path no longer exists: ${d}\nDevice may have been removed." \
+        2>/dev/null
+      lf -remote "send $id echoerr 'copyto: destination gone — ${d}'"
+      exit 1
+    fi
+    if ! mountpoint -q "$d" 2>/dev/null && ! [ -w "$d" ]; then
+      notify-send -u critical "Destination not writable" \
+        "Cannot write to: ${d}\nCheck permissions or device status." \
+        2>/dev/null
+      lf -remote "send $id echoerr 'copyto: destination not writable — ${d}'"
+      exit 1
+    fi
+  }
+
+  required_bytes=$(required_bytes_for_items "${items[@]}")
+  available_bytes=$(available_bytes_for_dest "$dest")
+  [ -n "$available_bytes" ] || available_bytes=0
+
+  if [ "$required_bytes" -gt "$available_bytes" ]; then
+    required_h=$(format_bytes "$required_bytes")
+    available_h=$(format_bytes "$available_bytes")
+    notify-send -u critical "Insufficient destination space" \
+      "Required: ${required_h}\nFree: ${available_h}\nDestination: ${dest}" \
+      2>/dev/null
+    lf -remote "send $id echoerr 'copyto: insufficient space at ${dest}'"
+    exit 1
+  fi
+
+  check_dest_or_abort "$dest"
+
   clear; tput cup $(($(tput lines)/3)); tput bold
-  echo "From:"; printf '%s\n' $fx | sed 's/^/   /'
+  echo "From:"; printf '%s\n' "${items[@]}" | sed 's/^/   /'
   printf 'To:\n   %s\n\n\tcopy?[y/N]' "$dest"
   read -r ans
   [[ "$ans" != "y" ]] && exit 1
 
   NOTIFY_ID=2596
-  file_count=$(echo "$fx" | wc -w)
+  file_count="${#items[@]}"
   current_file_num=0
   last_percent=-1
 
@@ -264,7 +434,10 @@ cmd copyto ${{
                -h "string:synchronous:lf-copyto" \
                2>/dev/null
 
-  for x in $fx; do
+  copy_failed=0
+  for x in "${items[@]}"; do
+    [ -n "$x" ] || continue
+    set -o pipefail
     rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
           --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
           -- "$x" "$dest" 2>&1 |
@@ -299,8 +472,21 @@ cmd copyto ${{
         fi
       fi
     done
-  done &&
-  notify-send -r "${NOTIFY_ID}" "󰆏  File(s) copied." "File(s) copied to $dest."
+    rsync_exit="${PIPESTATUS[0]}"
+    set +o pipefail
+    if [ "${rsync_exit}" -ne 0 ]; then
+      copy_failed=1
+      notify-send -u critical "Copy failed" \
+        "Failed to copy: $(basename -- "$x") (rsync exit ${rsync_exit})" \
+        2>/dev/null
+      lf -remote "send $id echoerr 'copyto: rsync failed for $(basename -- "$x") (exit ${rsync_exit})'"
+    fi
+  done
+  if [ "$copy_failed" -eq 0 ]; then
+    notify-send -r "${NOTIFY_ID}" "󰆏  File(s) copied." "File(s) copied to $dest."
+  else
+    notify-send -u critical "󰆏  Copy completed with errors." "Some files may not have been copied to $dest."
+  fi
   lf -remote 'send clear'
 }}
 
@@ -315,14 +501,95 @@ cmd moveto ${{
 
   [[ -z "$dest" || ! -d "$dest" ]] && exit 1
 
+  mapfile -t items <<EOF
+$fx
+EOF
+  [ "${#items[@]}" -gt 0 ] || exit 0
+
+  format_bytes() {
+    if command -v numfmt >/dev/null 2>&1; then
+      numfmt --to=iec-i --suffix=B -- "$1" 2>/dev/null || printf '%s B' "$1"
+    else
+      printf '%s B' "$1"
+    fi
+  }
+
+  required_bytes_for_items() {
+    local total=0
+    local path bytes
+    for path in "$@"; do
+      [ -e "$path" ] || continue
+      bytes=$(du -sb -- "$path" 2>/dev/null | cut -f1)
+      if [ -z "$bytes" ]; then
+        bytes=$(stat -Lc%s -- "$path" 2>/dev/null || echo 0)
+      fi
+      total=$((total + bytes))
+    done
+    printf '%s\n' "$total"
+  }
+
+  available_bytes_for_dest() {
+    df -PB1 -- "$1" 2>/dev/null | awk 'NR==2 {print $4}'
+  }
+
+  is_same_filesystem() {
+    local src_dev dest_dev
+    src_dev=$(stat -c %d -- "$1" 2>/dev/null || echo "")
+    dest_dev=$(stat -c %d -- "$2" 2>/dev/null || echo "")
+    [ -n "$src_dev" ] && [ "$src_dev" = "$dest_dev" ]
+  }
+
+  check_dest_or_abort() {
+    local d="$1"
+    if [ ! -e "$d" ]; then
+      notify-send -u critical "Destination disappeared" \
+        "Path no longer exists: ${d}\nDevice may have been removed." \
+        2>/dev/null
+      lf -remote "send $id echoerr 'moveto: destination gone — ${d}'"
+      exit 1
+    fi
+    if ! mountpoint -q "$d" 2>/dev/null && ! [ -w "$d" ]; then
+      notify-send -u critical "Destination not writable" \
+        "Cannot write to: ${d}\nCheck permissions or device status." \
+        2>/dev/null
+      lf -remote "send $id echoerr 'moveto: destination not writable — ${d}'"
+      exit 1
+    fi
+  }
+
+  all_same_fs=1
+  for item in "${items[@]}"; do
+    if ! is_same_filesystem "$item" "$dest"; then
+      all_same_fs=0
+      break
+    fi
+  done
+
+  if [ "$all_same_fs" -eq 0 ]; then
+    check_dest_or_abort "$dest"
+    required_bytes=$(required_bytes_for_items "${items[@]}")
+    available_bytes=$(available_bytes_for_dest "$dest")
+    [ -n "$available_bytes" ] || available_bytes=0
+
+    if [ "$required_bytes" -gt "$available_bytes" ]; then
+      required_h=$(format_bytes "$required_bytes")
+      available_h=$(format_bytes "$available_bytes")
+      notify-send -u critical "Insufficient destination space" \
+        "Required: ${required_h}\nFree: ${available_h}\nDestination: ${dest}" \
+        2>/dev/null
+      lf -remote "send $id echoerr 'moveto: insufficient space at ${dest}'"
+      exit 1
+    fi
+  fi
+
   clear; tput cup $(($(tput lines)/3)); tput bold
-  echo "From:"; printf '%s\n' $fx | sed 's/^/   /'
+  echo "From:"; printf '%s\n' "${items[@]}" | sed 's/^/   /'
   printf 'To:\n   %s\n\n\tmove?[y/N]' "$dest"
   read -r ans
   [[ "$ans" != "y" ]] && exit 1
 
   NOTIFY_ID=2597
-  file_count=$(echo "$fx" | wc -w)
+  file_count="${#items[@]}"
   current_file_num=0
   last_percent=-1
 
@@ -333,44 +600,89 @@ cmd moveto ${{
                -h "string:synchronous:lf-moveto" \
                2>/dev/null
 
-  for x in $fx; do
-    rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
-          --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
-          -- "$x" "$dest" 2>&1 |
-    stdbuf -i0 -o0 -e0 tr '\r' '\n' |
-    while IFS= read -r line; do
-      if echo "$line" | grep -qE '[0-9]+%'; then
-        percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
-        filename=$(echo "$line" | awk '{print $1}' | sed 's|^\./||' | xargs basename 2>/dev/null || basename "$x")
+  move_failed=0
+  if [ "$all_same_fs" -eq 1 ]; then
+    for x in "${items[@]}"; do
+      [ -n "$x" ] || continue
+      if ! mv -n -- "$x" "$dest"/; then
+        move_failed=1
+        notify-send -u critical "Move failed" \
+          "Failed to move: $(basename -- "$x")" \
+          2>/dev/null
+        lf -remote "send $id echoerr 'moveto: mv failed for $(basename -- "$x")'"
+        continue
+      fi
+      current_file_num=$((current_file_num + 1))
+      total_progress=$(( (current_file_num * 100) / file_count ))
+      notify-send -r "${NOTIFY_ID}" \
+                 -h "int:value:${total_progress}" \
+                 "Moving file(s)..." \
+                 "$(basename -- "$x") - 100% ($current_file_num/$file_count)" \
+                 -h "string:synchronous:lf-moveto" \
+                 2>/dev/null
+    done
+  else
+    for x in "${items[@]}"; do
+      [ -n "$x" ] || continue
+      set -o pipefail
+      rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
+            --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
+            -- "$x" "$dest" 2>&1 |
+      stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+      while IFS= read -r line; do
+        if echo "$line" | grep -qE '[0-9]+%'; then
+          percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
+          filename=$(echo "$line" | awk '{print $1}' | sed 's|^\./||' | xargs basename 2>/dev/null || basename "$x")
 
-        if [ -n "$percent" ] && [ "$percent" -ne "$last_percent" ] && [ "$percent" -gt "$last_percent" ]; then
-          if [ "$percent" -eq 100 ] || [ "$((percent - last_percent))" -ge 1 ]; then
-            last_percent="$percent"
+          if [ -n "$percent" ] && [ "$percent" -ne "$last_percent" ] && [ "$percent" -gt "$last_percent" ]; then
+            if [ "$percent" -eq 100 ] || [ "$((percent - last_percent))" -ge 1 ]; then
+              last_percent="$percent"
 
-            if [ "$file_count" -gt 1 ]; then
-              total_progress=$(( (current_file_num * 100 + percent) / file_count ))
-            else
-              total_progress="$percent"
+              if [ "$file_count" -gt 1 ]; then
+                total_progress=$(( (current_file_num * 100 + percent) / file_count ))
+              else
+                total_progress="$percent"
+              fi
+
+              notify-send -r "${NOTIFY_ID}" \
+                         -h "int:value:${total_progress}" \
+                         "Moving file(s)..." \
+                         "$filename - $percent% ($(($current_file_num + 1))/$file_count)" \
+                         -h "string:synchronous:lf-moveto" \
+                         2>/dev/null
             fi
+          fi
 
-            notify-send -r "${NOTIFY_ID}" \
-                       -h "int:value:${total_progress}" \
-                       "Moving file(s)..." \
-                       "$filename - $percent% ($(($current_file_num + 1))/$file_count)" \
-                       -h "string:synchronous:lf-moveto" \
-                       2>/dev/null
+          if [ -n "$percent" ] && [ "$percent" -eq 100 ]; then
+            current_file_num=$((current_file_num + 1))
+            last_percent=-1
           fi
         fi
-
-        if [ -n "$percent" ] && [ "$percent" -eq 100 ]; then
-          current_file_num=$((current_file_num + 1))
-          last_percent=-1
-        fi
+      done
+      rsync_exit="${PIPESTATUS[0]}"
+      set +o pipefail
+      if [ "${rsync_exit}" -ne 0 ]; then
+        move_failed=1
+        err_msg=$(diagnose_transfer_failure "${rsync_exit}" "$x" "$dest")
+        notify-send -u critical "Move failed" \
+          "${err_msg}\nSource preserved: $(basename -- "$x")" \
+          2>/dev/null
+        lf -remote "send $id echoerr 'moveto: ${err_msg} — source NOT deleted'"
+        continue
+      fi
+      if [ -d "$x" ]; then
+        find "$x" -depth -type d -empty -delete 2>/dev/null
+        rmdir -- "$x" 2>/dev/null || true
+      else
+        rm -f -- "$x"
       fi
     done
-    rm -rf -- "$x"
-  done &&
-  notify-send -r "${NOTIFY_ID}" " File(s) moved." "File(s) moved to $dest."
+  fi
+  if [ "$move_failed" -eq 0 ]; then
+    notify-send -r "${NOTIFY_ID}" " File(s) moved." "File(s) moved to $dest."
+  else
+    notify-send -u critical " Move completed with errors." "Some files may not have been moved to $dest."
+  fi
   lf -remote 'send clear'
 }}
 
@@ -382,10 +694,29 @@ cmd delete ${{
     set -f
     printf "%s\n\t" "$fx"
     printf "Permenantly delete?[y/N]"
-    read ans
-    if [ "$ans" = "y" ] && rm -rf -- $fx; then
-    notify-send "  File(s) deleted." "$fx"
-  fi
+    read -r ans
+    [ "$ans" = "y" ] || exit 0
+
+    deleted_any=0
+    while IFS= read -r x; do
+      [ -n "$x" ] || continue
+      case "$x" in
+        /|""|"."|"..")
+          continue
+          ;;
+      esac
+      if [ -d "$x" ]; then
+        rm -r -- "$x" && deleted_any=1
+      else
+        rm -f -- "$x" && deleted_any=1
+      fi
+    done <<EOF
+$fx
+EOF
+
+    if [ "$deleted_any" -eq 1 ]; then
+      notify-send "  File(s) deleted." "$fx"
+    fi
 }}
 
 cmd trash ${{
@@ -627,9 +958,12 @@ cmd chmod ${{
   printf "chmod: "
   read ans
 
-  for file in $fx; do
+  while IFS= read -r file; do
+    [ -n "$file" ] || continue
     chmod "$ans" "$file"
-  done
+  done <<EOF
+$fx
+EOF
 
   lf -remote 'send reload'
   lf -remote 'send clear'
@@ -642,9 +976,12 @@ cmd chown ${{
   printf "chown: "
   read ans
 
-  for file in $fx; do
+  while IFS= read -r file; do
+    [ -n "$file" ] || continue
     sudo chown "$ans" "$file"
-  done
+  done <<EOF
+$fx
+EOF
 
   lf -remote 'send reload'
   lf -remote 'send clear'
