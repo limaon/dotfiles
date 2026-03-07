@@ -11,13 +11,24 @@ set statusbar -v-padding 0
 set statusbar-basename
 set page-padding 2
 set selection-clipboard "clipboard"
-set font "Terminess Nerd Font 12"
+set font "Terminess Nerd Font 14"
+set vertical-center "true"
+set zoom-center "true"
+set zoom-min 10
+set zoom-max 500
+set zoom-step 10
+set statusbar-page-percent "true"
+set page-cache-size 15
+set show-v-scrollbar "false"
+set incremental-search "false"
+set jumplist-size 20
 
 # Binds
 map K zoom in
 map J zoom out
 map i recolor
 map p print
+map m :bmark
 
 unmap <F11>
 map f toggle_fullscreen
