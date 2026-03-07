@@ -160,6 +160,39 @@ cmd hard-reload &{{
   lf -remote "send $id reload"
 }}
 
+cmd cancel-transfer &{{
+  pid_file="$HOME/.cache/lf/transfer.pid"
+  if [ ! -f "$pid_file" ]; then
+    lf -remote "send $id :redraw; reload; clear"
+    exit 0
+  fi
+
+  pid=$(cat "$pid_file" 2>/dev/null)
+  if [ -z "$pid" ]; then
+    rm -f -- "$pid_file"
+    lf -remote "send $id :redraw; reload; clear"
+    exit 0
+  fi
+
+  if ! kill -0 "$pid" 2>/dev/null; then
+    rm -f -- "$pid_file"
+    lf -remote "send $id :redraw; reload; clear"
+    exit 0
+  fi
+
+  kill -TERM "$pid" 2>/dev/null
+  sleep 0.3
+  kill -KILL "$pid" 2>/dev/null || true
+
+  rm -f -- "$pid_file"
+
+  notify-send -u critical "Transfer cancelled" \
+    "Operation was cancelled by user. Partial files may remain at destination." \
+    2>/dev/null
+  lf -remote "send $id echoerr 'transfer: cancelled by user'"
+  lf -remote "send $id reload"
+}}
+
 cmd yank &{{
   case ${1} in
     dir)  dirname "${f}" ;;
@@ -262,11 +295,19 @@ cmd paste &{{
                    -h "string:synchronous:lf-paste" \
                    2>/dev/null
 
+      pid_file="$HOME/.cache/lf/transfer.pid"
+      mkdir -p -- "$HOME/.cache/lf"
+      _paste_fifo=$(mktemp -u)
+      mkfifo "$_paste_fifo"
+
       set -o pipefail
       rsync -aAXHv --info=progress2 --update --no-compress \
             --partial --human-readable \
-            -- "${items[@]}" . 2>&1 |
-      stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+            -- "${items[@]}" . >"$_paste_fifo" 2>&1 &
+      rsync_pid=$!
+      printf '%s' "$rsync_pid" > "$pid_file"
+
+      stdbuf -i0 -o0 -e0 tr '\r' '\n' <"$_paste_fifo" |
       while IFS= read -r line; do
         if echo "$line" | grep -qE '[0-9]+%'; then
           percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
@@ -297,12 +338,21 @@ cmd paste &{{
           fi
         fi
       done
-      rsync_exit="${PIPESTATUS[0]}"
+      wait "$rsync_pid"
+      rsync_exit=$?
+      rm -f -- "$pid_file" "$_paste_fifo"
       if [ "${rsync_exit}" -ne 0 ]; then
-        notify-send -u critical "Copy failed" \
-          "rsync exited with code ${rsync_exit}. Some files may not have been copied." \
-          2>/dev/null
-        lf -remote "send $id echoerr 'paste: rsync failed (exit ${rsync_exit})'"
+        if [ "${rsync_exit}" -eq 20 ]; then
+          notify-send -u critical "Copy cancelled" \
+            "Transfer was cancelled by user. Partial files may remain." \
+            2>/dev/null
+          lf -remote "send $id echoerr 'paste: copy cancelled by user'"
+        else
+          notify-send -u critical "Copy failed" \
+            "rsync exited with code ${rsync_exit}. Some files may not have been copied." \
+            2>/dev/null
+          lf -remote "send $id echoerr 'paste: rsync failed (exit ${rsync_exit})'"
+        fi
         exit "${rsync_exit}"
       fi
       ;;
@@ -434,14 +484,22 @@ EOF
                -h "string:synchronous:lf-copyto" \
                2>/dev/null
 
+  pid_file="$HOME/.cache/lf/transfer.pid"
+  mkdir -p -- "$HOME/.cache/lf"
+
   copy_failed=0
   for x in "${items[@]}"; do
     [ -n "$x" ] || continue
-    set -o pipefail
+    _copyto_fifo=$(mktemp -u)
+    mkfifo "$_copyto_fifo"
+
     rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
           --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
-          -- "$x" "$dest" 2>&1 |
-    stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+          -- "$x" "$dest" >"$_copyto_fifo" 2>&1 &
+    rsync_pid=$!
+    printf '%s' "$rsync_pid" > "$pid_file"
+
+    stdbuf -i0 -o0 -e0 tr '\r' '\n' <"$_copyto_fifo" |
     while IFS= read -r line; do
       if echo "$line" | grep -qE '[0-9]+%'; then
         percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
@@ -472,14 +530,23 @@ EOF
         fi
       fi
     done
-    rsync_exit="${PIPESTATUS[0]}"
-    set +o pipefail
+    wait "$rsync_pid"
+    rsync_exit=$?
+    rm -f -- "$pid_file" "$_copyto_fifo"
     if [ "${rsync_exit}" -ne 0 ]; then
       copy_failed=1
-      notify-send -u critical "Copy failed" \
-        "Failed to copy: $(basename -- "$x") (rsync exit ${rsync_exit})" \
-        2>/dev/null
-      lf -remote "send $id echoerr 'copyto: rsync failed for $(basename -- "$x") (exit ${rsync_exit})'"
+      if [ "${rsync_exit}" -eq 20 ]; then
+        notify-send -u critical "Copy cancelled" \
+          "Transfer cancelled: $(basename -- "$x"). Partial files may remain." \
+          2>/dev/null
+        lf -remote "send $id echoerr 'copyto: cancelled for $(basename -- "$x")'"
+        break
+      else
+        notify-send -u critical "Copy failed" \
+          "Failed to copy: $(basename -- "$x") (rsync exit ${rsync_exit})" \
+          2>/dev/null
+        lf -remote "send $id echoerr 'copyto: rsync failed for $(basename -- "$x") (exit ${rsync_exit})'"
+      fi
     fi
   done
   if [ "$copy_failed" -eq 0 ]; then
@@ -600,11 +667,20 @@ EOF
                -h "string:synchronous:lf-moveto" \
                2>/dev/null
 
+  pid_file="$HOME/.cache/lf/transfer.pid"
+  mkdir -p -- "$HOME/.cache/lf"
+
   move_failed=0
   if [ "$all_same_fs" -eq 1 ]; then
     for x in "${items[@]}"; do
       [ -n "$x" ] || continue
-      if ! mv -n -- "$x" "$dest"/; then
+      mv -n -- "$x" "$dest"/ &
+      mv_pid=$!
+      printf '%s' "$mv_pid" > "$pid_file"
+      wait "$mv_pid"
+      mv_exit=$?
+      rm -f -- "$pid_file"
+      if [ "$mv_exit" -ne 0 ]; then
         move_failed=1
         notify-send -u critical "Move failed" \
           "Failed to move: $(basename -- "$x")" \
@@ -624,11 +700,16 @@ EOF
   else
     for x in "${items[@]}"; do
       [ -n "$x" ] || continue
-      set -o pipefail
+      _moveto_fifo=$(mktemp -u)
+      mkfifo "$_moveto_fifo"
+
       rsync -aAXHv --info=progress2 --update --no-compress --partial -h \
             --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r \
-            -- "$x" "$dest" 2>&1 |
-      stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+            -- "$x" "$dest" >"$_moveto_fifo" 2>&1 &
+      rsync_pid=$!
+      printf '%s' "$rsync_pid" > "$pid_file"
+
+      stdbuf -i0 -o0 -e0 tr '\r' '\n' <"$_moveto_fifo" |
       while IFS= read -r line; do
         if echo "$line" | grep -qE '[0-9]+%'; then
           percent=$(echo "$line" | sed -nE 's/.*[[:space:]]+([0-9]+)%[[:space:]].*/\1/p')
@@ -659,16 +740,24 @@ EOF
           fi
         fi
       done
-      rsync_exit="${PIPESTATUS[0]}"
-      set +o pipefail
+      wait "$rsync_pid"
+      rsync_exit=$?
+      rm -f -- "$pid_file" "$_moveto_fifo"
       if [ "${rsync_exit}" -ne 0 ]; then
         move_failed=1
-        err_msg=$(diagnose_transfer_failure "${rsync_exit}" "$x" "$dest")
-        notify-send -u critical "Move failed" \
-          "${err_msg}\nSource preserved: $(basename -- "$x")" \
-          2>/dev/null
-        lf -remote "send $id echoerr 'moveto: ${err_msg} — source NOT deleted'"
-        continue
+        if [ "${rsync_exit}" -eq 20 ]; then
+          notify-send -u critical "Move cancelled" \
+            "Transfer cancelled: $(basename -- "$x"). Source preserved." \
+            2>/dev/null
+          lf -remote "send $id echoerr 'moveto: cancelled — source NOT deleted'"
+          break
+        else
+          notify-send -u critical "Move failed" \
+            "rsync exit ${rsync_exit}: $(basename -- "$x"). Source preserved." \
+            2>/dev/null
+          lf -remote "send $id echoerr 'moveto: rsync failed (exit ${rsync_exit}) — source NOT deleted'"
+          continue
+        fi
       fi
       if [ -d "$x" ]; then
         find "$x" -depth -type d -empty -delete 2>/dev/null
@@ -1080,7 +1169,7 @@ map mf touch-file
 map md mkdir
 map R :redraw; reload; recol; cfg_reload
 map r :redraw; reload; clear;
-map <esc> :redraw; reload; clear;
+map <esc> cancel-transfer
 map <c-r> hard-reload
 map zp set preview!
 map zd set dirfirst!
