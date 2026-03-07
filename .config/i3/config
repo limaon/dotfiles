@@ -1,12 +1,5 @@
-# In case you are on an apple Notebook/Keyboard
-# you can simply swap Mod1 and Mod4 to get the same
-# behaviour
-
-# Mod1 = Left Alt key
-# Mod2 = Num Lock key
-# Mod3 = Custom key
-# Mod4 = Super key
-# Mod5 = Right Alt key
+# Mod keys
+# Mod1 = Left Alt | Mod2 = Num Lock | Mod3 = Custom | Mod4 = Super | Mod5 = Right Alt
 set $left_alt Mod1
 set $right_alt Mod5
 set $mod Mod4
@@ -27,20 +20,16 @@ set $vim_down j
 set $vim_left h
 set $vim_right l
 
-# the arrows is not convenient
+# Arrow keys
 set $arrow_up Up
 set $arrow_down Down
 set $arrow_left Left
 set $arrow_right Right
 
-# Set title bar (border)
+# Borders
 title_align left
-# new_window pixel 1
 default_border pixel 1
 default_floating_border normal 1
-# for_window [all] border normal 1
-# for_window [all] border pixel 1 title_window_icon padding 5px
-# for_window [all] border normal 1 title_window_icon no
 
 # Gaps specific
 gaps inner 2
@@ -62,15 +51,14 @@ font pango: Terminess Nerd Font, Terminus, Noto Sans Mono CJK JP, IPAPGothic, Fo
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
-# start a terminal and avoid many instances when i hold bind. I use kitty.
+# Terminal
 bindsym --release $mod+Return exec --no-startup-id i3-sensible-terminal
 bindsym $mod+Shift+Return exec --no-startup-id i3-sensible-terminal --name "FloatingTerminal"
 
 # kill focused window
 bindsym $mod+q kill
 
-# start dmenu (a program launcher).
-# bindsym $mod+d exec --no-startup-id dmenu-desktop
+# Start dmenu (program launcher)
 bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # Web search
@@ -82,7 +70,7 @@ bindsym $mod+c exec --no-startup-id cabl
 # Open clipboard content dmenu
 bindsym $mod+Shift+v exec --no-startup-id cabl clip
 
-# Start start htop / start calcurse
+# Start htop / calcurse
 bindsym $mod+t exec --no-startup-id i3-sensible-terminal -e htop
 bindsym $mod+Shift+g exec --no-startup-id i3-sensible-terminal -e calcurse -D ~/.config/calcurse
 
@@ -118,7 +106,7 @@ bindsym $mod+Shift+a focus child
 # reload the configuration file
 bindsym $mod+Shift+c reload
 
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+# Restart i3 in-place (preserves layout/session)
 bindsym $mod+Shift+r restart
 
 # Hide / unhide i3status bar
@@ -194,24 +182,20 @@ bindsym $mod+Ctrl+$vim_right move workspace to output right
 bindsym $mod+BackSpace scratchpad show
 bindsym $mod+Shift+BackSpace move scratchpad
 
-# Set floating mode for generated windows
+# Floating rules
+# Base
 for_window [window_type="normal"] border normal
 for_window [window_type="menu"] floating enable
-for_window [window_role="pop-up"] floating enable
-for_window [window_role="bubble"] floating enable
-for_window [window_role="dialog"] floating enable
-for_window [window_role="task_dialog"] floating enable
-for_window [window_role="Preferences"] floating enable
-for_window [window_role="About"] floating enable
-for_window [window_role="Organizer"] floating enable
-for_window [window_role="page-info"] floating enable
-for_window [window_role="toolbox"] floating enable
-for_window [window_role="webconsole"] floating enable
+
+# Float by window_role (exact match)
+for_window [window_role="^(pop-up|bubble|dialog|task_dialog|Preferences|About|Organizer|page-info|toolbox|webconsole)$"] floating enable
+
+# Specific exceptions
 for_window [window_role="browser"] border pixel
-for_window [window_role="GtkFileChooserDialog"] resize set 600 400, move position center
+for_window [window_role="^GtkFileChooserDialog$"] resize set 600 400, move position center
 for_window [title="^(Open|Save|File|Select|Print|Choose)"] border normal 2, resize set 800 510
 for_window [title="Event Tester"] floating enable resize set 400 200
-for_window [title="About|Preferences|htop|calcurse"] floating enable, border normal, resize set 700 540, move position center
+for_window [title="^(About|Preferences|htop|calcurse)$"] floating enable, border normal, resize set 700 540, move position center
 for_window [title="Save File"] floating enable
 for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
 no_focus [title="mpv Webcam"]
@@ -234,19 +218,16 @@ for_window [class="qBittorrent" title="^(?!.*qBittorrent).*$"] floating enable
 for_window [class="VirtualBox" title="^(?!.*Oracle VirtualBox Manager).*$"] floating enable
 for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
 for_window [class="mpv"] floating enable, move position center
-for_window [class="Zathura"] floating enable, resize set 800 720, move position center
 for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 
 # Set position of floating window
 for_window [all] move absolute position center
 
 # Open or focus to specific workspace
-assign [class="(?i)Firefox|LibreWolf"] → $ws1
+assign [class="(?i)Firefox|(?i)chromium|qutebrowser|LibreWolf|Thunderbird"] $ws1
 assign [class="(?i)anki" title="Anki$|^Browse|^Add"] $ws9
-assign [class="(?i)chromium"] → $ws1
-assign [class="Thunderbird"] $ws1
 assign [class="qBittorrent"] $ws7
-# for_window [class="Zathura"] move window to workspace $ws2, focus
+for_window [class="Zathura|Nsxiv"] move container to workspace $ws8, layout tabbed, focus
 
 # Limiting the maximum size of the floating window:
 floating_minimum_size 150 x 90
@@ -255,7 +236,7 @@ floating_maximum_size 1048 x 720
 # Orientation for new workspaces
 default_orientation auto
 
-# Switch to workspace with urgent window autimaticaly
+# Switch to workspace with urgent window automatically
 for_window [urgent=latest] focus
 focus_on_window_activation focus
 
@@ -299,7 +280,7 @@ bar {
 }
 
 
-# Autostarts aplications
+# Autostart applications
 exec --no-startup-id autorandr --daemon
 exec --no-startup-id unclutter \
   --hide-on-touch \
@@ -355,8 +336,6 @@ bindsym $mod+F12 mode "$share_attach"
 # ScreenShot menu
 bindsym --release $mod+Print exec --no-startup-id maimpick window_clipboard
 bindsym --release Print exec --no-startup-id maimpick
-# bindsym --release $mod+o exec --no-startup-id maimocr
-# bindsym --release Print exec --no-startup-id maimpick full
 
 # Open Calculator
 bindsym --release XF86Calculator exec --no-startup-id qalculate-gtk
@@ -365,6 +344,9 @@ bindsym --release XF86Calculator exec --no-startup-id qalculate-gtk
 bindsym --release XF86AudioRaiseVolume exec --no-startup-id xf86-control volume up
 bindsym --release XF86AudioLowerVolume exec --no-startup-id xf86-control volume down
 bindsym --release XF86AudioMute exec --no-startup-id xf86-control volume mute
+bindsym --release XF86AudioMicMute exec --no-startup-id xf86-control mic mute
+bindsym --release $mod+XF86AudioRaiseVolume exec --no-startup-id xf86-control mic up
+bindsym --release $mod+XF86AudioLowerVolume exec --no-startup-id xf86-control mic down
 
 # Player Control
 bindsym --release XF86AudioPlay exec --no-startup-id xf86-control media play-pause
@@ -385,4 +367,3 @@ bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control bright
 bindsym $mod+p exec --no-startup-id dmenu-cliphist sel
 bindsym $mod+o exec --no-startup-id dmenu-cliphist add
 bindsym $mod+Shift+m exec --no-startup-id pkill -f "dmenu-cliphist watch" || dmenu-cliphist watch &
-

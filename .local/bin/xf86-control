@@ -9,6 +9,9 @@ NOTIFY_ID=2594
 ICON_VOLUME_UP="audio-volume-high-symbolic"
 ICON_VOLUME_DOWN="audio-volume-low-symbolic"
 ICON_MUTED="audio-volume-muted-symbolic"
+ICON_MIC_UP="microphone-sensitivity-high-symbolic"
+ICON_MIC_DOWN="microphone-sensitivity-low-symbolic"
+ICON_MIC_MUTED="microphone-sensitivity-muted-symbolic"
 ICON_BRIGHTNESS_UP="display-brightness-high-symbolic"
 ICON_BRIGHTNESS_DOWN="display-brightness-low-symbolic"
 
@@ -21,11 +24,14 @@ main() {
         volume)
             volume_control "${action}"
             ;;
+        mic)
+            mic_control "${action}"
+            ;;
         brightness)
             brightness_control "${action}"
             ;;
         *)
-            echo "Uso: $0 [volume|brightness] [up|down|mute]"
+            echo "Uso: $0 [volume|mic|brightness] [up|down|mute]"
             exit 1
             ;;
     esac
@@ -81,6 +87,58 @@ volume_control() {
     fi
 
     notify "Volume" "${message}" "${icon}" "${volume}"
+}
+
+mic_control() {
+    local action="${1:-}"
+    local current_status="" current_volume=0 new_volume=0
+    local icon="" message=""
+    local status="" volume=""
+
+    case "${action}" in
+        up|down)
+            current_status=$(pactl get-source-mute @DEFAULT_SOURCE@ 2>/dev/null || echo 'Mute: no')
+            current_volume=$(pactl get-source-volume @DEFAULT_SOURCE@ 2>/dev/null | awk '{print $5}' | tr -d '%' || echo 0)
+
+            if [[ "${current_status}" == *"yes"* ]]; then
+                pactl set-source-mute @DEFAULT_SOURCE@ 0
+            fi
+
+            if [[ "${action}" == "up" ]]; then
+                new_volume=$(( current_volume + STEP_VOL ))
+                (( new_volume > MAX_VOL )) && new_volume=${MAX_VOL}
+                icon="${ICON_MIC_UP}"
+            else
+                new_volume=$(( current_volume - STEP_VOL ))
+                (( new_volume < 0 )) && new_volume=0
+                icon="${ICON_MIC_DOWN}"
+            fi
+
+            pactl set-source-volume @DEFAULT_SOURCE@ "${new_volume}%"
+            (( new_volume == 0 )) && pactl set-source-mute @DEFAULT_SOURCE@ 1
+            ;;
+        mute)
+            pactl set-source-mute @DEFAULT_SOURCE@ toggle
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+
+    status=$(pactl get-source-mute @DEFAULT_SOURCE@ 2>/dev/null || echo 'Mute: no')
+    volume=$(pactl get-source-volume @DEFAULT_SOURCE@ 2>/dev/null | awk '{print $5}' | tr -d '%' || echo 0)
+
+    if [[ "${status}" == *"yes"* ]]; then
+        icon="${ICON_MIC_MUTED}"
+        message="Muted"
+    else
+        message="${volume}%"
+        if [[ "${action}" == "mute" ]]; then
+            icon="${ICON_MIC_UP}"
+        fi
+    fi
+
+    notify "Microphone" "${message}" "${icon}" "${volume}"
 }
 
 brightness_control() {
