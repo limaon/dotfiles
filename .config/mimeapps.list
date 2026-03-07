@@ -15,7 +15,7 @@ text/x-shellscript=nvim.desktop;
 video/mp4=mpv.desktop
 video/webm=mpv.desktop
 video/x-matroska=mpv.desktop
-image/svg+xml=firefox.desktop;nvim.desktop;
+image/svg+xml=nsxiv.desktop
 image/jpm=nsxiv.desktop
 image/png=eom.desktop
 image/avif=nsxiv.desktop;firefox.desktop;
@@ -83,6 +83,7 @@ font/ttf=com.github.FontManager.FontViewer.desktop;
 application/x-terminal-emulator=kitty.desktop
 x-scheme-handler/discord-1216669957799018608=discord-1216669957799018608.desktop
 x-scheme-handler/figma=figma-linux.desktop
+image/svg+xml-compressed=nsxiv.desktop
 
 [Added Associations]
 inode/directory=pcmanfm.desktop;lf.desktop;kitty-open.desktop;
