@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+#
+# dmenu-passmenu — dmenu frontend for pass (password-store)
+#
+# Usage:
+#   dmenu-passmenu [--type] [--flat] [--otp] [dmenu options...]
+#
+# Flags:
+#   --type          Type the password via xdotool instead of copying to clipboard.
+#                   Requires confirmation before typing to avoid focus accidents.
+#   --flat          Flat search mode: lists all entries recursively in one dmenu
+#                   prompt, allowing fuzzy search across the entire store by typing
+#                   any part of the path (e.g. "infra prod" narrows results).
+#                   Default mode is hierarchical navigation (browse folder by folder).
+#   --otp           Use OTP flow instead of password flow.
+#                   Without --type: copies OTP via pass-otp.
+#                   With --type: types OTP via xdotool after confirmation.
+#
+# Default mode (hierarchical):
+#   Navigate the store folder by folder. Select ".." to go up one level.
+#   Useful when you remember roughly where an entry lives.
+#
+# Flat mode (--flat):
+#   All entries are listed upfront as relative paths (e.g. work/infra/server).
+#   Type any substring to filter. Faster when you know (part of) the name.
+#
+# Notifications (notify-send):
+#   Shown for: clipboard copy success, typed success, GPG/pass errors, user cancel.
+
+shopt -s nullglob globstar
+
+typeit=0
+flat=0
+otp_mode=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --type)   typeit=1;         shift ;;
+    --flat)   flat=1;           shift ;;
+    --otp)    otp_mode=1;       shift ;;
+    *)        break ;;
+  esac
+done
+
+BASEDIR="${PASSWORD_STORE_DIR:-$HOME/.local/share/password-store}"
+CLIP_TIME="${PASSWORD_STORE_CLIP_TIME:-45}"
+MENU_PROMPT="Passmenu:"
+[[ $otp_mode -eq 1 ]] && MENU_PROMPT="Passmenu OTP:"
+
+notify() {
+  local urgency="$1" summary="$2" body="$3"
+  notify-send -u "$urgency" -a "passmenu" -t 4000 "$summary" "$body"
+}
+
+# Default flow: copies password via pass (clears after CLIP_TIME seconds).
+# OTP flow (--otp): copies OTP via pass-otp.
+# In --type mode, prompts confirmation then types selected secret via xdotool.
+reveal_entry() {
+  local pass_entry="$1"
+  if [[ $otp_mode -eq 1 ]]; then
+    if [[ $typeit -eq 0 ]]; then
+      if pass otp -c "$pass_entry" 2>/tmp/passmenu_err; then
+        notify normal "passmenu" "Copied OTP for '$pass_entry'"
+      else
+        notify critical "passmenu error" "$(cat /tmp/passmenu_err)"
+        rm -f /tmp/passmenu_err
+        exit 1
+      fi
+    else
+      local confirm
+      confirm=$(printf 'No\nYes' | dmenu -p "Type OTP for '$pass_entry'?")
+      if [[ "$confirm" != "Yes" ]]; then
+        notify low "passmenu" "Cancelled"
+        exit 0
+      fi
+      local otp
+      if otp=$(pass otp "$pass_entry" 2>/tmp/passmenu_err); then
+        xdotool type --clearmodifiers -- "$otp"
+        notify normal "passmenu" "Typed OTP for '$pass_entry'"
+      else
+        notify critical "passmenu error" "$(cat /tmp/passmenu_err)"
+        rm -f /tmp/passmenu_err
+        exit 1
+      fi
+    fi
+  else
+    if [[ $typeit -eq 0 ]]; then
+      if pass show -c "$pass_entry" 2>/tmp/passmenu_err; then
+        notify normal "passmenu" "Copied '$pass_entry' — clears in ${CLIP_TIME}s"
+      else
+        notify critical "passmenu error" "$(cat /tmp/passmenu_err)"
+        rm -f /tmp/passmenu_err
+        exit 1
+      fi
+    else
+      local confirm
+      confirm=$(printf 'No\nYes' | dmenu -p "Type password for '$pass_entry'?")
+      if [[ "$confirm" != "Yes" ]]; then
+        notify low "passmenu" "Cancelled"
+        exit 0
+      fi
+      local password
+      if password=$(pass show "$pass_entry" 2>/tmp/passmenu_err | head -n 1); then
+        xdotool type --clearmodifiers -- "$password"
+        notify normal "passmenu" "Typed password for '$pass_entry'"
+      else
+        notify critical "passmenu error" "$(cat /tmp/passmenu_err)"
+        rm -f /tmp/passmenu_err
+        exit 1
+      fi
+    fi
+  fi
+  rm -f /tmp/passmenu_err
+}
+
+# ---------------------------------------------------------------------------
+# Flat mode — single dmenu prompt with all entries listed as relative paths
+# ---------------------------------------------------------------------------
+if [[ $flat -eq 1 ]]; then
+  mapfile -t all_entries < <(
+    find "$BASEDIR" -name '*.gpg' \
+      | sed "s|^$BASEDIR/||; s|\.gpg$||" \
+      | sort
+  )
+
+  entry=$(printf '%s\n' "${all_entries[@]}" | dmenu -p "$MENU_PROMPT" "$@")
+  [[ -z "$entry" ]] && exit 0
+  reveal_entry "$entry"
+  exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Hierarchical mode — navigate store folder by folder using a dir stack
+# ---------------------------------------------------------------------------
+dir_stack=("$BASEDIR")
+
+while true; do
+  current_dir="${dir_stack[-1]}"
+
+  entries=()
+  [[ ${#dir_stack[@]} -gt 1 ]] && entries=("..")
+
+  for item in "$current_dir"/*/; do
+    [[ -d "$item" ]] && entries+=("${item%/}")
+  done
+  for item in "$current_dir"/*.gpg; do
+    [[ -f "$item" ]] && entries+=("${item%.gpg}")
+  done
+
+  entries=("${entries[@]##"$current_dir"/}")
+
+  entry=$(printf '%s\n' "${entries[@]}" | dmenu -p "$MENU_PROMPT" "$@")
+  [[ -z "$entry" ]] && exit 0
+
+  if [[ "$entry" == ".." ]]; then
+    unset 'dir_stack[-1]'
+    continue
+  fi
+
+  full_path="$current_dir/$entry"
+
+  if [[ -d "$full_path" ]]; then
+    dir_stack+=("$full_path")
+    continue
+  fi
+
+  if [[ -f "${full_path}.gpg" ]]; then
+    reveal_entry "${full_path#"$BASEDIR"/}"
+    exit 0
+  fi
+done

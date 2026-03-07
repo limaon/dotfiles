@@ -64,6 +64,10 @@ bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 # Web search
 bindsym $mod+b exec --no-startup-id dmenu-websearch
 
+# Passmenu (recursive search)
+bindsym $mod+u exec --no-startup-id dmenu-passmenu --flat
+bindsym $mod+Shift+u exec --no-startup-id dmenu-passmenu --otp --flat
+
 # Cabl (primary)
 bindsym $mod+c exec --no-startup-id cabl
 
