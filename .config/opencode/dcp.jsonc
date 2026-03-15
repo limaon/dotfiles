@@ -3,51 +3,48 @@
   "enabled": true,
   "debug": false,
   "pruneNotification": "minimal",
-  "pruneNotificationType": "toast",
+  "pruneNotificationType": "chat",
   "commands": {
     "enabled": true,
-    "protectedTools": []
+    "protectedTools": [],
   },
   "manualMode": {
     "enabled": false,
-    "automaticStrategies": true
+    "automaticStrategies": true,
   },
   "turnProtection": {
     "enabled": false,
-    "turns": 4
+    "turns": 4,
+  },
+  "experimental": {
+    "allowSubAgents": false,
+    "customPrompts": false,
   },
   "protectedFilePatterns": [],
-  "tools": {
-    "settings": {
-      "nudgeEnabled": true,
-      "nudgeFrequency": 10,
-      "contextLimit": 100000,
-      "protectedTools": []
-    },
-    "distill": {
-      "permission": "allow",
-      "showDistillation": false
-    },
-    "compress": {
-      "permission": "deny",
-      "showCompression": false
-    },
-    "prune": {
-      "permission": "allow"
-    }
+  "compress": {
+    "permission": "allow",
+    "showCompression": false,
+    "maxContextLimit": 100000,
+    "minContextLimit": 30000,
+    "nudgeFrequency": 5,
+    "iterationNudgeThreshold": 15,
+    "nudgeForce": "soft",
+    "flatSchema": false,
+    "protectedTools": [],
+    "protectUserMessages": false,
   },
   "strategies": {
     "deduplication": {
       "enabled": true,
-      "protectedTools": []
+      "protectedTools": [],
     },
     "supersedeWrites": {
-      "enabled": true
+      "enabled": true,
     },
     "purgeErrors": {
       "enabled": true,
       "turns": 4,
-      "protectedTools": []
-    }
-  }
+      "protectedTools": [],
+    },
+  },
 }
