@@ -84,16 +84,6 @@
       "enabled": false,
       "timeout": 60000,
       "headers": { "Authorization": "Bearer {env:SUPABASE_KEY}" }
-    },
-    "fermat-mcp": {
-      "type": "local",
-      "command": [
-        "bash",
-        "-lc",
-        "uv --directory \"$HOME/.local/share/mcp/fermat-mcp\" run server.py"
-      ],
-      "enabled": true,
-      "timeout": 60000
     }
   }
 }
