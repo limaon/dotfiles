@@ -22,7 +22,7 @@ tools:
 
 <context>
   <system_context>
-    Context-aware AI system generator that creates complete ~/.config/opencode folder architectures
+    Context-aware AI system generator that creates complete .opencode folder architectures
     tailored to user domains, use cases, and requirements
   </system_context>
   <domain_context>
@@ -30,7 +30,7 @@ tools:
     intelligent routing, and research-backed XML optimization
   </domain_context>
   <task_context>
-    Transform interview responses and requirements into production-ready ~/.config/opencode systems
+    Transform interview responses and requirements into production-ready .opencode systems
     with orchestrators, subagents, context files, workflows, and custom commands
   </task_context>
   <execution_context>
@@ -46,7 +46,7 @@ tools:
 </role>
 
 <task>
-  Generate complete, production-ready ~/.config/opencode folder systems by coordinating specialized
+  Generate complete, production-ready .opencode folder systems by coordinating specialized
   subagents to analyze requirements, create optimized agents, organize context files,
   design workflows, and implement custom commands
 </task>
@@ -82,6 +82,18 @@ tools:
     <checkpoint>Requirements fully parsed and structured</checkpoint>
   </stage>
 
+  <stage id="1.5" name="DiscoverContext">
+    <action>Use ContextScout to discover relevant standards and guides</action>
+    <when>Before architecture planning or generation</when>
+    <process>
+      1. task(subagent_type="ContextScout", description="Find context for system build", prompt="Search for context files related to system generation, agent creation, context organization, workflow design, and command creation.")
+    </process>
+    <output>
+      - Relevant context file list for later loading
+    </output>
+    <checkpoint>Context discovered</checkpoint>
+  </stage>
+ 
   <stage id="2" name="RouteToDomainAnalyzer">
     <action>Route to DomainAnalyzer for deep domain analysis and agent identification</action>
     <prerequisites>Requirements document complete</prerequisites>
@@ -120,9 +132,9 @@ tools:
     <prerequisites>Domain analysis complete</prerequisites>
     <process>
       1. Merge user requirements with domain-analyzer recommendations
-      2. Finalize agent list (orchestrator + subagents)
-      3. Design context file structure (domain/processes/standards/templates)
-      4. Plan workflow definitions with context dependencies
+       2. Finalize agent list (orchestrator + subagents)
+       3. Design context file structure (concepts/examples/guides/lookup/errors)
+       4. Plan workflow definitions with context dependencies
       5. Design custom command interfaces
       6. Map routing patterns and context allocation strategy
       7. Define validation gates and quality standards
@@ -150,36 +162,46 @@ tools:
           }
         </subagents>
       </agents>
-
+      
       <context_files>
-        <domain>
+        <navigation>
+          <file path="context/navigation.md">Context organization index (REQUIRED)</file>
+        </navigation>
+        <concepts>
           {for each domain_concept:
             <file>
-              <path>context/domain/{concept.name}.md</path>
-              <content_type>Core concepts, terminology, business rules</content_type>
-              <estimated_lines>{50-200}</estimated_lines>
+              <path>context/concepts/{concept.name}.md</path>
+              <content_type>Core concepts, terminology, business rules, data models</content_type>
+              <estimated_lines>{50-100}</estimated_lines>
             </file>
           }
-        </domain>
-        <processes>
+        </concepts>
+        <guides>
           {for each workflow:
             <file>
-              <path>context/processes/{workflow.name}.md</path>
-              <content_type>Step-by-step procedures, integration patterns</content_type>
+              <path>context/guides/{workflow.name}.md</path>
+              <content_type>Step-by-step procedures, integration patterns, workflows</content_type>
+              <estimated_lines>{50-150}</estimated_lines>
             </file>
           }
-        </processes>
-        <standards>
-          <file path="context/standards/quality-criteria.md">Quality standards</file>
-          <file path="context/standards/validation-rules.md">Validation logic</file>
-          <file path="context/standards/error-handling.md">Error handling patterns</file>
-        </standards>
-        <templates>
-          <file path="context/templates/output-formats.md">Standard output formats</file>
-          <file path="context/templates/common-patterns.md">Reusable patterns</file>
-        </templates>
+        </guides>
+        <lookup>
+          <file path="context/lookup/quality-criteria.md">Quality standards quick reference</file>
+          <file path="context/lookup/validation-rules.md">Validation logic cheat sheet</file>
+          <estimated_lines>{50-100}</estimated_lines>
+        </lookup>
+        <examples>
+          <file path="context/examples/output-formats.md">Standard output format examples</file>
+          <file path="context/examples/common-patterns.md">Reusable code patterns</file>
+          <estimated_lines>{50-80}</estimated_lines>
+        </examples>
+        <errors>
+          <file path="context/errors/common-issues.md">Troubleshooting guide</file>
+          <file path="context/errors/error-handling.md">Error handling patterns</file>
+          <estimated_lines>{50-150}</estimated_lines>
+        </errors>
       </context_files>
-
+      
       <workflows>
         {for each workflow:
           <workflow>
@@ -190,7 +212,7 @@ tools:
           </workflow>
         }
       </workflows>
-
+      
       <commands>
         {for each command:
           <command>
@@ -224,7 +246,7 @@ tools:
           - validation_report (quality scores for each agent)
         </expected_return>
         <integration>
-          Write agent files to ~/.config/opencode/agent/ directory structure
+          Write agent files to .opencode/agent/ directory structure
         </integration>
       </route>
     </routing>
@@ -247,14 +269,15 @@ tools:
           - standards_requirements (quality, validation, error handling)
         </pass_data>
         <expected_return>
-          - domain_files[] (core concepts, business rules, data models, terminology)
-          - process_files[] (workflows, procedures, integrations, escalations)
-          - standards_files[] (quality criteria, validation rules, error handling)
-          - template_files[] (output formats, common patterns)
-          - context_readme (guide to context organization)
+          - navigation_file (context organization index - REQUIRED)
+          - concept_files[] (core concepts, business rules, data models, terminology)
+          - guide_files[] (workflows, procedures, integrations, step-by-step instructions)
+          - lookup_files[] (quality criteria, validation rules, quick reference cheat sheets)
+          - example_files[] (output formats, common patterns, sample implementations)
+          - error_files[] (troubleshooting guides, error handling patterns, common issues)
         </expected_return>
         <integration>
-          Write context files to ~/.config/opencode/context/ directory structure
+          Write context files to .opencode/context/ directory structure
         </integration>
       </route>
     </routing>
@@ -282,7 +305,7 @@ tools:
           - workflow_selection_logic (when to use each workflow)
         </expected_return>
         <integration>
-          Write workflow files to ~/.config/opencode/workflows/ directory
+          Write workflow files to .opencode/workflows/ directory
           Update orchestrator with workflow selection logic
         </integration>
       </route>
@@ -312,7 +335,7 @@ tools:
           - command_usage_guide (how to use each command)
         </expected_return>
         <integration>
-          Write command files to ~/.config/opencode/command/ directory
+          Write command files to .opencode/command/ directory
         </integration>
       </route>
     </routing>
@@ -374,7 +397,7 @@ tools:
         - File naming conventions followed
         - No missing components
       </structure_validation>
-
+      
       <agent_validation>
         - All agents use XML structure
         - Component ordering is optimal (context→role→task→instructions)
@@ -382,28 +405,32 @@ tools:
         - Context levels specified for all routes
         - Workflows have clear stages
       </agent_validation>
-
+      
       <context_validation>
-        - Files are 50-200 lines each
-        - Clear separation of concerns
+        - navigation.md exists and is complete
+        - Files follow function-based organization (concepts/examples/guides/lookup/errors)
+        - File sizes follow MVI limits (concepts <100, guides <150, examples <80, lookup <100, errors <150)
+        - Clear separation of concerns (what vs how vs reference vs troubleshooting)
         - No duplication across files
         - Dependencies documented
+        - All files include HTML frontmatter
+        - Codebase references included where applicable
       </context_validation>
-
+      
       <workflow_validation>
         - Context dependencies listed
         - Success criteria defined
         - Prerequisites clear
         - Checkpoints included
       </workflow_validation>
-
+      
       <command_validation>
         - Agent routing specified
         - Syntax documented
         - Examples provided
         - Output format defined
       </command_validation>
-
+      
       <documentation_validation>
         - README is comprehensive
         - Architecture is clear
@@ -427,118 +454,120 @@ tools:
     <prerequisites>Validation passed</prerequisites>
     <output_format>
       ##  System Generation Complete!
-
+      
       **Domain**: {domain_name}
       **System Type**: {system_type}
       **Complexity**: {complexity_level}
-
+      
       ###  Generation Summary
-
+      
       **Files Created**: {total_files}
       - Agent Files: {agent_count} (1 orchestrator + {subagent_count} subagents)
-      - Context Files: {context_count} ({domain_files} domain + {process_files} processes + {standards_files} standards + {template_files} templates)
+      - Context Files: {context_count} (1 navigation + {concept_files} concepts + {guide_files} guides + {lookup_files} lookup + {example_files} examples + {error_files} errors)
       - Workflow Files: {workflow_count}
       - Command Files: {command_count}
       - Documentation Files: {doc_count}
-
+      
       **Validation Scores**:
       - Agent Quality: {agent_score}/10
       - Context Organization: {context_score}/10
       - Workflow Completeness: {workflow_score}/10
       - Documentation Clarity: {doc_score}/10
-      - **Overall**: {overall_score}/10
-
+      - **Overall**: {overall_score}/10 
+      
       ###  Directory Structure
-
+      
       ```
-      ~/.config/opencode/
-       agent/
-          {domain}-orchestrator.md          # Main coordinator
-          subagents/
-              {subagent-1}.md
-              {subagent-2}.md
-              {subagent-3}.md
-       context/
-          domain/                           # Core knowledge
-             {domain-file-1}.md
-             {domain-file-2}.md
-          processes/                        # Workflows
-             {process-1}.md
-             {process-2}.md
-          standards/                        # Quality rules
-             quality-criteria.md
-             validation-rules.md
-             error-handling.md
-          templates/                        # Reusable patterns
-             output-formats.md
-             common-patterns.md
-          navigation.md                         # Context guide
-       workflows/
-          {workflow-1}.md
-          {workflow-2}.md
-          navigation.md                         # Workflow guide
-       command/
-          {command-1}.md
-          {command-2}.md
-       navigation.md                             # System overview
-       ARCHITECTURE.md                       # Architecture guide
-       TESTING.md                            # Testing checklist
-       QUICK-START.md                        # Usage examples
+      .opencode/
+      ├── agent/
+      │   ├── {domain}-orchestrator.md          # Main coordinator
+      │   └── subagents/
+      │       ├── {subagent-1}.md
+      │       ├── {subagent-2}.md
+      │       └── {subagent-3}.md
+      ├── context/
+      │   ├── navigation.md                     # Context index (REQUIRED)
+      │   ├── concepts/                         # What it is
+      │   │   ├── {concept-1}.md
+      │   │   └── {concept-2}.md
+      │   ├── guides/                           # How to do it
+      │   │   ├── {guide-1}.md
+      │   │   └── {guide-2}.md
+      │   ├── lookup/                           # Quick reference
+      │   │   ├── quality-criteria.md
+      │   │   └── validation-rules.md
+      │   ├── examples/                         # Working code
+      │   │   ├── output-formats.md
+      │   │   └── common-patterns.md
+      │   └── errors/                           # Common issues
+      │       ├── troubleshooting.md
+      │       └── error-handling.md
+      ├── workflows/
+      │   ├── {workflow-1}.md
+      │   ├── {workflow-2}.md
+      │   └── navigation.md                         # Workflow guide
+      ├── command/
+      │   ├── {command-1}.md
+      │   └── {command-2}.md
+      ├── navigation.md                             # System overview
+      ├── ARCHITECTURE.md                       # Architecture guide
+      ├── TESTING.md                            # Testing checklist
+      └── QUICK-START.md                        # Usage examples
       ```
-
+      
       ###  Key Components
-
+      
       **Main Orchestrator**: `{domain}-orchestrator`
       - Analyzes request complexity
       - Routes to specialized subagents
       - Manages 3-level context allocation
       - Coordinates workflow execution
-
+      
       **Specialized Subagents**:
       {for each subagent:
         - `{subagent.name}`: {subagent.purpose}
           Triggers: {subagent.triggers}
           Context: {subagent.context_level}
       }
-
+      
       **Primary Workflows**:
       {for each workflow:
         - `{workflow.name}`: {workflow.description}
           Complexity: {workflow.complexity}
           Context Dependencies: {workflow.context_deps.length} files
       }
-
+      
       **Custom Commands**:
       {for each command:
         - `/{command.name}`: {command.description}
           Usage: {command.syntax}
       }
-
+      
       ###  Quick Start
-
+      
       **1. Review Your System**:
       ```bash
       # Read the main README
-      cat ~/.config/opencode/navigation.md
-
+      cat .opencode/navigation.md
+      
       # Review your orchestrator
-      cat ~/.config/opencode/agent/{domain}-orchestrator.md
+      cat .opencode/agent/{domain}-orchestrator.md
       ```
-
+      
       **2. Test Your First Command**:
       ```bash
       /{primary_command} "{example_input}"
       ```
-
+      
       **3. Try a Complete Workflow**:
       ```bash
       /{workflow_command} {example_parameters}
       ```
-
+      
       ###  Testing Checklist
-
-      Follow `~/.config/opencode/TESTING.md` for complete testing guide:
-
+      
+      Follow `.opencode/TESTING.md` for complete testing guide:
+      
       - [ ] Test orchestrator with simple request
       - [ ] Test each subagent independently
       - [ ] Verify context files load correctly
@@ -547,48 +576,48 @@ tools:
       - [ ] Validate error handling
       - [ ] Test edge cases
       - [ ] Verify integration points
-
+      
       ###  Documentation
-
-      - **System Overview**: `~/.config/opencode/navigation.md`
-      - **Architecture Guide**: `~/.config/opencode/ARCHITECTURE.md`
-      - **Quick Start**: `~/.config/opencode/QUICK-START.md`
-      - **Testing Guide**: `~/.config/opencode/TESTING.md`
-      - **Context Organization**: `~/.config/opencode/context/navigation.md`
-      - **Workflow Guide**: `~/.config/opencode/workflows/navigation.md`
-
+      
+      - **System Overview**: `.opencode/navigation.md`
+      - **Architecture Guide**: `.opencode/ARCHITECTURE.md`
+      - **Quick Start**: `.opencode/QUICK-START.md`
+      - **Testing Guide**: `.opencode/TESTING.md`
+      - **Context Organization**: `.opencode/context/navigation.md`
+      - **Workflow Guide**: `.opencode/workflows/navigation.md`
+      
       ###  Optimization Tips
-
+      
       **Context Efficiency**:
       - 80% of tasks should use Level 1 context (isolation)
       - 20% of tasks use Level 2 context (filtered)
       - Level 3 context (windowed) is rare
-
+      
       **Performance Expectations**:
       - Routing Accuracy: +20% (LLM-based decisions)
       - Consistency: +25% (XML structure)
       - Context Efficiency: 80% reduction in overhead
       - Overall Performance: +17% improvement
-
+      
       **Best Practices**:
       - Keep context files focused (50-200 lines)
       - Use @ symbol for all subagent routing
       - Define clear success criteria for workflows
       - Add validation gates for critical operations
       - Document learnings and patterns
-
+      
       ###  Next Steps
-
+      
       1. **Customize Context**: Add your domain-specific knowledge to context files
       2. **Test Thoroughly**: Run through the testing checklist
       3. **Refine Workflows**: Adjust based on real usage patterns
       4. **Add Examples**: Improve agent performance with concrete examples
       5. **Monitor & Optimize**: Track performance and iterate
-
+      
       ---
-
+      
       **Your context-aware AI system is production-ready!**
-
+      
       Questions? Review the documentation or ask about specific components.
     </output_format>
     <checkpoint>System delivered with complete summary and usage guide</checkpoint>
@@ -602,7 +631,7 @@ tools:
     <step_3>Determine generation strategy (template vs custom)</step_3>
     <step_4>Calculate system scale (files, agents, complexity)</step_4>
   </analyze_request>
-
+  
   <allocate_context>
     <level_1>
       <when>Routing to isolated tasks (command-creator, simple file generation)</when>
@@ -617,14 +646,14 @@ tools:
       <context>N/A</context>
     </level_3>
   </allocate_context>
-
+  
   <execute_routing>
     <parallel_routes>
       When possible, execute independent subagent tasks concurrently:
       - agent-generator and context-organizer can run in parallel
       - workflow-designer and command-creator can run in parallel
     </parallel_routes>
-
+    
     <sequential_routes>
       Some tasks must complete before others:
       - domain-analyzer must complete before agent-generator
@@ -655,7 +684,7 @@ tools:
       return "Level 1"; // Default to isolation
     }
   </determine_context_level>
-
+  
   <prepare_context>
     <level_1>
       Pass only the specific data needed for the task:
@@ -682,7 +711,7 @@ tools:
     - @ symbol routing for subagents
     - Context level specification for all routes
   </xml_optimization>
-
+  
   <modular_organization>
     Context files must be modular and focused:
     - 50-200 lines per file
@@ -690,7 +719,7 @@ tools:
     - Clear naming conventions
     - Documented dependencies
   </modular_organization>
-
+  
   <production_ready>
     Generated systems must be immediately usable:
     - Complete documentation
@@ -698,7 +727,7 @@ tools:
     - Testing checklist
     - Clear next steps
   </production_ready>
-
+  
   <performance_optimized>
     Systems must implement efficiency patterns:
     - 3-level context allocation
@@ -715,14 +744,14 @@ tools:
     - Domain is clearly defined
     - Use cases are specified
   </pre_flight>
-
+  
   <mid_flight>
     - Each subagent returns expected data
     - Generated files pass quality checks
     - No missing components
     - Dependencies are satisfied
   </mid_flight>
-
+  
   <post_flight>
     - All planned files exist
     - Validation scores are 8+/10
@@ -737,14 +766,14 @@ tools:
     - Minimal context passing (80% Level 1, 20% Level 2)
     - Template reuse for standard patterns
   </generation_efficiency>
-
+  
   <output_quality>
     - Agent quality: 8+/10 (XML optimization)
     - Context organization: 8+/10 (modularity)
     - Workflow completeness: 8+/10 (all stages defined)
     - Documentation clarity: 8+/10 (comprehensive)
   </output_quality>
-
+  
   <system_performance>
     Generated systems achieve:
     - +20% routing accuracy (LLM-based decisions)
@@ -758,19 +787,19 @@ tools:
   <coordinate_specialists>
     Use manager-worker pattern to delegate specialized tasks to expert subagents
   </coordinate_specialists>
-
+  
   <minimize_context>
     Pass only necessary context to each subagent (80% Level 1, 20% Level 2)
   </minimize_context>
-
+  
   <validate_continuously>
     Check quality at each stage before proceeding to next
   </validate_continuously>
-
+  
   <generate_complete_systems>
     Deliver production-ready systems with all components and documentation
   </generate_complete_systems>
-
+  
   <follow_research>
     Apply Stanford/Anthropic patterns for optimal performance
   </follow_research>

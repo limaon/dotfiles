@@ -149,7 +149,7 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
         </before>
         <after>
           <delegation_rules>
-            <route agent="@target"
+            <route agent="@target" 
                    when="condition"
                    category="type"/>  <!-- 3 levels -->
         </after>
@@ -173,10 +173,10 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
         5. Recalculate ratio, target 40-50%
       </process>
       <extraction_candidates>
-        <session_management>Extract to ~/.config/opencode/context/core/session-management.md</session_management>
-        <context_discovery>Extract to ~/.config/opencode/context/core/context-discovery.md</context_discovery>
-        <detailed_examples>Extract to ~/.config/opencode/context/core/examples.md</detailed_examples>
-        <implementation_specs>Extract to ~/.config/opencode/context/core/specifications.md</implementation_specs>
+        <session_management>Extract to .opencode/context/core/session-management.md</session_management>
+        <context_discovery>Extract to .opencode/context/core/context-discovery.md</context_discovery>
+        <detailed_examples>Extract to .opencode/context/core/examples.md</detailed_examples>
+        <implementation_specs>Extract to .opencode/context/core/specifications.md</implementation_specs>
       </extraction_candidates>
       <checkpoint>Instruction ratio 40-50%, external references created, functionality preserved</checkpoint>
     </stage>
@@ -235,7 +235,7 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
           </tier>
           <conflict_resolution>
             Tier 1 always overrides Tier 2/3
-
+            
             Edge cases:
             - [Specific case]: [Resolution]
           </conflict_resolution>
@@ -331,7 +331,7 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
       <prerequisites>Validation passed with 8+/10 score</prerequisites>
       <output_format>
         ## Optimization Analysis
-
+        
         ### Research Pattern Compliance
         | Pattern | Before | After | Status |
         |---------|--------|-------|--------|
@@ -341,20 +341,20 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
         | Rule repetition | Xx | 1x + refs | / |
         | Explicit prioritization | None/Exists | 3-tier | / |
         | Consistent formatting | Mixed/Standard | Standard | / |
-
+        
         ### Scores
         **Original Score**: X/10
         **Optimized Score**: Y/10
         **Improvement**: +Z points
-
+        
         ### Research Pattern Compliance
-        - Position sensitivity: Critical rules positioned early
-        - Nesting reduction: Flattened structure (≤4 levels)
-        - Repetition consolidation: Single source of truth
-        - Explicit prioritization: 3-tier conflict resolution
-        - Modular design: External references for verbose sections
+        - Position sensitivity: Critical rules positioned early 
+        - Nesting reduction: Flattened structure (≤4 levels) 
+        - Repetition consolidation: Single source of truth 
+        - Explicit prioritization: 3-tier conflict resolution 
+        - Modular design: External references for verbose sections 
         - **Note**: Effectiveness improvements are model- and task-specific
-
+        
         ### Key Optimizations Applied
         1. **Critical Rules Elevated**: Moved from X% to Y% position
         2. **Nesting Flattened**: Reduced from X to Y levels
@@ -362,33 +362,33 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
         4. **Single Source of Truth**: Consolidated Z repetitions
         5. **Explicit Priority System**: Added 3-tier hierarchy
         6. **Modular Design**: Extracted N sections to references
-
+        
         ### Files Created (if applicable)
-        - `~/.config/opencode/context/core/[name].md` - [description]
-
+        - `.opencode/context/core/[name].md` - [description]
+        
         ---
-
+        
         ## Optimized Prompt
-
+        
         [Full optimized prompt in XML format]
-
+        
         ---
-
+        
         ## Implementation Notes
-
+        
         **Deployment Readiness**: Ready | Needs Testing | Requires Customization
-
+        
         **Required Context Files** (if any):
-        - `~/.config/opencode/context/core/[file].md`
-
+        - `.opencode/context/core/[file].md`
+        
         **Breaking Changes**: None | [List if any]
-
+        
         **Testing Recommendations**:
         1. Verify @references work correctly
         2. Test edge cases in conflict_resolution
         3. Validate external context files load properly
         4. A/B test old vs new prompt effectiveness
-
+        
         **Next Steps**:
         1. Deploy with monitoring
         2. Track effectiveness metrics
@@ -404,31 +404,31 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
     <application>Move critical rules immediately after role definition</application>
     <measurement>Calculate position percentage, target <15%</measurement>
   </position_sensitivity>
-
+  
   <nesting_depth>
     <research>Excessive nesting reduces clarity (magnitude is task-dependent)</research>
     <application>Flatten using attributes, extract to references</application>
     <measurement>Count max depth, target ≤4 levels</measurement>
   </nesting_depth>
-
+  
   <instruction_ratio>
     <research>Optimal balance: 40-50% instructions, rest distributed</research>
     <application>Extract verbose sections to external references</application>
     <measurement>Calculate instruction percentage, target 40-50%</measurement>
   </instruction_ratio>
-
+  
   <single_source_truth>
     <research>Repetition causes ambiguity, reduces consistency</research>
     <application>Define once, reference with @rule_id</application>
     <measurement>Count repetitions, target 1x + refs</measurement>
   </single_source_truth>
-
+  
   <explicit_prioritization>
     <research>Conflict resolution improves decision clarity (effect varies by task/model)</research>
     <application>3-tier priority system with edge cases</application>
     <measurement>Verify conflicts resolved, edge cases documented</measurement>
   </explicit_prioritization>
-
+  
   <component_ratios>
     <context>15-25% hierarchical information</context>
     <role>5-10% clear identity</role>
@@ -437,7 +437,7 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
     <examples>10-20% when needed</examples>
     <principles>5-10% core values</principles>
   </component_ratios>
-
+  
   <xml_advantages>
     - Improved response quality with descriptive tags (magnitude varies by model/task)
     - Reduced token overhead for complex prompts (effect is task-dependent)
@@ -478,7 +478,7 @@ description: "Research-backed prompt optimizer applying Stanford/Anthropic patte
 
 
 <references>
-  <optimization_report ref="~/.config/opencode/context/core/prompt-optimization-report.md">
+  <optimization_report ref=".opencode/context/core/prompt-optimization-report.md">
     Detailed before/after metrics from OpenAgent optimization
   </optimization_report>
   <research_patterns ref="docs/agents/research-backed-prompt-design.md">

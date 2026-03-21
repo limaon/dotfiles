@@ -94,45 +94,45 @@ tags:
         Always needed: Main coordinator that analyzes requests,
         routes to specialists, manages context, coordinates workflows
       </orchestrator>
-
+      
       <specialization_patterns>
         <research_agent>
           When: Use cases involve data gathering, analysis, or research
           Purpose: Gather information from external sources
           Triggers: "research", "analyze", "gather data", "find information"
         </research_agent>
-
+        
         <validation_agent>
           When: Use cases involve quality checks, compliance, or validation
           Purpose: Validate outputs against standards and rules
           Triggers: "validate", "check quality", "verify compliance"
         </validation_agent>
-
+        
         <processing_agent>
           When: Use cases involve data transformation or processing
           Purpose: Transform, process, or manipulate data
           Triggers: "process", "transform", "convert", "calculate"
         </processing_agent>
-
+        
         <generation_agent>
           When: Use cases involve creating content, code, or outputs
           Purpose: Generate new content or artifacts
           Triggers: "generate", "create", "produce", "build"
         </generation_agent>
-
+        
         <integration_agent>
           When: Use cases involve external systems or APIs
           Purpose: Handle integrations with external tools
           Triggers: "integrate", "sync", "publish", "send"
         </integration_agent>
-
+        
         <coordination_agent>
           When: Use cases involve project or task management
           Purpose: Coordinate complex multi-step processes
           Triggers: "manage", "coordinate", "orchestrate", "plan"
         </coordination_agent>
       </specialization_patterns>
-
+      
       <custom_specializations>
         Identify domain-specific specializations beyond standard patterns
       </custom_specializations>
@@ -171,7 +171,7 @@ tags:
         - Data models and schemas
         - Domain-specific patterns
       </domain_knowledge>
-
+      
       <process_knowledge>
         Files containing:
         - Standard workflows and procedures
@@ -180,7 +180,7 @@ tags:
         - Escalation paths
         - Error recovery procedures
       </process_knowledge>
-
+      
       <standards_knowledge>
         Files containing:
         - Quality criteria and metrics
@@ -189,7 +189,7 @@ tags:
         - Error handling standards
         - Performance benchmarks
       </standards_knowledge>
-
+      
       <template_knowledge>
         Files containing:
         - Output format templates
@@ -261,25 +261,25 @@ tags:
     <typical_agents>Order Processor, Inventory Manager, Payment Handler, Shipping Calculator</typical_agents>
     <context_files>Product Catalog, Pricing Rules, Inventory Policies, Order Fulfillment</context_files>
   </ecommerce>
-
+  
   <data_engineering>
     <core_concepts>Data Sources, Transformations, Pipelines, Quality, Destinations</core_concepts>
     <typical_agents>Data Extractor, Transformation Engine, Quality Validator, Data Loader</typical_agents>
     <context_files>Data Models, Transformation Rules, Quality Standards, Pipeline Configs</context_files>
   </data_engineering>
-
+  
   <customer_support>
     <core_concepts>Tickets, Customers, Issues, Resolutions, SLAs, Knowledge Base</core_concepts>
     <typical_agents>Ticket Triager, Issue Resolver, Knowledge Searcher, Escalation Manager</typical_agents>
     <context_files>Support Procedures, SLA Requirements, Resolution Templates, Escalation Paths</context_files>
   </customer_support>
-
+  
   <content_creation>
     <core_concepts>Topics, Platforms, Audiences, Formats, Quality, Publishing</core_concepts>
     <typical_agents>Research Assistant, Content Generator, Quality Validator, Publisher</typical_agents>
     <context_files>Brand Voice, Platform Specs, Quality Standards, Content Templates</context_files>
   </content_creation>
-
+  
   <software_development>
     <core_concepts>Code, Tests, Builds, Deployments, Quality, Documentation</core_concepts>
     <typical_agents>Code Generator, Test Writer, Build Validator, Documentation Creator</typical_agents>
@@ -304,13 +304,13 @@ tags:
       domain_name: string
       industry: string
       complexity_score: 1-10
-
+      
       core_concepts:
         - name: string
           description: string
           category: entity | process | rule | metric
           relationships: [string]
-
+      
       recommended_agents:
         - name: string
           purpose: string
@@ -320,7 +320,7 @@ tags:
           context_level: Level 1 | Level 2 | Level 3
           inputs: [string]
           outputs: string
-
+      
       context_structure:
         domain:
           - filename: string
@@ -330,7 +330,7 @@ tags:
         processes: [...]
         standards: [...]
         templates: [...]
-
+      
       knowledge_graph:
         concepts: [string]
         relationships:
@@ -340,25 +340,25 @@ tags:
         clusters:
           - name: string
             concepts: [string]
-
+      
       recommendations:
         - priority: high | medium | low
           recommendation: string
           rationale: string
-
+      
       potential_challenges:
         - challenge: string
           mitigation: string
     ```
   </format>
-
+  
   <example>
     ```yaml
     domain_analysis:
       domain_name: "E-commerce Order Management"
       industry: "Retail and Online Commerce"
       complexity_score: 7
-
+      
       core_concepts:
         - name: "Order"
           description: "Customer purchase request with items, pricing, and fulfillment details"
@@ -372,7 +372,7 @@ tags:
           description: "Process of validating, processing, and completing orders"
           category: "process"
           relationships: ["Order", "Inventory", "Payment", "Shipping"]
-
+      
       recommended_agents:
         - name: "order-processor"
           purpose: "Process and validate customer orders"
@@ -382,7 +382,7 @@ tags:
           context_level: "Level 2"
           inputs: ["order_data", "customer_info"]
           outputs: "Validated order with status and next steps"
-
+        
         - name: "inventory-checker"
           purpose: "Check product availability and manage stock"
           specialization: "Inventory management"
@@ -391,7 +391,7 @@ tags:
           context_level: "Level 1"
           inputs: ["product_ids", "quantities"]
           outputs: "Availability status with stock levels"
-
+      
       context_structure:
         domain:
           - filename: "product-catalog.md"
@@ -417,7 +417,7 @@ tags:
             content_type: "Order confirmation message template"
             estimated_lines: 60
             dependencies: []
-
+      
       knowledge_graph:
         concepts: ["Order", "Customer", "Product", "Inventory", "Payment", "Shipping"]
         relationships:
@@ -435,7 +435,7 @@ tags:
             concepts: ["Order", "Customer", "Payment"]
           - name: "Inventory Management"
             concepts: ["Product", "Inventory", "Shipping"]
-
+      
       recommendations:
         - priority: "high"
           recommendation: "Implement inventory-checker as Level 1 agent for efficiency"
@@ -443,7 +443,7 @@ tags:
         - priority: "medium"
           recommendation: "Create separate payment-processor agent if payment logic is complex"
           rationale: "Payment processing may require specialized handling and compliance"
-
+      
       potential_challenges:
         - challenge: "High-volume order processing may require optimization"
           mitigation: "Use Level 1 context for standard orders, Level 2 only for complex cases"
@@ -459,7 +459,7 @@ tags:
     - use_cases array is not empty
     - use_case descriptions are meaningful
   </pre_execution>
-
+  
   <post_execution>
     - At least 3 core concepts identified
     - At least 2 specialized agents recommended (plus orchestrator)
@@ -474,19 +474,19 @@ tags:
   <extract_not_assume>
     Base analysis on provided information, not assumptions about the domain
   </extract_not_assume>
-
+  
   <modular_organization>
     Design context files to be small, focused, and reusable
   </modular_organization>
-
+  
   <coverage_completeness>
     Ensure recommended agents cover all provided use cases
   </coverage_completeness>
-
+  
   <efficiency_first>
     Recommend Level 1 context for agents whenever possible
   </efficiency_first>
-
+  
   <scalability_aware>
     Consider how the system will scale with more use cases
   </scalability_aware>

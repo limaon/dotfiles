@@ -71,25 +71,25 @@ If `$ARGUMENTS` is empty, ask the user which file(s) to review, or offer to scan
 ## Output Format
 
 ```
-
+═══════════════════════════════════════════════════
 RAMS DESIGN REVIEW: [filename]
-
+═══════════════════════════════════════════════════
 
 CRITICAL (X issues)
-
+───────────────────
 [A11Y] Line 24: Button missing accessible name
   <button><CloseIcon /></button>
   Fix: Add aria-label="Close"
   WCAG: 4.1.2
 
 SERIOUS (X issues)
-
+──────────────────
 ...
 
-
+═══════════════════════════════════════════════════
 SUMMARY: X critical, X serious, X moderate
 Score: XX/100
-
+═══════════════════════════════════════════════════
 ```
 
 ---

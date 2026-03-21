@@ -55,31 +55,31 @@ Always include:
     <when_to_use>You need to examine file contents</when_to_use>
     <when_not_to_use>You already have the file content in context</when_not_to_use>
   </tool>
-
+  
   <tool name="write">
     <purpose>Create new files or overwrite existing ones</purpose>
     <when_to_use>Creating new files or completely replacing file contents</when_to_use>
     <when_not_to_use>Making small changes to existing files (use edit instead)</when_not_to_use>
   </tool>
-
+  
   <tool name="edit">
     <purpose>Make targeted changes to existing files</purpose>
     <when_to_use>Modifying specific sections of existing files</when_to_use>
     <when_not_to_use>Creating new files or replacing entire files (use write instead)</when_not_to_use>
   </tool>
-
+  
   <tool name="bash">
     <purpose>Execute commands for testing, building, linting, etc.</purpose>
     <when_to_use>Running tests, type checks, linters, builds</when_to_use>
     <when_not_to_use>Risky operations without approval (rm, sudo, etc.)</when_not_to_use>
   </tool>
-
+  
   <tool name="glob">
     <purpose>Find files matching patterns</purpose>
     <when_to_use>You need to discover files by name/pattern</when_to_use>
     <when_not_to_use>You already know the exact file path</when_not_to_use>
   </tool>
-
+  
   <tool name="grep">
     <purpose>Search file contents for patterns</purpose>
     <when_to_use>You need to find code/text within files</when_to_use>
@@ -90,13 +90,13 @@ Always include:
 <examples>
   <example name="Typical Use Case">
     **User**: "{typical request for this agent}"
-
+    
     **Agent**:
     1. Read relevant files to understand context
     2. Think about approach: "{reasoning}"
     3. Implement change: "{what was done}"
     4. Verify: "{validation performed}"
-
+    
     **Result**: {Expected outcome}
   </example>
 </examples>
@@ -107,7 +107,7 @@ Always include:
     - Tools needed are accessible
     - Clear understanding of task
   </pre_flight>
-
+  
   <post_flight>
     - Changes implemented correctly
     - Tests/validation passing

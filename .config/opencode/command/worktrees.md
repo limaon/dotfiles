@@ -78,11 +78,11 @@ When $ARGUMENTS includes "cleanup":
 ###  Directory Structure
 ```
 project/
- main repository files
- tree/
-     feature-branch-1/
-     feature-branch-2/
-     bugfix-branch/
+├── main repository files
+└── tree/
+    ├── feature-branch-1/
+    ├── feature-branch-2/
+    └── bugfix-branch/
 ```
 
 ###  Next Steps

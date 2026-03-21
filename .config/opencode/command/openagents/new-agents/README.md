@@ -143,7 +143,7 @@ when_not_to_use: "You already have the file content in context"
 
 **Before jumping to code, trigger extended thinking**:
 ```
-"Think about how to approach this problem. What files need to change?
+"Think about how to approach this problem. What files need to change? 
 What are the dependencies? What should we test?"
 ```
 
@@ -231,12 +231,12 @@ Always include:
 <examples>
   <example name="{Canonical Use Case}">
     **User**: "{typical request}"
-
+    
     **Agent**:
     1. {Step 1 with tool usage}
     2. {Step 2 with reasoning}
     3. {Step 3 with output}
-
+    
     **Result**: {Expected outcome}
   </example>
 </examples>
@@ -281,30 +281,30 @@ Based on failure modes found in production:
 When you create a new agent, the system generates:
 
 ```
-~/.config/opencode/agent/{agent-name}.md
-   Minimal system prompt (~500 tokens)
+.opencode/agent/{agent-name}.md
+  └─ Minimal system prompt (~500 tokens)
 
-~/.config/opencode/context/project/{agent-name}-context.md
-   Project context (CLAUDE.md pattern)
+.opencode/context/project/{agent-name}-context.md
+  └─ Project context (CLAUDE.md pattern)
 
 evals/agents/{agent-name}/
-   config/
-      config.yaml
-   tests/
-       planning/
-          planning-approval-001.yaml
-       context-loading/
-          context-before-code-001.yaml
-       implementation/
-          incremental-001.yaml
-          tool-usage-001.yaml
-          extended-thinking-001.yaml
-       error-handling/
-          stop-on-failure-001.yaml
-       long-horizon/
-          compaction-001.yaml
-       completion/
-           handoff-001.yaml
+  ├─ config/
+  │   └─ config.yaml
+  └─ tests/
+      ├─ planning/
+      │   └─ planning-approval-001.yaml
+      ├─ context-loading/
+      │   └─ context-before-code-001.yaml
+      ├─ implementation/
+      │   ├─ incremental-001.yaml
+      │   ├─ tool-usage-001.yaml
+      │   └─ extended-thinking-001.yaml
+      ├─ error-handling/
+      │   └─ stop-on-failure-001.yaml
+      ├─ long-horizon/
+      │   └─ compaction-001.yaml
+      └─ completion/
+          └─ handoff-001.yaml
 
 registry.json (updated)
 ```
@@ -363,11 +363,11 @@ npm test -- --agent=my-agent-name --test=planning-approval-001
 - **Anthropic Multi-Agent Research** (Sept-Dec 2025)
   - Single agent + tools > multi-agent for coding
   - Token usage explains 80% of performance variance
-
+  
 - **Context Engineering Best Practices** (Sept 2025)
   - "Find the smallest possible set of high-signal tokens"
   - Just-in-time retrieval beats pre-loading
-
+  
 - **Claude Code Production Patterns**
   - CLAUDE.md pattern for project context
   - Extended thinking for complex decomposition
@@ -376,9 +376,9 @@ npm test -- --agent=my-agent-name --test=planning-approval-001
 ## Support
 
 For questions or issues:
-1. Check existing agents:
-   - Core agents: `~/.config/opencode/agent/core/openagent.md`, `~/.config/opencode/agent/core/opencoder.md`
-   - Development agents: `~/.config/opencode/agent/development/frontend-specialist.md`
-   - Content agents: `~/.config/opencode/agent/content/copywriter.md`
+1. Check existing agents: 
+   - Core agents: `.opencode/agent/core/openagent.md`, `.opencode/agent/core/opencoder.md`
+   - Development agents: `.opencode/agent/development/frontend-specialist.md`
+   - Content agents: `.opencode/agent/content/copywriter.md`
 2. Review test examples: `evals/agents/openagent/tests/`
 3. See research docs: `docs/agents/research-backed-prompt-design.md`

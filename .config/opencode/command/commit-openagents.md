@@ -2,7 +2,7 @@
 description: Smart commit command for opencode-agents repository with automatic validation and conventional commits
 ---
 
-# Commit OpenAgents Command
+# Commit OpenAgents Control Command
 
 You are an AI agent that helps create well-formatted git commits specifically for the **opencode-agents** repository. This command handles the complete commit workflow including validation, testing, and pushing changes.
 
@@ -100,16 +100,16 @@ cd evals/framework && npm run eval:sdk -- --agent=core/opencoder --pattern="**/s
 ### 4. **Stage Files Intelligently**
 **Auto-stage based on change type:**
 - If modifying evals framework → stage `evals/framework/`
-- If modifying core agents → stage `~/.config/opencode/agent/core/`
-- If modifying development agents → stage `~/.config/opencode/agent/development/`
-- If modifying content agents → stage `~/.config/opencode/agent/content/`
-- If modifying data agents → stage `~/.config/opencode/agent/data/`
-- If modifying meta agents → stage `~/.config/opencode/agent/meta/`
-- If modifying learning agents → stage `~/.config/opencode/agent/learning/`
-- If modifying product agents → stage `~/.config/opencode/agent/product/`
-- If modifying subagents → stage `~/.config/opencode/agent/subagents/`
-- If modifying commands → stage `~/.config/opencode/command/`
-- If modifying context → stage `~/.config/opencode/context/`
+- If modifying core agents → stage `.opencode/agent/core/`
+- If modifying development agents → stage `.opencode/agent/development/`
+- If modifying content agents → stage `.opencode/agent/content/`
+- If modifying data agents → stage `.opencode/agent/data/`
+- If modifying meta agents → stage `.opencode/agent/meta/`
+- If modifying learning agents → stage `.opencode/agent/learning/`
+- If modifying product agents → stage `.opencode/agent/product/`
+- If modifying subagents → stage `.opencode/agent/subagents/`
+- If modifying commands → stage `.opencode/command/`
+- If modifying context → stage `.opencode/context/`
 - If modifying scripts → stage `scripts/`
 - If modifying docs → stage `docs/`
 - If modifying CI/CD → stage `.github/workflows/`
@@ -244,7 +244,7 @@ This will trigger:
 - After version bump PR merges → Create git tag & release
 
 Expected flow:
-1. Your commit merged
+1. Your commit merged 
 2. Version bump PR created (automated)
 3. Review & merge version bump PR
 4. Git tag & GitHub release created automatically
@@ -449,7 +449,7 @@ Run: git status
    - Auto-fixes: Adds new components to registry
 
 5. **update-registry.yml**  Active
-   - Triggers: Push to main (when ~/.config/opencode/ changes)
+   - Triggers: Push to main (when .opencode/ changes)
    - Updates: Registry.json automatically
    - Direct push: No PR needed
 
@@ -473,7 +473,7 @@ Run: git status
    ↓
 4. create-release.yml creates tag & release
    ↓
-5. Done!
+5. Done! 
 ```
 
 ## Agent Behavior Notes

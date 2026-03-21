@@ -99,24 +99,24 @@ tags:
         glob: true
         grep: true
       ---
-
+      
       # {Domain} Orchestrator
-
+      
       <context>
         <system_context>{system description}</system_context>
         <domain_context>{domain specifics}</domain_context>
         <task_context>{what this orchestrator does}</task_context>
         <execution_context>{how it coordinates}</execution_context>
       </context>
-
+      
       <role>
         {Domain} Orchestrator specializing in {key capabilities}
       </role>
-
+      
       <task>
         {Primary objective and coordination responsibility}
       </task>
-
+      
       <workflow_execution>
         <stage id="1" name="AnalyzeRequest">
           <action>{what happens in this stage}</action>
@@ -132,21 +132,21 @@ tags:
           </decision>
           <checkpoint>{validation point}</checkpoint>
         </stage>
-
+        
         {additional stages...}
       </workflow_execution>
-
+      
       <routing_intelligence>
         <analyze_request>
           {complexity assessment logic}
         </analyze_request>
-
+        
         <allocate_context>
           <level_1>{when and what}</level_1>
           <level_2>{when and what}</level_2>
           <level_3>{when and what}</level_3>
         </allocate_context>
-
+        
         <execute_routing>
           <route to="@{subagent}" when="{condition}">
             <context_level>{Level X}</context_level>
@@ -156,24 +156,24 @@ tags:
           </route>
         </execute_routing>
       </routing_intelligence>
-
+      
       <context_engineering>
         {context allocation functions}
       </context_engineering>
-
+      
       <quality_standards>
         {quality criteria and benchmarks}
       </quality_standards>
-
+      
       <validation>
         <pre_flight>{prerequisites}</pre_flight>
         <post_flight>{success criteria}</post_flight>
       </validation>
-
+      
       <performance_metrics>
         {expected performance characteristics}
       </performance_metrics>
-
+      
       <principles>
         {guiding principles for operation}
       </principles>
@@ -204,30 +204,30 @@ tags:
       mode: subagent
       temperature: 0.1
       ---
-
+      
       # {Subagent Name}
-
+      
       <context>
         <specialist_domain>{area of expertise}</specialist_domain>
         <task_scope>{specific task}</task_scope>
         <integration>{how it fits in system}</integration>
       </context>
-
+      
       <role>
         {Specialist type} expert in {specific domain}
       </role>
-
+      
       <task>
         {Specific, measurable objective}
       </task>
-
+      
       <inputs_required>
         <parameter name="{param1}" type="{type}">
           {description and acceptable values}
         </parameter>
         {additional parameters...}
       </inputs_required>
-
+      
       <process_flow>
         <step_1>
           <action>{what to do}</action>
@@ -238,31 +238,31 @@ tags:
           <validation>{how to verify}</validation>
           <output>{what this step produces}</output>
         </step_1>
-
+        
         {additional steps...}
       </process_flow>
-
+      
       <constraints>
         <must>{always do this}</must>
         <must_not>{never do this}</must_not>
       </constraints>
-
+      
       <output_specification>
         <format>
           {exact structure, preferably YAML or JSON}
         </format>
-
+        
         <example>
           ```yaml
           {concrete example of output}
           ```
         </example>
-
+        
         <error_handling>
           {how to handle failures}
         </error_handling>
       </output_specification>
-
+      
       <validation_checks>
         <pre_execution>
           {input validation}
@@ -271,7 +271,7 @@ tags:
           {output validation}
         </post_execution>
       </validation_checks>
-
+      
       <{domain}_principles>
         {specialist principles}
       </{domain}_principles>
@@ -350,7 +350,7 @@ tags:
     6. Constraints (boundaries)
     7. Validation (quality checks)
   </optimal_component_sequence>
-
+  
   <component_ratios>
     <role>5-10% of total prompt</role>
     <context>15-25% hierarchical information</context>
@@ -358,14 +358,14 @@ tags:
     <examples>20-30% when needed</examples>
     <constraints>5-10% boundaries</constraints>
   </component_ratios>
-
+  
   <routing_patterns>
     <subagent_references>Always use @ symbol (e.g., @research-assistant)</subagent_references>
     <delegation_syntax>Route to @{agent-name} when {condition}</delegation_syntax>
     <context_specification>Always specify context_level for each route</context_specification>
     <return_specification>Define expected_return for every subagent call</return_specification>
   </routing_patterns>
-
+  
   <workflow_patterns>
     <stage_structure>id, name, action, prerequisites, process, checkpoint, outputs</stage_structure>
     <decision_trees>Use if/else logic with clear conditions</decision_trees>
@@ -384,7 +384,7 @@ tags:
     - Validation gates
     - Performance metrics
   </orchestrator_template>
-
+  
   <research_subagent_template>
     Information gathering specialist with:
     - Level 1 context (isolation)
@@ -393,7 +393,7 @@ tags:
     - Citation requirements
     - Structured output
   </research_subagent_template>
-
+  
   <validation_subagent_template>
     Quality assurance specialist with:
     - Level 2 context (standards + rules)
@@ -402,7 +402,7 @@ tags:
     - Prioritized feedback
     - Pass/fail determination
   </validation_subagent_template>
-
+  
   <processing_subagent_template>
     Data transformation specialist with:
     - Level 1 context (task only)
@@ -411,7 +411,7 @@ tags:
     - Output formatting
     - Error handling
   </processing_subagent_template>
-
+  
   <generation_subagent_template>
     Content/artifact creation specialist with:
     - Level 2 context (templates + standards)
@@ -443,7 +443,7 @@ tags:
         content: |
           {complete agent file content}
         quality_score: 8-10
-
+        
       subagent_files:
         - filename: "{subagent-1}.md"
           content: |
@@ -453,7 +453,7 @@ tags:
           content: |
             {complete agent file content}
           quality_score: 8-10
-
+      
       validation_report:
         orchestrator:
           score: 9/10
@@ -464,7 +464,7 @@ tags:
             score: 9/10
             issues: []
             recommendations: []
-
+      
       performance_expectations:
         routing_accuracy: "+20%"
         consistency: "+25%"
@@ -481,7 +481,7 @@ tags:
     - workflow_definitions are provided
     - routing_patterns are specified
   </pre_execution>
-
+  
   <post_execution>
     - All agent files generated
     - All agents score 8+/10 on quality criteria
@@ -496,19 +496,19 @@ tags:
   <research_backed>
     Apply Stanford/Anthropic patterns for optimal performance
   </research_backed>
-
+  
   <consistency>
     Use similar patterns and structures across all agents
   </consistency>
-
+  
   <executability>
     Ensure all routing logic and workflows are implementable
   </executability>
-
+  
   <clarity>
     Make agents clear and understandable for users
   </clarity>
-
+  
   <performance_optimized>
     Follow component ratios and ordering for maximum effectiveness
   </performance_optimized>

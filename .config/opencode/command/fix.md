@@ -33,32 +33,32 @@ flowchart TD
     CHECK -->|No| GEN[Generate data-model.md]
     CHECK -->|Yes| READ[Read architecture docs]
     GEN --> READ
-
+    
     READ --> CONTEXT[Gather bug context]
     CONTEXT --> LOGS[Add diagnostic logs/instrumentation]
-
+    
     LOGS --> REPRODUCE[Attempt to reproduce bug]
     REPRODUCE --> ANALYZE[Analyze log output]
-
+    
     ANALYZE --> HYPOTHESIS[Generate 5-7 hypotheses]
     HYPOTHESIS --> DISTILL[Distill to 1-2 most likely causes]
-
+    
     DISTILL --> VALIDATE[Validate with diagnostic data]
     VALIDATE --> PRESENT[Present diagnosis to user]
-
+    
     PRESENT --> CONFIRM{User confirms diagnosis?}
     CONFIRM -->|No| LOGS
     CONFIRM -->|Yes| FIX[Implement fix]
-
+    
     FIX --> TEST[Test fix thoroughly]
     TEST --> VERIFY[Verify bug resolved]
-
+    
     VERIFY --> CLEANUP[Remove diagnostic logs]
     CLEANUP --> DOCS[Document root cause]
     DOCS --> MEMORY[Write to cross-project memory]
-
+    
     MEMORY --> COMPLETE[ Bug Fixed]
-
+    
     style START fill:#fbb,stroke:#333,stroke-width:2px
     style COMPLETE fill:#bfb,stroke:#333,stroke-width:2px
     style CONFIRM fill:#ffb,stroke:#333,stroke-width:2px
@@ -137,11 +137,11 @@ const similarBugs = failurePatterns.filter(pattern => {
  Found: n1-query-user-relations-2025-08
    - Symptom: Slow API responses with multiple users
    - Cause: N+1 query pattern in user relationships
-
+   
   Found: stripe-webhook-replay-attack-2025-10
    - Symptom: Duplicate payments processed
    - Cause: Missing idempotency check
-
+   
  Found: react-state-stale-closure-2025-09
    - Symptom: UI not updating after state change
    - Cause: Stale closure in useEffect
@@ -350,7 +350,7 @@ try {
 - [ ] Execution time tracking
 - [ ] Relationship loading logs
 
-### Service Layer
+### Service Layer  
 - [ ] Service method entry/exit
 - [ ] Validation result logging
 - [ ] Data transformation logs
@@ -490,7 +490,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 ---
 
 ### Hypothesis 2: Missing Validation
-**Likelihood**: Medium
+**Likelihood**:  Medium
 **Evidence**:
 - Error occurs after validation passes
 - Null/undefined error suggests missing check
@@ -502,7 +502,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 ---
 
 ### Hypothesis 3: Race Condition
-**Likelihood**: Medium
+**Likelihood**:  Medium
 **Evidence**:
 - Intermittent failure (20% of requests)
 - Timing logs show variable execution order
@@ -514,7 +514,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 ---
 
 ### Hypothesis 4: Stale Cache
-**Likelihood**: Low
+**Likelihood**:  Low
 **Evidence**:
 - Works after service restart
 - Some users affected, others not
@@ -526,7 +526,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 ---
 
 ### Hypothesis 5: State Synchronization (UI)
-**Likelihood**: Medium (if UI bug)
+**Likelihood**:  Medium (if UI bug)
 **Evidence**:
 - UI shows stale data
 - API returns correct data
@@ -539,7 +539,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 ---
 
 ### Hypothesis 6: Transaction Isolation
-**Likelihood**: Low
+**Likelihood**:  Low
 **Evidence**:
 - Concurrent requests show different results
 - Database isolation level: READ_COMMITTED
@@ -551,7 +551,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 ---
 
 ### Hypothesis 7: Authentication/Authorization Issue
-**Likelihood**: Low
+**Likelihood**:  Low
 **Evidence**:
 - Works for admin users
 - Fails for regular users
@@ -629,7 +629,7 @@ Cross-reference distilled hypotheses with diagnostic logs:
 
 **Diagnostic Evidence Check**:
  Log line 45: "Query executing: SELECT * FROM users WHERE id = $1"
- Log line 67: "Accessing user.subscription"
+ Log line 67: "Accessing user.subscription" 
  Log line 68: ERROR - "Cannot read property 'subscription_id' of undefined"
  No log for: "SELECT * FROM subscriptions WHERE user_id = $1"
 
@@ -791,7 +791,7 @@ Please confirm before I proceed with the fix.
 **Change**: Add null check for subscription
 
 ### 3. Tests
-**Files**:
+**Files**: 
 - `src/repositories/user.repository.test.ts` (add eager loading tests)
 - `src/services/payment.service.test.ts` (add null subscription tests)
 
@@ -826,16 +826,16 @@ async findById(userId: string): Promise<User | null> {
 // src/services/payment.service.ts
 async processSubscriptionPayment(userId: string, amount: number) {
   const user = await this.userRepository.findById(userId);
-
+  
   if (!user) {
     throw new NotFoundError('User not found');
   }
-
+  
   //  FIX: Add defensive null check
   if (!user.subscription) {
     throw new ValidationError('User does not have an active subscription');
   }
-
+  
   const subscriptionId = user.subscription.subscription_id;
   // ... process payment
 }
@@ -847,7 +847,7 @@ async processSubscriptionPayment(userId: string, amount: number) {
 describe('UserRepository.findById', () => {
   it('should load subscription relationship', async () => {
     const user = await repository.findById('user-123');
-
+    
     expect(user).toBeDefined();
     expect(user.subscription).toBeDefined(); //  Verify eager loading
     expect(user.subscription.subscription_id).toBe('sub-456');
@@ -1212,26 +1212,26 @@ await todoWrite([
 
 Generated 5 hypotheses:
 1.  Missing eager loading (HIGH)
-2. Null validation missing (MEDIUM)
-3. Race condition (MEDIUM)
-4. Cache issue (LOW)
-5. Permission issue (LOW)
+2.  Null validation missing (MEDIUM)
+3.  Race condition (MEDIUM)
+4.  Cache issue (LOW)
+5.  Permission issue (LOW)
 
 Distilled to:
 PRIMARY: Missing eager loading (90% confidence)
 SECONDARY: Null validation (10% confidence)
 
  Diagnosis Report:
-
- Root Cause: Missing Eager Loading
-
- User.subscription relationship not
- loaded by default. Service expects
- it to exist, causing undefined error.
-
- Fix: Add include: { subscription: true}
- to UserRepository.findById()
-
+┌─────────────────────────────────────────┐
+│ Root Cause: Missing Eager Loading      │
+│                                         │
+│ User.subscription relationship not     │
+│ loaded by default. Service expects     │
+│ it to exist, causing undefined error.  │
+│                                         │
+│ Fix: Add include: { subscription: true}│
+│ to UserRepository.findById()           │
+└─────────────────────────────────────────┘
 
  Does this diagnosis match your understanding?
    [Waiting for user confirmation...]
@@ -1289,11 +1289,11 @@ SECONDARY: Null validation (10% confidence)
 Generated 7 hypotheses:
 1.  Race condition in payment status update (HIGH)
 2.  Missing database transaction isolation (HIGH)
-3. Webhook replay without idempotency (MEDIUM)
-4. Cache inconsistency (MEDIUM)
-5. Network timeout (LOW)
-6. External API rate limiting (LOW)
-7. Insufficient error handling (LOW)
+3.  Webhook replay without idempotency (MEDIUM)
+4.  Cache inconsistency (MEDIUM)
+5.  Network timeout (LOW)
+6.  External API rate limiting (LOW)
+7.  Insufficient error handling (LOW)
 
 Distilled to:
 PRIMARY: Race condition (85% confidence)
@@ -1306,21 +1306,21 @@ SECONDARY: Missing idempotency (15% confidence)
   - Webhooks might replay
 
  Diagnosis Report:
-
- Root Cause: Race Condition
-
- Timeline Analysis:
- Request A (T+0): Read subscription status
- Request B (T+5): Read subscription status
- Request A (T+15): Update to 'processing'
- Request B (T+18): Update to 'processing'
- Request A (T+25): Update to 'completed'
- Request B (T+30): Update to 'completed'
- Result: Duplicate payment processed
-
- Fix: Add optimistic locking + transaction
- isolation level SERIALIZABLE
-
+┌──────────────────────────────────────────┐
+│ Root Cause: Race Condition               │
+│                                           │
+│ Timeline Analysis:                        │
+│ Request A (T+0): Read subscription status │
+│ Request B (T+5): Read subscription status │
+│ Request A (T+15): Update to 'processing' │
+│ Request B (T+18): Update to 'processing' │
+│ Request A (T+25): Update to 'completed'  │
+│ Request B (T+30): Update to 'completed'  │
+│ Result: Duplicate payment processed      │
+│                                           │
+│ Fix: Add optimistic locking + transaction│
+│ isolation level SERIALIZABLE             │
+└──────────────────────────────────────────┘
 
 Evidence from data-model.md:
 - Subscription entity has 'status' field
@@ -1388,4 +1388,4 @@ This command integrates with:
 
 ---
 
-**Ready to diagnose and fix bugs with systematic, evidence-based approach!**
+**Ready to diagnose and fix bugs with systematic, evidence-based approach!** 
