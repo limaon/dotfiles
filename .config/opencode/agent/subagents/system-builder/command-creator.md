@@ -103,47 +103,47 @@ tags:
       agent: {target-agent}
       description: "{What this command does}"
       ---
-      
+
       {Brief description of command purpose}
-      
+
       **Request:** $ARGUMENTS
-      
+
       **Process:**
       1. {Step 1}
       2. {Step 2}
       3. {Step 3}
-      
+
       **Syntax:**
       ```bash
       /{command-name} {required_param} [--optional-flag {value}]
       ```
-      
+
       **Parameters:**
       - `{required_param}`: {Description}
       - `--optional-flag`: {What this does}
-      
+
       **Options:**
       - `--flag1`: {Description}
       - `--flag2`: {Description}
-      
+
       **Examples:**
-      
+
       ```bash
       # Example 1: {Use case}
       /{command-name} "example input" --flag1
-      
+
       # Example 2: {Another use case}
       /{command-name} "different input" --flag2 value
-      
+
       # Example 3: {Complex use case}
       /{command-name} "complex input" --flag1 --flag2 value
       ```
-      
+
       **Output:**
       ```yaml
       {Expected output format}
       ```
-      
+
       **Notes:**
       - {Important note 1}
       - {Important note 2}
@@ -169,12 +169,12 @@ tags:
     Single parameter, routes to one agent:
     /{command} "{input}"
   </simple_command>
-  
+
   <parameterized_command>
     Multiple parameters with flags:
     /{command} {param1} {param2} --flag {value}
   </parameterized_command>
-  
+
   <workflow_command>
     Triggers complete workflow:
     /{command} {input} --workflow {workflow_name}
@@ -203,7 +203,7 @@ tags:
           target_agent: "{agent-name}"
           syntax: "/{command} {params}"
           examples: 3
-      
+
       command_usage_guide:
         content: |
           {usage documentation}
@@ -219,7 +219,7 @@ tags:
     - workflow_list available
     - use_case_examples provided
   </pre_execution>
-  
+
   <post_execution>
     - All commands have agent routing
     - Syntax is documented
@@ -233,15 +233,15 @@ tags:
   <user_friendly>
     Commands should be intuitive and easy to remember
   </user_friendly>
-  
+
   <well_documented>
     Every command should have clear documentation and examples
   </well_documented>
-  
+
   <consistent>
     Similar commands should follow similar patterns
   </consistent>
-  
+
   <discoverable>
     Command names should indicate their purpose
   </discoverable>

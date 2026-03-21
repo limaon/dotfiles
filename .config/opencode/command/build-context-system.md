@@ -19,7 +19,7 @@ description: "Interactive system builder that creates complete context-aware AI 
   <stage id="0" name="DetectExistingProject">
     <action>Detect existing .opencode structure and offer merge options</action>
     <process>
-      1. Check if .opencode/ directory exists
+      1. Check if ~/.config/opencode/ directory exists
       2. Scan for existing agents (agent/*.md, agent/subagents/*.md)
       3. Scan for existing commands (command/*.md)
       4. Scan for existing context files (context/*/*.md)
@@ -29,14 +29,14 @@ description: "Interactive system builder that creates complete context-aware AI 
     </process>
     <detection_logic>
       <check_directory>
-        IF .opencode/ exists:
+        IF ~/.config/opencode/ exists:
           existing_project = true
           Scan contents
         ELSE:
           existing_project = false
           Proceed to fresh build
       </check_directory>
-      
+
       <scan_agents>
         agents_found = []
         FOR each file in agent/*.md:
@@ -44,7 +44,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         FOR each file in agent/subagents/*.md:
           agents_found.append(file)
       </scan_agents>
-      
+
       <identify_capabilities>
         Known agents and their capabilities:
         - opencoder: Code analysis, file operations
@@ -61,25 +61,25 @@ description: "Interactive system builder that creates complete context-aware AI 
     <decision>
       <if test="no_existing_project">
         ## Fresh Build
-        
+
         No existing .opencode system detected.
-        
+
         I'll create a complete new system for you.
-        
+
         Proceed to Stage 1 (InitiateInterview)
       </if>
       <if test="existing_project_found">
         ## Existing Project Detected
-        
+
         Found existing .opencode system with:
         - **Agents**: {agent_count} ({agent_names})
         - **Subagents**: {subagent_count} ({subagent_names})
         - **Commands**: {command_count} ({command_names})
         - **Context Files**: {context_count}
         - **Workflows**: {workflow_count}
-        
+
         **How would you like to proceed?**
-        
+
         **Option 1: Extend Existing System** (Recommended)
         -  Keep all existing files
         -  Add new agents/workflows/commands for your new domain
@@ -87,22 +87,22 @@ description: "Interactive system builder that creates complete context-aware AI 
         -  Integrate new capabilities with existing ones
         -  Create unified orchestrator that routes to both
         - Best for: Adding new capabilities to active project
-        
+
         **Option 2: Create Separate System**
         -  Keep existing system intact
         -  Create new system in separate namespace
         -  Both systems coexist independently
         - Best for: Multi-domain projects with distinct needs
-        
+
         **Option 3: Replace Existing System**
         -   Backup existing to .opencode.backup.{timestamp}/
         -   Create fresh system (existing work preserved in backup)
         -   Use with caution
         - Best for: Complete system redesign
-        
+
         **Option 4: Cancel**
         - Exit without changes
-        
+
         Please choose: [1/2/3/4]
       </if>
     </decision>
@@ -141,40 +141,40 @@ description: "Interactive system builder that creates complete context-aware AI 
     <output_format>
       <for_fresh_build>
         ## Building Your Context-Aware AI System
-        
+
         I'll guide you through creating a complete .opencode system tailored to your needs.
-        
+
         **Process Overview**:
         - Phase 1: Domain & Purpose (2-3 questions)
         - Phase 2: Use Cases & Workflows (3-4 questions)
         - Phase 3: Complexity & Scale (2-3 questions)
         - Phase 4: Integration & Tools (2-3 questions)
         - Phase 5: Review & Confirmation
-        
+
         **What You'll Get**:
-        - Complete .opencode/ folder structure
+        - Complete ~/.config/opencode/ folder structure
         - Main orchestrator agent for your domain
         - 3-5 specialized subagents
         - Organized context files (domain, processes, standards, templates)
         - 2-3 primary workflows
         - Custom slash commands
         - Documentation and testing guide
-        
-        Let's begin! 
+
+        Let's begin!
       </for_fresh_build>
-      
+
       <for_extend_existing>
         ## Extending Your Existing System
-        
+
         I'll help you add new capabilities to your existing .opencode system.
-        
+
         **Process Overview**:
         - Phase 1: New Domain & Purpose (2-3 questions)
         - Phase 2: New Use Cases & Workflows (3-4 questions)
         - Phase 3: Integration with Existing Agents (2-3 questions)
         - Phase 4: Additional Tools & Integrations (2-3 questions)
         - Phase 5: Review & Confirmation
-        
+
         **What You'll Get**:
         - New agents integrated with existing ones
         - Unified orchestrator routing to all agents
@@ -182,11 +182,11 @@ description: "Interactive system builder that creates complete context-aware AI 
         - New workflows leveraging existing + new capabilities
         - New commands for new functionality
         - Updated documentation
-        
+
         **Existing Capabilities Preserved**:
         {list_existing_agents_and_capabilities}
-        
-        Let's begin! 
+
+        Let's begin!
       </for_extend_existing>
     </output_format>
     <checkpoint>User understands process and is ready to proceed</checkpoint>
@@ -211,7 +211,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </examples>
         <capture>domain_name, industry_type</capture>
       </question_1>
-      
+
       <question_2>
         <ask>What is the primary purpose of your AI system?</ask>
         <examples>
@@ -227,7 +227,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </examples>
         <capture>primary_purpose, automation_goals</capture>
       </question_2>
-      
+
       <question_3>
         <ask>Who are the primary users of this system?</ask>
         <examples>
@@ -262,14 +262,14 @@ description: "Interactive system builder that creates complete context-aware AI 
         Users: developers, engineers, QA
         → domain_type = "development"
       </development_indicators>
-      
+
       <business_indicators>
         Keywords: e-commerce, retail, customer, support, sales, marketing, content, finance, HR
         Purpose: automate processes, customer service, content creation, reports, analytics
         Users: business users, marketers, support teams, executives
         → domain_type = "business"
       </business_indicators>
-      
+
       <hybrid_indicators>
         Keywords: data engineering, product management, analytics, platform
         Purpose: both technical and business outcomes
@@ -287,7 +287,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         - coder-agent: Code generation
         - documentation: Documentation authoring
       </for_development>
-      
+
       <for_business>
         Relevant existing agents:
         - task-manager: Project and task management
@@ -295,7 +295,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         - image-specialist: Visual content creation
         - documentation: Documentation and content authoring
       </for_business>
-      
+
       <for_hybrid>
         Relevant existing agents:
         - All agents may be relevant depending on specific needs
@@ -303,46 +303,46 @@ description: "Interactive system builder that creates complete context-aware AI 
     </existing_agent_matching>
     <output_format>
       ## Domain Type Detected: {domain_type}
-      
+
       <for_development>
         Your domain is **development-focused**.
-        
+
         I'll adapt questions to cover:
         - Programming languages and frameworks
         - Development tools and workflows
         - Code quality and testing requirements
         - Build and deployment processes
         - Integration with dev tools (Git, CI/CD, IDEs)
-        
+
         **Existing Agents That Can Help**:
         {list_relevant_existing_agents}
-        
+
         I'll focus on integrating with these and adding any missing capabilities.
       </for_development>
-      
+
       <for_business>
         Your domain is **business-focused**.
-        
+
         I'll adapt questions to cover:
         - Business processes to automate
         - Reports and documents to generate
         - Customer touchpoints and workflows
         - Compliance and quality requirements
         - Business metrics and KPIs
-        
+
         **Existing Agents That Can Help**:
         {list_relevant_existing_agents}
-        
+
         I'll focus on business process automation and content generation.
       </for_business>
-      
+
       <for_hybrid>
         Your domain combines **technical and business** aspects.
-        
+
         I'll adapt questions to cover both:
         - Technical: Tools, processes, code quality
         - Business: Processes, reports, metrics
-        
+
         **Existing Agents That Can Help**:
         {list_relevant_existing_agents}
       </for_hybrid>
@@ -365,7 +365,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </guidance>
         <capture>use_cases[], task_descriptions[]</capture>
       </question_4>
-      
+
       <question_5>
         <ask>For each use case, what is the typical complexity?</ask>
         <options>
@@ -375,7 +375,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </options>
         <capture>complexity_map{use_case: complexity_level}</capture>
       </question_5>
-      
+
       <question_6>
         <ask>Are there dependencies or sequences between these use cases?</ask>
         <examples>
@@ -402,7 +402,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </guidance>
         <capture>estimated_agent_count, specialization_areas[]</capture>
       </question_7>
-      
+
       <question_8>
         <ask>What types of knowledge does your system need?</ask>
         <categories>
@@ -413,7 +413,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </categories>
         <capture>knowledge_types[], context_categories[]</capture>
       </question_8>
-      
+
       <question_9>
         <ask>Will your system need to maintain state or history?</ask>
         <options>
@@ -443,7 +443,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </examples>
         <capture>integrations[], api_requirements[], tool_dependencies[]</capture>
       </question_10>
-      
+
       <question_11>
         <ask>What file operations will your system perform?</ask>
         <options>
@@ -453,7 +453,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         </options>
         <capture>file_operations_level, storage_requirements</capture>
       </question_11>
-      
+
       <question_12>
         <ask>Do you need custom slash commands for common operations?</ask>
         <guidance>
@@ -480,30 +480,30 @@ description: "Interactive system builder that creates complete context-aware AI 
     </process>
     <output_format>
       ## System Architecture Summary
-      
+
       **Domain**: {domain_name}
       **Purpose**: {primary_purpose}
       **Users**: {user_personas}
-      
+
       **Use Cases** ({use_cases.length}):
       {for each use_case:
         - {use_case.name} (Complexity: {use_case.complexity})
       }
-      
+
       **System Components**:
-      
+
       ### Agents ({estimated_agent_count})
       1. **Main Orchestrator**: {domain}-orchestrator
          - Analyzes requests and routes to specialists
          - Manages workflow execution
          - Coordinates context allocation
-      
+
       {for each specialization:
       2. **{specialization.name}**: {specialization.agent_name}
          - {specialization.purpose}
          - Handles: {specialization.use_cases}
       }
-      
+
       ### Context Files ({estimated_context_files})
       - **Domain Knowledge** ({domain_files.length} files):
         {domain_files[]}
@@ -513,22 +513,22 @@ description: "Interactive system builder that creates complete context-aware AI 
         {standards_files[]}
       - **Templates** ({template_files.length} files):
         {template_files[]}
-      
+
       ### Workflows ({workflow_count})
       {for each workflow:
         - {workflow.name}: {workflow.description}
       }
-      
+
       ### Custom Commands ({command_count})
       {for each command:
         - /{command.name}: {command.description}
       }
-      
+
       ### Integrations
       {integrations[] or "None - standalone system"}
-      
+
       ---
-      
+
       **Estimated Structure**:
       - Total Files: ~{total_file_count}
       - Agent Files: {agent_count}
@@ -536,9 +536,9 @@ description: "Interactive system builder that creates complete context-aware AI 
       - Workflow Files: {workflow_count}
       - Command Files: {command_count}
       - Documentation Files: {doc_count}
-      
+
       **Does this architecture meet your needs?**
-      
+
       Options:
       -  **Proceed** - Generate the complete system
       -  **Revise** - Adjust specific components
@@ -565,7 +565,7 @@ description: "Interactive system builder that creates complete context-aware AI 
           - File structure plan
         </pass_data>
         <expected_return>
-          - Generated .opencode/ folder structure
+          - Generated ~/.config/opencode/ folder structure
           - All agent files with XML optimization
           - Organized context files
           - Workflow definitions
@@ -593,14 +593,14 @@ description: "Interactive system builder that creates complete context-aware AI 
     <prerequisites>System generation complete</prerequisites>
     <output_format>
       ##  Your Context-Aware AI System is Ready!
-      
+
       **System**: {domain_name} AI System
-      **Location**: `.opencode/`
-      
+      **Location**: `~/.config/opencode/`
+
       ###  Generated Structure
-      
+
       ```
-      .opencode/
+      ~/.config/opencode/
       ├── agent/
       │   ├── {domain}-orchestrator.md
       │   └── subagents/
@@ -626,48 +626,48 @@ description: "Interactive system builder that creates complete context-aware AI 
           ├── {workflow-1}.md
           └── {workflow-2}.md
       ```
-      
+
       ###  Quick Start
-      
+
       **1. Test Your Main Command**:
       ```bash
       /{primary_command} "{example_input}"
       ```
-      
+
       **2. Try a Simple Use Case**:
       ```bash
       /{use_case_command} {example_parameters}
       ```
-      
+
       **3. Review Your Orchestrator**:
-      - Open: `.opencode/agent/{domain}-orchestrator.md`
+      - Open: `~/.config/opencode/agent/{domain}-orchestrator.md`
       - Review routing logic and workflows
       - Understand context allocation strategy
-      
+
       ###  Key Components
-      
+
       **Main Orchestrator**: `{domain}-orchestrator`
       - Entry point for all requests
       - Analyzes complexity and routes to specialists
       - Manages 3-level context allocation
-      
+
       **Specialized Agents**:
       {for each subagent:
         - `{subagent.name}`: {subagent.purpose}
       }
-      
+
       **Primary Workflows**:
       {for each workflow:
         - `{workflow.name}`: {workflow.description}
       }
-      
+
       **Custom Commands**:
       {for each command:
         - `/{command.name}`: {command.description}
       }
-      
+
       ###  Testing Checklist
-      
+
       - [ ] Test main orchestrator with simple request
       - [ ] Test each subagent independently
       - [ ] Verify context files load correctly
@@ -675,34 +675,34 @@ description: "Interactive system builder that creates complete context-aware AI 
       - [ ] Test custom commands
       - [ ] Validate error handling
       - [ ] Check edge cases
-      
+
       ###  Documentation
-      
-      - **System Guide**: `.opencode/navigation.md`
-      - **Architecture**: `.opencode/ARCHITECTURE.md`
-      - **Context Management**: `.opencode/context/navigation.md`
-      - **Workflow Guide**: `.opencode/workflows/navigation.md`
-      
+
+      - **System Guide**: `~/.config/opencode/navigation.md`
+      - **Architecture**: `~/.config/opencode/ARCHITECTURE.md`
+      - **Context Management**: `~/.config/opencode/context/navigation.md`
+      - **Workflow Guide**: `~/.config/opencode/workflows/navigation.md`
+
       ###  Next Steps
-      
+
       1. **Test the system** with your actual use cases
       2. **Customize context files** with your specific domain knowledge
       3. **Refine workflows** based on real usage
       4. **Add examples** to improve agent performance
       5. **Monitor and optimize** based on results
-      
+
       ###  Tips for Success
-      
+
       - Start with simple use cases and gradually increase complexity
       - Keep context files focused (50-200 lines each)
       - Use Level 1 context (isolation) for 80% of tasks
       - Add validation gates for critical operations
       - Document learnings and patterns as you go
-      
+
       ---
-      
-      **Your system is production-ready!** 
-      
+
+      **Your system is production-ready!**
+
       Need help? Review the documentation or ask specific questions about any component.
     </output_format>
     <checkpoint>System delivered with complete documentation</checkpoint>
@@ -715,7 +715,7 @@ description: "Interactive system builder that creates complete context-aware AI 
     <step_2>Determine if user provided domain or needs full interview</step_2>
     <step_3>Assess user's technical level from responses</step_3>
   </analyze_request>
-  
+
   <allocate_context>
     <level_1>
       <when>User provides clear, complete requirements upfront</when>
@@ -730,7 +730,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       <context>Full interview + detailed examples + reference architectures</context>
     </level_3>
   </allocate_context>
-  
+
   <execute_routing>
     <route to="@system-builder" when="user_confirms_architecture">
       <context_level>Level 2 - Filtered Context</context_level>
@@ -746,7 +746,7 @@ description: "Interactive system builder that creates complete context-aware AI 
         - documentation (usage guides)
       </expected_return>
     </route>
-    
+
     <route to="@DomainAnalyzer" when="domain_unclear_or_complex">
       <context_level>Level 1 - Complete Isolation</context_level>
       <pass_data>
@@ -766,15 +766,15 @@ description: "Interactive system builder that creates complete context-aware AI 
   <progressive_disclosure>
     Start with broad questions, then drill into specifics based on responses
   </progressive_disclosure>
-  
+
   <adaptive_questioning>
     Adjust question complexity based on user's technical level and domain familiarity
   </adaptive_questioning>
-  
+
   <example_driven>
     Provide concrete examples for every question to guide user thinking
   </example_driven>
-  
+
   <validation_checkpoints>
     Summarize and confirm understanding after each phase before proceeding
   </validation_checkpoints>
@@ -784,19 +784,19 @@ description: "Interactive system builder that creates complete context-aware AI 
   <modular_design>
     Generate small, focused files (50-200 lines) for maintainability
   </modular_design>
-  
+
   <hierarchical_organization>
     Main orchestrator coordinates specialized subagents in manager-worker pattern
   </hierarchical_organization>
-  
+
   <context_efficiency>
     Implement 3-level context allocation (80% Level 1, 20% Level 2, rare Level 3)
   </context_efficiency>
-  
+
   <workflow_driven>
     Design workflows first, then create agents to execute them
   </workflow_driven>
-  
+
   <research_backed>
     Apply Stanford/Anthropic XML patterns and optimal component ordering
   </research_backed>
@@ -808,13 +808,13 @@ description: "Interactive system builder that creates complete context-aware AI 
     - User has clarity on their domain and use cases
     - User is ready to commit time to the interview
   </pre_flight>
-  
+
   <mid_flight>
     - Each interview phase captures complete information
     - User confirms understanding before proceeding
     - Architecture summary accurately reflects requirements
   </mid_flight>
-  
+
   <post_flight>
     - Generated system matches confirmed architecture
     - All files follow XML optimization patterns
@@ -828,15 +828,15 @@ description: "Interactive system builder that creates complete context-aware AI 
   <comprehensive_interview>
     Gather all necessary information through structured, example-rich questions
   </comprehensive_interview>
-  
+
   <accurate_architecture>
     Generate architecture that precisely matches user requirements
   </accurate_architecture>
-  
+
   <production_ready>
     Deliver complete, tested, documented system ready for immediate use
   </production_ready>
-  
+
   <user_friendly>
     Provide clear documentation, examples, and next steps
   </user_friendly>
@@ -846,15 +846,15 @@ description: "Interactive system builder that creates complete context-aware AI 
   <interview_responses>
     Structured data capturing all user inputs across 5 phases
   </interview_responses>
-  
+
   <architecture_summary>
     Comprehensive plan showing all components and their relationships
   </architecture_summary>
-  
+
   <generated_system>
-    Complete .opencode/ folder with all agents, context, workflows, commands, and documentation
+    Complete ~/.config/opencode/ folder with all agents, context, workflows, commands, and documentation
   </generated_system>
-  
+
   <usage_documentation>
     Quick start guide, testing checklist, and tips for success
   </usage_documentation>

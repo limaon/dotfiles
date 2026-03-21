@@ -53,7 +53,7 @@ Create a changelog for all commits between March 1 and March 15
 ### With Custom Guidelines
 
 ```
-Create a changelog for commits since v2.4.0, using my changelog 
+Create a changelog for commits since v2.4.0, using my changelog
 guidelines from CHANGELOG_STYLE.md
 ```
 
@@ -67,10 +67,10 @@ guidelines from CHANGELOG_STYLE.md
 
 ##  New Features
 
-- **Team Workspaces**: Create separate workspaces for different 
+- **Team Workspaces**: Create separate workspaces for different
   projects. Invite team members and keep everything organized.
 
-- **Keyboard Shortcuts**: Press ? to see all available shortcuts. 
+- **Keyboard Shortcuts**: Press ? to see all available shortcuts.
   Navigate faster without touching your mouse.
 
 ##  Improvements

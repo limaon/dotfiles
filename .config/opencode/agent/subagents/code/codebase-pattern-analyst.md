@@ -96,7 +96,7 @@ Before searching, classify the pattern type based on the user's request:
 ### Step 2: Pattern Maturity Assessment
 Evaluate the quality and maturity of found patterns:
 
-#### **High-Quality Indicators** 
+#### **High-Quality Indicators**
 - **Consistent Usage**: Pattern appears in multiple places
 - **Well-Tested**: Comprehensive test coverage
 - **Documented**: Comments, JSDoc, README references
@@ -105,7 +105,7 @@ Evaluate the quality and maturity of found patterns:
 - **Performance**: No obvious performance issues
 - **Error Handling**: Proper error boundaries and fallbacks
 
-#### **Low-Quality Indicators** 
+#### **Low-Quality Indicators**
 - **One-Off**: Only appears once in codebase
 - **Untested**: No test files or minimal coverage
 - **Deprecated**: Marked as deprecated or legacy
@@ -176,7 +176,7 @@ find src/ -type d -name "*api*" -o -name "*service*" -o -name "*util*"
 
 ## Patterns to IGNORE
 
-### **Anti-Patterns** 
+### **Anti-Patterns**
 - **God Objects**: Classes/functions doing too many things
 - **Spaghetti Code**: Unstructured, hard-to-follow logic
 - **Magic Numbers**: Hardcoded values without constants
@@ -185,7 +185,7 @@ find src/ -type d -name "*api*" -o -name "*service*" -o -name "*util*"
 - **Duplicate Code**: Copy-pasted logic without abstraction
 - **Tight Coupling**: High dependency between modules
 
-### **Deprecated Patterns** 
+### **Deprecated Patterns**
 - **Legacy Code**: Marked as deprecated or legacy
 - **Old Libraries**: Using outdated versions or deprecated APIs
 - **Commented Code**: Large blocks of commented-out code
@@ -193,21 +193,21 @@ find src/ -type d -name "*api*" -o -name "*service*" -o -name "*util*"
 - **FIXME Comments**: Known broken code
 - **Hack Comments**: Temporary workarounds
 
-### **Performance Anti-Patterns** 
+### **Performance Anti-Patterns**
 - **N+1 Queries**: Database queries in loops
 - **Memory Leaks**: Event listeners not cleaned up
 - **Inefficient Algorithms**: O(n²) or worse complexity
 - **Large Bundle Sizes**: Unnecessary imports or dependencies
 - **Blocking Operations**: Synchronous operations in async contexts
 
-### **Security Anti-Patterns** 
+### **Security Anti-Patterns**
 - **SQL Injection**: Unescaped user input in queries
 - **XSS Vulnerabilities**: Unsanitized user input in HTML
 - **Hardcoded Secrets**: Passwords, API keys in code
 - **Insecure Dependencies**: Known vulnerable packages
 - **Missing Validation**: No input sanitization
 
-### **Testing Anti-Patterns** 
+### **Testing Anti-Patterns**
 - **Fragile Tests**: Tests that break with unrelated changes
 - **Slow Tests**: Tests taking more than 1 second
 - **No Assertions**: Tests without actual assertions
@@ -360,28 +360,28 @@ describe('Pagination', () => {
 
 Before recommending a pattern, verify:
 
-### **Code Quality** 
+### **Code Quality**
 - [ ] Follows project conventions
 - [ ] Proper error handling
 - [ ] Input validation
 - [ ] Performance considerations
 - [ ] Security best practices
 
-### **Maintainability** 
+### **Maintainability**
 - [ ] Clear naming conventions
 - [ ] Proper documentation
 - [ ] Modular design
 - [ ] Low coupling
 - [ ] High cohesion
 
-### **Testability** 
+### **Testability**
 - [ ] Unit tests exist
 - [ ] Integration tests exist
 - [ ] Tests are fast
 - [ ] Tests are reliable
 - [ ] Good test coverage
 
-### **Relevance** 
+### **Relevance**
 - [ ] Matches user's use case
 - [ ] Current and maintained
 - [ ] No deprecated warnings

@@ -56,44 +56,44 @@ tags:
 <operation_handling>
   <!-- Context system operations routed from /context command -->
   <operation name="harvest">
-    Load: .opencode/context/core/context-system/operations/harvest.md
-    Load: .opencode/context/core/context-system/standards/mvi.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/operations/harvest.md
+    Load: ~/.config/opencode/context/core/context-system/standards/mvi.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
     Execute: 6-stage harvest workflow (scan, analyze, approve, extract, cleanup, report)
   </operation>
-  
+
   <operation name="extract">
-    Load: .opencode/context/core/context-system/operations/extract.md
-    Load: .opencode/context/core/context-system/standards/mvi.md
-    Load: .opencode/context/core/context-system/guides/compact.md
+    Load: ~/.config/opencode/context/core/context-system/operations/extract.md
+    Load: ~/.config/opencode/context/core/context-system/standards/mvi.md
+    Load: ~/.config/opencode/context/core/context-system/guides/compact.md
     Execute: 7-stage extract workflow (read, extract, categorize, approve, create, validate, report)
   </operation>
-  
+
   <operation name="organize">
-    Load: .opencode/context/core/context-system/operations/organize.md
-    Load: .opencode/context/core/context-system/standards/structure.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/operations/organize.md
+    Load: ~/.config/opencode/context/core/context-system/standards/structure.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
     Execute: 8-stage organize workflow (scan, categorize, resolve conflicts, preview, backup, move, update, report)
   </operation>
-  
+
   <operation name="update">
-    Load: .opencode/context/core/context-system/operations/update.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
-    Load: .opencode/context/core/context-system/standards/mvi.md
+    Load: ~/.config/opencode/context/core/context-system/operations/update.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/standards/mvi.md
     Execute: 8-stage update workflow (describe changes, find affected, diff preview, backup, update, validate, migration notes, report)
   </operation>
-  
+
   <operation name="error">
-    Load: .opencode/context/core/context-system/operations/error.md
-    Load: .opencode/context/core/context-system/standards/templates.md
-    Load: .opencode/context/core/context-system/guides/workflows.md
+    Load: ~/.config/opencode/context/core/context-system/operations/error.md
+    Load: ~/.config/opencode/context/core/context-system/standards/templates.md
+    Load: ~/.config/opencode/context/core/context-system/guides/workflows.md
     Execute: 6-stage error workflow (search existing, deduplicate, preview, add/update, cross-reference, report)
   </operation>
-  
+
   <operation name="create">
-    Load: .opencode/context/core/context-system/guides/creation.md
-    Load: .opencode/context/core/context-system/standards/structure.md
-    Load: .opencode/context/core/context-system/standards/templates.md
+    Load: ~/.config/opencode/context/core/context-system/guides/creation.md
+    Load: ~/.config/opencode/context/core/context-system/standards/structure.md
+    Load: ~/.config/opencode/context/core/context-system/standards/templates.md
     Execute: Create new context category with function-based structure
   </operation>
 </operation_handling>
@@ -154,7 +154,7 @@ tags:
          - Add codebase references from @codebase-references.md
          - Follow MVI format from @mvi.md
          - Use function-based folders from @structure.md
-      5. Create files in: .opencode/context/{category}/concepts/
+      5. Create files in: ~/.config/opencode/context/{category}/concepts/
     </process>
     <template_reference>
       Follow Concept Template from @context:core/context-system/standards/templates
@@ -174,7 +174,7 @@ tags:
          - Add frontmatter from @frontmatter.md
          - Add codebase references (workflow orchestration, business logic, integration)
          - Follow MVI format from @mvi.md
-      5. Create files in: .opencode/context/{category}/guides/
+      5. Create files in: ~/.config/opencode/context/{category}/guides/
     </process>
     <template_reference>
       Follow Guide Template from @context:core/context-system/standards/templates
@@ -194,7 +194,7 @@ tags:
          - Add frontmatter from @frontmatter.md
          - Add codebase references (full implementation, related code, tests)
          - Follow MVI format from @mvi.md
-      5. Create files in: .opencode/context/{category}/examples/
+      5. Create files in: ~/.config/opencode/context/{category}/examples/
     </process>
     <template_reference>
       Follow Example Template from @context:core/context-system/standards/templates
@@ -214,7 +214,7 @@ tags:
          - Add frontmatter from @frontmatter.md
          - Add codebase references (validation logic, configuration)
          - Follow MVI format from @mvi.md
-      5. Create files in: .opencode/context/{category}/lookup/
+      5. Create files in: ~/.config/opencode/context/{category}/lookup/
     </process>
     <template_reference>
       Follow Lookup Template from @context:core/context-system/standards/templates
@@ -234,7 +234,7 @@ tags:
          - Add frontmatter from @frontmatter.md
          - Add codebase references (error definitions, handlers, prevention)
          - Follow MVI format from @mvi.md
-      5. Create files in: .opencode/context/{category}/errors/
+      5. Create files in: ~/.config/opencode/context/{category}/errors/
     </process>
     <template_reference>
       Follow Error Template from @context:core/context-system/standards/templates
@@ -250,7 +250,7 @@ tags:
       2. Create navigation tables for all 5 folders (concepts, examples, guides, lookup, errors)
       3. Map dependencies between files
       4. Provide loading strategy
-      5. Create file at: .opencode/context/{category}/navigation.md
+      5. Create file at: ~/.config/opencode/context/{category}/navigation.md
     </process>
     <template_reference>
       Follow Navigation Template from @context:core/context-system/standards/templates
@@ -316,19 +316,19 @@ tags:
   <modular_design>
     Each file should serve ONE clear purpose (50-200 lines)
   </modular_design>
-  
+
   <clear_naming>
     File names should clearly indicate contents (e.g., pricing-rules.md, not rules.md)
   </clear_naming>
-  
+
   <no_duplication>
     Each piece of knowledge should exist in exactly one file
   </no_duplication>
-  
+
   <documented_dependencies>
     Files should list what other files they depend on
   </documented_dependencies>
-  
+
   <example_rich>
     Every concept should have concrete examples
   </example_rich>
@@ -353,7 +353,7 @@ tags:
     ```yaml
     context_files_result:
       category: "{category-name}"
-      
+
       concept_files:
         - filename: "{concept-name}.md"
           path: "context/{category}/concepts/{concept-name}.md"
@@ -364,7 +364,7 @@ tags:
           has_frontmatter: true
           has_codebase_refs: true
           codebase_refs_count: 5
-      
+
       guide_files:
         - filename: "{guide-name}.md"
           path: "context/{category}/guides/{guide-name}.md"
@@ -375,7 +375,7 @@ tags:
           has_frontmatter: true
           has_codebase_refs: true
           codebase_refs_count: 4
-      
+
       example_files:
         - filename: "{example-name}.md"
           path: "context/{category}/examples/{example-name}.md"
@@ -386,7 +386,7 @@ tags:
           has_frontmatter: true
           has_codebase_refs: true
           codebase_refs_count: 3
-      
+
       lookup_files:
         - filename: "{lookup-name}.md"
           path: "context/{category}/lookup/{lookup-name}.md"
@@ -397,7 +397,7 @@ tags:
           has_frontmatter: true
           has_codebase_refs: true
           codebase_refs_count: 3
-      
+
       error_files:
         - filename: "{error-category}.md"
           path: "context/{category}/errors/{error-category}.md"
@@ -408,13 +408,13 @@ tags:
           has_frontmatter: true
           has_codebase_refs: true
           codebase_refs_count: 4
-      
+
       navigation_file:
         filename: "navigation.md"
         path: "context/{category}/navigation.md"
         content: |
           {context organization guide with navigation tables}
-      
+
       validation_report:
         total_files: 12
         frontmatter_compliance: 12/12
@@ -436,7 +436,7 @@ tags:
     - use_cases are provided
     - Codebase structure discovered (@step_1)
   </pre_execution>
-  
+
   <post_execution>
     - All files have frontmatter (<!-- Context: ... -->)
     - All files have codebase references ( Codebase References)
@@ -453,27 +453,27 @@ tags:
   <standards_based>
     All files follow centralized standards from @context:core/context-system/standards/
   </standards_based>
-  
+
   <function_based_structure>
     Files organized by function (concepts/examples/guides/lookup/errors), not topic
   </function_based_structure>
-  
+
   <code_linked>
     All context files link to actual implementation via codebase references
   </code_linked>
-  
+
   <mvi_compliant>
     Minimal viable information - scannable in <30 seconds, reference full docs
   </mvi_compliant>
-  
+
   <discoverable>
     Frontmatter enables priority-based loading, navigation.md provides roadmap
   </discoverable>
-  
+
   <maintainable>
     Small, focused files (<150 lines) are easy to update
   </maintainable>
-  
+
   <reusable>
     Context files can be loaded selectively based on needs
   </reusable>

@@ -84,7 +84,7 @@ erDiagram
     %% - Relationships (one-to-one, one-to-many, many-to-many)
     %% - Foreign keys
     %% - Cardinality
-    
+
     USER ||--o{ ORDER : places
     USER {
         uuid id PK
@@ -93,7 +93,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     ORDER ||--|{ ORDER_ITEM : contains
     ORDER {
         uuid id PK
@@ -102,7 +102,7 @@ erDiagram
         decimal total_amount
         timestamp created_at
     }
-    
+
     %% ... continue for all entities
 ```
 
@@ -177,7 +177,7 @@ class User {
   private id: string;
   private email: string;
   private passwordHash: string;
-  
+
   // Business logic methods
   public verifyPassword(plaintext: string): boolean;
   public updateEmail(newEmail: string): void;
@@ -271,19 +271,19 @@ flowchart TD
     CONTROLLER[Controller/API]
     STATE[State Management]
     UI[UI Components]
-    
+
     DB -->|Raw Data| REPO
     REPO -->|Domain Models| SERVICE
     SERVICE -->|DTOs| CONTROLLER
     CONTROLLER -->|JSON Response| STATE
     STATE -->|Props| UI
-    
+
     UI -->|User Action| STATE
     STATE -->|API Call| CONTROLLER
     CONTROLLER -->|Validate & Process| SERVICE
     SERVICE -->|Business Logic| REPO
     REPO -->|SQL/ORM| DB
-    
+
     style DB fill:#f9f,stroke:#333,stroke-width:2px
     style UI fill:#bbf,stroke:#333,stroke-width:2px
 ```
@@ -326,7 +326,7 @@ async function handleRegister(req: Request) {
 async createUser(dto: CreateUserDTO): Promise<User> {
   // Hash password
   const passwordHash = await bcrypt.hash(dto.password, 10);
-  
+
   // Create user via repository
   const user = await userRepository.create({
     email: dto.email,
@@ -334,7 +334,7 @@ async createUser(dto: CreateUserDTO): Promise<User> {
     firstName: dto.firstName,
     lastName: dto.lastName
   });
-  
+
   return user;
 }
 ```

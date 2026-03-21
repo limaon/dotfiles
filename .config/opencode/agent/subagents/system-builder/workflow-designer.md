@@ -119,77 +119,77 @@ tags:
     <template>
       ```markdown
       # {Workflow Name}
-      
+
       ## Overview
       {What this workflow accomplishes and when to use it}
-      
+
       <task_context>
         <expert_role>{Required expertise}</expert_role>
         <mission_objective>{What this achieves}</mission_objective>
       </task_context>
-      
+
       <operational_context>
         <tone_framework>{How to execute}</tone_framework>
         <audience_level>{Who benefits}</audience_level>
       </operational_context>
-      
+
       <pre_flight_check>
         <validation_requirements>
           - {Prerequisite 1}
           - {Prerequisite 2}
         </validation_requirements>
       </pre_flight_check>
-      
+
       <process_flow>
-      
+
       ### Step 1: {Step Name}
       <step_framework>
         <context_dependencies>
           - {Required context file 1}
           - {Required context file 2}
         </context_dependencies>
-        
+
         <action>{What to do}</action>
-        
+
         <decision_tree>
           <if test="{condition}">{Action}</if>
           <else>{Alternative}</else>
         </decision_tree>
-        
+
         <output>{What this produces}</output>
       </step_framework>
-      
+
       ### Step 2: {Next Step}
       ...
-      
+
       </process_flow>
-      
+
       <guidance_systems>
         <when_to_use>
           - {Scenario 1}
           - {Scenario 2}
         </when_to_use>
-        
+
         <when_not_to_use>
           - {Wrong scenario}
         </when_not_to_use>
-        
+
         <workflow_escalation>
           <if test="{condition}">Escalate to {other workflow}</if>
         </workflow_escalation>
       </guidance_systems>
-      
+
       <post_flight_check>
         <validation_requirements>
           - {Success criterion 1}
           - {Success criterion 2}
         </validation_requirements>
       </post_flight_check>
-      
+
       ## Context Dependencies Summary
       - **Step 1**: file1.md, file2.md
       - **Step 2**: file3.md
-      
+
       ## Success Metrics
       - {Measurable outcome 1}
       - {Time expectation}
@@ -207,7 +207,7 @@ tags:
     3. Validate outputs
     4. Deliver results
   </simple_pattern>
-  
+
   <moderate_pattern>
     Multi-step with decisions:
     1. Analyze request
@@ -216,7 +216,7 @@ tags:
     4. Validate results
     5. Deliver with recommendations
   </moderate_pattern>
-  
+
   <complex_pattern>
     Multi-agent coordination:
     1. Analyze and plan
@@ -249,12 +249,12 @@ tags:
           stages: 5
           context_deps: ["file1.md", "file2.md"]
           complexity: "moderate"
-      
+
       context_dependency_map:
         "{workflow-1}":
           step_1: ["context/domain/core-concepts.md"]
           step_2: ["context/processes/standard-workflow.md"]
-      
+
       workflow_selection_logic:
         simple_requests: "{workflow-1}"
         complex_requests: "{workflow-2}"
@@ -270,7 +270,7 @@ tags:
     - agent_specifications complete
     - context_files mapped
   </pre_execution>
-  
+
   <post_execution>
     - All workflows have clear stages
     - Context dependencies documented

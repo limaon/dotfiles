@@ -29,14 +29,14 @@ For building complete features requiring multiple shadcn components.
 4. **Output** component hierarchy:
    ```
    ## Feature: [Name]
-   
+
    ## Components Required:
    - form (validation and submission)
    - input (email and password fields)
    - button (submit action)
    - card (form container)
    - alert (error display)
-   
+
    ## Component Hierarchy:
    Card
    └── Form
@@ -53,14 +53,14 @@ For building complete features requiring multiple shadcn components.
 **Steps:**
 
 1. For each component:
-   
+
    a. Get implementation details:
    ```
    shadcn___view_items_in_registries(items: ["@shadcn/component"])
    ```
    - Note file dependencies
    - Note key props
-   
+
    b. Get examples:
    ```
    shadcn___get_item_examples_from_registries(registries, query: "component-demo")
@@ -105,7 +105,7 @@ For building complete features requiring multiple shadcn components.
    import { Form, FormControl, FormField } from "@/components/ui/form"
    import { Input } from "@/components/ui/input"
    import { Button } from "@/components/ui/button"
-   
+
    export function FeatureName() {
      // Full implementation
    }

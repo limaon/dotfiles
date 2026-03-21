@@ -98,7 +98,7 @@ Read progress.txt → empty (first run)
 Current branch: main
 Required branch: ralph/task-priority
 
-Creating branch: ralph/task-priority 
+Creating branch: ralph/task-priority
 
 Picked: US-001 - Add priority field to database
 
@@ -106,13 +106,13 @@ Implementing:
 - Created migration: add_priority_column.sql
 - Added priority: 'high' | 'medium' | 'low' (default: 'medium')
 
-Running typecheck: bunx tsc --noEmit 
+Running typecheck: bunx tsc --noEmit
 
-Committing: feat: US-001 - Add priority field to database 
+Committing: feat: US-001 - Add priority field to database
 
-Updating prd.json: US-001 passes=true 
+Updating prd.json: US-001 passes=true
 
-Appending to progress.txt 
+Appending to progress.txt
 
  Story US-001 complete. 2 stories remaining. Load ralph-executor again to continue.
 ```

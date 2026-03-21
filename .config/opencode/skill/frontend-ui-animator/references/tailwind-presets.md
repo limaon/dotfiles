@@ -17,7 +17,7 @@ const config: Config = {
   theme: {
     extend: {
       // ... other extensions
-      
+
       keyframes: {
         // === FADE ANIMATIONS ===
         'fade-in': {
@@ -29,56 +29,56 @@ const config: Config = {
           to: { opacity: '0' },
         },
         'fade-slide-in': {
-          from: { 
-            opacity: '0', 
+          from: {
+            opacity: '0',
             transform: 'translateY(20px)',
             filter: 'blur(4px)',
           },
-          to: { 
-            opacity: '1', 
+          to: {
+            opacity: '1',
             transform: 'translateY(0)',
             filter: 'blur(0)',
           },
         },
         'fade-slide-in-right': {
-          from: { 
-            opacity: '0', 
+          from: {
+            opacity: '0',
             transform: 'translateX(20px)',
           },
-          to: { 
-            opacity: '1', 
+          to: {
+            opacity: '1',
             transform: 'translateX(0)',
           },
         },
         'fade-slide-in-left': {
-          from: { 
-            opacity: '0', 
+          from: {
+            opacity: '0',
             transform: 'translateX(-20px)',
           },
-          to: { 
-            opacity: '1', 
+          to: {
+            opacity: '1',
             transform: 'translateX(0)',
           },
         },
 
         // === SCALE ANIMATIONS ===
         'scale-in': {
-          from: { 
-            opacity: '0', 
+          from: {
+            opacity: '0',
             transform: 'scale(0.9)',
           },
-          to: { 
-            opacity: '1', 
+          to: {
+            opacity: '1',
             transform: 'scale(1)',
           },
         },
         'scale-out': {
-          from: { 
-            opacity: '1', 
+          from: {
+            opacity: '1',
             transform: 'scale(1)',
           },
-          to: { 
-            opacity: '0', 
+          to: {
+            opacity: '0',
             transform: 'scale(0.9)',
           },
         },
@@ -157,14 +157,14 @@ const config: Config = {
 
         // === SPECIAL EFFECTS ===
         'ripple': {
-          from: { 
-            width: '0', 
-            height: '0', 
+          from: {
+            width: '0',
+            height: '0',
             opacity: '0.5',
           },
-          to: { 
-            width: '200px', 
-            height: '200px', 
+          to: {
+            width: '200px',
+            height: '200px',
             opacity: '0',
           },
         },

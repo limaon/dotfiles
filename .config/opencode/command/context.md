@@ -15,17 +15,17 @@ dependencies:
   <rule id="mvi_strict">
     Files MUST be <200 lines. Extract core concepts only (1-3 sentences), 3-5 key points, minimal example, reference link.
   </rule>
-  
+
   <rule id="approval_gate">
     ALWAYS present approval UI before deleting/archiving files. Letter-based selection (A B C or 'all'). NEVER auto-delete.
   </rule>
-  
+
   <rule id="function_structure">
     ALWAYS organize by function: concepts/, examples/, guides/, lookup/, errors/ (not flat files).
   </rule>
-  
+
   <rule id="lazy_load">
-    ALWAYS read required context files from .opencode/context/core/context-system/ BEFORE executing operations.
+    ALWAYS read required context files from ~/.config/opencode/context/core/context-system/ BEFORE executing operations.
   </rule>
 </critical_rules>
 
@@ -62,20 +62,20 @@ When invoked without arguments: `/context`
     - Files in .tmp/ directory
     - Files >2KB in root directory
   </stage>
-  
+
   <stage id="2" name="Report">
     Show what was found:
     ```
     Quick scan results:
-    
+
     Found 3 summary files:
        CONTEXT-SYSTEM-OVERVIEW.md (4.2 KB)
        SESSION-auth-work.md (1.8 KB)
        .tmp/NOTES.md (800 bytes)
-    
+
     Recommended action:
       /context harvest  - Clean up summaries → permanent context
-    
+
     Other options:
       /context extract {source}  - Extract from docs/code
       /context organize {category}  - Restructure existing files
@@ -146,37 +146,37 @@ When invoked without arguments: `/context`
   <operation name="default">
     Read: operations/harvest.md, standards/mvi.md
   </operation>
-  
+
   <operation name="harvest">
     Read: operations/harvest.md, standards/mvi.md, guides/workflows.md
   </operation>
-  
+
   <operation name="compact">
     Read: guides/compact.md, standards/mvi.md
   </operation>
-  
+
   <operation name="extract">
     Read: operations/extract.md, standards/mvi.md, guides/compact.md, guides/workflows.md
   </operation>
-  
+
   <operation name="organize">
     Read: operations/organize.md, standards/structure.md, guides/workflows.md
   </operation>
-  
+
   <operation name="update">
     Read: operations/update.md, guides/workflows.md, standards/mvi.md
   </operation>
-  
+
   <operation name="error">
     Read: operations/error.md, standards/templates.md, guides/workflows.md
   </operation>
-  
+
   <operation name="create">
     Read: guides/creation.md, standards/structure.md, standards/templates.md
   </operation>
 </lazy_load_map>
 
-**All files located in**: `.opencode/context/core/context-system/`
+**All files located in**: `~/.config/opencode/context/core/context-system/`
 
 ---
 
@@ -186,10 +186,10 @@ When invoked without arguments: `/context`
   <!-- Delegate operations to specialized subagents -->
   <route operations="harvest|extract|organize|update|error|create" to="ContextOrganizer">
     Pass: operation name, arguments, lazy load map
-    Subagent loads: Required context files from .opencode/context/core/context-system/
+    Subagent loads: Required context files from ~/.config/opencode/context/core/context-system/
     Subagent executes: Multi-stage workflow per operation
   </route>
-  
+
   <route operations="map|validate" to="ContextScout">
     Pass: operation name, arguments
     Subagent executes: Read-only analysis and reporting
@@ -202,7 +202,7 @@ When invoked without arguments: `/context`
 
 ### Structure
 ```
-.opencode/context/core/context-system/
+~/.config/opencode/context/core/context-system/
 ├── operations/     # How to do things (harvest, extract, organize, update)
 ├── standards/      # What to follow (mvi, structure, templates)
 └── guides/         # Step-by-step (workflows, compact, creation)
@@ -277,7 +277,7 @@ After any operation:
 
 ## Full Documentation
 
-**Context System Location**: `.opencode/context/core/context-system/`
+**Context System Location**: `~/.config/opencode/context/core/context-system/`
 
 **Structure**:
 - `operations/` - Detailed operation workflows

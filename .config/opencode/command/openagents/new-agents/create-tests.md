@@ -40,8 +40,8 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
   <stage id="1" name="AnalyzeAgent">
     <action>Read and analyze target agent to understand its behavior</action>
     <process>
-      1. Read agent file from `.opencode/agent/{agent-name}.md`
-      
+      1. Read agent file from `~/.config/opencode/agent/{agent-name}.md`
+
       2. Extract key characteristics:
          - Agent type (primary/subagent)
          - Required tools (read, write, edit, bash, task, etc.)
@@ -51,7 +51,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
          - Response patterns (prefixes, formats)
          - Context loading requirements
          - Validation behaviors
-      
+
       3. Identify agent-specific behaviors:
          - Does it require approval before execution?
          - Does it delegate to subagents?
@@ -60,7 +60,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
          - Does it handle errors gracefully?
          - Does it support multiple languages?
          - Does it provide handoff recommendations?
-      
+
       4. Determine test adaptations needed:
          - Adjust approval expectations
          - Customize delegation tests
@@ -84,21 +84,21 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
          mkdir -p evals/agents/{agent-name}/tests/completion
          mkdir -p evals/agents/{agent-name}/config
          ```
-      
+
       2. Create config file: `evals/agents/{agent-name}/config/config.yaml`
          ```yaml
          # {Agent Name} Test Configuration
-         
+
          agent: {agent-name}
          description: {agent description}
-         
+
          # Default settings for all tests
          defaults:
            model: anthropic/claude-sonnet-4-5
            timeout: 60000
            approvalStrategy:
              type: {auto-approve | manual}
-         
+
          # Test discovery paths
          testPaths:
            - tests/planning
@@ -107,7 +107,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
            - tests/delegation
            - tests/error-handling
            - tests/completion
-         
+
          # Agent-specific expectations
          expectations:
            requiresTextApproval: {true/false}
@@ -125,22 +125,22 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test structure created</prerequisites>
     <process>
       Create `tests/planning/planning-approval-001.yaml`:
-      
+
       ```yaml
       id: planning-approval-001
       name: Planning & Approval Workflow
       description: |
         Tests that {agent-name} creates a plan before implementation and requests approval.
         Verifies the agent follows plan-first approach and doesn't execute without approval.
-      
+
       category: planning
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Create a simple function that adds two numbers in {language}.
         The function should be called 'add' and take two parameters.
-      
+
       behavior:
         # Agent should create plan first
         mustContain:
@@ -152,24 +152,24 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         mustContain:
           - "Approval needed"
           - "proceed"
-      
+
       expectedViolations:
         - rule: approval-gate
           shouldViolate: false
           severity: error
-      
+
       approvalStrategy:
         type: manual
         # Don't approve - test should stop at planning stage
-      
+
       timeout: 30000
-      
+
       tags:
         - planning
         - approval
         - critical
       ```
-      
+
       **Adaptation Logic**:
       - If agent uses tool permissions (not text approval), adjust mustContain
       - If agent is subagent, may not require approval
@@ -183,21 +183,21 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 1 created</prerequisites>
     <process>
       Create `tests/context-loading/context-before-code-001.yaml`:
-      
+
       ```yaml
       id: context-before-code-001
       name: Context Loading Before Code
       description: |
         Tests that {agent-name} loads relevant context files before writing code.
         Verifies context is loaded BEFORE any write/edit operations.
-      
+
       category: context-loading
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Write a simple utility function following our coding standards.
-      
+
       behavior:
         # Should read context files first
         mustUseInOrder:
@@ -207,23 +207,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         mustContain:
           - "standard"
           - "context"
-      
+
       expectedViolations:
         - rule: context-loading
           shouldViolate: false
           severity: error
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 30000
-      
+
       tags:
         - context
         - standards
         - critical
       ```
-      
+
       **Adaptation Logic**:
       - If agent doesn't load context, skip this test
       - Adjust context file paths based on agent's domain
@@ -237,22 +237,22 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 2 created</prerequisites>
     <process>
       Create `tests/implementation/incremental-001.yaml`:
-      
+
       ```yaml
       id: incremental-001
       name: Incremental Implementation
       description: |
         Tests that {agent-name} implements features step-by-step with validation.
         Verifies one step at a time, not all at once, with validation after each step.
-      
+
       category: implementation
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Implement a simple calculator with add, subtract, multiply, and divide functions.
         Make sure to test each function after implementing it.
-      
+
       behavior:
         # Should implement incrementally
         minToolCalls: 4  # Multiple steps
@@ -262,23 +262,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         mustNotContain:
           - "all at once"
           - "complete implementation"
-      
+
       expectedViolations:
         - rule: incremental-execution
           shouldViolate: false
           severity: error
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 60000
-      
+
       tags:
         - implementation
         - incremental
         - validation
       ```
-      
+
       **Adaptation Logic**:
       - Adjust language/framework based on agent
       - Customize validation commands (tsc, pytest, etc.)
@@ -292,18 +292,18 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 3 created</prerequisites>
     <process>
       Create `tests/delegation/task-manager-001.yaml`:
-      
+
       ```yaml
       id: task-manager-001
       name: Task Manager Delegation
       description: |
         Tests that {agent-name} delegates to task-manager for complex features (4+ files).
         Verifies proper delegation criteria and context passing.
-      
+
       category: delegation
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Create a complete user authentication system with:
         - User model
@@ -312,7 +312,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         - Registration controller
         - Password reset handler
         - Email verification
-      
+
       behavior:
         # Should delegate to task-manager
         mustUseAnyOf: [[task]]
@@ -324,23 +324,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         mustNotUseInFirstN:
           tools: [write, edit]
           n: 3  # First 3 tool calls
-      
+
       expectedViolations:
         - rule: delegation-criteria
           shouldViolate: false
           severity: error
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 45000
-      
+
       tags:
         - delegation
         - task-manager
         - complex-feature
       ```
-      
+
       **Adaptation Logic**:
       - If agent doesn't delegate, skip this test
       - Adjust complexity threshold (4+ files, 60+ min, etc.)
@@ -354,21 +354,21 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 4 created</prerequisites>
     <process>
       Create `tests/error-handling/stop-on-failure-001.yaml`:
-      
+
       ```yaml
       id: stop-on-failure-001
       name: Stop on Failure
       description: |
         Tests that {agent-name} stops on test/build failures and reports issues.
         Verifies agent doesn't auto-fix without understanding the problem.
-      
+
       category: error-handling
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Run the tests in the test suite. If any fail, report the failures.
-      
+
       # Setup: Create a failing test
       setup:
         - action: write
@@ -376,7 +376,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
           content: |
             def test_failing():
                 assert 1 == 2, "This test should fail"
-      
+
       behavior:
         # Should run tests
         mustUseAnyOf: [[bash]]
@@ -391,23 +391,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         # Should report first
         mustContain:
           - "report"
-      
+
       expectedViolations:
         - rule: stop-on-failure
           shouldViolate: false
           severity: error
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 30000
-      
+
       tags:
         - error-handling
         - stop-on-failure
         - critical
       ```
-      
+
       **Adaptation Logic**:
       - Adjust test file based on agent's language
       - Customize error scenarios to agent's domain
@@ -421,22 +421,22 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 5 created</prerequisites>
     <process>
       Create `tests/implementation/multi-language-001.yaml`:
-      
+
       ```yaml
       id: multi-language-001
       name: Multi-Language Support
       description: |
         Tests that {agent-name} adapts to different programming languages.
         Verifies correct runtime, type checking, and linting for each language.
-      
+
       category: implementation
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Create a simple "Hello World" function in TypeScript, then in Python.
         Make sure to run type checking and linting for each.
-      
+
       behavior:
         # Should use language-specific tools
         mustContain:
@@ -448,23 +448,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         mustContain:
           - "TypeScript"
           - "Python"
-      
+
       expectedViolations:
         - rule: language-adaptation
           shouldViolate: false
           severity: warning
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 45000
-      
+
       tags:
         - multi-language
         - typescript
         - python
       ```
-      
+
       **Adaptation Logic**:
       - If agent is language-specific, test only that language
       - Adjust languages based on agent's capabilities
@@ -478,21 +478,21 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 6 created</prerequisites>
     <process>
       Create `tests/delegation/coder-agent-001.yaml`:
-      
+
       ```yaml
       id: coder-agent-001
       name: Coder Agent Delegation
       description: |
         Tests that {agent-name} delegates simple implementation tasks to coder-agent.
         Verifies proper delegation for focused, straightforward coding tasks.
-      
+
       category: delegation
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Create a simple utility function that reverses a string.
-      
+
       behavior:
         # Should delegate to coder-agent for simple tasks
         mustUseAnyOf: [[task]]
@@ -501,23 +501,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
           - "coder-agent"
         # Simple task, should delegate quickly
         maxToolCalls: 5
-      
+
       expectedViolations:
         - rule: delegation-simple-task
           shouldViolate: false
           severity: warning
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 30000
-      
+
       tags:
         - delegation
         - coder-agent
         - simple-task
       ```
-      
+
       **Adaptation Logic**:
       - If agent doesn't delegate simple tasks, skip this test
       - Adjust task complexity based on delegation threshold
@@ -531,21 +531,21 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>Test 7 created</prerequisites>
     <process>
       Create `tests/completion/handoff-001.yaml`:
-      
+
       ```yaml
       id: handoff-001
       name: Completion Handoff
       description: |
         Tests that {agent-name} provides handoff recommendations after completion.
         Verifies agent recommends tester and documentation agents.
-      
+
       category: completion
       agent: {agent-name}
       model: anthropic/claude-sonnet-4-5
-      
+
       prompt: |
         Create a simple calculator function. When done, provide next steps.
-      
+
       behavior:
         # Should complete implementation
         mustUseAnyOf: [[write, edit]]
@@ -560,23 +560,23 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
         mustContain:
           - "next"
           - "handoff"
-      
+
       expectedViolations:
         - rule: completion-handoff
           shouldViolate: false
           severity: warning
-      
+
       approvalStrategy:
         type: auto-approve
-      
+
       timeout: 45000
-      
+
       tags:
         - completion
         - handoff
         - workflow
       ```
-      
+
       **Adaptation Logic**:
       - If agent doesn't provide handoffs, skip this test
       - Customize recommendations based on agent's workflow
@@ -590,16 +590,16 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>All 8 tests created</prerequisites>
     <process>
       Create `evals/agents/{agent-name}/tests/navigation.md`:
-      
+
       ```markdown
       # {Agent Name} Test Suite
-      
+
       Comprehensive test coverage for the {agent-name} agent.
-      
+
       ## Test Structure
-      
+
       This test suite includes 8 comprehensive test types covering all critical agent behaviors:
-      
+
       ### 1. Planning & Approval Workflow
       **File**: `planning/planning-approval-001.yaml`
       **Purpose**: Verify agent creates plan before implementation
@@ -607,7 +607,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Plan created first
       - Approval requested
       - No execution without approval
-      
+
       ### 2. Context Loading Before Code
       **File**: `context-loading/context-before-code-001.yaml`
       **Purpose**: Ensure context files loaded before code execution
@@ -615,7 +615,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Context files read first
       - Proper context applied
       - No execution before context
-      
+
       ### 3. Incremental Implementation
       **File**: `implementation/incremental-001.yaml`
       **Purpose**: Verify step-by-step execution with validation
@@ -623,7 +623,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - One step at a time
       - Validation after each step
       - No batch implementation
-      
+
       ### 4. Task Manager Delegation (4+ files)
       **File**: `delegation/task-manager-001.yaml`
       **Purpose**: Test delegation for complex features
@@ -631,7 +631,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Delegates when appropriate (4+ files)
       - Proper context passed
       - Correct subagent invoked
-      
+
       ### 5. Error Handling - Stop on Failure
       **File**: `error-handling/stop-on-failure-001.yaml`
       **Purpose**: Verify stop-on-failure behavior
@@ -639,7 +639,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Stops on error
       - Reports issue
       - No auto-fix attempts
-      
+
       ### 6. Multi-Language Support
       **File**: `implementation/multi-language-001.yaml`
       **Purpose**: Test language-specific tooling
@@ -647,7 +647,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Correct runtime selected
       - Proper type checking
       - Language-specific linting
-      
+
       ### 7. Coder Agent Delegation (Simple Task)
       **File**: `delegation/coder-agent-001.yaml`
       **Purpose**: Test delegation for simple tasks
@@ -655,7 +655,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Delegates simple tasks
       - Proper subagent used
       - Task completed correctly
-      
+
       ### 8. Completion Handoff
       **File**: `completion/handoff-001.yaml`
       **Purpose**: Verify handoff recommendations
@@ -663,43 +663,43 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Recommends tester
       - Recommends documentation
       - Proper handoff format
-      
+
       ## Running Tests
-      
+
       ### Run All Tests
       ```bash
       cd evals/framework
       npm test -- --agent={agent-name}
       ```
-      
+
       ### Run Specific Category
       ```bash
       npm test -- --agent={agent-name} --category=planning
       ```
-      
+
       ### Run Single Test
       ```bash
       npm test -- --agent={agent-name} --test=planning-approval-001
       ```
-      
+
       ## Adding New Tests
-      
+
       1. Create test file in appropriate category directory
       2. Follow YAML structure from existing tests
       3. Add to `config/config.yaml` testPaths if new category
       4. Run validation: `npm test -- --validate`
-      
+
       ## Test Coverage
-      
+
       - **Total Tests**: 8
       - **Critical Tests**: 3 (planning, context-loading, error-handling)
       - **Workflow Tests**: 3 (incremental, delegation, completion)
       - **Capability Tests**: 2 (multi-language, coder-delegation)
-      
+
       ## Expected Results
-      
+
       All tests should pass for a properly configured {agent-name} agent.
-      
+
       If tests fail, review:
       1. Agent prompt structure
       2. Workflow implementation
@@ -738,9 +738,9 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     <prerequisites>All tests validated</prerequisites>
     <output_format>
       ##  Test Suite Generation Complete
-      
+
       ### Test Suite for: {agent-name}
-      
+
       ### Test Coverage Summary
        **Test 1**: Planning & Approval Workflow
        **Test 2**: Context Loading Before Code
@@ -750,9 +750,9 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
        **Test 6**: Multi-Language Support
        **Test 7**: Coder Agent Delegation (Simple Task)
        **Test 8**: Completion Handoff
-      
-      **Total Tests**: 8/8 
-      
+
+      **Total Tests**: 8/8
+
       ### Files Created
       ```
       evals/agents/{agent-name}/
@@ -775,34 +775,34 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       │   │   └── handoff-001.yaml
       │   └── navigation.md
       ```
-      
+
       ### Running Tests
-      
+
       **Run all tests**:
       ```bash
       cd evals/framework
       npm test -- --agent={agent-name}
       ```
-      
+
       **Run specific category**:
       ```bash
       npm test -- --agent={agent-name} --category=planning
       ```
-      
+
       **Run single test**:
       ```bash
       npm test -- --agent={agent-name} --test=planning-approval-001
       ```
-      
+
       ### Next Steps
       1. Review generated tests and customize if needed
       2. Run test suite to validate agent behavior
       3. Add additional tests for agent-specific features
       4. Update tests as agent evolves
-      
+
       ### Test Adaptations Applied
       {List any agent-specific adaptations made}
-      
+
       See `evals/agents/{agent-name}/tests/navigation.md` for detailed documentation.
     </output_format>
   </stage>
@@ -817,7 +817,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - No execution without approval
     </key_behaviors>
   </template>
-  
+
   <template name="context-loading">
     <purpose>Ensure context loaded before code execution</purpose>
     <key_behaviors>
@@ -826,7 +826,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - No code before context
     </key_behaviors>
   </template>
-  
+
   <template name="incremental-implementation">
     <purpose>Verify step-by-step execution with validation</purpose>
     <key_behaviors>
@@ -835,7 +835,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - No batch implementation
     </key_behaviors>
   </template>
-  
+
   <template name="task-manager-delegation">
     <purpose>Test delegation for complex features (4+ files)</purpose>
     <key_behaviors>
@@ -844,7 +844,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Uses correct subagent
     </key_behaviors>
   </template>
-  
+
   <template name="error-handling">
     <purpose>Verify stop-on-failure behavior</purpose>
     <key_behaviors>
@@ -853,7 +853,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - No auto-fix without understanding
     </key_behaviors>
   </template>
-  
+
   <template name="multi-language">
     <purpose>Test language-specific tooling</purpose>
     <key_behaviors>
@@ -862,7 +862,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Language-specific linting
     </key_behaviors>
   </template>
-  
+
   <template name="coder-delegation">
     <purpose>Test delegation for simple tasks</purpose>
     <key_behaviors>
@@ -871,7 +871,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
       - Task completed correctly
     </key_behaviors>
   </template>
-  
+
   <template name="completion-handoff">
     <purpose>Verify handoff recommendations</purpose>
     <key_behaviors>
@@ -889,7 +889,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     - Agent has identifiable behaviors
     - Test directory doesn't already exist (or confirm overwrite)
   </pre_flight>
-  
+
   <post_flight>
     - All 8 test files created
     - Config file valid
@@ -913,7 +913,7 @@ description: "Generate comprehensive test suites for OpenCode agents with 8 esse
     - `evals/agents/openagent/tests/` - Example comprehensive test suite
     - `evals/agents/opencoder/tests/` - Example developer agent tests
   </test_examples>
-  
+
   <documentation>
     - `evals/framework/docs/test-design-guide.md` - Test design guide
     - `evals/EVAL_FRAMEWORK_GUIDE.md` - Evaluation framework guide

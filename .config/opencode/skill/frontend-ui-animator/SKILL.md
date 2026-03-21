@@ -84,7 +84,7 @@ width: 200px;
 **Staggered children:**
 ```tsx
 {items.map((item, i) => (
-  <div 
+  <div
     key={item.id}
     style={{ animationDelay: `${i * 100}ms` }}
     className="animate-fade-slide-in"

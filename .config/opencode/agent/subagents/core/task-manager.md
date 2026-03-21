@@ -52,7 +52,7 @@ tags:
 
 <critical_context_requirement>
 BEFORE starting task breakdown, ALWAYS:
-  1. Load context: `.opencode/context/core/task-management/navigation.md`
+  1. Load context: `~/.config/opencode/context/core/task-management/navigation.md`
   2. Check existing tasks: Run `task-cli.ts status` to see current state
   3. If context file is provided in prompt or exists at `.tmp/sessions/{session-id}/context.md`, load it
   4. If context is missing or unclear, delegate discovery to ContextScout and capture relevant context file paths
@@ -71,11 +71,11 @@ WHY THIS MATTERS:
       - Expect the calling agent to supply relevant context file paths; request them if absent.
       - Use the task tool ONLY for ContextScout discovery, never to delegate task planning to TaskManager.
       - Do NOT create session bundles or write `.tmp/sessions/**` files.
-      - Do NOT read `.opencode/context/core/workflows/task-delegation.md` or follow delegation workflows.
+      - Do NOT read `~/.config/opencode/context/core/workflows/task-delegation.md` or follow delegation workflows.
       - Your output (JSON files) is your primary communication channel.
     </with_meta_agent>
 
-  
+
   <with_working_agents>
     - You define the "Context Boundary" for them via the `context_files` array in subtasks.
     - Be precise: Only include files relevant to that specific subtask.
@@ -90,14 +90,14 @@ WHY THIS MATTERS:
       <action>Load context and check current task state</action>
       <process>
         1. Load task management context:
-           - `.opencode/context/core/task-management/navigation.md`
-           - `.opencode/context/core/task-management/standards/task-schema.md`
-           - `.opencode/context/core/task-management/guides/splitting-tasks.md`
-           - `.opencode/context/core/task-management/guides/managing-tasks.md`
+           - `~/.config/opencode/context/core/task-management/navigation.md`
+           - `~/.config/opencode/context/core/task-management/standards/task-schema.md`
+           - `~/.config/opencode/context/core/task-management/guides/splitting-tasks.md`
+           - `~/.config/opencode/context/core/task-management/guides/managing-tasks.md`
 
         2. Check current task state:
            ```bash
-           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/context/tasks/scripts/task-cli.ts status
+           npx ts-node --compiler-options '{"module":"commonjs"}' ~/.config/opencode/context/tasks/scripts/task-cli.ts status
            ```
 
         3. If context bundle provided, load and extract:
@@ -206,7 +206,7 @@ WHY THIS MATTERS:
 
         4. Validate with CLI:
            ```bash
-           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/context/tasks/scripts/task-cli.ts validate {feature}
+           npx ts-node --compiler-options '{"module":"commonjs"}' ~/.config/opencode/context/tasks/scripts/task-cli.ts validate {feature}
            ```
 
         5. Report creation:
@@ -235,7 +235,7 @@ WHY THIS MATTERS:
 
         3. If all criteria pass:
            ```bash
-           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/context/tasks/scripts/task-cli.ts complete {feature} {seq} "{summary}"
+           npx ts-node --compiler-options '{"module":"commonjs"}' ~/.config/opencode/context/tasks/scripts/task-cli.ts complete {feature} {seq} "{summary}"
            ```
 
         4. If criteria fail:
@@ -245,7 +245,7 @@ WHY THIS MATTERS:
 
         5. Check for next task:
            ```bash
-           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/context/tasks/scripts/task-cli.ts next {feature}
+           npx ts-node --compiler-options '{"module":"commonjs"}' ~/.config/opencode/context/tasks/scripts/task-cli.ts next {feature}
            ```
       </process>
       <checkpoint>Task verified and status updated</checkpoint>
@@ -257,7 +257,7 @@ WHY THIS MATTERS:
       <process>
         1. Verify all tasks complete:
            ```bash
-           npx ts-node --compiler-options '{"module":"commonjs"}' .opencode/context/tasks/scripts/task-cli.ts status {feature}
+           npx ts-node --compiler-options '{"module":"commonjs"}' ~/.config/opencode/context/tasks/scripts/task-cli.ts status {feature}
            ```
 
         2. If completed_count == subtask_count:
@@ -322,7 +322,7 @@ Use task-cli.ts for all status operations:
 | `complete feature seq "summary"` | After verifying task completion |
 | `validate [feature]` | After creating files |
 
-Script location: `.opencode/context/tasks/scripts/task-cli.ts`
+Script location: `~/.config/opencode/context/tasks/scripts/task-cli.ts`
 </cli_integration>
 
 <quality_standards>

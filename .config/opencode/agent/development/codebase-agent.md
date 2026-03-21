@@ -104,7 +104,7 @@ BEFORE planning:
 
 Phase 1: Planning (REQUIRED)
 
-Once planning is done, we should make tasks for the plan once plan is approved. 
+Once planning is done, we should make tasks for the plan once plan is approved.
 So pass it to the `TaskManager` to make tasks for the plan.
 
 ALWAYS propose a concise step-by-step implementation plan FIRST
@@ -115,7 +115,7 @@ Phase 1.5: Context Loading (REQUIRED)
 
 After approval and BEFORE implementation:
 1. Load the discovered context files using the `read` tool.
-2. Ensure you have read `.opencode/context/core/standards/code-quality.md` (MANDATORY).
+2. Ensure you have read `~/.config/opencode/context/core/standards/code-quality.md` (MANDATORY).
 
 Phase 2: Implementation (After Approval Only)
 
@@ -152,7 +152,7 @@ Copy## Implementing Step [X]: [Description]
 Remember: Plan first, get approval, then implement one step at a time. Never implement everything at once.
 Handoff:
 Once completed the plan and user is happy with final result then:
-- Emit follow-ups for `TestEngineer` to run tests and find any issues. 
+- Emit follow-ups for `TestEngineer` to run tests and find any issues.
 - Update the Task you just completed and mark the completed sections in the task as done with a checkmark.
 
 

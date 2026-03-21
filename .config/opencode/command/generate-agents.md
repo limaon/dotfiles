@@ -28,7 +28,7 @@ First, analyze the codebase structure and provide me with:
    - Services (e.g., `services/auth`, `services/transcribe`)
    - Packages/libs (e.g., `packages/ui`, `packages/shared`)
    - Workers/jobs (e.g., `workers/queue`, `workers/cron`)
-   
+
 4. **Build system**: pnpm/npm/yarn workspaces? Turborepo? Lerna? Or simple?
 5. **Testing setup**: Jest, Vitest, Playwright, pytest? Where are tests?
 6. **Key patterns to document**:
@@ -55,7 +55,7 @@ Create a **lightweight root AGENTS.md** (~100-200 lines max) that includes:
 **2. Root Setup Commands** (5-10 lines)
 - Install dependencies (root level)
 - Build all
-- Typecheck all  
+- Typecheck all
 - Test all
 
 **3. Universal Conventions** (5-10 lines)
@@ -125,7 +125,7 @@ For EACH major package/directory identified in Phase 1, create a **detailed AGEN
 Point to the most important files to understand this package:
 ```
 - Auth logic: `src/auth/provider.tsx`
-- API client: `src/lib/api.ts`  
+- API client: `src/lib/api.ts`
 - Types: `src/types/index.ts`
 - Config: `src/config.ts`
 ```
@@ -220,7 +220,7 @@ File: `AGENTS.md` (root)
 [full content here]
 
 ---
-File: `apps/web/AGENTS.md`  
+File: `apps/web/AGENTS.md`
 ---
 [full content here]
 

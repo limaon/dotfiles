@@ -144,7 +144,7 @@ test('detects duplicate server', () => {
   vi.mock('MCPServerManager'); // Just mock slow server startup
 
   await addServer(config);  // Config written
-  await addServer(config);  // Duplicate detected 
+  await addServer(config);  // Duplicate detected
 });
 ```
 

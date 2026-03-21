@@ -21,7 +21,7 @@ import { getProducts } from "@/lib/actions/products";
 
 export default async function ProductsPage() {
   const products = await getProducts();
-  
+
   return (
     <div>
       {products.map(product => (
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
     getOrders(),
     getStats(),
   ]);
-  
+
   return (
     <div>
       <UsersSection users={users} />
@@ -83,11 +83,11 @@ export default async function ProductsPage() {
     getProducts(),
     getCategories(),
   ]);
-  
+
   return (
-    <ProductsClient 
-      initialProducts={products} 
-      categories={categories} 
+    <ProductsClient
+      initialProducts={products}
+      categories={categories}
     />
   );
 }
@@ -105,19 +105,19 @@ interface ProductsClientProps {
 export function ProductsClient({ initialProducts, categories }: ProductsClientProps) {
   const [products, setProducts] = useState(initialProducts);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  
+
   const handleFilter = async (categoryId: string) => {
     setSelectedCategory(categoryId);
     // Client-side fetch for filtering
     const filtered = await filterProducts(categoryId);
     setProducts(filtered);
   };
-  
+
   return (
     <div>
-      <CategoryFilter 
-        categories={categories} 
-        onFilter={handleFilter} 
+      <CategoryFilter
+        categories={categories}
+        onFilter={handleFilter}
       />
       <ProductGrid products={products} />
     </div>
@@ -140,12 +140,12 @@ export default function DashboardPage() {
     <div>
       {/* Shows immediately */}
       <h1>Dashboard</h1>
-      
+
       {/* Streams in when ready */}
       <Suspense fallback={<StatsSkeleton />}>
         <StatsSection />
       </Suspense>
-      
+
       <Suspense fallback={<ChartSkeleton />}>
         <ChartSection />
       </Suspense>
@@ -172,11 +172,11 @@ import { getProducts } from "@/lib/actions/products";
 
 export default async function ProductsPage() {
   const products = await getProducts();
-  
+
   if (!products || products.length === 0) {
     return <EmptyState message="No products found" />;
   }
-  
+
   return <ProductList products={products} />;
 }
 

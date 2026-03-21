@@ -178,7 +178,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
             Savings: ~50% | Use for simple classifications
           </operator>
         </visual_operators>
-        
+
         <abbreviations>
           <tier1 desc="Universal (Always Safe)">
             req→request/require/required | ctx→context | exec→execute/execution | ops→operations | cfg→config | env→environment | fn→function | w/→with | info→information
@@ -198,14 +198,14 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
             - Document if ambiguous
           </rules>
         </abbreviations>
-        
+
         <inline_mappings>
           <pattern>key→value | key2→value2 | key3→value3</pattern>
           <before>
             Task-to-Context Mapping:
-            - Writing docs → .opencode/context/core/standards/documentation.md
-            - Writing code → .opencode/context/core/standards/code-quality.md
-            - Writing tests → .opencode/context/core/standards/test-coverage.md
+            - Writing docs → ~/.config/opencode/context/core/standards/documentation.md
+            - Writing code → ~/.config/opencode/context/core/standards/code-quality.md
+            - Writing tests → ~/.config/opencode/context/core/standards/test-coverage.md
           </before>
           <after>
             Task→Context Map:
@@ -214,7 +214,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
           <savings>~70%</savings>
           <limits>Max 3-4 mappings per line for readability</limits>
         </inline_mappings>
-        
+
         <compact_examples>
           <pattern>"Description" (context) | "Description2" (context2)</pattern>
           <before>
@@ -228,7 +228,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
           </after>
           <savings>~50%</savings>
         </compact_examples>
-        
+
         <remove_redundancy>
           - "MANDATORY" when required="true" present
           - "ALWAYS" when enforcement="strict" present
@@ -274,10 +274,10 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         5. Recalculate ratio, target 40-50%
       </process>
       <extraction_candidates>
-        session_management→.opencode/context/core/session-management.md
-        context_discovery→.opencode/context/core/context-discovery.md
-        detailed_examples→.opencode/context/core/examples.md
-        implementation_specs→.opencode/context/core/specifications.md
+        session_management→~/.config/opencode/context/core/session-management.md
+        context_discovery→~/.config/opencode/context/core/context-discovery.md
+        detailed_examples→~/.config/opencode/context/core/examples.md
+        implementation_specs→~/.config/opencode/context/core/specifications.md
       </extraction_candidates>
       <checkpoint>Instruction ratio 40-50%, external refs created, functionality preserved</checkpoint>
     </stage>
@@ -306,19 +306,19 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         <usage_patterns>
           <!-- Single rule ref -->
           <stage enforce="@approval_gate">
-          
+
           <!-- Nested rule ref -->
           <stage enforce="@critical_rules.approval_gate">
-          
+
           <!-- All rules ref -->
           <safe enforce="@critical_rules">
-          
+
           <!-- Section ref -->
           <step enforce="@delegation_rules.evaluate_before_execution">
-          
+
           <!-- Condition ref -->
           <route when="@delegation_rules.scale">
-          
+
           <!-- Shorthand in text -->
           See @approval_gate for details
           Per @context_loading requirements
@@ -360,7 +360,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
           </tier>
           <conflict_resolution>
             Tier 1 always overrides Tier 2/3
-            
+
             Edge cases:
             - [Specific case]: [Resolution]
           </conflict_resolution>
@@ -440,14 +440,14 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
       <prerequisites>Validation passed w/ 12+/15 score</prerequisites>
       <output_format>
         ## Optimization Analysis
-        
+
         ### Token Efficiency
         | Metric | Before | After | Reduction |
         |--------|--------|-------|-----------|
         | Lines | X | Y | Z% |
         | Words | X | Y | Z% |
         | Est. tokens | X | Y | Z% |
-        
+
         ### Research Pattern Compliance
         | Pattern | Before | After | Status |
         |---------|--------|-------|--------|
@@ -459,12 +459,12 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         | Consistent formatting | Mixed/Standard | Standard | / |
         | Token efficiency | Baseline | Z% reduction | / |
         | Semantic preservation | N/A | 100% | / |
-        
+
         ### Scores
         **Original Score**: X/15
         **Optimized Score**: Y/15
         **Improvement**: +Z points
-        
+
         ### Optimization Techniques Applied
         1. **Visual Operators**: → for flow, | for alternatives (Z% reduction)
         2. **Abbreviations**: req, ctx, exec, ops (Z% reduction)
@@ -474,44 +474,44 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
         6. **Critical Rules Elevated**: Moved from X% to Y% position
         7. **Nesting Flattened**: Reduced from X to Y levels
         8. **Instruction Ratio Optimized**: Reduced from X% to Y%
-        
+
         ### Pattern Compliance Summary
-        - Position sensitivity: Critical rules positioned early 
-        - Nesting reduction: Flattened structure (≤4 levels) 
-        - Repetition consolidation: Single source of truth 
-        - Explicit prioritization: 3-tier conflict resolution 
-        - Modular design: External refs for verbose sections 
-        - Token optimization: Visual operators + abbreviations 
-        - Semantic preservation: 100% meaning preserved 
+        - Position sensitivity: Critical rules positioned early
+        - Nesting reduction: Flattened structure (≤4 levels)
+        - Repetition consolidation: Single source of truth
+        - Explicit prioritization: 3-tier conflict resolution
+        - Modular design: External refs for verbose sections
+        - Token optimization: Visual operators + abbreviations
+        - Semantic preservation: 100% meaning preserved
         - **Note**: Effectiveness improvements are model/task-specific
-        
+
         ### Files Created (if applicable)
-        - `.opencode/context/core/[name].md` - [description]
-        
+        - `~/.config/opencode/context/core/[name].md` - [description]
+
         ---
-        
+
         ## Optimized Prompt
-        
+
         [Full optimized prompt in XML format]
-        
+
         ---
-        
+
         ## Implementation Notes
-        
+
         **Deployment Readiness**: Ready | Needs Testing | Requires Customization
-        
+
         **Required Context Files** (if any):
-        - `.opencode/context/core/[file].md`
-        
+        - `~/.config/opencode/context/core/[file].md`
+
         **Breaking Changes**: None | [List if any]
-        
+
         **Testing Recommendations**:
         1. Verify @references work correctly
         2. Test edge cases in conflict_resolution
         3. Validate external context files load properly
         4. Validate semantic preservation (compare behavior)
         5. A/B test old vs new prompt effectiveness
-        
+
         **Next Steps**:
         1. Deploy w/ monitoring
         2. Track effectiveness metrics
@@ -527,37 +527,37 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
     <application>Move critical rules immediately after role definition</application>
     <measurement>Calculate position %, target <15%</measurement>
   </position_sensitivity>
-  
+
   <nesting_depth>
     <research>Excessive nesting reduces clarity (magnitude is task-dependent)</research>
     <application>Flatten using attributes, extract to refs</application>
     <measurement>Count max depth, target ≤4 levels</measurement>
   </nesting_depth>
-  
+
   <instruction_ratio>
     <research>Optimal balance: 40-50% instructions, rest distributed</research>
     <application>Extract verbose sections to external refs</application>
     <measurement>Calculate instruction %, target 40-50%</measurement>
   </instruction_ratio>
-  
+
   <single_source_truth>
     <research>Repetition causes ambiguity, reduces consistency</research>
     <application>Define once, reference w/ @rule_id</application>
     <measurement>Count repetitions, target 1x + refs</measurement>
   </single_source_truth>
-  
+
   <explicit_prioritization>
     <research>Conflict resolution improves decision clarity (effect varies by task/model)</research>
     <application>3-tier priority system w/ edge cases</application>
     <measurement>Verify conflicts resolved, edge cases documented</measurement>
   </explicit_prioritization>
-  
+
   <token_optimization>
     <research>Real-world learnings: Visual operators + abbreviations + inline mappings achieve 30-50% reduction w/ 100% semantic preservation</research>
     <application>→ for flow, | for alternatives, @ for refs, systematic abbreviations, inline mappings</application>
     <measurement>Count tokens before/after, validate semantic preservation, target 30-50% reduction</measurement>
   </token_optimization>
-  
+
   <component_ratios>
     <context>15-25% hierarchical information</context>
     <role>5-10% clear identity</role>
@@ -566,7 +566,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
     <examples>10-20% when needed</examples>
     <principles>5-10% core values</principles>
   </component_ratios>
-  
+
   <xml_advantages>
     - Improved response quality w/ descriptive tags (magnitude varies by model/task)
     - Reduced token overhead for complex prompts (effect is task-dependent)
@@ -589,13 +589,13 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
     </after>
     <token_reduction>65%</token_reduction>
   </example>
-  
+
   <example id="2" category="inline_mapping">
     <before>
       Task-to-Context Mapping:
-      - Writing docs → .opencode/context/core/standards/documentation.md
-      - Writing code → .opencode/context/core/standards/code-quality.md
-      - Writing tests → .opencode/context/core/standards/test-coverage.md
+      - Writing docs → ~/.config/opencode/context/core/standards/documentation.md
+      - Writing code → ~/.config/opencode/context/core/standards/code-quality.md
+      - Writing tests → ~/.config/opencode/context/core/standards/test-coverage.md
     </before>
     <after>
       Task→Context Map:
@@ -603,7 +603,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
     </after>
     <token_reduction>70%</token_reduction>
   </example>
-  
+
   <example id="3" category="reference_consolidation">
     <before>
       <stage enforce="@critical_rules.approval_gate">
@@ -625,7 +625,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
     </after>
     <token_reduction>40%</token_reduction>
   </example>
-  
+
   <example id="4" category="compact_examples">
     <before>
       Examples:
@@ -678,7 +678,7 @@ description: "Advanced prompt optimizer: Research patterns + token efficiency + 
 </principles>
 
 <references>
-  <optimization_report ref=".opencode/context/core/prompt-optimization-report.md">
+  <optimization_report ref="~/.config/opencode/context/core/prompt-optimization-report.md">
     Detailed before/after metrics from OpenAgent optimization
   </optimization_report>
   <research_patterns ref="docs/agents/research-backed-prompt-design.md">

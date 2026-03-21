@@ -224,7 +224,7 @@ const AnimatedHeading = ({ text }) => (
 ```tsx
 const Typewriter = ({ text, speed = 50 }) => {
   const [displayed, setDisplayed] = useState('');
-  
+
   useEffect(() => {
     let i = 0;
     const timer = setInterval(() => {
@@ -256,7 +256,7 @@ className="transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
 
 ```tsx
 <div className="overflow-hidden rounded-lg">
-  <img 
+  <img
     className="transition-transform duration-500 hover:scale-110"
     src={src}
     alt={alt}
@@ -335,7 +335,7 @@ const FlashlightCard = ({ children }) => {
 ```tsx
 const Marquee = ({ children, speed = 30 }) => (
   <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-    <div 
+    <div
       className="flex gap-8 animate-marquee"
       style={{ animationDuration: `${speed}s` }}
     >
@@ -404,11 +404,11 @@ export const useScrollReveal = (options = {}) => {
 ### ScrollReveal Component
 
 ```tsx
-const ScrollReveal = ({ 
-  children, 
+const ScrollReveal = ({
+  children,
   className = '',
   animation = 'animate-fade-slide-in',
-  delay = 0 
+  delay = 0
 }) => {
   const { ref, isVisible } = useScrollReveal();
 
