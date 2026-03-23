@@ -183,7 +183,7 @@ main() {
 	if [ "$(echo "$screens" | wc -l)" -lt 2 ]; then
 		onescreen "$screens"
 		postrun
-		notify-send "󰌢 Only one screen detected." "Using it in its optimal settings..."
+		notify-send "Only one screen detected." "Using it in its optimal settings..."
 		exit
 	fi
 

@@ -10,7 +10,7 @@ take_screenshot() {
 }
 
 ask_command() {
-	dmenu -p 'Screenshot which area?' <<-EOF
+	dmenu -i -p 'Screenshot which area?' <<-EOF
 		selected area
 		selected area → clipboard
 		selected area → /tmp

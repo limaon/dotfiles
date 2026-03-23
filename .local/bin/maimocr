@@ -1,4 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# maimocr - Screenshot OCR tool for Japanese and English text recognition
+#
+# Dependencies (Arch Linux):
+#   pacman -S maim imagemagick tesseract tesseract-data-jpn tesseract-data-eng xclip curl unzip libnotify
+#
+# Usage:
+#   maimocr          - Select area and recognize text to clipboard
+#
+# Environment:
+#   TESSDATA_PREFIX  - Override Tesseract data directory (default: /usr/share/tessdata)
 
 set -euo pipefail
 
