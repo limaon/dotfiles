@@ -22,14 +22,15 @@
   },
   "protectedFilePatterns": [],
   "compress": {
+    "mode": "range",
     "permission": "allow",
     "showCompression": false,
+    "summaryBuffer": true,
     "maxContextLimit": 100000,
-    "minContextLimit": 30000,
+    "minContextLimit": 50000,
     "nudgeFrequency": 5,
     "iterationNudgeThreshold": 15,
     "nudgeForce": "soft",
-    "flatSchema": false,
     "protectedTools": [],
     "protectUserMessages": false,
   },
@@ -37,9 +38,6 @@
     "deduplication": {
       "enabled": true,
       "protectedTools": [],
-    },
-    "supersedeWrites": {
-      "enabled": true,
     },
     "purgeErrors": {
       "enabled": true,
