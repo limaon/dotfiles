@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+
 # i3blocks module - battery status
 # Shows battery percentage with status icon and color-coded thresholds
 # Left click: battery summary | Right click: detailed battery info
+
 set -euo pipefail
 
 command -v notify-send >/dev/null 2>&1 || {
@@ -45,8 +47,6 @@ get_status_label() {
   esac
 }
 
-
-
 get_time_remaining() {
   local -r battery="$1"
   local -r status="$2"
@@ -76,6 +76,7 @@ notify_summary() {
   local -r battery="$1"
   local -r capacity="$2"
   local -r status="$3"
+  local -r name=$(basename "$battery")
   local -r label=$(get_status_label "$status")
   local -r time=$(get_time_remaining "$battery" "$status")
 
@@ -88,13 +89,14 @@ notify_summary() {
     fi
   fi
 
-  notify-send -r 9901 -i "battery" -t 3000 "Battery" "$msg" &
+  notify-send -r 9901 -i "battery" -t 3000 "Battery ($name)" "$msg" &
 }
 
 notify_details() {
   local -r battery="$1"
   local -r capacity="$2"
   local -r status="$3"
+  local -r name=$(basename "$battery")
 
   local energy_full energy_full_design health
   energy_full=$(cat "$battery/energy_full" 2>/dev/null || cat "$battery/charge_full" 2>/dev/null || echo "0")
@@ -114,22 +116,29 @@ Capacity: ${capacity}%
 Health: ${health}%
 Cycles: ${cycle_count}"
 
-  notify-send -r 9901 -i "battery" -t 0 "Battery Details" "$msg" &
+  notify-send -r 9901 -i "battery" -t 0 "Battery Details ($name)" "$msg" &
 }
 
-# Find first battery
+# Find battery: BLOCK_INSTANCE (i3blocks native) > BATTERY_NAME > first BAT* found
 battery=""
-for b in "$BATTERY_PATH"/BAT*; do
-  if [[ -d "$b" ]]; then
-    battery="$b"
-    break
+battery_name="${BLOCK_INSTANCE:-${BATTERY_NAME:-}}"
+if [[ -n "$battery_name" ]]; then
+  if [[ -d "$BATTERY_PATH/$battery_name" ]]; then
+    battery="$BATTERY_PATH/$battery_name"
+  else
+    exit 0
   fi
-done
+else
+  for b in "$BATTERY_PATH"/BAT*; do
+    if [[ -d "$b" ]]; then
+      battery="$b"
+      break
+    fi
+  done
+fi
 
 # No battery found
 if [[ -z "$battery" ]]; then
-  echo "No battery"
-  echo "No battery"
   exit 0
 fi
 
