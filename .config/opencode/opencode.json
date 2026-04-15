@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "username": "limaon",
-  "default_agent": "Build",
   "theme": "solarized-osaka",
   "autoupdate": true,
   "snapshot": false,
@@ -76,127 +75,13 @@
     }
   },
   "provider": {
-    "cliproxy": {
-      "models": {
-        "gemini-claude-opus-4-5-thinking": {
-          "name": "Claude Opus 4.5 Thinking [VibeDev ID]",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "variants": {
-            "none": {
-              "reasoningEffort": "none",
-              "textVerbosity": "none"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "textVerbosity": "low"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "textVerbosity": "medium"
-            },
-            "high": {
-              "reasoningEffort": "high",
-              "textVerbosity": "high"
-            }
-          }
-        },
-        "gemini-claude-sonnet-4-5-thinking": {
-          "name": "Claude Sonnet 4.5 Thinking [VibeDev ID]",
-          "limit": {
-            "context": 200000,
-            "output": 64000
-          },
-          "modalities": {
-            "input": ["text", "image", "pdf"],
-            "output": ["text"]
-          },
-          "variants": {
-            "none": {
-              "reasoningEffort": "none",
-              "textVerbosity": "none"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "textVerbosity": "low"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "textVerbosity": "medium"
-            },
-            "high": {
-              "reasoningEffort": "high",
-              "textVerbosity": "high"
-            }
-          }
-        },
-        "gemini-3-pro-preview": {
-          "name": "Gemini 3 Pro Preview [Antigravity]",
-          "reasoning": true,
-          "limit": {
-            "context": 1000000,
-            "output": 64000
-          },
-          "cost": {
-            "input": 2,
-            "output": 12,
-            "cache_read": 0.2
-          },
-          "modalities": {
-            "input": ["text", "image", "video", "audio", "pdf"],
-            "output": ["text"]
-          },
-          "variants": {
-            "none": {
-              "reasoningEffort": "none",
-              "textVerbosity": "none"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "textVerbosity": "low"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "textVerbosity": "medium"
-            },
-            "high": {
-              "reasoningEffort": "high",
-              "textVerbosity": "high"
-            }
-          }
-        },
-        "gemini-3-flash-preview": {
-          "name": "Gemini 3 Flash Preview [Antigravity]",
-          "modalities": {
-            "input": ["text", "image", "pdf", "video"],
-            "output": ["text"]
-          },
-          "variants": {
-            "none": {
-              "reasoningEffort": "none",
-              "textVerbosity": "none"
-            },
-            "low": {
-              "reasoningEffort": "low",
-              "textVerbosity": "low"
-            },
-            "medium": {
-              "reasoningEffort": "medium",
-              "textVerbosity": "medium"
-            },
-            "high": {
-              "reasoningEffort": "high",
-              "textVerbosity": "high"
-            }
-          }
-        }
-      }
+    "google": {
+      "whitelist": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "gemini-3-flash-preview",
+        "gemini-3-pro-preview"
+      ]
     }
   }
 }
