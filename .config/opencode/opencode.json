@@ -2,6 +2,27 @@
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
   // "instructions": ["./AGENTS.md"],
+  "default_agent": "build",
+  "share": "disabled",
+  "enabled_providers": ["openrouter", "google", "anthropic"],
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 10000
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      "dist/**",
+      "build/**",
+      ".next/**",
+      ".turbo/**",
+      ".git/**",
+      "coverage/**",
+      ".cache/**",
+      "out/**"
+    ]
+  },
   "mcp": {
     "context7": {
       "enabled": true,
@@ -60,8 +81,24 @@
     }
   },
   "model": "openrouter/essentialai/rnj-1-instruct",
+  "small_model": "openrouter/mistralai/mistral-nemo",
   "permission": {
-    "*": "ask"
+    "edit": "ask",
+    "write": "ask",
+    "webfetch": "allow",
+    "bash": {
+      "ls *": "allow",
+      "cat *": "allow",
+      "pwd": "allow",
+      "git status": "allow",
+      "git diff *": "allow",
+      "git log *": "allow",
+      "git show *": "allow",
+      "git branch *": "allow",
+      "rm -rf *": "deny",
+      "sudo *": "deny",
+      "*": "ask"
+    }
   },
   "plugin": [
     "opencode-gemini-auth@latest",
@@ -85,7 +122,7 @@
       "npm": "@ai-sdk/openai-compatible",
       "options": {
         "apiKey": "{env:OPENROUTER_API_KEY}",
-        "baseURL": "https://openrouter.ai/api/v1",
+        "baseURL": "https://openrouter.ai/api/v1"
       },
       "models": {
         "essentialai/rnj-1-instruct": {
@@ -98,6 +135,26 @@
             "provider": {
               "allow_fallbacks": false
             }
+          }
+        },
+        "qwen/qwen3-coder:free": {
+          "name": "Qwen3 Coder (free)",
+          "tool_call": true,
+          "limit": {
+            "context": 262000,
+            "output": 8192
+          }
+        },
+        "mistralai/mistral-nemo": {
+          "name": "Mistral Nemo",
+          "tool_call": true,
+          "cost": {
+            "input": 0.02,
+            "output": 0.04
+          },
+          "limit": {
+            "context": 131072,
+            "output": 8192
           }
         }
       }
