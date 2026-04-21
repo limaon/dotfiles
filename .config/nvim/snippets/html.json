@@ -1,17 +1,17 @@
 {
   "html": {
-    "prefix": "html",
+    "prefix": "html5",
     "body": [
       "<!DOCTYPE html>",
       "<html lang=\"${1:en}\">",
-      "<head>",
-      "\t<meta charset=\"UTF-8\">",
-      "\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">",
-      "\t<title>${2:Document}</title>",
-      "</head>",
-      "<body>",
-      "\t${3:<!-- content -->}",
-      "</body>",
+      "  <head>",
+      "    <meta charset=\"UTF-8\" />",
+      "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />",
+      "    <title>${2:Document}</title>",
+      "  </head>",
+      "  <body>",
+      "    ${3:<!-- content -->}",
+      "  </body>",
       "</html>"
     ],
     "description": "HTML5 template"
@@ -52,4 +52,3 @@
     "description": "Button element"
   }
 }
-

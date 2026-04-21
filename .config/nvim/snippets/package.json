@@ -1,7 +1,7 @@
 {
   "name": "my-custom-snippets",
-  "description": "Custom snippets for various languages",
   "version": "1.0.0",
+  "description": "Custom snippets for various languages",
   "contributes": {
     "snippets": [
       {

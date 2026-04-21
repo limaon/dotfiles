@@ -30,6 +30,7 @@ vim.opt.showcmd = true
 vim.opt.laststatus = 2
 vim.opt.pumblend = 5
 vim.opt.pumheight = 8
+vim.opt.pumborder = "rounded"
 vim.opt.completeopt = "menu,menuone,noselect"
 vim.opt.wildmenu = true
 vim.opt.wildoptions = "pum"
@@ -801,8 +802,19 @@ require("lazy").setup({
 			{ "mason-org/mason.nvim", opts = { ui = { border = "rounded" } } },
 		},
 		config = function()
+			local lsp_attach_group = vim.api.nvim_create_augroup("lsp-attach", { clear = true })
+			local lsp_detach_group = vim.api.nvim_create_augroup("lsp-detach", { clear = true })
+
+			vim.api.nvim_create_autocmd("LspDetach", {
+				group = lsp_detach_group,
+				callback = function()
+					vim.lsp.buf.clear_references()
+				end,
+				desc = "Clear LSP references on detach",
+			})
+
 			vim.api.nvim_create_autocmd("LspAttach", {
-				group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+				group = lsp_attach_group,
 				callback = function(event)
 					local map = function(keys, func, desc, mode)
 						mode = mode or "n"
@@ -835,17 +847,6 @@ require("lazy").setup({
 					end, "Next diag")
 
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
-					if client and client.server_capabilities.inlayHintProvider then
-						local detach_augroup = vim.api.nvim_create_augroup("lsp-detach", { clear = true })
-
-						vim.api.nvim_create_autocmd("LspDetach", {
-							group = detach_augroup,
-							callback = function(_)
-								vim.lsp.buf.clear_references()
-							end,
-						})
-					end
-
 					if client and client.server_capabilities.inlayHintProvider then
 						map("<leader>th", function()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
@@ -1061,6 +1062,7 @@ require("lazy").setup({
 				"ts_ls",
 				"stylua",
 				"eslint_d",
+				"prettierd",
 			}
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -1099,17 +1101,19 @@ require("lazy").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
 				python = { "isort", "black" },
-				html = { "oxfmt" },
-				css = { "oxfmt" },
-				scss = { "oxfmt" },
-				less = { "oxfmt" },
-				javascript = { "oxfmt" },
-				typescript = { "oxfmt" },
-				typescriptreact = { "oxfmt" },
-				json = { "oxfmt" },
-				jsonc = { "oxfmt" },
+				html = { "prettierd", "prettier", stop_after_first = true },
+				css = { "prettierd", "prettier", stop_after_first = true },
+				scss = { "prettierd", "prettier", stop_after_first = true },
+				less = { "prettierd", "prettier", stop_after_first = true },
+				javascript = { "prettierd", "prettier", stop_after_first = true },
+				typescript = { "prettierd", "prettier", stop_after_first = true },
+				typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+				json = { "prettierd", "prettier", stop_after_first = true },
+				jsonc = { "prettierd", "prettier", stop_after_first = true },
+				markdown = { "prettierd", "prettier", stop_after_first = true },
+				yaml = { "prettierd", "prettier", stop_after_first = true },
 				php = { "pint" },
-				phtml = { "oxfmt" },
+				phtml = { "prettierd", "prettier", stop_after_first = true },
 				["*"] = { "codespell" },
 				["_"] = { "trim_whitespace" },
 			},
@@ -1201,8 +1205,19 @@ require("lazy").setup({
 					},
 				},
 			},
+			snippets = {
+				preset = "default",
+			},
 			sources = {
-				default = { "lsp", "path", "buffer" },
+				default = { "lsp", "path", "snippets", "buffer" },
+				providers = {
+					snippets = {
+						score_offset = 10,
+						opts = {
+							search_paths = { vim.fn.stdpath("config") .. "/snippets" },
+						},
+					},
+				},
 			},
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
