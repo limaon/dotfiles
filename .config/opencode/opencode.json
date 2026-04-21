@@ -1,10 +1,68 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "username": "limaon",
-  "theme": "solarized-osaka",
   "autoupdate": true,
-  "snapshot": false,
-  "instructions": ["./AGENTS.md"],
+  // "instructions": ["./AGENTS.md"],
+  "mcp": {
+    "context7": {
+      "enabled": true,
+      "headers": {
+        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
+      },
+      "timeout": 60000,
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "exa": {
+      "enabled": false,
+      "headers": {
+        "EXA_API_KEY": "{env:EXA_API_KEY}"
+      },
+      "timeout": 60000,
+      "type": "remote",
+      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,get_code_context_exa,crawling_exa,company_research_exa,linkedin_search_exa,deep_researcher_start,deep_researcher_check"
+    },
+    "mgrep": {
+      "command": ["mgrep", "mcp"],
+      "enabled": true,
+      "type": "local"
+    },
+    "next-devtools": {
+      "command": ["npx", "-y", "next-devtools-mcp@latest"],
+      "enabled": false,
+      "timeout": 60000,
+      "type": "local"
+    },
+    "web-reader": {
+      "enabled": false,
+      "headers": {
+        "Authorization": "Bearer {env:Z_AI_API_KEY}"
+      },
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp"
+    },
+    "web-search-prime": {
+      "enabled": false,
+      "headers": {
+        "Authorization": "Bearer {env:Z_AI_API_KEY}"
+      },
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp"
+    },
+    "zai-mcp-server": {
+      "command": ["npx", "-y", "@z_ai/mcp-server"],
+      "enabled": false,
+      "environment": {
+        "Z_AI_API_KEY": "{env:Z_AI_API_KEY}",
+        "Z_AI_MODE": "ZAI"
+      },
+      "timeout": 60000,
+      "type": "local"
+    }
+  },
+  "model": "openrouter/essentialai/rnj-1-instruct",
+  "permission": {
+    "*": "ask"
+  },
   "plugin": [
     "opencode-gemini-auth@latest",
     "opencode-claude-auth",
@@ -13,67 +71,6 @@
     "@tarquinen/opencode-dcp@3.1.5",
     "@mohak34/opencode-notifier@latest"
   ],
-  "tui": {
-    "scroll_speed": 5,
-    "scroll_acceleration": {
-      "enabled": true
-    },
-    "diff_style": "auto"
-  },
-  "permission": {
-    "*": "ask"
-  },
-  "mcp": {
-    "context7": {
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": {
-        "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
-      },
-      "enabled": true,
-      "timeout": 60000
-    },
-    "web-search-prime": {
-      "type": "remote",
-      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
-      "headers": { "Authorization": "Bearer {env:Z_AI_API_KEY}" },
-      "enabled": true
-    },
-    "web-reader": {
-      "type": "remote",
-      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
-      "headers": { "Authorization": "Bearer {env:Z_AI_API_KEY}" },
-      "enabled": true
-    },
-    "zai-mcp-server": {
-      "type": "local",
-      "command": ["npx", "-y", "@z_ai/mcp-server"],
-      "environment": {
-        "Z_AI_API_KEY": "{env:Z_AI_API_KEY}",
-        "Z_AI_MODE": "ZAI"
-      },
-      "enabled": true,
-      "timeout": 60000
-    },
-    "exa": {
-      "type": "remote",
-      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa,get_code_context_exa,crawling_exa,company_research_exa,linkedin_search_exa,deep_researcher_start,deep_researcher_check",
-      "enabled": false,
-      "timeout": 60000,
-      "headers": { "EXA_API_KEY": "{env:EXA_API_KEY}" }
-    },
-    "next-devtools": {
-      "type": "local",
-      "command": ["npx", "-y", "next-devtools-mcp@latest"],
-      "enabled": true,
-      "timeout": 60000
-    },
-    "mgrep": {
-      "type": "local",
-      "command": ["mgrep", "mcp"],
-      "enabled": true
-    }
-  },
   "provider": {
     "google": {
       "whitelist": [
@@ -82,6 +79,38 @@
         "gemini-3-flash-preview",
         "gemini-3-pro-preview"
       ]
+    },
+    "openrouter": {
+      "name": "OpenRouter",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "{env:OPENROUTER_API_KEY}",
+        "baseURL": "https://openrouter.ai/api/v1",
+      },
+      "models": {
+        "essentialai/rnj-1-instruct": {
+          "name": "RNJ-1 Instruct",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          },
+          "options": {
+            "provider": {
+              "allow_fallbacks": false
+            }
+          }
+        }
+      }
     }
-  }
+  },
+  "snapshot": false,
+  "theme": "solarized-osaka",
+  "tui": {
+    "diff_style": "auto",
+    "scroll_acceleration": {
+      "enabled": true
+    },
+    "scroll_speed": 5
+  },
+  "username": "limaon"
 }
