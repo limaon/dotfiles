@@ -1,10 +1,10 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
-  // "instructions": ["./AGENTS.md"],
+  "instructions": ["./AGENTS.md"],
   "default_agent": "build",
   "share": "disabled",
-  "enabled_providers": ["openrouter", "google", "anthropic"],
+  // "enabled_providers": ["openrouter", "google", "anthropic"],
   "compaction": {
     "auto": true,
     "prune": true,
@@ -80,8 +80,8 @@
       "type": "local"
     }
   },
-  "model": "openrouter/essentialai/rnj-1-instruct",
-  "small_model": "openrouter/mistralai/mistral-nemo",
+  // "model": "openrouter/essentialai/rnj-1-instruct",
+  // "small_model": "openrouter/mistralai/mistral-nemo",
   "permission": {
     "edit": "ask",
     "write": "ask",
@@ -103,6 +103,7 @@
   "plugin": [
     "opencode-gemini-auth@latest",
     "opencode-claude-auth",
+    "superpowers@git+https://github.com/obra/superpowers.git",
     "@nick-vi/opencode-type-inject@1.3.1",
     "@franlol/opencode-md-table-formatter@0.0.3",
     "@tarquinen/opencode-dcp@3.1.5",
@@ -135,26 +136,6 @@
             "provider": {
               "allow_fallbacks": false
             }
-          }
-        },
-        "qwen/qwen3-coder:free": {
-          "name": "Qwen3 Coder (free)",
-          "tool_call": true,
-          "limit": {
-            "context": 262000,
-            "output": 8192
-          }
-        },
-        "mistralai/mistral-nemo": {
-          "name": "Mistral Nemo",
-          "tool_call": true,
-          "cost": {
-            "input": 0.02,
-            "output": 0.04
-          },
-          "limit": {
-            "context": 131072,
-            "output": 8192
           }
         }
       }
