@@ -1,3 +1,5 @@
+# vim:ft=i3config:
+
 # Mod keys
 # Mod1 = Left Alt | Mod2 = Num Lock | Mod3 = Custom | Mod4 = Super | Mod5 = Right Alt
 set $left_alt Mod1

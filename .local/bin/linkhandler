@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Feed script a url or file location.
+# If an image, it will view in nsxiv,
+# if a video or gif, it will view in mpv
+# if a music file or pdf, it will download,
+# otherwise it opens link in browser.
+
+# Add this to ~/.config/mimeapps.list
+# x-scheme-handler/chrome=linkhandler.desktop;
+# x-scheme-handler/http=linkhandler.desktop;
+# x-scheme-handler/https=linkhandler.desktop;
+
+if [ -z "${1-}" ]; then
+	url="$(xclip -o)"
+else
+	url="$1"
+fi
+
+cd -- ~/Downloads || true
+
+case "${url:?}" in
+"https://t.me/"*|"t.me/")
+	domain=${url##"https://t.me/"}
+	domain=${domain##"t.me/"}
+	post=""
+	if [[ $domain == */* ]]; then
+		post="${domain##*/}"
+	fi
+	domain="${domain%%/*}"
+	url="tg://resolve?domain=${domain}${post:+"&post="}${post}"
+	echo "opening with xdg-open: $url"
+	setsid -f xdg-open "$url"
+	;;
+*.mkv | *.webm | *.mp4 | \
+	*hooktube.com* | *bitchute.com/video* | *instagram.com* | *twitter.com* | \
+	*videos.lukesmith.xyz* | \
+	*tiktok.com/* | *streamable.com/* | \
+	*worldstar.com/web/video*)
+	setsid -f trympv "$url" >/dev/null 2>&1 &
+	;;
+*.png | *.jpg | *.jpe | *.jpeg | *.gif | \
+	*.pdf | *.cbz | *.cbr | *.webp | \
+	*matrix/media/*/download/*)
+	filename=$(echo "$url" | sed 's|.*/||; s|%20| |g')
+	dl_file_path=$HOME/Downloads/$(mktemp -- "${filename%.*}.XXXXXX")
+	curl --max-time 180 -sL -o "$dl_file_path" -- "$url"
+	new_file_path="${dl_file_path%.*}.$(file --mime-type --brief "$dl_file_path" | cut -d/ -f2)"
+	mv -n -- "$dl_file_path" "$new_file_path"
+	setsid -f xdg-open "$new_file_path" >/dev/null 2>&1 &
+	;;
+*.mp3 | *.flac | *.opus | *.mp3?source*)
+	qndl "$1" 'curl -LO' >/dev/null 2>&1
+	;;
+*)
+	if [ -f "$url" ]; then
+		setsid -f "$TERMINAL" -e "$EDITOR -- $url"
+	else
+		setsid -f "$OPENER" -- "$url" >/dev/null 2>&1 &
+	fi
+	;;
+esac

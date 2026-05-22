@@ -9,7 +9,8 @@ export EDITOR="nvim"
 export VISUAL=$EDITOR
 export SYSTEMD_EDITOR=$EDITOR
 export SUDO_EDITOR=$EDITOR
-export OPENER="xdg-open"
+export OPENER="firefox"
+export TS_ONFINISH=tsp_onfinish
 
 export CVS_RSH=ssh
 export RSYNC_RSH=ssh
