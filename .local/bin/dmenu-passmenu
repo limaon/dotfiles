@@ -123,7 +123,7 @@ if [[ $flat -eq 1 ]]; then
       | sort
   )
 
-  entry=$(printf '%s\n' "${all_entries[@]}" | dmenu -p "$MENU_PROMPT" "$@")
+  entry=$(printf '%s\n' "${all_entries[@]}" | dmenu -l 6 -p "$MENU_PROMPT" "$@")
   [[ -z "$entry" ]] && exit 0
   reveal_entry "$entry"
   exit 0
@@ -149,7 +149,7 @@ while true; do
 
   entries=("${entries[@]##"$current_dir"/}")
 
-  entry=$(printf '%s\n' "${entries[@]}" | dmenu -p "$MENU_PROMPT" "$@")
+  entry=$(printf '%s\n' "${entries[@]}" | dmenu -l 6 -p "$MENU_PROMPT" "$@")
   [[ -z "$entry" ]] && exit 0
 
   if [[ "$entry" == ".." ]]; then
