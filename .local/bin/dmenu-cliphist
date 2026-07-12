@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Credits:
-# This script is based on, and inspired by, BreadOnPenguins' dmenu_cliphist:
+# This script is based on, and inspired by, 'BreadOnPenguins' dmenu_cliphist:
 # https://github.com/BreadOnPenguins/scripts/blob/master/dmenu_cliphist
 
 histfile="${HOME}/.cache/cliphist"
@@ -67,6 +67,13 @@ unescape_newlines() {
   printf '%s' "$input" | sed "s/$placeholder/\n/g"
 }
 
+# Check if clipboard contains an image
+is_clipboard_image() {
+  local targets
+  targets=$(xclip -o -selection clipboard -t TARGETS 2>/dev/null) || return 1
+  printf '%s' "$targets" | grep -qi 'image/' && return 0 || return 1
+}
+
 highlight() {
   local clip
   clip=$(xclip -o -selection primary 2>/dev/null) || {
@@ -119,8 +126,10 @@ watch_mode() {
     current=$(xclip -o -selection clipboard 2>/dev/null) || true
 
     if [[ "$current" != "$last_content" ]] && [[ -n "$current" ]]; then
-      write "$current"
-      last_content="$current"
+      if ! is_clipboard_image; then
+        write "$current"
+        last_content="$current"
+      fi
     fi
 
     sleep "$poll_interval"
