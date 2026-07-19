@@ -39,33 +39,6 @@
       "command": ["mgrep", "mcp"],
       "enabled": true,
       "type": "local"
-    },
-    "python-repl": {
-      "type": "local",
-      "command": [
-        "python3",
-        "-m",
-        "uv",
-        "--directory",
-        "/tmp/mcp-python",
-        "run",
-        "mcp-python"
-      ],
-      "enabled": true
-    },
-    "sympy-mcp": {
-      "type": "local",
-      "command": [
-        "/tmp/sympy-mcp/.venv/bin/mcp",
-        "run",
-        "/tmp/sympy-mcp/server.py"
-      ],
-      "enabled": true
-    },
-    "wikipedia": {
-      "type": "local",
-      "command": ["python3", "-m", "wikipedia_mcp"],
-      "enabled": true
     }
   },
   "permission": {
