@@ -3,8 +3,8 @@
     "prefix": "flex",
     "body": [
       "display: flex;",
-      "justify-content: ${1:center};",
-      "align-items: ${2:center};"
+      "justify-content: $0;",
+      "align-items: center;"
     ],
     "description": "Flexbox properties"
   },
@@ -12,25 +12,25 @@
     "prefix": "grid",
     "body": [
       "display: grid;",
-      "grid-template-columns: ${1:repeat(3, 1fr)};",
-      "gap: ${2:10px};"
+      "grid-template-columns: $0;",
+      "gap: 10px;"
     ],
     "description": "CSS Grid"
   },
   "media query": {
     "prefix": "media",
-    "body": ["@media (max-width: ${1:768px}) {", "\t${2:/* styles */}", "}"],
+    "body": ["@media (max-width: $0) {", "\t", "}"],
     "description": "Media query"
   },
   "keyframes": {
     "prefix": "keyframes",
     "body": [
-      "@keyframes ${1:animationName} {",
+      "@keyframes $0 {",
       "\tfrom {",
-      "\t\t${2:/* initial styles */}",
+      "\t\t",
       "\t}",
       "\tto {",
-      "\t\t${3:/* final styles */}",
+      "\t\t",
       "\t}",
       "}"
     ],
@@ -38,17 +38,17 @@
   },
   "transition": {
     "prefix": "transition",
-    "body": "transition: ${1:all} ${2:0.3s} ${3:ease};",
+    "body": "transition: $0;",
     "description": "CSS transition"
   },
   "border-radius": {
     "prefix": "border-radius",
-    "body": "border-radius: ${1:5px};",
+    "body": "border-radius: $0;",
     "description": "Border radius"
   },
   "box-shadow": {
     "prefix": "box-shadow",
-    "body": "box-shadow: ${1:0 2px 4px rgba(0,0,0,0.1)};",
+    "body": "box-shadow: $0;",
     "description": "Box shadow"
   },
   "center": {

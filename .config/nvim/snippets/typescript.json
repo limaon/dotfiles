@@ -1,38 +1,30 @@
 {
   "function": {
     "prefix": "function",
-    "body": [
-      "function ${1:functionName}(${2:parameters}): ${3:void} {",
-      "\t${4:// body}",
-      "}"
-    ],
+    "body": ["function $0", "{", "\t", "}"],
     "description": "Function declaration with types"
   },
   "arrow function": {
     "prefix": "arrow",
-    "body": "const ${1:functionName} = (${2:parameters}): ${3:void} => ${4:expression};",
+    "body": "const $0 = ():  => ;",
     "description": "Arrow function with types"
   },
   "interface": {
     "prefix": "interface",
-    "body": [
-      "interface ${1:InterfaceName} {",
-      "\t${2:property}: ${3:type};",
-      "}"
-    ],
+    "body": ["interface $0 {", "\t", "}"],
     "description": "Interface definition"
   },
   "type": {
     "prefix": "type",
-    "body": "type ${1:TypeName} = ${2:type};",
+    "body": "type $0 = ;",
     "description": "Type alias"
   },
   "class": {
     "prefix": "class",
     "body": [
-      "class ${1:ClassName} {",
-      "\tconstructor(${2:parameters}) {",
-      "\t\t${3:// body}",
+      "class $0 {",
+      "\tconstructor() {",
+      "\t\t",
       "\t}",
       "}"
     ],
@@ -40,16 +32,12 @@
   },
   "async function": {
     "prefix": "async",
-    "body": [
-      "async function ${1:functionName}(${2:parameters}): Promise<${3:void}> {",
-      "\t${4:// body}",
-      "}"
-    ],
+    "body": ["async function $0", "{", "\t", "}"],
     "description": "Async function with types"
   },
   "console.log": {
     "prefix": "log",
-    "body": "console.log(${1:value});",
+    "body": "console.log($0);",
     "description": "Console log"
   }
 }

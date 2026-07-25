@@ -1,386 +1,292 @@
 {
   "heading 1": {
     "prefix": "h1",
-    "body": "# ${1:Title}",
+    "body": "# $0",
     "description": "Heading level 1"
   },
   "heading 2": {
     "prefix": "h2",
-    "body": "## ${1:Title}",
+    "body": "## $0",
     "description": "Heading level 2"
   },
   "heading 3": {
     "prefix": "h3",
-    "body": "### ${1:Title}",
+    "body": "### $0",
     "description": "Heading level 3"
   },
   "heading 4": {
     "prefix": "h4",
-    "body": "#### ${1:Title}",
+    "body": "#### $0",
     "description": "Heading level 4"
   },
   "heading 5": {
     "prefix": "h5",
-    "body": "##### ${1:Title}",
+    "body": "##### $0",
     "description": "Heading level 5"
   },
   "heading 6": {
     "prefix": "h6",
-    "body": "###### ${1:Title}",
+    "body": "###### $0",
     "description": "Heading level 6"
   },
   "bold": {
     "prefix": "b",
-    "body": "**${1:bold text}**",
+    "body": "**$0**",
     "description": "Bold text"
   },
   "italic": {
     "prefix": "i",
-    "body": "*${1:italic text}*",
+    "body": "*$0*",
     "description": "Italic text"
   },
   "strikethrough": {
     "prefix": "s",
-    "body": "~~${1:strikethrough text}~~",
+    "body": "~~$0~~",
     "description": "Strikethrough text"
   },
   "bold and italic": {
     "prefix": "bi",
-    "body": "***${1:bold and italic text}***",
+    "body": "***$0***",
     "description": "Bold and italic text"
   },
   "link": {
     "prefix": "link",
-    "body": "[${1:link text}](${2:url})",
+    "body": "[$0](url)",
     "description": "Link"
   },
   "link with title": {
     "prefix": "linkt",
-    "body": "[${1:link text}](${2:url} \"${3:title}\")",
+    "body": "[$0](url \"title\")",
     "description": "Link with title"
   },
   "image": {
     "prefix": "img",
-    "body": "![${1:alt text}](${2:image-url})",
+    "body": "![$0](image-url)",
     "description": "Image"
   },
   "image with title": {
     "prefix": "imgt",
-    "body": "![${1:alt text}](${2:image-url} \"${3:title}\")",
+    "body": "![$0](image-url \"title\")",
     "description": "Image with title"
-  },
-  "inline code": {
-    "prefix": "code",
-    "body": "`${1:code}`",
-    "description": "Inline code"
   },
   "code block": {
     "prefix": "```",
-    "body": ["```${1:language}", "${2:code}", "```"],
+    "body": ["```$0", "", "```"],
     "description": "Code block"
   },
   "code block txt": {
     "prefix": "txt",
-    "body": ["```txt", "${1:// your text here}", "```"],
+    "body": ["```txt", "$0", "```"],
     "description": "Text block "
   },
   "code block javascript": {
     "prefix": "js",
-    "body": ["```javascript", "${1:// your code here}", "```"],
+    "body": ["```javascript", "$0", "```"],
     "description": "JavaScript code block"
   },
   "code block python": {
     "prefix": "py",
-    "body": ["```python", "${1:# your code here}", "```"],
+    "body": ["```python", "$0", "```"],
     "description": "Python code block"
   },
-  "code block bash": {
-    "prefix": "bash",
-    "body": ["```bash", "${1:# your command here}", "```"],
-    "description": "Bash code block"
+  "code block sh": {
+    "prefix": "sh",
+    "body": ["```sh", "$0", "```"],
+    "description": "Shell code block"
   },
   "code block typescript": {
     "prefix": "ts",
-    "body": ["```typescript", "${1:// your code here}", "```"],
+    "body": ["```typescript", "$0", "```"],
     "description": "TypeScript code block"
   },
   "code block lua": {
     "prefix": "lua",
-    "body": ["```lua", "${1:-- your code here}", "```"],
+    "body": ["```lua", "$0", "```"],
     "description": "Lua code block"
   },
   "code block html": {
     "prefix": "html",
-    "body": [
-      "```html",
-      "<!-- your code here -->",
-      "${1:<!-- HTML content -->}",
-      "```"
-    ],
+    "body": ["```html", "$0", "```"],
     "description": "HTML code block"
   },
   "code block css": {
     "prefix": "css",
-    "body": ["```css", "/* your code here */", "${1:/* CSS content */}", "```"],
+    "body": ["```css", "$0", "```"],
     "description": "CSS code block"
   },
   "code block java": {
     "prefix": "java",
-    "body": ["```java", "// your code here", "${1:// Java content}", "```"],
+    "body": ["```java", "$0", "```"],
     "description": "Java code block"
   },
   "code block c": {
     "prefix": "c",
-    "body": ["```c", "// your code here", "${1:// C content}", "```"],
+    "body": ["```c", "$0", "```"],
     "description": "C code block"
   },
   "code block cpp": {
     "prefix": "cpp",
-    "body": ["```cpp", "// your code here", "${1:// C++ content}", "```"],
+    "body": ["```cpp", "$0", "```"],
     "description": "C++ code block"
   },
   "code block csharp": {
     "prefix": "csharp",
-    "body": ["```csharp", "// your code here", "${1:// C# content}", "```"],
+    "body": ["```csharp", "$0", "```"],
     "description": "C# code block"
   },
   "code block rust": {
     "prefix": "rust",
-    "body": ["```rust", "// your code here", "${1:// Rust content}", "```"],
+    "body": ["```rust", "$0", "```"],
     "description": "Rust code block"
   },
   "code block go": {
     "prefix": "go",
-    "body": ["```go", "// your code here", "${1:// Go content}", "```"],
+    "body": ["```go", "$0", "```"],
     "description": "Go code block"
   },
   "code block ruby": {
     "prefix": "ruby",
-    "body": ["```ruby", "# your code here", "${1:# Ruby content}", "```"],
+    "body": ["```ruby", "$0", "```"],
     "description": "Ruby code block"
   },
   "code block php": {
     "prefix": "php",
-    "body": [
-      "```php",
-      "<?php",
-      "// your code here",
-      "${1:// PHP content}",
-      "?>",
-      "```"
-    ],
+    "body": ["```php", "<?php", "$0", "?>", "```"],
     "description": "PHP code block"
   },
   "code block sql": {
     "prefix": "sql",
-    "body": ["```sql", "-- your code here", "${1:-- SQL query}", "```"],
+    "body": ["```sql", "$0", "```"],
     "description": "SQL code block"
   },
   "code block yaml": {
     "prefix": "yaml",
-    "body": ["```yaml", "# your code here", "${1:key: value}", "```"],
+    "body": ["```yaml", "$0", "```"],
     "description": "YAML code block"
   },
   "code block json": {
     "prefix": "json",
-    "body": ["```json", "{", "  ${1:\"key\": \"value\"}", "}", "```"],
+    "body": ["```json", "{", "  $0", "}", "```"],
     "description": "JSON code block"
   },
   "code block xml": {
     "prefix": "xml",
-    "body": [
-      "```xml",
-      "<!-- your code here -->",
-      "<${1:root}>",
-      "  ${2:<!-- content -->}",
-      "</${1:root}>",
-      "```"
-    ],
+    "body": ["```xml", "$0", "```"],
     "description": "XML code block"
   },
   "code block dockerfile": {
     "prefix": "dockerfile",
-    "body": [
-      "```dockerfile",
-      "# your code here",
-      "FROM ${1:alpine}",
-      "${2:RUN apk add --no-cache ...}",
-      "```"
-    ],
+    "body": ["```dockerfile", "$0", "```"],
     "description": "Dockerfile code block"
   },
   "code block makefile": {
     "prefix": "makefile",
-    "body": [
-      "```makefile",
-      "# your code here",
-      "${1:target}:",
-      "  ${2:command}",
-      "```"
-    ],
+    "body": ["```makefile", "$0", "```"],
     "description": "Makefile code block"
   },
   "code block powershell": {
     "prefix": "powershell",
-    "body": [
-      "```powershell",
-      "# your code here",
-      "${1:# PowerShell command}",
-      "```"
-    ],
+    "body": ["```powershell", "$0", "```"],
     "description": "PowerShell code block"
   },
   "code block scala": {
     "prefix": "scala",
-    "body": ["```scala", "// your code here", "${1:// Scala content}", "```"],
+    "body": ["```scala", "$0", "```"],
     "description": "Scala code block"
   },
   "code block kotlin": {
     "prefix": "kotlin",
-    "body": ["```kotlin", "// your code here", "${1:// Kotlin content}", "```"],
+    "body": ["```kotlin", "$0", "```"],
     "description": "Kotlin code block"
   },
   "code block swift": {
     "prefix": "swift",
-    "body": ["```swift", "// your code here", "${1:// Swift content}", "```"],
+    "body": ["```swift", "$0", "```"],
     "description": "Swift code block"
   },
   "code block dart": {
     "prefix": "dart",
-    "body": ["```dart", "// your code here", "${1:// Dart content}", "```"],
+    "body": ["```dart", "$0", "```"],
     "description": "Dart code block"
   },
   "code block jsx": {
     "prefix": "jsx",
-    "body": ["```jsx", "// your code here", "${1:// JSX content}", "```"],
+    "body": ["```jsx", "$0", "```"],
     "description": "JSX code block"
   },
   "code block tsx": {
     "prefix": "tsx",
-    "body": ["```tsx", "// your code here", "${1:// TSX content}", "```"],
+    "body": ["```tsx", "$0", "```"],
     "description": "TSX code block"
   },
   "code block vue": {
     "prefix": "vue",
-    "body": [
-      "```vue",
-      "<!-- your code here -->",
-      "<template>",
-      "  ${1:<!-- template content -->}",
-      "</template>",
-      "",
-      "<script>",
-      "${2:// script content}",
-      "</script>",
-      "",
-      "<style>",
-      "${3:/* style content */}",
-      "</style>",
-      "```"
-    ],
+    "body": ["```vue", "$0", "```"],
     "description": "Vue code block"
   },
   "code block svelte": {
     "prefix": "svelte",
-    "body": [
-      "```svelte",
-      "<!-- your code here -->",
-      "${1:<!-- Svelte content -->}",
-      "<script>",
-      "${2:// script content}",
-      "</script>",
-      "",
-      "<style>",
-      "${3:/* style content */}",
-      "</style>",
-      "```"
-    ],
+    "body": ["```svelte", "$0", "```"],
     "description": "Svelte code block"
   },
   "code block toml": {
     "prefix": "toml",
-    "body": ["```toml", "# your code here", "${1:key = \"value\"}", "```"],
+    "body": ["```toml", "$0", "```"],
     "description": "TOML code block"
   },
   "code block ini": {
     "prefix": "ini",
-    "body": [
-      "```ini",
-      "; your code here",
-      "${1:[section]",
-      "key = value}",
-      "```"
-    ],
+    "body": ["```ini", "$0", "```"],
     "description": "INI code block"
   },
   "code block hcl": {
     "prefix": "hcl",
-    "body": [
-      "```hcl",
-      "# your code here",
-      "${1:resource \"type\" \"name\" {",
-      "  # configuration",
-      "}}",
-      "```"
-    ],
+    "body": ["```hcl", "$0", "```"],
     "description": "HCL (Terraform) code block"
   },
   "code block graphql": {
     "prefix": "graphql",
-    "body": [
-      "```graphql",
-      "# your code here",
-      "${1:query {",
-      "  field",
-      "}}",
-      "```"
-    ],
+    "body": ["```graphql", "$0", "```"],
     "description": "GraphQL code block"
   },
   "code block mermaid": {
     "prefix": "mermaid",
-    "body": [
-      "```mermaid",
-      "graph TD",
-      "  A[Start] --> B[End]",
-      "${1:  A --> B}",
-      "```"
-    ],
+    "body": ["```mermaid", "$0", "```"],
     "description": "Mermaid diagram code block"
   },
   "code block typst": {
     "prefix": "typst",
-    "body": ["```typst", "${1:// your code here}", "```"],
+    "body": ["```typst", "$0", "```"],
     "description": "Typst code block"
   },
   "unordered list": {
     "prefix": "ul",
-    "body": ["- ${1:item 1}", "- ${2:item 2}", "- ${3:item 3}"],
+    "body": ["- $0"],
     "description": "Unordered list"
   },
   "ordered list": {
     "prefix": "ol",
-    "body": ["1. ${1:item 1}", "2. ${2:item 2}", "3. ${3:item 3}"],
+    "body": ["1. $0"],
     "description": "Ordered list"
   },
   "task list": {
     "prefix": "task",
-    "body": ["- [ ] ${1:Task 1}", "- [ ] ${2:Task 2}", "- [ ] ${3:Task 3}"],
+    "body": ["- [ ] $0"],
     "description": "Task list"
   },
   "task list done": {
     "prefix": "taskd",
-    "body": ["- [x] ${1:Task 1}", "- [x] ${2:Task 2}", "- [x] ${3:Task 3}"],
+    "body": ["- [x] $0"],
     "description": "Task list (all done)"
   },
   "block quote": {
     "prefix": "q",
-    "body": "> ${1:quote text}",
+    "body": "> $0",
     "description": "Block quote"
   },
   "multi-line block quote": {
     "prefix": "qm",
-    "body": ["> ${1:quote line 1}", "> ${2:quote line 2}"],
+    "body": ["> $0", "> "],
     "description": "Multi-line block quote"
   },
   "horizontal rule": {
@@ -391,10 +297,9 @@
   "table": {
     "prefix": "table",
     "body": [
-      "| ${1:Header 1} | ${2:Header 2} | ${3:Header 3} |",
-      "| --- | --- | --- |",
-      "| ${4:Cell 1} | ${5:Cell 2} | ${6:Cell 3} |",
-      "| ${7:Cell 4} | ${8:Cell 5} | ${9:Cell 6} |"
+      "| $0 |  |",
+      "| --- | --- |",
+      "|  |  |"
     ],
     "description": "Table"
   },
@@ -402,9 +307,8 @@
     "prefix": "details",
     "body": [
       "<details>",
-      "<summary>${1:Click to expand}</summary>",
+      "<summary>$0</summary>",
       "",
-      "${2:Content}",
       "",
       "</details>"
     ],
@@ -412,22 +316,22 @@
   },
   "footnote": {
     "prefix": "fn",
-    "body": "[^${1:1}]",
+    "body": "[^$0]",
     "description": "Footnote reference"
   },
   "footnote definition": {
     "prefix": "fnd",
-    "body": "[^${1:1}]: ${2:footnote text}",
+    "body": "[^$0]: ",
     "description": "Footnote definition"
   },
   "checkbox": {
     "prefix": "cb",
-    "body": "- [ ] ${1:task}",
+    "body": "- [ ] $0",
     "description": "Checkbox"
   },
   "checkbox checked": {
     "prefix": "cbb",
-    "body": "- [x] ${1:task}",
+    "body": "- [x] $0",
     "description": "Checkbox checked"
   }
 }

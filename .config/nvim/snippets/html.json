@@ -3,14 +3,14 @@
     "prefix": "html5",
     "body": [
       "<!DOCTYPE html>",
-      "<html lang=\"${1:en}\">",
+      "<html lang=\"en\">",
       "  <head>",
       "    <meta charset=\"UTF-8\" />",
       "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />",
-      "    <title>${2:Document}</title>",
+      "    <title>Document</title>",
       "  </head>",
       "  <body>",
-      "    ${3:<!-- content -->}",
+      "   $0",
       "  </body>",
       "</html>"
     ],
@@ -18,37 +18,37 @@
   },
   "div": {
     "prefix": "div",
-    "body": "<div class=\"${1:class}\">${2:content}</div>",
+    "body": "<div class=\"$0\"></div>",
     "description": "Div element"
   },
   "span": {
     "prefix": "span",
-    "body": "<span class=\"${1:class}\">${2:text}</span>",
+    "body": "<span class=\"$0\"></span>",
     "description": "Span element"
   },
   "link": {
     "prefix": "link",
-    "body": "<link rel=\"stylesheet\" href=\"${1:style.css}\">",
+    "body": "<link rel=\"stylesheet\" href=\"$0\">",
     "description": "CSS link"
   },
   "script": {
     "prefix": "script",
-    "body": "<script src=\"${1:script.js}\"></script>",
+    "body": "<script src=\"$0\"></script>",
     "description": "Script tag"
   },
   "img": {
     "prefix": "img",
-    "body": "<img src=\"${1:image.jpg}\" alt=\"${2:description}\">",
+    "body": "<img src=\"$0\" alt=\"\">",
     "description": "Image tag"
   },
   "input": {
     "prefix": "input",
-    "body": "<input type=\"${1:text}\" name=\"${2:name}\" placeholder=\"${3:placeholder}\">",
+    "body": "<input type=\"$0\" name=\"\" placeholder=\"\">",
     "description": "Input element"
   },
   "button": {
     "prefix": "button",
-    "body": "<button type=\"${1:button}\">${2:Button}</button>",
+    "body": "<button type=\"$0\">Button</button>",
     "description": "Button element"
   }
 }

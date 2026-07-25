@@ -349,6 +349,11 @@ create_autocmd("FileType", lang_group, vim.tbl_keys(language_settings), function
 	end
 end, "Language-specific settings")
 
+-- Enable diagnostics for Typst files (tinymist lint)
+create_autocmd("FileType", basic_group, "typst", function()
+	vim.diagnostic.enable(true)
+end, "Enable diagnostics for Typst files")
+
 -- }}}
 
 -- [[ Basic Keymaps ]] {{{
@@ -381,7 +386,9 @@ end, { desc = "Split right" })
 
 -- Toggle diagnostics
 vim.keymap.set("n", "<leader>dd", function()
-	vim.diagnostic.enable(not vim.diagnostic.is_enabled())
+	local enabled = not vim.diagnostic.is_enabled()
+	vim.diagnostic.enable(enabled)
+	vim.notify(enabled and "Diagnostics enabled" or "Diagnostics disabled", vim.log.levels.INFO)
 end, { desc = "Toggle diagnostics" })
 
 -- Move to window
@@ -893,6 +900,10 @@ require("lazy").setup({
 					formatterMode = "typstyle",
 					formatterIndentSize = 2,
 					formatterPrintWidth = 100,
+					lint = {
+						enabled = true,
+						when = "onSave",
+					},
 				},
 			})
 
@@ -1217,6 +1228,47 @@ require("lazy").setup({
 						score_offset = 10,
 						opts = {
 							search_paths = { vim.fn.stdpath("config") .. "/snippets" },
+							get_filetype = function(context)
+								local ft = vim.bo[context.bufnr].filetype
+								if ft ~= "markdown" then
+									return ft
+								end
+
+								local ok, lang = pcall(function()
+									local cursor = vim.api.nvim_win_get_cursor(0)
+									local row, col = cursor[1] - 1, cursor[2]
+
+									local node = vim.treesitter.get_node({
+										bufnr = context.bufnr,
+										pos = { row, col },
+										lang = "markdown",
+									})
+									if not node then
+										return nil
+									end
+
+									local current = node
+									while current do
+										if current:type() == "code_fence_content" then
+											local parent = current:parent()
+											if parent and parent:type() == "fenced_code_block" then
+												for child in parent:iter_children() do
+													if child:type() == "info_string" then
+														return vim.treesitter
+															.get_node_text(child, context.bufnr)
+															:lower()
+													end
+												end
+											end
+											break
+										end
+										current = current:parent()
+									end
+									return nil
+								end)
+
+								return ok and lang or ft
+							end,
 						},
 					},
 				},

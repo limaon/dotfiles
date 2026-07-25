@@ -2,69 +2,69 @@
   "function": {
     "prefix": "def",
     "body": [
-      "def ${1:function_name}(${2:parameters}):",
-      "\t${3:\"\"\"Docstring\"\"\"}",
-      "\t${4:pass}"
+      "def $0:",
+      "\t\"\"\"Docstring\"\"\"",
+      "\tpass"
     ],
     "description": "Function definition"
   },
   "class": {
     "prefix": "class",
     "body": [
-      "class ${1:ClassName}:",
-      "\tdef __init__(self${2:, parameters}):",
-      "\t\t${3:pass}"
+      "class $0:",
+      "\tdef __init__(self):",
+      "\t\tpass"
     ],
     "description": "Class definition"
   },
   "if statement": {
     "prefix": "if",
-    "body": ["if ${1:condition}:", "\t${2:pass}"],
+    "body": ["if $0:", "\tpass"],
     "description": "If statement"
   },
   "elif": {
     "prefix": "elif",
-    "body": ["elif ${1:condition}:", "\t${2:pass}"],
+    "body": ["elif $0:", "\tpass"],
     "description": "Elif statement"
   },
   "for loop": {
     "prefix": "for",
-    "body": ["for ${1:item} in ${2:iterable}:", "\t${3:pass}"],
+    "body": ["for $0 in :", "\tpass"],
     "description": "For loop"
   },
   "while loop": {
     "prefix": "while",
-    "body": ["while ${1:condition}:", "\t${2:pass}"],
+    "body": ["while $0:", "\tpass"],
     "description": "While loop"
   },
   "try-except": {
     "prefix": "try",
     "body": [
       "try:",
-      "\t${1:pass}",
-      "except ${2:Exception} as ${3:e}:",
-      "\t${4:pass}"
+      "\t$0",
+      "except Exception as e:",
+      "\tpass"
     ],
     "description": "Try-except block"
   },
   "import": {
     "prefix": "import",
-    "body": "import ${1:module}",
+    "body": "import $0",
     "description": "Import statement"
   },
   "from import": {
     "prefix": "from",
-    "body": "from ${1:module} import ${2:name}",
+    "body": "from $0 import ",
     "description": "From import statement"
   },
   "print": {
     "prefix": "print",
-    "body": "print(${1:value})",
+    "body": "print($0)",
     "description": "Print statement"
   },
   "main guard": {
     "prefix": "ifmain",
-    "body": ["if __name__ == \"__main__\":", "\t${1:main()}"],
+    "body": ["if __name__ == \"__main__\":", "\t$0"],
     "description": "Main guard"
   }
 }

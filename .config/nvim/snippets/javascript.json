@@ -1,70 +1,58 @@
 {
   "function": {
     "prefix": "function",
-    "body": [
-      "function ${1:functionName}(${2:parameters}) {",
-      "\t${3:// body}",
-      "}"
-    ],
+    "body": ["function $0", "{", "\t", "}"],
     "description": "Function declaration"
   },
   "arrow function": {
     "prefix": "arrow",
-    "body": "const ${1:functionName} = (${2:parameters}) => ${3:expression};",
+    "body": "const $0 = () => ;",
     "description": "Arrow function"
   },
   "if statement": {
     "prefix": "if",
-    "body": ["if (${1:condition}) {", "\t${2:// body}", "}"],
+    "body": ["if ($0) {", "\t", "}"],
     "description": "If statement"
   },
   "else": {
     "prefix": "else",
-    "body": ["else {", "\t${1:// body}", "}"],
+    "body": ["else {", "\t$0", "}"],
     "description": "Else clause"
   },
   "for loop": {
     "prefix": "for",
-    "body": [
-      "for (let ${1:i} = 0; ${1:i} < ${2:array}.length; ${1:i}++) {",
-      "\t${3:// body}",
-      "}"
-    ],
+    "body": ["for (let $0 = 0;  < .length; ++) {", "\t", "}"],
     "description": "For loop"
   },
   "forEach": {
     "prefix": "foreach",
-    "body": "${1:array}.forEach((${2:item}) => {\n\t${3:// body}\n});",
+    "body": "$0.forEach(() => {\n\t\n});",
     "description": "forEach loop"
   },
   "console.log": {
     "prefix": "log",
-    "body": "console.log(${1:value});",
+    "body": "console.log($0);",
     "description": "Console log"
   },
   "try-catch": {
     "prefix": "try",
     "body": [
       "try {",
-      "\t${1:// code}",
-      "} catch (${2:error}) {",
-      "\t${3:// handle error}",
+      "\t$0",
+      "} catch (error) {",
+      "\t",
       "}"
     ],
     "description": "Try-catch block"
   },
   "async function": {
     "prefix": "async",
-    "body": [
-      "async function ${1:functionName}(${2:parameters}) {",
-      "\t${3:// body}",
-      "}"
-    ],
+    "body": ["async function $0", "{", "\t", "}"],
     "description": "Async function"
   },
   "promise": {
     "prefix": "promise",
-    "body": ["new Promise((resolve, reject) => {", "\t${1:// code}", "});"],
+    "body": ["new Promise((resolve, reject) => {", "\t$0", "});"],
     "description": "Promise"
   }
 }
