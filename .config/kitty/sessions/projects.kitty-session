@@ -1,0 +1,7 @@
+layout tall
+
+cd ~/Projects
+
+launch --title "projects"
+focus
+focus_os_window
