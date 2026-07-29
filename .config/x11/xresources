@@ -7,27 +7,29 @@
 ! * If using GNOME on Wayland, uncomment the WaylandEnable=false in
 !   /etc/gdm/custom.conf so that the resources will be loaded.
 
-#define base03        #001e26
-#define base02        #002731
-#define base01        #708183
-#define base00        #52676f
-#define base0         #708183
-#define base1         #81908f
-#define base2         #e9e2cb
-#define base3         #fcf4dc
-#define yellow        #a57705
-#define orange        #bd3612
-#define red           #d01b24
-#define magenta       #c61b6e
-#define violet        #5856b9
-#define blue          #2075c7
-#define cyan          #259185
-#define green         #728905
+#define base04        #00141a
+#define base03        #002d38
+#define base02        #073541
+#define base01        #586e74
+#define base00        #647a82
+#define base0         #9fabad
+#define base1         #adb8b8
+#define base2         #ede7d4
+#define base3         #fdf6e2
+#define base4         #ffffff
+#define yellow        #b38600
+#define orange        #ca4c16
+#define red           #dc312e
+#define magenta       #d33682
+#define violet        #6d72c5
+#define blue          #278bd3
+#define cyan          #2aa298
+#define green         #859900
 
 ! Terminal colors
-*background:            base03
-*foreground:            base01
-*cursorColor:           base01
+*background:            base04
+*foreground:            base0
+*cursorColor:           base1
 
 *.color0:                base02
 *.color1:                red
@@ -37,7 +39,7 @@
 *.color5:                magenta
 *.color6:                cyan
 *.color7:                base2
-*.color8:                base03
+*.color8:                base04
 *.color9:                orange
 *.color10:               base01
 *.color11:               base00
@@ -47,20 +49,20 @@
 *.color15:               base3
 
 *highlightColor: base02
-*highlightTextColor: base03
+*highlightTextColor: base04
 *.selectionColor: base01
 *.barBackground: white
 *.font: xos4 Terminus:pixelsize=20:antialias=true:autohint=true
 *.mark.background: yellow
 *.bar.background: base01
-*.bar.foreground: base03
+*.bar.foreground: base04
 
 ! === Nsxiv ===
-Nsxiv.window.background:  base03
-Nsxiv.window.foreground:  base01
+Nsxiv.window.background:  base04
+Nsxiv.window.foreground:  base0
 Nsxiv.bar.font:           xos4 Terminus:pixelsize=20:antialias=true:autohint=true
 Nsxiv.bar.background:     base01
-Nsxiv.bar.foreground:     base03
+Nsxiv.bar.foreground:     base04
 Nsxiv.mark.foreground:    yellow
 
 ! Cursor settings
@@ -81,10 +83,10 @@ Xft.rgba:               none
 !! Transparency (0-1):
 *.alpha: 0.8
 *.fading: 35
-*.fadeColor: base03
+*.fadeColor: base04
 
 ! Colorscheme (XTerm/UXTerm)
-?.vt100*background: base03
+?.vt100*background: base04
 ?.vt100*foreground: base0
 ?.vt100*cursorColor: base1
 ?.vt100*color0: base02
@@ -95,7 +97,7 @@ Xft.rgba:               none
 ?.vt100*color5: magenta
 ?.vt100*color6: cyan
 ?.vt100*color7: base2
-?.vt100*color8: base03
+?.vt100*color8: base04
 ?.vt100*color9: orange
 ?.vt100*color10: base01
 ?.vt100*color11: base00

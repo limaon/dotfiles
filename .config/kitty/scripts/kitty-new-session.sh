@@ -7,7 +7,7 @@ set -euo pipefail
 kitty_bin="kitty"
 script_path="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/$(basename -- "${BASH_SOURCE[0]}")"
 session_dir="/tmp/kitty-sessions"
-project_dirs=("$HOME/Desktop")
+project_dirs=("$HOME/Desktop" "$HOME/.config")
 
 # Colors (Solarized Osaka Dark)
 # Source: https://github.com/craftzdog/solarized-osaka.nvim
@@ -114,35 +114,6 @@ find_session_by_path() {
   return 1
 }
 
-print_menu_lines() {
-  for dir in "${project_dirs[@]}"; do
-    [[ -d "$dir" ]] || continue
-    find "$dir" -maxdepth 1 -type d \
-      -not -path "*/.git" \
-      -not -path "*/.github" \
-      -not -path "*/node_modules" \
-      -not -path "*/.cache" \
-      -not -path "*/__pycache__" \
-      -not -path "*/.venv" \
-      -not -path "*/venv" \
-      2>/dev/null
-  done | sort -u | awk -v OFS='\t' -v color="${base_color}" -v reset="${reset_color}" '{
-    path=$0
-    n=split(path, parts, "/")
-    base=parts[n]
-    if (base == "") base=path
-    printf "%s\t%s%s%s  %s\n", path, color, base, reset, path
-  }'
-
-  print_ssh_menu_lines
-}
-
-# Handle --reload argument for fzf live filtering
-if [[ "${1:-}" == "--reload" ]]; then
-  print_menu_lines
-  exit 0
-fi
-
 collect_ssh_config_files() {
   local root_config="$HOME/.ssh/config"
   [[ -f "$root_config" ]] || return 0
@@ -203,6 +174,35 @@ print_ssh_menu_lines() {
     }' "${config_files[@]}" | sort -u
   )
 }
+
+print_menu_lines() {
+  for dir in "${project_dirs[@]}"; do
+    [[ -d "$dir" ]] || continue
+    find "$dir" -maxdepth 1 -type d \
+      -not -path "*/.git" \
+      -not -path "*/.github" \
+      -not -path "*/node_modules" \
+      -not -path "*/.cache" \
+      -not -path "*/__pycache__" \
+      -not -path "*/.venv" \
+      -not -path "*/venv" \
+      2>/dev/null
+  done | sort -u | awk -v OFS='\t' -v color="${base_color}" -v reset="${reset_color}" '{
+    path=$0
+    n=split(path, parts, "/")
+    base=parts[n]
+    if (base == "") base=path
+    printf "%s\t%s%s%s  %s\n", path, color, base, reset, path
+  }'
+
+  print_ssh_menu_lines
+}
+
+# Handle --reload argument for fzf live filtering
+if [[ "${1:-}" == "--reload" ]]; then
+  print_menu_lines
+  exit 0
+fi
 
 focus_or_launch_dir() {
   local selected_path="$1"
