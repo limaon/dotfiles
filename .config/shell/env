@@ -11,6 +11,8 @@ export BASH_ENV=~/.config/bash/env
 
 umask 0077
 
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --color=bg:#001419,bg+:#002c38,fg:#839395,fg+:#9eabac --color=hl:#29a298,hl+:#268bd3 --color=info:#576d74,prompt:#29a298,pointer:#29a298 --color=marker:#db302d,spinner:#b28500,header:#6d71c4"
+
 ssource ~/.config/shell/env_local
 
 

@@ -207,9 +207,6 @@ if [[ -f "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash" ]]; then
   source "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash"
 fi
 
-# source fzf completion file
-[ -f /usr/share/fzf/completion.bash ] && source /usr/share/fzf/completion.bash
-
 # Start graphical server on tty1 if not already running.
 # https://wiki.archlinux.org/index.php/Xinit#Autostart_X_at_login
 # if [[ -z "${DISPLAY}" ]] && [[ "${XDG_VTNR}" -eq 1 ]]; then
@@ -242,10 +239,6 @@ export OPENCODE_DISABLE_CLAUDE_CODE_SKILLS=false
 export OPENCODE_DISABLE_MODELS_FETCH=false
 export OPENCODE_DISABLE_FILETIME_CHECK=false
 export OPENCODE_CLIENT="cli"
-export OPENCODE_EXPERIMENTAL_PLAN_MODE=1
-export OPENCODE_UNSAFE_ALLOW_OUTSIDE=1
-export OPENCODE_UNSAFE_FILES=1
-export OPENCODE_UNSAFE_INCLUDE_GIT=1
 
 # vim:ft=sh
 

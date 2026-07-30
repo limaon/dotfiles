@@ -248,6 +248,15 @@ FZF_EXCLUDE_DIRS=(
   ".local/bin/__pycache__"
   ".local/bin/*.pyc"
 )
+
+# Helper to build find exclusion args from FZF_EXCLUDE_DIRS
+_get_find_exclude_args() {
+  local dir
+  for dir in "${FZF_EXCLUDE_DIRS[@]}"; do
+    printf -- '-not -path "*/%s/*" -not -path "*/%s" ' "$dir" "$dir"
+  done
+}
+
 # Build FZF commands based on available tools
 if command -v fd >/dev/null 2>&1; then
   FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'fd')"
@@ -265,11 +274,10 @@ else
   FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'find')"
   export FZF_DIR_COMMAND
 fi
-# export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
 
 # Usage: locatefall
 # Uses fzf to locate a file in current directory and changes into it if it's a directory, or opens it in editor if it's a file.
-fall() {
+flocate() {
   local file
   local dir
   dir="$(pwd)"
@@ -281,7 +289,7 @@ fall() {
 # Finds and edits a file in current directory, excluding certain paths and file types.
 fe() {
   local file
-  local fallback_cmd='find . -type f -not \( -path "*/.git*" -o -path "*/.cache*" -o -path "*/.cargo*" -o -path "*/.yarn*" -o -path "*/chromium*" -o -path "*/.svn*" -o -path "*.png" -o -path "*.mp4" -o -path "*.mp3" -o -path "*.jpg" -o -path "*.jpeg" -o -path "*.bin" -o -path "*.svg" -o -path "*.gz" -o -path "*.tar" -o -path "*.tgz" -o -path "*.zip" \) ! -size 0 -print'
+  local fallback_cmd="find . -type f $(_get_find_exclude_args) ! -size 0 -print"
 
   file="$(_fzf_select "$FZF_DEFAULT_COMMAND" "$fallback_cmd")"
   [ -n "$file" ] && ${EDITOR:-vim} "$file"
@@ -292,7 +300,7 @@ fe() {
 # Changes to a directory selected via fzf, excluding certain paths.
 fcd() {
   local dir
-  local fallback_cmd='find . -not \( -path "*/.*" -prune \) -not \( -path "*/Library/*" -prune \) -not \( -path "*/Applications/*" -prune \) -not \( -ipath "*/cache/*" -prune \) -type d -print'
+  local fallback_cmd="find . -type d $(_get_find_exclude_args) -print"
 
   dir="$(_fzf_select "$FZF_DIR_COMMAND" "$fallback_cmd")"
   [ -n "$dir" ] && cd "$dir" || return
@@ -306,18 +314,11 @@ fkill() {
   [ -n "$pids" ] && echo "$pids" | xargs kill "-${1:-9}"
 }
 
-# Usage: fps
-# Displays currently running processes using fzf for selection.
-fps() {
-  ps aux | sed 1d | fzf-tmux -p -m
-}
-
 # Usage: fhist
 # Searches command history using fzf.
 fhist() {
   local cmd
-  cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' |
-        fzf-tmux -p +s --tac)
+  cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' | awk '!seen[$0]++' | fzf-tmux -p +s --tac --exact)
   [[ -z $cmd ]] && return
   history -s "$cmd"
   printf '%s\n' "$cmd"

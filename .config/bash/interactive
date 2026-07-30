@@ -1,26 +1,44 @@
-# Path to the bash it configuration
-# Define the target directory
-BASH_IT=~/.config/bash_it
-
-# Check if the directory exists
-if [ ! -d "$BASH_IT" ]; then
-  echo "Directory does not exist. Cloning..."
-  # Clone the repository with a depth of 1 (to save bandwidth)
-  git clone --depth=1 https://github.com/Bash-it/bash-it.git ${BASH_IT}
-fi
-export BASH_IT=~/.config/bash_it
-
-
-# Theme (from ~/.bash_it/themes/)
-export BASH_IT_THEME="robbyrussell"
-
-# Set vcprompt executable path for scm advance info in prompt
-# https://github.com/xvzf/vcprompt
-#export VCPROMPT_EXECUTABLE=~/.vcprompt/bin/vcprompt
-
-
-# Load Bash It
-. ${BASH_IT}/bash_it.sh
 . ~/.config/shell/interactive
+
+# History
+export HISTCONTROL="ignorespace:ignoredups:erasedups"
+export HISTTIMEFORMAT="%Y-%m-%d %H:%M:%S: "
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTFILE="${XDG_DATA_HOME}/bash_history"
+
+# Shell options - globbing
+shopt -s histappend
+shopt -s nocaseglob
+shopt -s autocd
+shopt -s cdspell
+shopt -s extglob
+shopt -s globstar
+shopt -s dotglob
+shopt -s direxpand
+shopt -s nullglob
+
+# Shell options - history
+shopt -s histverify
+shopt -s lithist
+shopt -s cmdhist
+
+# Shell options - other
+shopt -s checkwinsize
+shopt -s lastpipe
+shopt -s progcomp_alias
+shopt -s no_empty_cmd_completion
+shopt -s shift_verbose
+
+# Set options
+complete -cf doas
+set -o noclobber
+set -o pipefail
+
+# FZF
+# [ -f /usr/share/fzf/key-bindings.bash ] && source /usr/share/fzf/key-bindings.bash
+[ -f /usr/share/fzf/completion.bash ] && source /usr/share/fzf/completion.bash
+
+. ~/.config/shell/prompt
 
 # vim:ft=sh
