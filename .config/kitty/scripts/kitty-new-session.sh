@@ -246,6 +246,10 @@ EOF
 focus_or_launch_ssh() {
   local host="$1"
   local safe_host="" session_file=""
+  local kitten_bin="kitten"
+
+  # Find full path to kitten binary (launch exec's directly, doesn't go through shell PATH)
+  kitten_bin="$(command -v kitten 2>/dev/null || command -v kitty 2>/dev/null || echo "kitten")"
 
   safe_host="$(printf "%s" "$host" | tr -cs 'A-Za-z0-9._-' '_')"
 
@@ -254,7 +258,7 @@ focus_or_launch_ssh() {
 
   cat >"$session_file" <<EOF
 layout tall
-launch --title "ssh-${host}" ssh ${host}
+launch --title "ssh-${host}" ${kitten_bin} ssh ${host}
 focus
 focus_os_window
 EOF
