@@ -1,0 +1,55 @@
+bold_green=$'\001\e[1;32m\002'
+bold_cyan=$'\001\e[1;36m\002'
+bold_red=$'\001\e[1;31m\002'
+bold_blue=$'\001\e[1;34m\002'
+bold_yellow=$'\001\e[1;33m\002'
+reset_color=$'\001\e[0m\002'
+normal=$'\001\e[0m\002'
+
+git_prompt_vars() {
+  local branch
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return 1
+
+  SCM_BRANCH="$branch"
+  SCM_PREFIX=" ${bold_blue}git:("
+  SCM_SUFFIX="${bold_blue})"
+
+  local status
+  status=$(git status --porcelain 2>/dev/null)
+
+  if [[ -n "$status" ]]; then
+    SCM_STATE=" ${bold_yellow}✗"
+  else
+    SCM_STATE=" ${bold_green}✓"
+  fi
+}
+
+scm_prompt_info() {
+  SCM_BRANCH=""
+  SCM_PREFIX=""
+  SCM_SUFFIX=""
+  SCM_STATE=""
+
+  git_prompt_vars
+
+  if [[ -n "$SCM_BRANCH" ]]; then
+    echo -e "$SCM_PREFIX${bold_red}$SCM_BRANCH$SCM_STATE$SCM_SUFFIX"
+  fi
+}
+
+conda_or_venv_prompt() {
+  if [[ -n "${CONDA_DEFAULT_ENV:-}" ]]; then
+    echo -ne "($CONDA_DEFAULT_ENV) "
+  elif [[ -n "${VIRTUAL_ENV:-}" ]]; then
+    echo -ne "(${VIRTUAL_ENV##*/}) "
+  fi
+}
+
+prompt_command() {
+  PS1="$(conda_or_venv_prompt)${bold_green}➜  ${bold_cyan}\W${reset_color}$(scm_prompt_info)${normal} "
+}
+
+PROMPT_COMMAND=prompt_command
+
+
+# vim:ft=sh
