@@ -13,9 +13,7 @@
         "subagents/system-builder/command-creator"
       ],
       "commonTools": [],
-      "commonContext": [
-        "system-builder-templates/*"
-      ]
+      "commonContext": ["system-builder-templates/*"]
     }
   }
 }

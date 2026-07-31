@@ -10,10 +10,7 @@
         "subagents/core/documentation",
         "subagents/code/*"
       ],
-      "commonTools": [
-        "gemini",
-        "env"
-      ],
+      "commonTools": ["gemini", "env"],
       "commonContext": [
         "core/essential-patterns",
         "core/workflows/*",
@@ -28,9 +25,7 @@
         "subagents/code/reviewer",
         "subagents/code/build-agent"
       ],
-      "commonTools": [
-        "env"
-      ],
+      "commonTools": ["env"],
       "commonContext": [
         "core/standards/code",
         "core/standards/patterns",

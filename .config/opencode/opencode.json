@@ -20,6 +20,15 @@
       "out/**"
     ]
   },
+  "lsp": true,
+  "shell": "bash",
+  "server": {
+    "port": 4096,
+    "hostname": "127.0.0.1",
+    "mdns": false,
+    "mdnsDomain": "opencode.local",
+    "cors": []
+  },
   "mcp": {
     "context7": {
       "enabled": true,
@@ -42,9 +51,18 @@
     }
   },
   "permission": {
+    "read": "allow",
+    "grep": "allow",
+    "glob": "allow",
+    "skill": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "lsp": "allow",
+    "todowrite": "ask",
     "edit": "ask",
     "write": "ask",
-    "webfetch": "allow",
+    "apply_patch": "ask",
     "bash": {
       "ls *": "allow",
       "cat *": "allow",
@@ -54,9 +72,9 @@
       "git log *": "allow",
       "git show *": "allow",
       "git branch *": "allow",
+      "*": "ask",
       "rm -rf *": "deny",
-      "sudo *": "deny",
-      "*": "ask"
+      "sudo *": "deny"
     }
   },
   "plugin": [
@@ -92,13 +110,5 @@
     }
   },
   "snapshot": false,
-  "theme": "solarized-osaka",
-  "tui": {
-    "diff_style": "auto",
-    "scroll_acceleration": {
-      "enabled": true
-    },
-    "scroll_speed": 5
-  },
   "username": "limaon"
 }

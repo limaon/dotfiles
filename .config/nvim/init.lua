@@ -1037,6 +1037,23 @@ require("lazy").setup({
 				},
 			})
 
+			vim.lsp.config("jsonls", {
+				settings = {
+					json = {
+						schemas = {
+							{
+								fileMatch = { "opencode.json", "opencode.jsonc" },
+								url = "https://opencode.ai/config.json",
+							},
+							{
+								fileMatch = { "tui.json", "tui.jsonc" },
+								url = "https://opencode.ai/tui.json",
+							},
+						},
+					},
+				},
+			})
+
 			vim.lsp.config("cssls", {})
 			vim.lsp.config("pyright", {
 				settings = {
@@ -1069,6 +1086,7 @@ require("lazy").setup({
 
 			local ensure_installed = {
 				"emmet-language-server",
+				"jsonls",
 				"lua_ls",
 				"ts_ls",
 				"tinymist",
@@ -1086,6 +1104,7 @@ require("lazy").setup({
 			vim.lsp.enable("intelephense")
 			vim.lsp.enable("emmet_language_server")
 			vim.lsp.enable("cssls")
+			vim.lsp.enable("jsonls")
 			vim.lsp.enable("pyright")
 			vim.lsp.enable("lua_ls")
 			vim.lsp.enable("ts_ls")
