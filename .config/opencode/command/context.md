@@ -4,41 +4,28 @@ description: Context system manager - harvest summaries, extract knowledge, orga
 
 # Context Manager
 
-<critical_rules priority="absolute" enforcement="strict">
-  <rule id="mvi_strict">
-    Files MUST be <200 lines. Extract core concepts only (1-3 sentences), 3-5 key points, minimal example, reference link.
-  </rule>
+## Critical Rules (Absolute Priority, Strict Enforcement)
 
-  <rule id="approval_gate">
-    ALWAYS present approval UI before deleting/archiving files. Letter-based selection (A B C or 'all'). NEVER auto-delete.
-  </rule>
+1. **MVI Strict**: Files MUST be <200 lines. Extract core concepts only (1-3 sentences), 3-5 key points, minimal example, reference link.
+2. **Approval Gate**: ALWAYS present approval UI before deleting/archiving files. Letter-based selection (A B C or 'all'). NEVER auto-delete.
+3. **Function Structure**: ALWAYS organize by function: `concepts/`, `examples/`, `guides/`, `lookup/`, `errors/` (not flat files).
+4. **Lazy Load**: ALWAYS read required context files from `~/.config/opencode/context/core/context-system/` BEFORE executing operations.
 
-  <rule id="function_structure">
-    ALWAYS organize by function: concepts/, examples/, guides/, lookup/, errors/ (not flat files).
-  </rule>
+## Execution Priority
 
-  <rule id="lazy_load">
-    ALWAYS read required context files from ~/.config/opencode/context/core/context-system/ BEFORE executing operations.
-  </rule>
-</critical_rules>
+**Tier 1 - Safety & MVI:**
+- Files <200 lines (MVI Strict)
+- Show approval before cleanup (Approval Gate)
+- Function-based structure (Function Structure)
+- Load context before operations (Lazy Load)
 
-<execution_priority>
-  <tier level="1" desc="Safety & MVI">
-    - Files <200 lines (@critical_rules.mvi_strict)
-    - Show approval before cleanup (@critical_rules.approval_gate)
-    - Function-based structure (@critical_rules.function_structure)
-    - Load context before operations (@critical_rules.lazy_load)
-  </tier>
-  <tier level="2" desc="Core Operations">
-    - Harvest (default), Extract, Organize, Update workflows
-  </tier>
-  <tier level="3" desc="Enhancements">
-    - Cross-references, validation, navigation
-  </tier>
-  <conflict_resolution>
-    Tier 1 always overrides Tier 2/3.
-  </conflict_resolution>
-</execution_priority>
+**Tier 2 - Core Operations:**
+- Harvest (default), Extract, Organize, Update workflows
+
+**Tier 3 - Enhancements:**
+- Cross-references, validation, navigation
+
+**Conflict resolution**: Tier 1 always overrides Tier 2/3.
 
 **Arguments**: `$ARGUMENTS`
 
@@ -48,34 +35,33 @@ description: Context system manager - harvest summaries, extract knowledge, orga
 
 When invoked without arguments: `/context`
 
-<workflow id="default_scan_harvest">
-  <stage id="1" name="QuickScan">
-    Scan workspace for summary files:
-    - *OVERVIEW.md, *SUMMARY.md, SESSION-*.md, CONTEXT-*.md
-    - Files in .tmp/ directory
-    - Files >2KB in root directory
-  </stage>
+### Stage 1: Quick Scan
 
-  <stage id="2" name="Report">
-    Show what was found:
-    ```
-    Quick scan results:
+Scan workspace for summary files:
+- `*OVERVIEW.md`, `*SUMMARY.md`, `SESSION-*.md`, `CONTEXT-*.md`
+- Files in `.tmp/` directory
+- Files >2KB in root directory
 
-    Found 3 summary files:
-       CONTEXT-SYSTEM-OVERVIEW.md (4.2 KB)
-       SESSION-auth-work.md (1.8 KB)
-       .tmp/NOTES.md (800 bytes)
+### Stage 2: Report
 
-    Recommended action:
-      /context harvest  - Clean up summaries → permanent context
+Show what was found:
 
-    Other options:
-      /context extract {source}  - Extract from docs/code
-      /context organize {category}  - Restructure existing files
-      /context help  - Show all operations
-    ```
-  </stage>
-</workflow>
+```
+Quick scan results:
+
+Found 3 summary files:
+   CONTEXT-SYSTEM-OVERVIEW.md (4.2 KB)
+   SESSION-auth-work.md (1.8 KB)
+   .tmp/NOTES.md (800 bytes)
+
+Recommended action:
+  /context harvest  - Clean up summaries → permanent context
+
+Other options:
+  /context extract {source}  - Extract from docs/code
+  /context organize {category}  - Restructure existing files
+  /context help  - Show all operations
+```
 
 **Purpose**: Quick tidy-up. Default assumes you want to harvest summaries and compact workspace.
 
@@ -85,7 +71,7 @@ When invoked without arguments: `/context`
 
 ### Primary: Harvest & Compact (Default Focus)
 
-**`/context harvest [path]`** ⭐ Most Common
+**`/context harvest [path]`**  Most Common
 - Extract knowledge from AI summaries → permanent context
 - Clean workspace (archive/delete summaries)
 - **Reads**: `operations/harvest.md` + `standards/mvi.md`
@@ -135,39 +121,16 @@ When invoked without arguments: `/context`
 
 ## Lazy Loading Strategy
 
-<lazy_load_map>
-  <operation name="default">
-    Read: operations/harvest.md, standards/mvi.md
-  </operation>
-
-  <operation name="harvest">
-    Read: operations/harvest.md, standards/mvi.md, guides/workflows.md
-  </operation>
-
-  <operation name="compact">
-    Read: guides/compact.md, standards/mvi.md
-  </operation>
-
-  <operation name="extract">
-    Read: operations/extract.md, standards/mvi.md, guides/compact.md, guides/workflows.md
-  </operation>
-
-  <operation name="organize">
-    Read: operations/organize.md, standards/structure.md, guides/workflows.md
-  </operation>
-
-  <operation name="update">
-    Read: operations/update.md, guides/workflows.md, standards/mvi.md
-  </operation>
-
-  <operation name="error">
-    Read: operations/error.md, standards/templates.md, guides/workflows.md
-  </operation>
-
-  <operation name="create">
-    Read: guides/creation.md, standards/structure.md, standards/templates.md
-  </operation>
-</lazy_load_map>
+| Operation | Files to read |
+|-----------|---------------|
+| default | `operations/harvest.md`, `standards/mvi.md` |
+| harvest | `operations/harvest.md`, `standards/mvi.md`, `guides/workflows.md` |
+| compact | `guides/compact.md`, `standards/mvi.md` |
+| extract | `operations/extract.md`, `standards/mvi.md`, `guides/compact.md`, `guides/workflows.md` |
+| organize | `operations/organize.md`, `standards/structure.md`, `guides/workflows.md` |
+| update | `operations/update.md`, `guides/workflows.md`, `standards/mvi.md` |
+| error | `operations/error.md`, `standards/templates.md`, `guides/workflows.md` |
+| create | `guides/creation.md`, `standards/structure.md`, `standards/templates.md` |
 
 **All files located in**: `~/.config/opencode/context/core/context-system/`
 
@@ -175,25 +138,21 @@ When invoked without arguments: `/context`
 
 ## Subagent Routing
 
-<subagent_routing>
-  <!-- Delegate operations to specialized subagents -->
-  <route operations="harvest|extract|organize|update|error|create" to="ContextOrganizer">
-    Pass: operation name, arguments, lazy load map
-    Subagent loads: Required context files from ~/.config/opencode/context/core/context-system/
-    Subagent executes: Multi-stage workflow per operation
-  </route>
+- **`harvest`, `extract`, `organize`, `update`, `error`, `create`** → **ContextOrganizer**
+  - Pass: operation name, arguments, lazy load map
+  - Subagent loads: required context files from `~/.config/opencode/context/core/context-system/`
+  - Subagent executes: multi-stage workflow per operation
 
-  <route operations="map|validate" to="ContextScout">
-    Pass: operation name, arguments
-    Subagent executes: Read-only analysis and reporting
-  </route>
-</subagent_routing>
+- **`map`, `validate`** → **ContextScout**
+  - Pass: operation name, arguments
+  - Subagent executes: read-only analysis and reporting
 
 ---
 
 ## Quick Reference
 
 ### Structure
+
 ```
 ~/.config/opencode/context/core/context-system/
 ├── operations/     # How to do things (harvest, extract, organize, update)
@@ -202,6 +161,7 @@ When invoked without arguments: `/context`
 ```
 
 ### MVI Principle (Quick)
+
 - Core concept: 1-3 sentences
 - Key points: 3-5 bullets
 - Minimal example: <10 lines
@@ -209,6 +169,7 @@ When invoked without arguments: `/context`
 - File size: <200 lines
 
 ### Function-Based Structure (Quick)
+
 ```
 {category}/
 ├── navigation.md       # Navigation
@@ -224,12 +185,14 @@ When invoked without arguments: `/context`
 ## Examples
 
 ### Default (Quick Scan)
+
 ```bash
 /context
 # Scans workspace, suggests harvest if summaries found
 ```
 
 ### Harvest Summaries
+
 ```bash
 /context harvest
 /context harvest .tmp/
@@ -237,18 +200,21 @@ When invoked without arguments: `/context`
 ```
 
 ### Extract from Docs
+
 ```bash
 /context extract from docs/api.md
 /context extract from https://react.dev/hooks
 ```
 
 ### Organize Existing
+
 ```bash
 /context organize development/
 /context organize development/ --dry-run
 ```
 
 ### Update for Changes
+
 ```bash
 /context update for Next.js 15
 /context update for React 19 breaking changes
@@ -259,11 +225,11 @@ When invoked without arguments: `/context`
 ## Success Criteria
 
 After any operation:
-- [ ] All files <200 lines? (@critical_rules.mvi_strict)
-- [ ] Function-based structure used? (@critical_rules.function_structure)
-- [ ] Approval UI shown for destructive ops? (@critical_rules.approval_gate)
-- [ ] Required context loaded? (@critical_rules.lazy_load)
-- [ ] navigation.md updated?
+- [ ] All files <200 lines? (MVI Strict)
+- [ ] Function-based structure used? (Function Structure)
+- [ ] Approval UI shown for destructive ops? (Approval Gate)
+- [ ] Required context loaded? (Lazy Load)
+- [ ] `navigation.md` updated?
 - [ ] Files scannable in <30 seconds?
 
 ---

@@ -193,8 +193,6 @@ ci: add automatic version bumping workflow
 
 ### 6. **Commit Analysis**
 
-<commit_analysis>
-
 - List all files that have been changed or added
 - Summarize the nature of changes (new feature, bug fix, refactor, etc.)
 - Identify the primary scope (evals, agents, scripts, etc.)
@@ -204,7 +202,6 @@ ci: add automatic version bumping workflow
 - Draft a concise commit message focusing on "why" not "what"
 - Ensure message follows conventional commit format
 - Verify message is specific and not generic
-  </commit_analysis>
 
 ### 7. **Execute Commit**
 
