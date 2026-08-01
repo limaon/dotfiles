@@ -1,6 +1,5 @@
 ---
 description: Enhance frontend to pixel-perfect standards with mobile responsiveness and industry-leading design quality
-argument-hint: Page or component name (optional - scans all if not specified)
 ---
 
 # Frontend Enhancement to Pixel-Perfect Standards

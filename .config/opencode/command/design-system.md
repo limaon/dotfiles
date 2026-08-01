@@ -1,6 +1,5 @@
 ---
 description: Analyze codebase and generate a complete design-system.md documentation
-argument-hint: <optional-path>
 ---
 
 # Task: Generate Design System Documentation

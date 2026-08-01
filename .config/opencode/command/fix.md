@@ -1,6 +1,5 @@
 ---
 description: Diagnose and fix bugs with architecture-aware analysis and diagnostic-first approach
-argument-hint: Bug description or error message
 ---
 
 # Bug Diagnosis and Fix Command

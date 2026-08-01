@@ -1,7 +1,5 @@
 ---
 description: Deep analysis and problem solving mode
-category: utilities-debugging
-argument-hint: "Identify all stakeholders and constraints"
 ---
 
 # Deep Analysis and Problem Solving Mode

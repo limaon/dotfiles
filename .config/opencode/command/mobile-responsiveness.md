@@ -1,6 +1,5 @@
 ---
 description: Implement mobile responsiveness and accessibility
-argument-hint: <component-or-page>
 ---
 
 Implement mobile responsiveness and accessibility improvements for `$ARGUMENTS`.

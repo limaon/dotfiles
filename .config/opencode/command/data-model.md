@@ -1,3 +1,7 @@
+---
+description: Generate comprehensive ERD and data model documentation for the current project
+---
+
 # Data Model Generation Command
 
 Create comprehensive Entity Relationship Diagrams (ERDs) and data documentation for the current project.

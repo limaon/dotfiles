@@ -1,6 +1,5 @@
 ---
 description: Analyze codebase and generate hierarchical AGENTS.md structure
-argument-hint: <optional-path>
 ---
 
 # Task: Analyze this codebase and generate a hierarchical AGENTS.md structure

@@ -1,6 +1,5 @@
 ---
 description: Implement SEO optimizations for specified pages or entire site
-argument-hint: Page path or "all" for entire site
 ---
 
 # SEO Optimization Command

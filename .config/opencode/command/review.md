@@ -1,6 +1,5 @@
 ---
 description: Request a code review for the current work
-argument-hint: [files]
 ---
 
 # Request Code Review
@@ -9,5 +8,5 @@ argument-hint: [files]
 
 **Instructions:**
 1.  **Target:** I need a code quality and spec compliance review for the current changes.
-2.  **Action:** Please **invoke/use the `requesting-code-review` skill** or **use_skill("requesting-code-review")** immediately.
+2.  **Action:** Please **invoke/use the `requesting-code-review` skill** immediately by calling `skill({ name: "requesting-code-review" })`.
 3.  Focus your review on the files/areas specified above (if any).
