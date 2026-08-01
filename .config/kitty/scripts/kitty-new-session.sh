@@ -178,21 +178,12 @@ print_ssh_menu_lines() {
 print_menu_lines() {
   for dir in "${project_dirs[@]}"; do
     [[ -d "$dir" ]] || continue
-    find "$dir" -maxdepth 1 -type d \
-      -not -path "*/.git" \
-      -not -path "*/.github" \
-      -not -path "*/node_modules" \
-      -not -path "*/.cache" \
-      -not -path "*/__pycache__" \
-      -not -path "*/.venv" \
-      -not -path "*/venv" \
+    find "$dir" -mindepth 1 -maxdepth 1 -type d \
+      \( -name ".git" -o -name ".github" -o -name "node_modules" -o -name ".cache" -o -name "__pycache__" -o -name ".venv" -o -name "venv" \) -prune \
+      -o -type d -printf '%p\t%f\n' \
       2>/dev/null
-  done | sort -u | awk -v OFS='\t' -v color="${base_color}" -v reset="${reset_color}" '{
-    path=$0
-    n=split(path, parts, "/")
-    base=parts[n]
-    if (base == "") base=path
-    printf "%s\t%s%s%s  %s\n", path, color, base, reset, path
+  done | sort -u -t$'\t' -k1,1 | awk -v OFS='\t' -v color="${base_color}" -v reset="${reset_color}" '{
+    printf "%s\t%s%s%s\n", $1, color, $2, reset
   }'
 
   print_ssh_menu_lines

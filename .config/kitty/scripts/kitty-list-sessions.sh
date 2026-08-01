@@ -52,11 +52,9 @@ find_kitty_socket() {
     [[ -S "$sock" ]] && echo "$sock" && return 0
   fi
   # Find socket in /tmp
-  sock="$(ls /tmp/kitty-* 2>/dev/null | head -1)"
-  if [[ -n "$sock" && -S "$sock" ]]; then
-    echo "$sock"
-    return 0
-  fi
+  for sock in /tmp/kitty-*; do
+    [[ -S "$sock" ]] && echo "$sock" && return 0
+  done
   return 1
 }
 
@@ -98,29 +96,30 @@ build_menu_lines() {
       | map(.pick + {session_last_focused_at: .session_last_focused_at})
       | sort_by(-.session_last_focused_at, .session_name)
         | .[]
-        | [(.session_name|tostring), (.os_focused|tostring), (.tab_focused|tostring), (.pwd|tostring)]
+        | [
+            (.session_name|tostring),
+            (.os_focused|tostring),
+            (.tab_focused|tostring),
+            (.pwd | ltrimstr(env.HOME) | if . != "" then "~" + . else . end)
+          ]
         | @tsv
     '
   )"
 
   [[ -z "${sessions_tsv:-}" ]] && return 1
 
-  printf "%s\n" "$sessions_tsv" | awk -F'\t' -v home="${HOME}" -v base_color="${base_color}" -v current_color="${current_color}" -v reset_color="${reset_color}" '{
+  printf "%s\n" "$sessions_tsv" | awk -F'\t' -v base_color="${base_color}" -v current_color="${current_color}" -v reset_color="${reset_color}" '{
     session_name=$1
     os_focused=$2
     tab_focused=$3
     path=$4
     display_name=session_name
-    if (home != "" && index(path, home) == 1) {
-      path = "~" substr(path, length(home) + 1)
-    }
-    idx=NR
     if (os_focused == "true" && tab_focused == "true") {
       name_color=current_color
     } else {
       name_color=base_color
     }
-    printf "%d\t%s\t%s%s%s  %s\n", idx, session_name, name_color, display_name, reset_color, path
+    printf "%d\t%s\t%s%s%s  %s\n", NR, session_name, name_color, display_name, reset_color, path
   }'
 }
 
@@ -190,15 +189,23 @@ while true; do
     key="esc"
     sel=""
   else
-    key="$(printf "%s\n" "$fzf_out" | head -n1)"
-    sel="$(printf "%s\n" "$fzf_out" | sed -n '2p' || true)"
+    key=""
+    sel=""
+    while IFS= read -r line; do
+      if [[ -z "$key" ]]; then
+        key="$line"
+      else
+        sel="$line"
+        break
+      fi
+    done <<< "$fzf_out"
   fi
 
   selected_title=""
   selected_index=""
   if [[ -n "${sel:-}" ]]; then
-    selected_index="$(printf "%s" "$sel" | awk -F'\t' '{print $1}')"
-    selected_title="$(printf "%s" "$sel" | awk -F'\t' '{print $2}')"
+    selected_index="$(printf "%s" "$sel" | cut -f1)"
+    selected_title="$(printf "%s" "$sel" | cut -f2)"
   fi
 
   if [[ "$mode" == "insert" && "$key" == "esc" ]]; then
@@ -223,7 +230,7 @@ while true; do
 
   if [[ "$mode" == "normal" && "$key" == "d" ]]; then
     if [[ "${selected_index:-}" =~ ^[0-9]+$ ]]; then
-      total_lines="$(printf "%s\n" "$menu_lines" | awk 'END{print NR}')"
+      total_lines="$(printf "%s\n" "$menu_lines" | wc -l)"
       if [[ -n "${total_lines:-}" && "$selected_index" -ge "$total_lines" ]]; then
         fzf_start_pos=$((selected_index - 1))
       else
