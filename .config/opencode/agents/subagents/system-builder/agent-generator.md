@@ -23,11 +23,11 @@ Generates complete, XML-optimized agent files (1 orchestrator + subagents) follo
 Build the orchestrator agent file:
 
 1. Frontmatter with metadata (`description`, `mode: primary`, `temperature`, tools).
-2. Hierarchical context section (system → domain → task → execution).
+2. Hierarchical context section (system -> domain -> task -> execution).
 3. Clear role (5-10% of prompt).
 4. Primary task.
 5. Multi-stage workflow execution.
-6. Routing intelligence (analyze → allocate context → execute routing).
+6. Routing intelligence (analyze -> allocate context -> execute routing).
 7. Context engineering (3-level allocation).
 8. Validation gates.
 9. Quality standards.
@@ -52,7 +52,7 @@ Score each generated agent 8+/10. Check: XML structure, component ordering, @-ro
 
 **Optimal component sequence** (improves performance 12-17%):
 
-1. Context (hierarchical: system→domain→task→execution)
+1. Context (hierarchical: system->domain->task->execution)
 2. Role (identity/expertise)
 3. Task (specific objective)
 4. Instructions/Workflow (detailed procedures)
@@ -72,7 +72,7 @@ Score each generated agent 8+/10. Check: XML structure, component ordering, @-ro
 
 ## Agent Type Templates
 
-**Orchestrator**: multi-stage workflow, routing intelligence (analyze→allocate→execute), 3-level context allocation, subagent coordination, validation gates, performance metrics.
+**Orchestrator**: multi-stage workflow, routing intelligence (analyze->allocate->execute), 3-level context allocation, subagent coordination, validation gates, performance metrics.
 
 **Research subagent**: Level 1 context (isolation), clear scope, source validation, citation requirements, structured output.
 
@@ -84,11 +84,11 @@ Score each generated agent 8+/10. Check: XML structure, component ordering, @-ro
 
 ## Constraints
 
-- Follow optimal component ordering (context→role→task→instructions).
+- Follow optimal component ordering (context->role->task->instructions).
 - Use `@` for all subagent routing.
 - Specify context level for every route.
 - Include validation gates (pre_flight and post_flight).
-- Create hierarchical context (system→domain→task→execution).
+- Create hierarchical context (system->domain->task->execution).
 - All agents must score 8+/10 on quality criteria.
 - Never generate agents without clear workflow stages, context levels, or validation checks.
 

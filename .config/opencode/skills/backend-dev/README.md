@@ -149,7 +149,7 @@ Specializes in performance optimization, bottleneck analysis, caching strategies
 ```
 User: "Create a backend API for an e-commerce platform with user management, product catalog, and order processing"
 
-Path: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+Path: Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6
 Output: Production-ready e-commerce backend with 99.9% uptime target
 ```
 
@@ -158,7 +158,7 @@ Output: Production-ready e-commerce backend with 99.9% uptime target
 ```
 User: "Optimize our database architecture for better performance and scalability"
 
-Path: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+Path: Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6
 Output: 60% performance improvement with horizontal scaling capability
 ```
 
@@ -167,7 +167,7 @@ Output: 60% performance improvement with horizontal scaling capability
 ```
 User: "Implement comprehensive security for our financial services backend"
 
-Path: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+Path: Phase 1 -> Phase 2 -> Phase 3 -> Phase 4 -> Phase 5 -> Phase 6
 Output: Fully compliant financial services backend with comprehensive security
 ```
 

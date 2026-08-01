@@ -50,9 +50,9 @@ await execFileAsync("git", ["init"], { cwd: projectDir });
 
 ```typescript
 WorktreeManager.createSessionWorktree(projectDir, sessionId)
-  → called by Session.initializeWorkspace()
-  → called by Session.create()
-  → called by test at Project.create()
+  -> called by Session.initializeWorkspace()
+  -> called by Session.create()
+  -> called by test at Project.create()
 ```
 
 ### 4. Keep Tracing Up

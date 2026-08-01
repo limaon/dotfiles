@@ -343,7 +343,7 @@ Both components share the same promise, so only one fetch occurs. Layout renders
 
 - Small, fast queries where suspense overhead isn't worth it
 
-- When you want to avoid layout shift (loading → content jump)
+- When you want to avoid layout shift (loading -> content jump)
 
 **Trade-off:** Faster initial paint vs potential layout shift. Choose based on your UX priorities.
 
@@ -1624,7 +1624,7 @@ function processOrders(orders: Order[], users: User[]) {
 
 Build map once (O(n)), then all lookups are O(1).
 
-For 1000 orders × 1000 users: 1M ops → 2K ops.
+For 1000 orders × 1000 users: 1M ops -> 2K ops.
 
 ### 7.3 Cache Property Access in Loops
 

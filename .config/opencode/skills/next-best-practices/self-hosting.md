@@ -122,9 +122,9 @@ pm2 start ecosystem.config.js
 
 ISR (Incremental Static Regeneration) uses filesystem caching by default. This **breaks with multiple instances**:
 
-- Instance A regenerates page → saves to its local disk
-- Instance B serves stale page → doesn't see Instance A's cache
-- Load balancer sends users to random instances → inconsistent content
+- Instance A regenerates page -> saves to its local disk
+- Instance B serves stale page -> doesn't see Instance A's cache
+- Load balancer sends users to random instances -> inconsistent content
 
 ### Solution: Custom Cache Handler
 

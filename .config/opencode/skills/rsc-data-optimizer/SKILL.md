@@ -42,8 +42,8 @@ rg -n '"use client"' app/ --type tsx
 
 Determine what data the page needs on initial render:
 
-- Static/rarely-changing data → **Server Component** (SSR)
-- User-interactive data (filters, search) → **Client Component**
+- Static/rarely-changing data -> **Server Component** (SSR)
+- User-interactive data (filters, search) -> **Client Component**
 
 ### Step 2: Extract Interactive Sections
 

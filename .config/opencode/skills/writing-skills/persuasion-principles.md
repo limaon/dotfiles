@@ -4,7 +4,7 @@
 
 LLMs respond to the same persuasion principles as humans. Understanding this psychology helps you design more effective skills - not to manipulate, but to ensure critical practices are followed even under pressure.
 
-**Research foundation:** Meincke et al. (2025) tested 7 persuasion principles with N=28,000 AI conversations. Persuasion techniques more than doubled compliance rates (33% → 72%, p < .001).
+**Research foundation:** Meincke et al. (2025) tested 7 persuasion principles with N=28,000 AI conversations. Persuasion techniques more than doubled compliance rates (33% -> 72%, p < .001).
 
 ## The Seven Principles
 
@@ -176,7 +176,7 @@ You should probably tell me if I'm wrong.
 
 - Trained on human text containing these patterns
 - Authority language precedes compliance in training data
-- Commitment sequences (statement → action) frequently modeled
+- Commitment sequences (statement -> action) frequently modeled
 - Social proof patterns (everyone does X) establish norms
 
 ## Ethical Use
@@ -205,7 +205,7 @@ You should probably tell me if I'm wrong.
 **Meincke, L., Shapiro, D., Duckworth, A. L., Mollick, E., Mollick, L., & Cialdini, R. (2025).** Call Me A Jerk: Persuading AI to Comply with Objectionable Requests. University of Pennsylvania.
 
 - Tested 7 principles with N=28,000 LLM conversations
-- Compliance increased 33% → 72% with persuasion techniques
+- Compliance increased 33% -> 72% with persuasion techniques
 - Authority, commitment, scarcity most effective
 - Validates parahuman model of LLM behavior
 

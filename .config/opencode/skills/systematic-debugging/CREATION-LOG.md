@@ -6,7 +6,7 @@ Reference example of extracting, structuring, and bulletproofing a critical skil
 
 Extracted debugging framework from `/Users/jesse/.claude/CLAUDE.md`:
 
-- 4-phase systematic process (Investigation → Pattern Analysis → Hypothesis → Implementation)
+- 4-phase systematic process (Investigation -> Pattern Analysis -> Hypothesis -> Implementation)
 - Core mandate: ALWAYS find root cause, NEVER fix symptoms
 - Rules designed to resist time pressure and rationalization
 
@@ -30,7 +30,7 @@ Extracted debugging framework from `/Users/jesse/.claude/CLAUDE.md`:
 1. **Rich when_to_use** - Included symptoms and anti-patterns
 2. **Type: technique** - Concrete process with steps
 3. **Keywords** - "root cause", "symptom", "workaround", "debugging", "investigation"
-4. **Flowchart** - Decision point for "fix failed" → re-analyze vs add more fixes
+4. **Flowchart** - Decision point for "fix failed" -> re-analyze vs add more fixes
 5. **Phase-by-phase breakdown** - Scannable checklist format
 6. **Anti-patterns section** - What NOT to do (critical for this skill)
 

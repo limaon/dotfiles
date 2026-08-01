@@ -212,7 +212,7 @@ export default async function PhotoPage({ params }) {
 
 ## Common Gotchas
 
-### 1. Missing `default.tsx` → 404 on Refresh
+### 1. Missing `default.tsx` -> 404 on Refresh
 
 Every `@slot` folder needs a `default.tsx` that returns `null` (or appropriate content).
 
@@ -293,6 +293,6 @@ export default async function Gallery() {
 }
 ```
 
-Clicking a photo → Modal opens (intercepted)
-Direct URL → Full page renders
-Refresh while modal open → Full page renders
+Clicking a photo -> Modal opens (intercepted)
+Direct URL -> Full page renders
+Refresh while modal open -> Full page renders

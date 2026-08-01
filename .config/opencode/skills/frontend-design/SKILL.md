@@ -68,9 +68,9 @@ When working on projects using **shadcn/ui** component library:
 **Key customization files:**
 
 ```
-globals.css     → CSS variables: --primary, --background, --foreground, fonts
-tailwind.config → theme.extend: colors, fontFamily, animation, keyframes
-components/ui/* → className overrides for specific components
+globals.css     -> CSS variables: --primary, --background, --foreground, fonts
+tailwind.config -> theme.extend: colors, fontFamily, animation, keyframes
+components/ui/* -> className overrides for specific components
 ```
 
 **Remember:** Shadcn provides solid structure; your job is to make it visually distinctive and memorable through creative theming.

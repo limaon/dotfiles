@@ -149,9 +149,9 @@ Return: Summary of what you found and what you fixed.
 **Dispatch:**
 
 ```
-Agent 1 → Fix agent-tool-abort.test.ts
-Agent 2 → Fix batch-completion-behavior.test.ts
-Agent 3 → Fix tool-approval-race-conditions.test.ts
+Agent 1 -> Fix agent-tool-abort.test.ts
+Agent 2 -> Fix batch-completion-behavior.test.ts
+Agent 3 -> Fix tool-approval-race-conditions.test.ts
 ```
 
 **Results:**

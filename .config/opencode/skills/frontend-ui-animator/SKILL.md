@@ -39,7 +39,7 @@ Output: Animation audit table. See `references/component-checklist.md`.
 3. **Estimate effort** - Low (CSS only), Medium (hooks needed), High (library required)
 4. **Propose phased rollout** - Quick wins first
 
-Output: Implementation plan with component → animation mapping.
+Output: Implementation plan with component -> animation mapping.
 
 ### Phase 3: Implement
 

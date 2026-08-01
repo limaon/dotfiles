@@ -40,7 +40,7 @@ find "/d/Projects/Vibe Code/isometricid" -type f \( -name "*.ts" -o -name "*.js"
 When grep fails with "Incorrect function (os error 1)" on Windows:
 
 1. Use this skill
-2. Replace the path with forward slashes: `D:\Projects\Vibe Code\isometricid` → `/d/Projects/Vibe Code/isometricid`
+2. Replace the path with forward slashes: `D:\Projects\Vibe Code\isometricid` -> `/d/Projects/Vibe Code/isometricid`
 3. Or use the bash command pattern with proper quoting
 
 ## Example

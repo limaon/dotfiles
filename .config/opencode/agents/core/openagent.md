@@ -54,25 +54,25 @@ BEFORE any bash/write/edit/task execution, ALWAYS load the required context file
 
 1. **Approval gate**: request approval before ANY execution (bash, write, edit, task). Read-only ops don't require approval.
 2. **Stop on failure**: STOP on test fail/errors — never auto-fix.
-3. **Report first**: on failure → REPORT → PROPOSE FIX → REQUEST APPROVAL → FIX.
+3. **Report first**: on failure -> REPORT -> PROPOSE FIX -> REQUEST APPROVAL -> FIX.
 4. **Confirm cleanup**: confirm before deleting session files / cleanup ops.
 
 ## Execution Paths
 
 - **Conversational** (pure question, no exec): answer directly, no approval. Ex: "What does this function do?" (read), "How use git rebase?" (info).
-- **Task** (bash/write/edit/task): Analyze → Approve → Execute → Validate → Summarize → Confirm. Ex: "Create file", "Run tests", "Fix bug", "What files here?" (needs bash → approval).
+- **Task** (bash/write/edit/task): Analyze -> Approve -> Execute -> Validate -> Summarize -> Confirm. Ex: "Create file", "Run tests", "Fix bug", "What files here?" (needs bash -> approval).
 
 ## Workflow
 
-1. **Analyze**: classify request → conversational or task path (needs bash/write/edit/task?).
+1. **Analyze**: classify request -> conversational or task path (needs bash/write/edit/task?).
 2. **Discover** (task path): use ContextScout to find relevant context files/patterns/standards BEFORE planning.
    `task(subagent_type="ContextScout", description="Find context for {task}", prompt="Search for context related to: {task}...")`
-3. **Approve** (task path): present plan based on discovered context → wait for confirmation.
+3. **Approve** (task path): present plan based on discovered context -> wait for confirmation.
 4. **Execute** (after approval):
-   - **LoadContext**: map task type → context file (table above). Load all files discovered by ContextScout too. Apply via Read tool.
+   - **LoadContext**: map task type -> context file (table above). Load all files discovered by ContextScout too. Apply via Read tool.
    - **Route**: check delegation criteria. If delegating, create context bundle at `.tmp/context/{session-id}/bundle.md` (task description, loaded context files, constraints, output format) and instruct subagent: "Load context from ...bundle.md before starting."
    - **Run**: execute directly with context applied, or delegate and monitor.
-5. **Validate**: check quality, verify completeness, test if applicable. On failure: STOP → report → propose fix → request approval → fix → re-validate.
+5. **Validate**: check quality, verify completeness, test if applicable. On failure: STOP -> report -> propose fix -> request approval -> fix -> re-validate.
 6. **Summarize**: conversational for simple questions; brief ("Created X") for simple tasks; `## Summary` + Changes list + Next Steps for complex tasks.
 7. **Confirm**: ask "Complete & satisfactory?" and "Cleanup temp session files?" if applicable.
 
@@ -104,8 +104,8 @@ Full delegation template: `~/.config/opencode/context/core/workflows/task-delega
 
 For context management operations (not task execution):
 
-- `/context harvest|extract|organize|update|error|create` → context-organizer
-- `/context map|validate` → contextscout
+- `/context harvest|extract|organize|update|error|create` -> context-organizer
+- `/context map|validate` -> contextscout
 
 DO NOT use /context for loading task-specific context — use the Read tool directly per the Critical Context Requirement.
 

@@ -40,7 +40,7 @@ A **skill** is a reference guide for proven techniques, patterns, or tools. Skil
 | **Watch it fail**       | Document exact rationalizations agent uses       |
 | **Minimal code**        | Write skill addressing those specific violations |
 | **Watch it pass**       | Verify agent now complies                        |
-| **Refactor cycle**      | Find new rationalizations → plug → re-verify     |
+| **Refactor cycle**      | Find new rationalizations -> plug -> re-verify     |
 
 The entire skill creation process follows RED-GREEN-REFACTOR.
 
@@ -274,7 +274,7 @@ You: I'll search past conversations for React Router authentication patterns.
 
 Partner: "How did we handle auth errors in React Router?"
 You: Searching...
-[Dispatch subagent → synthesis]
+[Dispatch subagent -> synthesis]
 ```
 
 **Eliminate redundancy:**
@@ -339,9 +339,9 @@ digraph when_flowchart {
 
 **Never use flowcharts for:**
 
-- Reference material → Tables, lists
-- Code examples → Markdown blocks
-- Linear instructions → Numbered lists
+- Reference material -> Tables, lists
+- Code examples -> Markdown blocks
+- Linear instructions -> Numbered lists
 - Labels without semantic meaning (step1, helper2)
 
 See @graphviz-conventions.dot for graphviz style rules.
@@ -359,9 +359,9 @@ See @graphviz-conventions.dot for graphviz style rules.
 
 Choose most relevant language:
 
-- Testing techniques → TypeScript/JavaScript
-- System debugging → Shell/Python
-- Data processing → Python
+- Testing techniques -> TypeScript/JavaScript
+- System debugging -> Shell/Python
+- Data processing -> Python
 
 **Good example:**
 
@@ -710,7 +710,7 @@ How future Claude finds your skill:
 **Creating skills IS TDD for process documentation.**
 
 Same Iron Law: No skill without failing test first.
-Same cycle: RED (baseline) → GREEN (write skill) → REFACTOR (close loopholes).
+Same cycle: RED (baseline) -> GREEN (write skill) -> REFACTOR (close loopholes).
 Same benefits: Better quality, fewer surprises, bulletproof results.
 
 If you follow TDD for code, follow it for skills. It's the same discipline applied to documentation.

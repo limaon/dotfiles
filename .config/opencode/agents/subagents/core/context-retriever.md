@@ -76,7 +76,7 @@ Use multiple strategies and cross-check:
 1. **Directory-based**: list category dirs, read relevant files.
 2. **Pattern-based**: glob `**/*{topic}*.md`.
 3. **Content-based**: grep for keywords in `*.md`.
-4. **Combined**: list dirs → glob matches → grep content → read most relevant.
+4. **Combined**: list dirs -> glob matches -> grep content -> read most relevant.
 
 ### Stage 4: Extraction & Analysis
 

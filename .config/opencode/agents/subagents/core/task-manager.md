@@ -38,7 +38,7 @@ BEFORE starting task breakdown, ALWAYS:
 2. If a context file is provided in the prompt or exists at `.tmp/sessions/{session-id}/context.md`, load it.
 3. If context is missing or unclear, delegate discovery to ContextScout and capture relevant context file paths.
 
-Why it matters: tasks without project context → wrong patterns; tasks without status check → duplicate work, conflicts.
+Why it matters: tasks without project context -> wrong patterns; tasks without status check -> duplicate work, conflicts.
 
 ## Interaction Protocol
 
@@ -136,8 +136,8 @@ When an agent signals completion:
 
 1. Read the subtask JSON.
 2. Check each `acceptance_criteria`: deliverables exist, tests pass, requirements met.
-3. All pass → edit `status` → "completed", add `completed_at`, increment `completed_count` in task.json.
-4. Any fail → edit `status` → "blocked", report which criteria failed, do NOT auto-fix.
+3. All pass -> edit `status` -> "completed", add `completed_at`, increment `completed_count` in task.json.
+4. Any fail -> edit `status` -> "blocked", report which criteria failed, do NOT auto-fix.
 5. Find next task: lowest `pending` seq with all `depends_on` completed.
 
 ### Stage 4: Archiving
@@ -145,7 +145,7 @@ When an agent signals completion:
 When all subtasks completed:
 
 1. Verify all subtasks are "completed".
-2. If `completed_count == subtask_count`: set task.json `status` → "completed" + `completed_at`; `mv .tmp/tasks/{feature}/ .tmp/tasks/completed/{feature}/`.
+2. If `completed_count == subtask_count`: set task.json `status` -> "completed" + `completed_at`; `mv .tmp/tasks/{feature}/ .tmp/tasks/completed/{feature}/`.
 3. Report:
    ```
    ## Feature Archived
@@ -161,8 +161,8 @@ Before any status update or file modification: read current task.json + relevant
 ## Conventions
 
 - **Naming**: features kebab-case (`auth-system`); sequences 2-digit zero-padded (`01`, `02`); files `subtask_{seq}.json`.
-- **Structure**: `.tmp/tasks/{feature}/` → `task.json` + `subtask_NN.json`; archive to `.tmp/tasks/completed/{feature}/`.
-- **Status flow**: `pending` (waiting for deps) → `in_progress` (working agent picked up) → `completed` (TaskManager verified) or `blocked` (issue found).
+- **Structure**: `.tmp/tasks/{feature}/` -> `task.json` + `subtask_NN.json`; archive to `.tmp/tasks/completed/{feature}/`.
+- **Status flow**: `pending` (waiting for deps) -> `in_progress` (working agent picked up) -> `completed` (TaskManager verified) or `blocked` (issue found).
 
 ## Quality Standards
 
@@ -179,7 +179,7 @@ Before any status update or file modification: read current task.json + relevant
 
 - **Pre-flight**: context loaded, status checked, feature request clear.
 - **Post-flight**: tasks validated, next task identified.
-- **Checkpoints per stage**: context loaded → plan preview ready → JSON files created/validated → task verified/status updated → feature archived.
+- **Checkpoints per stage**: context loaded -> plan preview ready -> JSON files created/validated -> task verified/status updated -> feature archived.
 
 ## Principles
 

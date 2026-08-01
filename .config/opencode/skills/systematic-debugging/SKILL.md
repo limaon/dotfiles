@@ -64,7 +64,7 @@ You MUST complete each phase before proceeding to the next.
    - Can you trigger it reliably?
    - What are the exact steps?
    - Does it happen every time?
-   - If not reproducible → gather more data, don't guess
+   - If not reproducible -> gather more data, don't guess
 
 3. **Check Recent Changes**
    - What changed that could cause this?
@@ -74,7 +74,7 @@ You MUST complete each phase before proceeding to the next.
 
 4. **Gather Evidence in Multi-Component Systems**
 
-   **WHEN system has multiple components (CI → build → signing, API → service → database):**
+   **WHEN system has multiple components (CI -> build -> signing, API -> service -> database):**
 
    **BEFORE proposing fixes, add diagnostic instrumentation:**
 
@@ -110,7 +110,7 @@ You MUST complete each phase before proceeding to the next.
    codesign --sign "$IDENTITY" --verbose=4 "$APP"
    ```
 
-   **This reveals:** Which layer fails (secrets → workflow , workflow → build )
+   **This reveals:** Which layer fails (secrets -> workflow , workflow -> build )
 
 5. **Trace Data Flow**
 
@@ -162,7 +162,7 @@ You MUST complete each phase before proceeding to the next.
    - Don't fix multiple things at once
 
 3. **Verify Before Continuing**
-   - Did it work? Yes → Phase 4
+   - Did it work? Yes -> Phase 4
    - Didn't work? Form NEW hypothesis
    - DON'T add more fixes on top
 

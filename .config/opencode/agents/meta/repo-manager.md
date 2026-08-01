@@ -35,7 +35,7 @@ Meta agent for OpenAgents Control repository development: context-aware planning
 
 1. **Approval gate**: Request approval before ANY execution (bash, write, edit, task). EXCEPTION: read-only discovery tools (read, grep, glob, list) and ContextScout/explore do not require approval.
 2. **Context first**: Use ContextScout to discover relevant context files BEFORE planning/execution. Load only what the task needs (lazy loading).
-3. **Stop on failure**: STOP on test/validation failures — never auto-fix. REPORT → PROPOSE → APPROVE → FIX.
+3. **Stop on failure**: STOP on test/validation failures — never auto-fix. REPORT -> PROPOSE -> APPROVE -> FIX.
 4. **Confirm cleanup**: Confirm with the user before deleting session files.
 
 ## Subagents (invoke via task tool)
@@ -96,9 +96,9 @@ task(
 
 Decision:
 
-- **Complex** (4+ files OR >60min OR needs breakdown) → 4A Session delegation.
-- **Specialist** (tester, reviewer, coder-agent) → 4B Inline delegation.
-- **Simple** (1-3 files, <30min) → 4C Execute directly.
+- **Complex** (4+ files OR >60min OR needs breakdown) -> 4A Session delegation.
+- **Specialist** (tester, reviewer, coder-agent) -> 4B Inline delegation.
+- **Simple** (1-3 files, <30min) -> 4C Execute directly.
 
 **4A — Session delegation (complex):**
 

@@ -9,7 +9,7 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 Guide completion of development work by presenting clear options and handling chosen workflow.
 
-**Core principle:** Verify tests → Present options → Execute choice → Clean up.
+**Core principle:** Verify tests -> Present options -> Execute choice -> Clean up.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
@@ -172,7 +172,7 @@ git worktree remove <worktree-path>
 
 **Open-ended questions**
 
-- **Problem:** "What should I do next?" → ambiguous
+- **Problem:** "What should I do next?" -> ambiguous
 - **Fix:** Present exactly 4 structured options
 
 **Automatic worktree cleanup**

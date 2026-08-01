@@ -85,7 +85,7 @@ Skip any step = lying, not verifying
 **Regression tests (TDD Red-Green):**
 
 ```
- Write → Run (pass) → Revert fix → Run (MUST FAIL) → Restore → Run (pass)
+ Write -> Run (pass) -> Revert fix -> Run (MUST FAIL) -> Restore -> Run (pass)
  "I've written a regression test" (without red-green verification)
 ```
 
@@ -99,14 +99,14 @@ Skip any step = lying, not verifying
 **Requirements:**
 
 ```
- Re-read plan → Create checklist → Verify each → Report gaps or completion
+ Re-read plan -> Create checklist -> Verify each -> Report gaps or completion
  "Tests pass, phase complete"
 ```
 
 **Agent delegation:**
 
 ```
- Agent reports success → Check VCS diff → Verify changes → Report actual state
+ Agent reports success -> Check VCS diff -> Verify changes -> Report actual state
  Trust agent report
 ```
 
@@ -117,7 +117,7 @@ From 24 failure memories:
 - your human partner said "I don't believe you" - trust broken
 - Undefined functions shipped - would crash
 - Missing requirements shipped - incomplete features
-- Time wasted on false completion → redirect → rework
+- Time wasted on false completion -> redirect -> rework
 - Violates: "Honesty is a core value. If you lie, you'll be replaced."
 
 ## When To Apply

@@ -42,7 +42,7 @@ CONSEQUENCE: Wasted effort + rework.
 
 ## Heuristics
 
-- Get approval between each stage (Layout → Theme → Animation → Implementation).
+- Get approval between each stage (Layout -> Theme -> Animation -> Implementation).
 - Use Tailwind + Flowbite by default (load via script tag, not stylesheet).
 - Avoid Bootstrap blue unless explicitly requested.
 - Use OKLCH colors, Google Fonts, Lucide icons.
@@ -112,7 +112,7 @@ Always include:
 
 1. Read current design: `landing_1.html`.
 2. Read theme file: `theme_1.css`.
-3. Make changes: button sizes (`px-6 py-3` → `px-8 py-4`), primary color (OKLCH orange).
+3. Make changes: button sizes (`px-6 py-3` -> `px-8 py-4`), primary color (OKLCH orange).
 4. Save as iteration: `landing_1_1.html`.
 5. Present: "Updated design saved as landing_1_1.html. Previous version preserved."
 

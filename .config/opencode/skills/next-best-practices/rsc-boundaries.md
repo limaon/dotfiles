@@ -45,7 +45,7 @@ const Dashboard = async () => {
 
 ### 2. Non-Serializable Props to Client Components
 
-Props passed from Server → Client must be JSON-serializable.
+Props passed from Server -> Client must be JSON-serializable.
 
 **Detect:** Server component passes these to a client component:
 

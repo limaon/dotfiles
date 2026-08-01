@@ -21,7 +21,7 @@ This skill transforms technical git commits into polished, user-friendly changel
 
 1. **Scans Git History**: Analyzes commits from a specific time period or between versions
 2. **Categorizes Changes**: Groups commits into logical categories (features, improvements, bug fixes, breaking changes, security)
-3. **Translates Technical → User-Friendly**: Converts developer commits into customer language
+3. **Translates Technical -> User-Friendly**: Converts developer commits into customer language
 4. **Formats Professionally**: Creates clean, structured changelog entries
 5. **Filters Noise**: Excludes internal commits (refactoring, tests, etc.)
 6. **Follows Best Practices**: Applies changelog guidelines and your brand voice

@@ -28,9 +28,12 @@ permission:
     "*": "deny"
   todoread:
     "*": "deny"
-  todowrite: deny
-  webfetch: deny
-  websearch: deny
+  todowrite:
+    "*": deny
+  webfetch:
+    "*": deny
+  websearch:
+    "*":deny
   codesearch:
     "*": "deny"
   external_directory:

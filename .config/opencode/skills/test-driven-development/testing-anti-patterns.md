@@ -281,10 +281,10 @@ TDD cycle:
 
 **Why TDD helps:**
 
-1. **Write test first** → Forces you to think about what you're actually testing
-2. **Watch it fail** → Confirms test tests real behavior, not mocks
-3. **Minimal implementation** → No test-only methods creep in
-4. **Real dependencies** → You see what the test actually needs before mocking
+1. **Write test first** -> Forces you to think about what you're actually testing
+2. **Watch it fail** -> Confirms test tests real behavior, not mocks
+3. **Minimal implementation** -> No test-only methods creep in
+4. **Real dependencies** -> You see what the test actually needs before mocking
 
 **If you're testing mock behavior, you violated TDD** - you added mocks without watching test fail against real code first.
 

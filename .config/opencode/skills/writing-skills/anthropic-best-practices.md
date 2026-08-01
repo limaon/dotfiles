@@ -314,10 +314,10 @@ bigquery-skill/
 
 ## Available datasets
 
-**Finance**: Revenue, ARR, billing → See [reference/finance.md](reference/finance.md)
-**Sales**: Opportunities, pipeline, accounts → See [reference/sales.md](reference/sales.md)
-**Product**: API usage, features, adoption → See [reference/product.md](reference/product.md)
-**Marketing**: Campaigns, attribution, email → See [reference/marketing.md](reference/marketing.md)
+**Finance**: Revenue, ARR, billing -> See [reference/finance.md](reference/finance.md)
+**Sales**: Opportunities, pipeline, accounts -> See [reference/sales.md](reference/sales.md)
+**Product**: API usage, features, adoption -> See [reference/product.md](reference/product.md)
+**Marketing**: Campaigns, attribution, email -> See [reference/marketing.md](reference/marketing.md)
 
 ## Quick search
 
@@ -510,7 +510,7 @@ Clear steps prevent Claude from skipping critical validation. The checklist help
 
 ### Implement feedback loops
 
-**Common pattern**: Run validator → fix errors → repeat
+**Common pattern**: Run validator -> fix errors -> repeat
 
 This pattern greatly improves output quality.
 
@@ -717,8 +717,8 @@ Guide Claude through decision points:
 
 1. Determine the modification type:
 
-   **Creating new content?** → Follow "Creation workflow" below
-   **Editing existing content?** → Follow "Editing workflow" below
+   **Creating new content?** -> Follow "Creation workflow" below
+   **Editing existing content?** -> Follow "Editing workflow" below
 
 2. Creation workflow:
    - Use docx-js library
@@ -1009,7 +1009,7 @@ When Claude performs complex, open-ended tasks, it can make mistakes. The "plan-
 
 **Example**: Imagine asking Claude to update 50 form fields in a PDF based on a spreadsheet. Without validation, Claude might reference non-existent fields, create conflicting values, miss required fields, or apply updates incorrectly.
 
-**Solution**: Use the workflow pattern shown above (PDF form filling), but add an intermediate `changes.json` file that gets validated before applying changes. The workflow becomes: analyze → **create plan file** → **validate plan** → execute → verify.
+**Solution**: Use the workflow pattern shown above (PDF form filling), but add an intermediate `changes.json` file that gets validated before applying changes. The workflow becomes: analyze -> **create plan file** -> **validate plan** -> execute -> verify.
 
 **Why this pattern works:**
 

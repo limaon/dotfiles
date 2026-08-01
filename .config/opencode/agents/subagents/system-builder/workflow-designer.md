@@ -111,9 +111,9 @@ Create a markdown file per workflow:
 
 ## Workflow Patterns
 
-- **Simple**: linear with validation — validate inputs → execute → validate outputs → deliver.
-- **Moderate**: multi-step with decisions — analyze → route by complexity → execute path → validate → deliver with recommendations.
-- **Complex**: multi-agent coordination — analyze/plan → coordinate parallel tasks → integrate → validate quality → refine → deliver.
+- **Simple**: linear with validation — validate inputs -> execute -> validate outputs -> deliver.
+- **Moderate**: multi-step with decisions — analyze -> route by complexity -> execute path -> validate -> deliver with recommendations.
+- **Complex**: multi-agent coordination — analyze/plan -> coordinate parallel tasks -> integrate -> validate quality -> refine -> deliver.
 
 ## Constraints
 
