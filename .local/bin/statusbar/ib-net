@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # Unified Network Block for i3blocks - Ethernet, WiFi, and VPN detection
 set -euo pipefail
 
@@ -35,6 +36,25 @@ detect_vpn() {
   local vpn_name
   vpn_name=$(nmcli -g NAME,TYPE connection show --active 2>/dev/null | grep -i ':vpn' | cut -d: -f1 | head -n1)
   echo "$vpn_name"
+}
+
+detect_vpn_iface() {
+  local iface
+  while IFS= read -r iface; do
+    [[ -z "$iface" ]] && continue
+    if [[ "$(cat "/sys/class/net/$iface/operstate" 2>/dev/null)" == "up" ]]; then
+      echo "$iface"
+      return 0
+    fi
+  done < <(ip -o link show type tun 2>/dev/null | awk -F': ' '{print $2}')
+}
+
+get_vpn_ip() {
+  local iface="$1"
+  if [[ -z "$iface" ]]; then
+    return 0
+  fi
+  ip -o -4 addr show "$iface" 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1
 }
 
 detect_ethernet() {
@@ -154,7 +174,12 @@ show_network_info() {
   dns=$(get_dns)
 
   local vpn_status="Not connected"
-  [[ -n "$vpn_name" ]] && vpn_status="$vpn_name (Connected)"
+  if [[ -n "$vpn_name" ]]; then
+    local vpn_iface vpn_ip
+    vpn_iface=$(detect_vpn_iface)
+    vpn_ip=$(get_vpn_ip "$vpn_iface")
+    vpn_status="$vpn_name (Connected, IP: ${vpn_ip:-N/A})"
+  fi
 
   local body
   body="Interface: $iface ($type)
@@ -178,11 +203,18 @@ handle_click() {
 main() {
   handle_click
 
-  local eth_iface wifi_iface vpn_name output color
+  local eth_iface wifi_iface vpn_name vpn_ip output color
 
   eth_iface=$(detect_ethernet)
   wifi_iface=$(detect_wifi)
   vpn_name=$(detect_vpn)
+
+  vpn_ip=""
+  if [[ -n "$vpn_name" ]]; then
+    local vpn_iface
+    vpn_iface=$(detect_vpn_iface)
+    vpn_ip=$(get_vpn_ip "$vpn_iface")
+  fi
 
   if [[ -n "$eth_iface" ]]; then
     local conn_name ip
@@ -190,7 +222,7 @@ main() {
     ip=$(get_ip_address "$eth_iface")
 
     if [[ -n "$vpn_name" ]]; then
-      output="$ICON_VPN $conn_name $ICON_VPN VPN ($ip)"
+      output="$ICON_VPN $conn_name $ICON_VPN VPN (${vpn_ip:-$ip})"
       color="$COLOR_CYAN"
     else
       output="$ICON_ETH $conn_name ($ip)"
@@ -203,7 +235,7 @@ main() {
     ip=$(get_ip_address "$wifi_iface")
 
     if [[ -n "$vpn_name" ]]; then
-      output="$ICON_WIFI $essid (${signal}%) $ICON_VPN VPN ($ip)"
+      output="$ICON_WIFI $essid (${signal}%) $ICON_VPN VPN (${vpn_ip:-$ip})"
       color="$COLOR_CYAN"
     else
       output="$ICON_WIFI $essid (${signal}%) ($ip)"
