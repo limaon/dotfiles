@@ -6,7 +6,6 @@
     "prune": true,
     "reserved": 10000
   },
-  "lsp": true,
   "formatter": {
     "prettier": {
       "extensions": [
@@ -125,15 +124,7 @@
       }
     }
   },
-  "server": {
-    "port": 4096,
-    "hostname": "127.0.0.1",
-    "mdns": false,
-    "mdnsDomain": "opencode.local",
-    "cors": []
-  },
-  "share": "disabled",
-  "shell": "bash",
+  "share": "auto",
   "snapshot": false,
   "username": "limaon",
   "watcher": {
