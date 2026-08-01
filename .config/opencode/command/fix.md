@@ -202,7 +202,7 @@ Use semantic bug ID slugs (e.g., `payment-processing-failure`, `ui-state-sync-is
 ## Architecture Context (from data-model.md)
 
 - **Affected Entities**: [Database entities involved]
-- **Data Flow**: [UI → API → Service → Database path]
+- **Data Flow**: [UI -> API -> Service -> Database path]
 - **Related Components**: [Services, controllers, components]
 
 ## Technology Stack
@@ -337,7 +337,7 @@ console.log("[DEBUG] Store update:", {
 ```typescript
 // Log data flow through layers
 console.log("[DEBUG] Data flow checkpoint:", {
-  layer: "API → Service",
+  layer: "API -> Service",
   data: sanitizeForLog(data),
   checkpoint: "before-validation",
 });
@@ -532,7 +532,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 - Performance degrades with more records
 - Pattern matches failure-pattern: n1-query-user-relations-2025-08
 
-**Data Flow Point**: Database → Service layer
+**Data Flow Point**: Database -> Service layer
 **Affected Layer**: Repository/ORM
 
 ---
@@ -568,7 +568,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 - Some users affected, others not
 - Caching layer detected in stack
 
-**Data Flow Point**: Cache → Database
+**Data Flow Point**: Cache -> Database
 **Affected Layer**: Caching middleware
 
 ---
@@ -581,7 +581,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 - State update logs show closure issue
 - Pattern matches: react-state-stale-closure-2025-09
 
-**Data Flow Point**: API → UI State
+**Data Flow Point**: API -> UI State
 **Affected Layer**: Frontend state management
 
 ---
@@ -605,7 +605,7 @@ Based on diagnostic data, architecture analysis, and cross-project memory, gener
 - Fails for regular users
 - Permission check logs unclear
 
-**Data Flow Point**: Middleware → Service
+**Data Flow Point**: Middleware -> Service
 **Affected Layer**: Authorization middleware
 ````
 
@@ -627,7 +627,7 @@ Apply systematic analysis to narrow down:
 ### Primary Hypothesis: N+1 Query Problem (90% confidence)
 
 **Why this is most likely**:
-Diagnostic logs show sequential queries (User → Subscription → Payment)
+Diagnostic logs show sequential queries (User -> Subscription -> Payment)
 Architecture analysis confirms no eager loading in UserRepository
 Cross-project memory shows identical pattern: n1-query-user-relations-2025-08
 Error occurs exactly at point where subscription relationship accessed
@@ -644,9 +644,9 @@ Performance metrics show query count = number of users + 1
 
 1. API receives request (T+0ms)
 2. Service calls UserRepository.findById(userId) (T+15ms)
-   → Query 1: SELECT * FROM users WHERE id = $1
+   -> Query 1: SELECT * FROM users WHERE id = $1
 3. Service accesses user.subscription (T+23ms)
-   → Query 2: SELECT * FROM subscriptions WHERE user_id = $1 NOT EXECUTED
+   -> Query 2: SELECT * FROM subscriptions WHERE user_id = $1 NOT EXECUTED
 4. Error: Cannot read property 'subscription_id' of undefined (T+45ms)
 
 ```
@@ -998,10 +998,10 @@ Reproduce original bug scenario:
 
 ### Edge Cases Tested
 
-- [ ] User without subscription → Proper validation error
-- [ ] User with cancelled subscription → Handled correctly
-- [ ] Multiple concurrent requests → No race condition
-- [ ] Null/undefined userId → Proper error handling
+- [ ] User without subscription -> Proper validation error
+- [ ] User with cancelled subscription -> Handled correctly
+- [ ] Multiple concurrent requests -> No race condition
+- [ ] Null/undefined userId -> Proper error handling
 
 ### Performance Impact
 
@@ -1351,7 +1351,7 @@ SECONDARY: Null validation (10% confidence)
 
  Architecture Check:
  Read /docs/architecture/data-model.md
- Analyzed Payment → Subscription → User flow
+ Analyzed Payment -> Subscription -> User flow
  Identified 3 affected services
 
  Cross-Project Memory:

@@ -81,10 +81,10 @@ Structure like:
 ## JIT Index (what to open, not what to paste)
 
 ### Package Structure
-- Web UI: `apps/web/` → [see apps/web/AGENTS.md](apps/web/AGENTS.md)
-- API: `apps/api/` → [see apps/api/AGENTS.md](apps/api/AGENTS.md)
-- Auth service: `services/auth/` → [see services/auth/AGENTS.md](services/auth/AGENTS.md)
-- Shared packages: `packages/**/` → [see packages/README.md for details]
+- Web UI: `apps/web/` -> [see apps/web/AGENTS.md](apps/web/AGENTS.md)
+- API: `apps/api/` -> [see apps/api/AGENTS.md](apps/api/AGENTS.md)
+- Auth service: `services/auth/` -> [see services/auth/AGENTS.md](services/auth/AGENTS.md)
+- Shared packages: `packages/**/` -> [see packages/README.md for details]
 
 ### Quick Find Commands
 - Search for a function: `rg -n "functionName" apps/** packages/**`

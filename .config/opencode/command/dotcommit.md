@@ -30,9 +30,9 @@ Run these steps in order.
 ### 3. Group Changes by Theme
 
 - Split the changes into logical groups, one theme per commit. Example groups:
-  - A script update (`.local/bin`) → separate commit
-  - An app config (`.config/nvim`, `.config/kitty`, ...) → separate commit
-  - Formatting/normalization across many files → separate commit
+  - A script update (`.local/bin`) -> separate commit
+  - An app config (`.config/nvim`, `.config/kitty`, ...) -> separate commit
+  - Formatting/normalization across many files -> separate commit
 - If unsure how to group, present the proposed groups to the user and let them decide.
 - Do not mix unrelated changes in a single commit.
 

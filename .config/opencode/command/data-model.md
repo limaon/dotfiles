@@ -385,12 +385,12 @@ async create(data: CreateUserData): Promise<User> {
 
 **Data Transformations:**
 
-- **UI Form** → **CreateUserDTO** (client-side validation)
-- **CreateUserDTO** → **Domain Model** (service layer)
-- **Domain Model** → **Database Entity** (repository layer)
-- **Database Entity** → **Domain Model** (on read)
-- **Domain Model** → **UserResponseDTO** (API response)
-- **UserResponseDTO** → **UI State** (state management)
+- **UI Form** -> **CreateUserDTO** (client-side validation)
+- **CreateUserDTO** -> **Domain Model** (service layer)
+- **Domain Model** -> **Database Entity** (repository layer)
+- **Database Entity** -> **Domain Model** (on read)
+- **Domain Model** -> **UserResponseDTO** (API response)
+- **UserResponseDTO** -> **UI State** (state management)
 
 [Repeat for other critical flows: Authentication, CRUD operations, etc.]
 

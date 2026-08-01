@@ -31,12 +31,12 @@ git branch -a | grep -E "chore/version-bump|docs/auto-sync" | wc -l
 **Intelligent Analysis:**
 
 - **Version Sync Check**: Compare VERSION file with latest git tag
-- If VERSION > latest tag → Suggest creating missing release
-- If tags are missing → Offer to trigger release workflow
+- If VERSION > latest tag -> Suggest creating missing release
+- If tags are missing -> Offer to trigger release workflow
 - **Branch Cleanup**: Detect stale automation branches
 - Count `chore/version-bump-*` branches
 - Count `docs/auto-sync-*` branches
-- If > 3 stale branches → Suggest cleanup
+- If > 3 stale branches -> Suggest cleanup
 - **Workflow Health**: Check if workflows are working
 - Look for recent workflow runs
 - Check for disabled workflows that might be needed
@@ -100,29 +100,29 @@ cd evals/framework && npm run eval:sdk -- --agent=core/opencoder --pattern="**/s
 - Run `git log --oneline -5` to see recent commit style
 - Identify the scope of changes (evals, scripts, docs, agents, workflows, etc.)
 - **Special Detection**: Check if changes are workflow-related
-  - If `.github/workflows/` modified → Suggest workflow validation
-  - If new workflow added → Offer to document it
-  - If workflow disabled/deleted → Ask for confirmation
+  - If `.github/workflows/` modified -> Suggest workflow validation
+  - If new workflow added -> Offer to document it
+  - If workflow disabled/deleted -> Ask for confirmation
 
 ### 4. **Stage Files Intelligently**
 
 **Auto-stage based on change type:**
 
-- If modifying evals framework → stage `evals/framework/`
-- If modifying core agents → stage `~/.config/opencode/agent/core/`
-- If modifying development agents → stage `~/.config/opencode/agent/development/`
-- If modifying content agents → stage `~/.config/opencode/agent/content/`
-- If modifying data agents → stage `~/.config/opencode/agent/data/`
-- If modifying meta agents → stage `~/.config/opencode/agent/meta/`
-- If modifying learning agents → stage `~/.config/opencode/agent/learning/`
-- If modifying product agents → stage `~/.config/opencode/agent/product/`
-- If modifying subagents → stage `~/.config/opencode/agent/subagents/`
-- If modifying commands → stage `~/.config/opencode/command/`
-- If modifying context → stage `~/.config/opencode/context/`
-- If modifying scripts → stage `scripts/`
-- If modifying docs → stage `docs/`
-- If modifying CI/CD → stage `.github/workflows/`
-- If user provides specific files → stage only those
+- If modifying evals framework -> stage `evals/framework/`
+- If modifying core agents -> stage `~/.config/opencode/agent/core/`
+- If modifying development agents -> stage `~/.config/opencode/agent/development/`
+- If modifying content agents -> stage `~/.config/opencode/agent/content/`
+- If modifying data agents -> stage `~/.config/opencode/agent/data/`
+- If modifying meta agents -> stage `~/.config/opencode/agent/meta/`
+- If modifying learning agents -> stage `~/.config/opencode/agent/learning/`
+- If modifying product agents -> stage `~/.config/opencode/agent/product/`
+- If modifying subagents -> stage `~/.config/opencode/agent/subagents/`
+- If modifying commands -> stage `~/.config/opencode/command/`
+- If modifying context -> stage `~/.config/opencode/context/`
+- If modifying scripts -> stage `scripts/`
+- If modifying docs -> stage `docs/`
+- If modifying CI/CD -> stage `.github/workflows/`
+- If user provides specific files -> stage only those
 
 **Never auto-stage:**
 
@@ -258,7 +258,7 @@ This will trigger:
 - Post-merge version bump workflow
 - Create version bump PR automatically
 - Update VERSION, package.json, CHANGELOG.md
-- After version bump PR merges → Create git tag & release
+- After version bump PR merges -> Create git tag & release
 
 Expected flow:
 1. Your commit merged
@@ -388,11 +388,11 @@ Testing: Manually trigger workflow with: gh workflow run create-release.yml
 
 Commits trigger automatic version bumps:
 
-- `feat:` → minor bump (0.0.1 → 0.1.0)
-- `fix:` → patch bump (0.0.1 → 0.0.2)
-- `feat!:` or `BREAKING CHANGE:` → major bump (0.1.0 → 1.0.0)
-- `[alpha]` in message → alpha bump (0.1.0-alpha.1 → 0.1.0-alpha.2)
-- Default → patch bump (0.0.1 → 0.0.2)
+- `feat:` -> minor bump (0.0.1 -> 0.1.0)
+- `fix:` -> patch bump (0.0.1 -> 0.0.2)
+- `feat!:` or `BREAKING CHANGE:` -> major bump (0.1.0 -> 1.0.0)
+- `[alpha]` in message -> alpha bump (0.1.0-alpha.1 -> 0.1.0-alpha.2)
+- Default -> patch bump (0.0.1 -> 0.0.2)
 
 ### Files to Always Check
 
