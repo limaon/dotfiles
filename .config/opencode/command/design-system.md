@@ -17,29 +17,36 @@ Your task is to generate a complete `docs/design-system.md` for this repository,
 ## Output Structure for `design-system.md`
 
 ### 1. Overview
+
 - Short description of the product and UI vibe.
 - High-level principles (tone, accessibility, responsiveness).
 
 ### 2. Foundations
 
 #### Colors
+
 - Primary, secondary, neutrals, semantic (success/warning/error/info) with hex values and usage notes.
 
 #### Typography
+
 - Font families, scales (heading/body/caption), line-heights, letter-spacing, and when to use each.
 
 #### Spacing
+
 - Base unit (e.g. 4/8px), spacing scale, and examples.
 
 #### Radius, Shadows, Borders
+
 - Tokens and intended usage.
 
 #### Breakpoints
+
 - List viewport sizes and naming (e.g. sm/md/lg/xl).
 
 ### 3. Components
 
 For each commonly used component (Buttons, Inputs, Selects, Modals, Cards, Tabs, Toasts, etc.):
+
 - Name and purpose.
 - Props/variants (e.g. `variant`, `size`, `tone`, `state`).
 - Visual behavior (hover, active, focus, disabled, loading).
@@ -47,6 +54,7 @@ For each commonly used component (Buttons, Inputs, Selects, Modals, Cards, Tabs,
 - Example code snippet from this repo.
 
 ### 4. Layout & Grid
+
 - Page layout patterns (sidebar, top-nav, content width).
 - Grid rules (columns, gutters, max-widths).
 - Common layout primitives (Stack/Flex/Grid components, containers).
@@ -54,20 +62,26 @@ For each commonly used component (Buttons, Inputs, Selects, Modals, Cards, Tabs,
 ### 5. Patterns
 
 #### Form Patterns
+
 - Validation, error display, help text.
 
 #### Navigation Patterns
+
 - Routing, breadcrumbs, tabs.
 
 #### Feedback Patterns
+
 - Empty states, loading, error, success.
 
 ### 6. Theming & Dark Mode (if applicable)
+
 - How themes are defined (tokens, CSS variables, Tailwind config, etc.).
 - What can be customized and how.
 
 ### 7. Usage for AI Tools
+
 Short instructions for AI assistants working in this repo:
+
 - "Always respect these components and tokens instead of raw HTML/CSS."
 - "When creating new UI, match these patterns and reuse existing components."
 
@@ -114,18 +128,21 @@ Based on your analysis:
 ## Important Requirements
 
 ### Style
+
 - Write in clear, concise Markdown.
 - Use heading hierarchy (`#`, `##`, `###`) properly.
 - Use bullet lists and short paragraphs.
 - Include code blocks with proper syntax highlighting.
 
 ### Accuracy
+
 - **Do not invent** new components or tokens that don't exist in the repo.
 - Prefer real names/tokens from the code over generic names.
 - Be explicit and opinionated so new contributors and AI tools can follow consistently.
 - If something is unclear from the codebase, mark it as `[TO BE DEFINED]`.
 
 ### Completeness
+
 - Cover all major UI elements used in the application.
 - Include both the "what" (tokens, components) and the "how" (usage guidelines).
 - Make it actionable for developers implementing new features.

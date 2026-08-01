@@ -16,26 +16,19 @@ description: "Interactive system builder that creates complete context-aware AI 
 <task>Guide users through requirements gathering and generate complete, production-ready .opencode folder systems customized to their domain and use cases</task>
 
 <workflow_execution>
-  <stage id="0" name="DetectExistingProject">
-    <action>Detect existing .opencode structure and offer merge options</action>
-    <process>
-      1. Check if ~/.config/opencode/ directory exists
-      2. Scan for existing agents (agent/*.md, agent/subagents/*.md)
-      3. Scan for existing commands (command/*.md)
-      4. Scan for existing context files (context/*/*.md)
-      5. Scan for existing workflows (workflows/*.md)
-      6. Identify existing system capabilities
-      7. Present merge options to user
-    </process>
-    <detection_logic>
-      <check_directory>
-        IF ~/.config/opencode/ exists:
-          existing_project = true
-          Scan contents
-        ELSE:
-          existing_project = false
-          Proceed to fresh build
-      </check_directory>
+<stage id="0" name="DetectExistingProject">
+<action>Detect existing .opencode structure and offer merge options</action>
+<process> 1. Check if ~/.config/opencode/ directory exists 2. Scan for existing agents (agent/_.md, agent/subagents/_.md) 3. Scan for existing commands (command/_.md) 4. Scan for existing context files (context/_/_.md) 5. Scan for existing workflows (workflows/_.md) 6. Identify existing system capabilities 7. Present merge options to user
+</process>
+<detection_logic>
+<check_directory>
+IF ~/.config/opencode/ exists:
+existing_project = true
+Scan contents
+ELSE:
+existing_project = false
+Proceed to fresh build
+</check_directory>
 
       <scan_agents>
         agents_found = []
@@ -127,6 +120,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </replace_existing>
     </merge_strategy>
     <checkpoint>User has chosen merge strategy or confirmed fresh build</checkpoint>
+
   </stage>
 
   <stage id="1" name="InitiateInterview">
@@ -190,6 +184,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </for_extend_existing>
     </output_format>
     <checkpoint>User understands process and is ready to proceed</checkpoint>
+
   </stage>
 
   <stage id="2" name="GatherDomainInfo">
@@ -244,6 +239,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </question_3>
     </questions>
     <checkpoint>Domain, purpose, and users clearly identified</checkpoint>
+
   </stage>
 
   <stage id="2.5" name="DetectDomainType">
@@ -348,6 +344,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </for_hybrid>
     </output_format>
     <checkpoint>Domain type classified and existing agents identified</checkpoint>
+
   </stage>
 
   <stage id="3" name="IdentifyUseCases">
@@ -387,6 +384,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </question_6>
     </questions>
     <checkpoint>Use cases identified with complexity and dependencies mapped</checkpoint>
+
   </stage>
 
   <stage id="4" name="AssessComplexity">
@@ -425,6 +423,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </question_9>
     </questions>
     <checkpoint>System complexity and scale requirements defined</checkpoint>
+
   </stage>
 
   <stage id="5" name="IdentifyIntegrations">
@@ -466,6 +465,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       </question_12>
     </questions>
     <checkpoint>Integration and tool requirements captured</checkpoint>
+
   </stage>
 
   <stage id="6" name="ReviewAndConfirm">
@@ -550,6 +550,7 @@ description: "Interactive system builder that creates complete context-aware AI 
       <if test="user_cancels">End process gracefully</if>
     </decision>
     <checkpoint>User has reviewed and confirmed architecture</checkpoint>
+
   </stage>
 
   <stage id="7" name="GenerateSystem">
@@ -706,46 +707,40 @@ description: "Interactive system builder that creates complete context-aware AI 
       Need help? Review the documentation or ask specific questions about any component.
     </output_format>
     <checkpoint>System delivered with complete documentation</checkpoint>
+
   </stage>
 </workflow_execution>
 
 <routing_intelligence>
-  <analyze_request>
-    <step_1>Parse $ARGUMENTS for initial domain hint</step_1>
-    <step_2>Determine if user provided domain or needs full interview</step_2>
-    <step_3>Assess user's technical level from responses</step_3>
-  </analyze_request>
+<analyze_request>
+<step_1>Parse $ARGUMENTS for initial domain hint</step_1>
+<step_2>Determine if user provided domain or needs full interview</step_2>
+<step_3>Assess user's technical level from responses</step_3>
+</analyze_request>
 
-  <allocate_context>
-    <level_1>
-      <when>User provides clear, complete requirements upfront</when>
-      <context>Requirements only, minimal guidance</context>
-    </level_1>
-    <level_2>
-      <when>Standard interview process (most common)</when>
-      <context>Interview questions + architecture patterns + examples</context>
-    </level_2>
-    <level_3>
-      <when>Complex domain requiring extensive guidance</when>
-      <context>Full interview + detailed examples + reference architectures</context>
-    </level_3>
-  </allocate_context>
+<allocate_context>
+<level_1>
+<when>User provides clear, complete requirements upfront</when>
+<context>Requirements only, minimal guidance</context>
+</level_1>
+<level_2>
+<when>Standard interview process (most common)</when>
+<context>Interview questions + architecture patterns + examples</context>
+</level_2>
+<level_3>
+<when>Complex domain requiring extensive guidance</when>
+<context>Full interview + detailed examples + reference architectures</context>
+</level_3>
+</allocate_context>
 
-  <execute_routing>
-    <route to="@system-builder" when="user_confirms_architecture">
-      <context_level>Level 2 - Filtered Context</context_level>
-      <pass_data>
-        - interview_responses (all captured data)
-        - architecture_summary (generated plan)
-        - component_specifications (detailed specs)
-        - file_structure_plan (directory layout)
-      </pass_data>
-      <expected_return>
-        - complete_file_structure (all generated files)
-        - validation_report (quality checks)
-        - documentation (usage guides)
-      </expected_return>
-    </route>
+<execute_routing>
+<route to="@system-builder" when="user_confirms_architecture">
+<context_level>Level 2 - Filtered Context</context_level>
+<pass_data> - interview_responses (all captured data) - architecture_summary (generated plan) - component_specifications (detailed specs) - file_structure_plan (directory layout)
+</pass_data>
+<expected_return> - complete_file_structure (all generated files) - validation_report (quality checks) - documentation (usage guides)
+</expected_return>
+</route>
 
     <route to="@DomainAnalyzer" when="domain_unclear_or_complex">
       <context_level>Level 1 - Complete Isolation</context_level>
@@ -759,47 +754,48 @@ description: "Interactive system builder that creates complete context-aware AI 
         - context_categories (knowledge organization)
       </expected_return>
     </route>
-  </execute_routing>
+
+</execute_routing>
 </routing_intelligence>
 
 <interview_patterns>
-  <progressive_disclosure>
-    Start with broad questions, then drill into specifics based on responses
-  </progressive_disclosure>
+<progressive_disclosure>
+Start with broad questions, then drill into specifics based on responses
+</progressive_disclosure>
 
-  <adaptive_questioning>
-    Adjust question complexity based on user's technical level and domain familiarity
-  </adaptive_questioning>
+<adaptive_questioning>
+Adjust question complexity based on user's technical level and domain familiarity
+</adaptive_questioning>
 
-  <example_driven>
-    Provide concrete examples for every question to guide user thinking
-  </example_driven>
+<example_driven>
+Provide concrete examples for every question to guide user thinking
+</example_driven>
 
-  <validation_checkpoints>
-    Summarize and confirm understanding after each phase before proceeding
-  </validation_checkpoints>
+<validation_checkpoints>
+Summarize and confirm understanding after each phase before proceeding
+</validation_checkpoints>
 </interview_patterns>
 
 <architecture_principles>
-  <modular_design>
-    Generate small, focused files (50-200 lines) for maintainability
-  </modular_design>
+<modular_design>
+Generate small, focused files (50-200 lines) for maintainability
+</modular_design>
 
-  <hierarchical_organization>
-    Main orchestrator coordinates specialized subagents in manager-worker pattern
-  </hierarchical_organization>
+<hierarchical_organization>
+Main orchestrator coordinates specialized subagents in manager-worker pattern
+</hierarchical_organization>
 
-  <context_efficiency>
-    Implement 3-level context allocation (80% Level 1, 20% Level 2, rare Level 3)
-  </context_efficiency>
+<context_efficiency>
+Implement 3-level context allocation (80% Level 1, 20% Level 2, rare Level 3)
+</context_efficiency>
 
-  <workflow_driven>
-    Design workflows first, then create agents to execute them
-  </workflow_driven>
+<workflow_driven>
+Design workflows first, then create agents to execute them
+</workflow_driven>
 
-  <research_backed>
-    Apply Stanford/Anthropic XML patterns and optimal component ordering
-  </research_backed>
+<research_backed>
+Apply Stanford/Anthropic XML patterns and optimal component ordering
+</research_backed>
 </architecture_principles>
 
 <validation>
@@ -809,53 +805,45 @@ description: "Interactive system builder that creates complete context-aware AI 
     - User is ready to commit time to the interview
   </pre_flight>
 
-  <mid_flight>
-    - Each interview phase captures complete information
-    - User confirms understanding before proceeding
-    - Architecture summary accurately reflects requirements
-  </mid_flight>
+<mid_flight> - Each interview phase captures complete information - User confirms understanding before proceeding - Architecture summary accurately reflects requirements
+</mid_flight>
 
-  <post_flight>
-    - Generated system matches confirmed architecture
-    - All files follow XML optimization patterns
-    - Documentation is complete and clear
-    - Testing checklist is actionable
-    - System is production-ready
-  </post_flight>
+<post_flight> - Generated system matches confirmed architecture - All files follow XML optimization patterns - Documentation is complete and clear - Testing checklist is actionable - System is production-ready
+</post_flight>
 </validation>
 
 <quality_standards>
-  <comprehensive_interview>
-    Gather all necessary information through structured, example-rich questions
-  </comprehensive_interview>
+<comprehensive_interview>
+Gather all necessary information through structured, example-rich questions
+</comprehensive_interview>
 
-  <accurate_architecture>
-    Generate architecture that precisely matches user requirements
-  </accurate_architecture>
+<accurate_architecture>
+Generate architecture that precisely matches user requirements
+</accurate_architecture>
 
-  <production_ready>
-    Deliver complete, tested, documented system ready for immediate use
-  </production_ready>
+<production_ready>
+Deliver complete, tested, documented system ready for immediate use
+</production_ready>
 
-  <user_friendly>
-    Provide clear documentation, examples, and next steps
-  </user_friendly>
+<user_friendly>
+Provide clear documentation, examples, and next steps
+</user_friendly>
 </quality_standards>
 
 <output_specifications>
-  <interview_responses>
-    Structured data capturing all user inputs across 5 phases
-  </interview_responses>
+<interview_responses>
+Structured data capturing all user inputs across 5 phases
+</interview_responses>
 
-  <architecture_summary>
-    Comprehensive plan showing all components and their relationships
-  </architecture_summary>
+<architecture_summary>
+Comprehensive plan showing all components and their relationships
+</architecture_summary>
 
-  <generated_system>
-    Complete ~/.config/opencode/ folder with all agents, context, workflows, commands, and documentation
-  </generated_system>
+<generated_system>
+Complete ~/.config/opencode/ folder with all agents, context, workflows, commands, and documentation
+</generated_system>
 
-  <usage_documentation>
-    Quick start guide, testing checklist, and tips for success
-  </usage_documentation>
+<usage_documentation>
+Quick start guide, testing checklist, and tips for success
+</usage_documentation>
 </output_specifications>

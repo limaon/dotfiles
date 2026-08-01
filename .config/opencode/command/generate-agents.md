@@ -9,6 +9,7 @@ description: Analyze codebase and generate hierarchical AGENTS.md structure
 You are going to help me create a **hierarchical AGENTS.md system** for this codebase. This is critical for AI coding agents to work efficiently with minimal token usage.
 
 ### Core Principles:
+
 1. **Root AGENTS.md is LIGHTWEIGHT** - Only universal guidance, links to sub-files
 2. **Nearest-wins hierarchy** - Agents read the closest AGENTS.md to the file being edited
 3. **JIT (Just-In-Time) indexing** - Provide paths/globs/commands, NOT full content
@@ -18,6 +19,7 @@ You are going to help me create a **hierarchical AGENTS.md system** for this cod
 ## Your Process
 
 ### Phase 1: Repository Analysis
+
 First, analyze the codebase structure and provide me with:
 
 1. **Repository type**: Monorepo, multi-package, or simple single project?
@@ -47,29 +49,34 @@ Create a **lightweight root AGENTS.md** (~100-200 lines max) that includes:
 #### Required Sections:
 
 **1. Project Snapshot** (3-5 lines)
+
 - Repo type (monorepo/simple)
 - Primary tech stack
 - Note that sub-packages have their own AGENTS.md files
 
 **2. Root Setup Commands** (5-10 lines)
+
 - Install dependencies (root level)
 - Build all
 - Typecheck all
 - Test all
 
 **3. Universal Conventions** (5-10 lines)
+
 - Code style (TypeScript strict? Prettier? ESLint?)
 - Commit format (Conventional Commits?)
 - Branch strategy
 - PR requirements
 
 **4. Security & Secrets** (3-5 lines)
+
 - Never commit tokens
 - Where secrets go (.env patterns)
 - PII handling if applicable
 
 **5. JIT Index - Directory Map** (10-20 lines)
 Structure like:
+
 ```
 ## JIT Index (what to open, not what to paste)
 
@@ -86,6 +93,7 @@ Structure like:
 ```
 
 **6. Definition of Done** (3-5 lines)
+
 - What must pass before a PR is ready
 - Minimal checklist
 
@@ -98,10 +106,12 @@ For EACH major package/directory identified in Phase 1, create a **detailed AGEN
 #### Required Sections:
 
 **1. Package Identity** (2-3 lines)
+
 - What this package/app/service does
 - Primary tech/framework for THIS package
 
 **2. Setup & Run** (5-10 lines)
+
 - Install command (if different from root)
 - Dev server command
 - Build command
@@ -110,6 +120,7 @@ For EACH major package/directory identified in Phase 1, create a **detailed AGEN
 
 **3. Patterns & Conventions** (10-20 lines)
 **THIS IS THE MOST IMPORTANT SECTION**
+
 - File organization rules (where things go)
 - Naming conventions specific to this package
 - Preferred patterns with **file examples**:
@@ -122,6 +133,7 @@ For EACH major package/directory identified in Phase 1, create a **detailed AGEN
 
 **4. Touch Points / Key Files** (5-10 lines)
 Point to the most important files to understand this package:
+
 ```
 - Auth logic: `src/auth/provider.tsx`
 - API client: `src/lib/api.ts`
@@ -131,6 +143,7 @@ Point to the most important files to understand this package:
 
 **5. JIT Index Hints** (5-10 lines)
 Specific search commands for this package:
+
 ```
 - Find a React component: `rg -n "export function .*" src/components`
 - Find a hook: `rg -n "export const use" src/hooks`
@@ -139,12 +152,14 @@ Specific search commands for this package:
 ```
 
 **6. Common Gotchas** (3-5 lines, if applicable)
+
 - "Auth requires `NEXT_PUBLIC_` prefix for client-side use"
 - "Always use `@/` imports for absolute paths"
 - "Database migrations must be run before tests: `pnpm db:migrate`"
 
 **7. Pre-PR Checks** (2-3 lines)
 Package-specific command to run before creating a PR:
+
 ```
 pnpm --filter @repo/web typecheck && pnpm --filter @repo/web test && pnpm --filter @repo/web build
 ```
@@ -157,8 +172,10 @@ For each AGENTS.md file, also consider:
 
 **A. Design System / UI Package**
 If there's a design system or UI library:
+
 ```markdown
 ## Design System
+
 - Components: `packages/ui/src/components/**`
 - Use design tokens from `packages/ui/src/tokens.ts` (never hardcode colors)
 - See component gallery: `pnpm --filter @repo/ui storybook`
@@ -169,8 +186,10 @@ If there's a design system or UI library:
 
 **B. Database / Data Layer**
 If there's a database service:
+
 ```markdown
 ## Database
+
 - ORM: Prisma / Drizzle / TypeORM
 - Schema: `prisma/schema.prisma`
 - Migrations: `pnpm db:migrate`
@@ -180,8 +199,10 @@ If there's a database service:
 ```
 
 **C. API / Backend Service**
+
 ```markdown
 ## API Patterns
+
 - REST routes: `src/routes/**/*.ts`
 - Auth middleware: `src/middleware/auth.ts` (apply to protected routes)
 - Validation: Use Zod schemas in `src/schemas/**`
@@ -190,8 +211,10 @@ If there's a database service:
 ```
 
 **D. Testing Package**
+
 ```markdown
 ## Testing
+
 - Unit tests: `*.test.ts` colocated with source
 - Integration tests: `tests/integration/**`
 - E2E tests: `tests/e2e/**` (Playwright)

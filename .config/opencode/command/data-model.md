@@ -9,6 +9,7 @@ Create comprehensive Entity Relationship Diagrams (ERDs) and data documentation 
 ## Objective
 
 Generate complete data model documentation including:
+
 1. **Database schemas** - Tables, relationships, constraints, indexes
 2. **Service layer models** - DTOs, domain models, business logic data structures
 3. **UI data structures** - Component props, state management, data flows
@@ -66,6 +67,7 @@ Create a comprehensive single-file documentation at `./docs/architecture/data-mo
 > Tech Stack: [AUTO-DETECTED STACK]
 
 ## Table of Contents
+
 1. Database Schema ERD
 2. Service Layer Models
 3. UI Data Structures
@@ -76,6 +78,7 @@ Create a comprehensive single-file documentation at `./docs/architecture/data-mo
 ## 1. Database Schema ERD
 
 ### Overview
+
 [Brief description of the database architecture]
 
 ### Entity Relationship Diagram
@@ -113,6 +116,7 @@ erDiagram
 ### Table Definitions
 
 #### [Table 1 Name]
+
 - **Purpose:** [Brief description]
 - **Columns:**
   - `id` (UUID, PRIMARY KEY) - Unique identifier
@@ -133,6 +137,7 @@ erDiagram
 ## 2. Service Layer Models
 
 ### Overview
+
 [Description of service layer architecture]
 
 ### Data Transfer Objects (DTOs)
@@ -140,16 +145,18 @@ erDiagram
 #### Request DTOs
 
 **CreateUserDTO**
+
 ```typescript
 interface CreateUserDTO {
-  email: string;        // Valid email format
-  password: string;     // Min 8 chars, 1 uppercase, 1 number
+  email: string; // Valid email format
+  password: string; // Min 8 chars, 1 uppercase, 1 number
   firstName?: string;
   lastName?: string;
 }
 ```
 
 **Validation Rules:**
+
 - `email`: Required, valid email format
 - `password`: Required, min 8 characters, must contain uppercase, number
 - `firstName`: Optional, max 50 characters
@@ -160,13 +167,14 @@ interface CreateUserDTO {
 #### Response DTOs
 
 **UserResponseDTO**
+
 ```typescript
 interface UserResponseDTO {
   id: string;
   email: string;
   firstName: string | null;
   lastName: string | null;
-  createdAt: string;    // ISO 8601 format
+  createdAt: string; // ISO 8601 format
   updatedAt: string;
 }
 ```
@@ -176,6 +184,7 @@ interface UserResponseDTO {
 ### Domain Models
 
 **User Domain Model**
+
 ```typescript
 class User {
   private id: string;
@@ -189,6 +198,7 @@ class User {
 ```
 
 **Business Rules:**
+
 - Email must be unique across system
 - Password changes require current password verification
 - Deleted users retain data for 30 days (soft delete)
@@ -200,11 +210,13 @@ class User {
 ## 3. UI Data Structures
 
 ### Overview
+
 [Description of frontend data architecture]
 
 ### Component Props
 
 **UserProfile Component**
+
 ```typescript
 interface UserProfileProps {
   user: {
@@ -223,6 +235,7 @@ interface UserProfileProps {
 ### State Management Schemas
 
 **User State (Redux/Zustand/etc.)**
+
 ```typescript
 interface UserState {
   currentUser: User | null;
@@ -233,6 +246,7 @@ interface UserState {
 ```
 
 **Actions:**
+
 - `loginUser(credentials)` - Authenticate user
 - `logoutUser()` - Clear session
 - `updateUserProfile(data)` - Update user data
@@ -242,6 +256,7 @@ interface UserState {
 ### Form Schemas
 
 **User Registration Form**
+
 ```typescript
 interface RegistrationFormSchema {
   email: string;
@@ -254,6 +269,7 @@ interface RegistrationFormSchema {
 ```
 
 **Validation:**
+
 - Client-side: Zod/Yup schema validation
 - Server-side: DTO validation
 - Real-time field validation on blur
@@ -263,6 +279,7 @@ interface RegistrationFormSchema {
 ## 4. End-to-End Data Flow
 
 ### Overview
+
 Complete data flow from database through API to UI and back.
 
 ### Data Flow Diagram
@@ -295,6 +312,7 @@ flowchart TD
 ### Example Flow: User Registration
 
 **1. User submits registration form (UI)**
+
 ```typescript
 // Component
 const handleSubmit = async (formData: RegistrationFormSchema) => {
@@ -303,18 +321,20 @@ const handleSubmit = async (formData: RegistrationFormSchema) => {
 ```
 
 **2. API call dispatched (State Management)**
+
 ```typescript
 // Action/Mutation
 const registerUser = async (data: CreateUserDTO) => {
-  const response = await fetch('/api/users/register', {
-    method: 'POST',
-    body: JSON.stringify(data)
+  const response = await fetch("/api/users/register", {
+    method: "POST",
+    body: JSON.stringify(data),
   });
   return response.json();
 };
 ```
 
 **3. API endpoint receives request (Controller)**
+
 ```typescript
 // POST /api/users/register
 async function handleRegister(req: Request) {
@@ -325,6 +345,7 @@ async function handleRegister(req: Request) {
 ```
 
 **4. Business logic executed (Service)**
+
 ```typescript
 // UserService
 async createUser(dto: CreateUserDTO): Promise<User> {
@@ -344,6 +365,7 @@ async createUser(dto: CreateUserDTO): Promise<User> {
 ```
 
 **5. Database operation (Repository)**
+
 ```typescript
 // UserRepository
 async create(data: CreateUserData): Promise<User> {
@@ -362,6 +384,7 @@ async create(data: CreateUserData): Promise<User> {
 ```
 
 **Data Transformations:**
+
 - **UI Form** → **CreateUserDTO** (client-side validation)
 - **CreateUserDTO** → **Domain Model** (service layer)
 - **Domain Model** → **Database Entity** (repository layer)
@@ -376,16 +399,19 @@ async create(data: CreateUserData): Promise<User> {
 ## Data Validation Strategy
 
 ### Client-Side Validation
+
 - Form validation using Zod/Yup/Joi
 - Real-time feedback on input
 - TypeScript type safety
 
 ### Server-Side Validation
+
 - DTO validation (class-validator or similar)
 - Business rule validation in service layer
 - Database constraint validation
 
 ### Database Constraints
+
 - Primary keys (UUID)
 - Foreign keys (referential integrity)
 - Unique constraints
@@ -397,12 +423,14 @@ async create(data: CreateUserData): Promise<User> {
 ## Notes and Considerations
 
 ### Performance Optimization
+
 - Database indexes on frequently queried columns
 - Lazy loading for large datasets
 - Pagination for list endpoints
 - Caching strategy (Redis, etc.)
 
 ### Security Considerations
+
 - Password hashing (bcrypt, argon2)
 - SQL injection prevention (ORM parameterization)
 - XSS prevention (output sanitization)
@@ -410,6 +438,7 @@ async create(data: CreateUserData): Promise<User> {
 - Rate limiting on API endpoints
 
 ### Future Enhancements
+
 - [List planned changes to data model]
 - [Migrations planned]
 - [New entities/features]
@@ -429,31 +458,37 @@ async create(data: CreateUserData): Promise<User> {
 ## Technology-Specific Instructions
 
 ### For Prisma Projects
+
 - Parse `prisma/schema.prisma` file
 - Extract all models with fields, relations, indexes
 - Document enums and custom types
 
 ### For TypeORM Projects
+
 - Scan for `*.entity.ts` files
 - Parse decorators: `@Entity`, `@Column`, `@ManyToOne`, etc.
 - Document relationships and cascade options
 
 ### For Sequelize Projects
+
 - Find model definitions in `models/` directory
 - Parse `sequelize.define()` calls
 - Document associations (hasMany, belongsTo, etc.)
 
 ### For Mongoose Projects
+
 - Scan for `*.model.ts` or `*.schema.ts` files
 - Parse `mongoose.Schema()` definitions
 - Document virtual fields and methods
 
 ### For Django Projects
+
 - Parse `models.py` files
 - Extract Django model classes with fields
 - Document relationships (ForeignKey, ManyToMany, etc.)
 
 ### For Next.js Projects
+
 - Check both App Router (`app/api/`) and Pages Router (`pages/api/`)
 - Document Server Components data fetching
 - Include Client Component state patterns
@@ -473,11 +508,11 @@ async create(data: CreateUserData): Promise<User> {
 
 ## Success Criteria
 
- Single comprehensive file created at `./docs/architecture/data-model.md`
- All database entities documented with Mermaid ERD
- All service layer models documented (DTOs, domain models)
- All UI data structures documented (props, state)
- End-to-end data flow documented with diagrams
- Validation rules included for all data structures
- Technology stack auto-detected and documented
- File is well-organized and easy to navigate
+Single comprehensive file created at `./docs/architecture/data-model.md`
+All database entities documented with Mermaid ERD
+All service layer models documented (DTOs, domain models)
+All UI data structures documented (props, state)
+End-to-end data flow documented with diagrams
+Validation rules included for all data structures
+Technology stack auto-detected and documented
+File is well-organized and easy to navigate

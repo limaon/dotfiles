@@ -9,6 +9,7 @@ description: Implement SEO optimizations for specified pages or entire site
 Please implement comprehensive SEO optimizations for the specified target:
 
 ## Technical SEO
+
 - [ ] Add/optimize meta titles and descriptions
 - [ ] Implement structured data (JSON-LD schema markup)
 - [ ] Create/update robots.txt and sitemap.xml
@@ -17,6 +18,7 @@ Please implement comprehensive SEO optimizations for the specified target:
 - [ ] Implement proper heading hierarchy (H1-H6)
 
 ## Performance SEO
+
 - [ ] Optimize Core Web Vitals (LCP, FID, CLS)
 - [ ] Implement image lazy loading and optimization
 - [ ] Minimize JavaScript and CSS
@@ -24,6 +26,7 @@ Please implement comprehensive SEO optimizations for the specified target:
 - [ ] Optimize server response times
 
 ## Content SEO
+
 - [ ] Optimize content for target keywords
 - [ ] Improve internal linking structure
 - [ ] Add alt text to all images
@@ -31,17 +34,20 @@ Please implement comprehensive SEO optimizations for the specified target:
 - [ ] Implement proper URL structure
 
 ## Accessibility (SEO Impact)
+
 - [ ] WCAG 2.1 AA compliance
 - [ ] Semantic HTML usage
 - [ ] ARIA labels where needed
 - [ ] Keyboard navigation support
 
-##  **DOCUMENTATION REQUIREMENTS**
+## **DOCUMENTATION REQUIREMENTS**
 
 **Create comprehensive SEO documentation at:**
+
 - `docs/tasks/frontend/DD-MM-YYYY/<semantic-seo-id>/`
 
 **Documentation Structure:**
+
 - `README.md` - SEO audit overview and objectives
 - `technical-seo-audit.md` - Meta tags, structured data, schema markup
 - `performance-analysis.md` - Core Web Vitals, optimization metrics
@@ -51,6 +57,7 @@ Please implement comprehensive SEO optimizations for the specified target:
 - `before-after-comparison.md` - SEO score improvements with metrics
 
 **Semantic SEO Task ID Examples:**
+
 - `homepage-meta-optimization`
 - `product-page-structured-data`
 - `blog-content-seo-enhancement`
