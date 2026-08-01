@@ -117,7 +117,7 @@ cd evals/framework && npm run eval:sdk -- --agent=core/opencoder --pattern="**/s
 - If modifying learning agents -> stage `~/.config/opencode/agent/learning/`
 - If modifying product agents -> stage `~/.config/opencode/agent/product/`
 - If modifying subagents -> stage `~/.config/opencode/agent/subagents/`
-- If modifying commands -> stage `~/.config/opencode/command/`
+ - If modifying commands -> stage `~/.config/opencode/commands/`
 - If modifying context -> stage `~/.config/opencode/context/`
 - If modifying scripts -> stage `scripts/`
 - If modifying docs -> stage `docs/`

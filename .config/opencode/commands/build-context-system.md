@@ -31,7 +31,7 @@ Guide users through requirements gathering and generate complete, production-rea
 
 1. Check if `~/.config/opencode/` directory exists
 2. Scan for existing agents (`agent/*.md`, `agent/subagents/*.md`)
-3. Scan for existing commands (`command/*.md`)
+3. Scan for existing commands (`commands/*.md`)
 4. Scan for existing context files (`context/*/*.md`)
 5. Scan for existing workflows (`workflows/*.md`)
 6. Identify existing system capabilities
@@ -525,7 +525,7 @@ _Capture_: `custom_commands[]`, `command_patterns[]`
 > │   │   └── validation-rules.md
 > │   └── templates/
 > │       └── output-formats.md
-> ├── command/
+> ├── commands/
 > │   ├── {command-1}.md
 > │   └── {command-2}.md
 > └── workflows/
