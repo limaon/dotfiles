@@ -1,6 +1,54 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
+  "default_agent": "OpenAgent",
+  "permission": {
+    "*": "ask",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "lsp": "allow",
+    "question": "allow",
+    "skill": "allow",
+    "bash": {
+      "*": "ask",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git branch*": "allow",
+      "npm list*": "allow",
+      "npx skills*": "allow",
+      "node -v*": "allow",
+      "npm -v*": "allow",
+      "which *": "allow",
+      "pwd": "allow",
+      "ls*": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "grep *": "allow",
+      "find *": "allow",
+      "wc *": "allow",
+      "echo *": "allow",
+      "mkdir *": "ask",
+      "rm *": "deny",
+      "sudo *": "deny",
+      "chmod *": "deny",
+      "chown *": "deny",
+      "curl *": "ask",
+      "wget *": "ask"
+    },
+    "edit": {
+      "*": "ask",
+      "*.md": "allow",
+      "*.mdx": "allow",
+      "*.json": "ask",
+      "*.jsonc": "ask",
+      ".env*": "deny"
+    },
+    "external_directory": "ask",
+    "doom_loop": "ask"
+  },
   "compaction": {
     "auto": true,
     "prune": true,
@@ -63,33 +111,6 @@
       "command": ["mgrep", "mcp"],
       "enabled": true,
       "type": "local"
-    }
-  },
-  "permission": {
-    "read": "allow",
-    "grep": "allow",
-    "glob": "allow",
-    "skill": "allow",
-    "question": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "lsp": "allow",
-    "todowrite": "ask",
-    "edit": "ask",
-    "write": "ask",
-    "apply_patch": "ask",
-    "bash": {
-      "ls *": "allow",
-      "cat *": "allow",
-      "pwd": "allow",
-      "git status": "allow",
-      "git diff *": "allow",
-      "git log *": "allow",
-      "git show *": "allow",
-      "git branch *": "allow",
-      "*": "ask",
-      "rm -rf *": "deny",
-      "sudo *": "deny"
     }
   },
   "plugin": [
