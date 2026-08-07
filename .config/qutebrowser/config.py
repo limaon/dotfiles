@@ -5,13 +5,14 @@
 # Back to Firefox
 # xdg-settings set default-web-browser firefox.desktop
 
-from PyQt6.QtCore import QUrl
-from qutebrowser.api import interceptor, message
-from qutebrowser.config.configfiles import ConfigAPI
-from qutebrowser.config.config import ConfigContainer
-from urllib.parse import urljoin
 import operator
 import re
+from urllib.parse import urljoin
+
+from PyQt6.QtCore import QUrl
+from qutebrowser.api import interceptor, message
+from qutebrowser.config.config import ConfigContainer
+from qutebrowser.config.configfiles import ConfigAPI
 
 # pylint: disable=C0111
 c: ConfigContainer = c  # noqa: F821 pylint: disable=E0602,C0103

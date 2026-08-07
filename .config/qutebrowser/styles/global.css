@@ -17,7 +17,7 @@
   /* border-radius: 0 !important; */
 }
 
-
-html, body {
+html,
+body {
   scroll-behavior: auto !important;
 }
