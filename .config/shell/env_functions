@@ -84,6 +84,41 @@ remorphans() {
   fi
 }
 
+# Usage: trimlogs [SIZE]
+# Vacuum journal logs. Default: 150M
+trimlogs() { sudo journalctl --vacuum-size="${1:-150M}"; }
+
+# Usage: pacclean
+# Remove orphans, clean cache, trim logs
+pacclean() {
+  command -v remorphans &>/dev/null && remorphans
+  sudo find /var/cache/pacman/pkg/ -name 'download-*' -delete 2>/dev/null
+  sudo pacman -Sc --noconfirm
+  trimlogs
+}
+
+# Usage: whathaveidone [LINES]
+# Show recent pacman activity. Default: 500 lines
+whathaveidone() { tail -"${1:-500}" /var/log/pacman.log | grep -iE 'installed|removed|upgraded'; }
+
+# Usage: unlock
+# Remove pacman database lock (with confirmation)
+unlock() {
+  echo "Warning: This removes the pacman database lock."
+  read -rp "Continue? [y/N] " confirm
+  [[ "$confirm" =~ ^[Yy]$ ]] && sudo rm /var/lib/pacman/db.lck
+}
+
+# Usage: refl [COUNTRY_CODE]
+# Update mirrorlist via rate-mirrors. Auto-detects country if omitted.
+refl() {
+  local country="${1:-$(curl -s --max-time 5 ifconfig.co/country 2>/dev/null | tr -d '\n')}"
+  country="${country:-BR}"
+  sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+  rate-mirrors --entry-country="$country" --protocol=https arch --max-delay=21600 \
+    | sudo tee /etc/pacman.d/mirrorlist
+}
+
 # Usage: lf [options]
 # Launches lf file manager and returns to last visited directory after exit.
 lfcd () {

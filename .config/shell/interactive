@@ -83,17 +83,10 @@ alias nf="clear && neofetch"
 alias dot='git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/ --work-tree=$HOME'
 
 
-# Pacman / System
-alias lsp='pacman -Qett --color=always | less'
-alias trimlogs='sudo journalctl --vacuum-size=150M'
-alias pacclean='remorphans && sudo pacman -Sc && trimlogs'
-alias whathaveidone="tail -500 /var/log/pacman.log | grep -i 'installed\|removed\|graded' --color=never"
-alias unlock='sudo rm /var/lib/pacman/db.lck'
-alias autoremove='sudo pacman -Rns'
+# Pacman / System (functions defined in env_functions)
+alias pacq='pacman -Qett --color=always | less'
 alias parsua='paru -Sua'
 alias aurlist='pacman -Qm'
-alias refl='sudo reflector --verbose --country $(curl -s --max-time 2 ifconfig.co/country | tr -d "\n") --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
-# alias refl="sudo reflector --protocol https --download-timeout 60 --verbose --age 6 --latest 100 --fastest 10 --sort rate --country "$(curl -Ls "ifconfig.co/country"),DE,FR,GB,NL,PL,RU,BY,CZ,FI,SE,CH,HU,NO,BR" --save /etc/pacman.d/mirrorlist"
 
 # A.I aliases (AI_PROVIDER exported in login)
 alias llm="opencode run"
