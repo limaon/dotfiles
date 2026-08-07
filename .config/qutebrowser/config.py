@@ -10,6 +10,7 @@ import re
 from urllib.parse import urljoin
 
 from PyQt6.QtCore import QUrl
+
 from qutebrowser.api import interceptor, message
 from qutebrowser.config.config import ConfigContainer
 from qutebrowser.config.configfiles import ConfigAPI
@@ -70,10 +71,10 @@ REDIRECT_MAP = {
     "twitter.com": operator.methodcaller("setHost", "nitter.net"),
     "www.twitter.com": operator.methodcaller("setHost", "nitter.net"),
     "x.com": operator.methodcaller("setHost", "nitter.net"),
-    "youtube.com": operator.methodcaller("setHost", "invidious.snopyta.org"),
-    "www.youtube.com": operator.methodcaller("setHost", "invidious.snopyta.org"),
-    "tiktok.com": operator.methodcaller("setHost", "tok.habedieeh.re"),
-    "www.tiktok.com": operator.methodcaller("setHost", "tok.habedieeh.re"),
+    "youtube.com": operator.methodcaller("setHost", "inv.nadeko.net"),
+    "www.youtube.com": operator.methodcaller("setHost", "inv.nadeko.net"),
+    "tiktok.com": operator.methodcaller("setHost", "tok.adminforge.de"),
+    "www.tiktok.com": operator.methodcaller("setHost", "tok.adminforge.de"),
     "imgur.com": operator.methodcaller("setHost", "rimgo.vern.cc"),
     "www.imgur.com": operator.methodcaller("setHost", "rimgo.vern.cc"),
     # Pastebins
@@ -82,7 +83,7 @@ REDIRECT_MAP = {
     # Causes an infinite loop if the paste does not exist...
     "pastebin.com": _pastebin_redir,
     # "hasteb.in": _hastebin_redir,
-    "hastebin.com": _hastebin_redir,
+    # "hastebin.com": _hastebin_redir,  # Now redirects to toptal.com (requires login)
 }
 
 
@@ -180,8 +181,34 @@ c.content.autoplay = False
 c.content.plugins = False
 c.content.pdfjs = False
 c.content.images = True
-c.content.blocking.method = "auto"
 c.content.blocking.enabled = True
+# "both" = Brave ABP engine (python-adblock) + host blocker. Requires python-adblock;
+# "auto" would silently degrade to hosts-only blocking if the lib is missing.
+c.content.blocking.method = "both"
+c.content.blocking.hosts.block_subdomains = True
+c.content.blocking.hosts.lists = [
+    "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts",
+]
+c.content.blocking.adblock.lists = [
+    # Core
+    "https://easylist.to/easylist/easylist.txt",
+    "https://easylist.to/easylist/easyprivacy.txt",
+    # uBlock Origin
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt",
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt",
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt",
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt",
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/quick-fixes.txt",
+    # Must stay last: undoes false positives from the lists above
+    "https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt",
+    # Annoyances / cookie banners
+    "https://easylist.to/easylist/fanboy-annoyance.txt",
+    "https://secure.fanboy.co.nz/fanboy-cookiemonster.txt",
+    "https://raw.githubusercontent.com/AdguardTeam/FiltersRegistry/master/filters/filter_14_Annoyances/filter.txt",
+    # pt-BR
+    "https://easylist-downloads.adblockplus.org/easylistportuguese.txt",
+]
+c.content.blocking.whitelist = []
 c.downloads.location.prompt = True
 c.downloads.open_dispatcher = dowmload_open_script_path
 c.downloads.remove_finished = 10000
@@ -212,6 +239,8 @@ bindings = {
     ",M": "hint links spawn -u view_in_mpv {hint-url}",
     ",f": "hint all spawn -d firefox {hint-url}",
     "ss": "tab-give",
+    "pa": "adblock-update",
+    "pb": "config-cycle -t content.blocking.enabled",
 }
 for key, bind in bindings.items():
     config.bind(key, bind)
