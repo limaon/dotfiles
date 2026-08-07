@@ -238,7 +238,7 @@ while true; do
       fi
       [[ "$fzf_start_pos" -lt 1 ]] && fzf_start_pos=1
     fi
-    kitty @ --to "unix:${sock}" action close_session "$selected_title" >/dev/null 2>&1 || true
+    kitty @ --to "unix:${sock}" close-window --match "session:^${selected_title}$" >/dev/null 2>&1 || true
     continue
   fi
 
