@@ -3,7 +3,7 @@ export NAME='Alvaro Oliveira'
 export EMAIL='alvarolima1103@outlook.com'
 
 # Preferred programs
-export PAGER="less"
+export PAGER="less -R"
 export MAIL="thunderbird"
 export EDITOR="nvim"
 export VISUAL=$EDITOR
