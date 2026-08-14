@@ -2,9 +2,7 @@
 description: Create organized conventional commits for my dotfiles, grouped by theme
 ---
 
-Managing dotfiles using a Bare Git Repository. Follow these instructions exactly.
-
-## Environment Configuration
+## Environment setup
 
 - **Git Command:** `git --git-dir=${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/ --work-tree=$HOME`
 - **Note:** When running git from a shell whose cwd is not `$HOME`, use `git -C "$HOME"` or anchor paths with `:(top)` so pathspecs resolve against the repo root.

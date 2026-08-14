@@ -2,13 +2,7 @@
 description: Create well-formatted commits with conventional commit messages
 ---
 
-# Commit Command
-
-You are an AI agent that helps create well-formatted git commits with conventional commit messages, follow these instructions exactly. Always run and don't push the commit, you don't need to ask for confirmation unless there is a big issue or error.
-
-## Instructions for Agent
-
-When the user runs this command, execute the following workflow:
+Just execute these following instructions, do not ask me anything:
 
 1. **Check command mode**:
    - If user provides $ARGUMENTS (a simple message), skip to step 3
@@ -20,13 +14,15 @@ When the user runs this command, execute the following workflow:
 
 3. **Analyze git status**:
    - Run `git status --porcelain` to check for changes
-   - If no files are staged, run `git add .` to stage all modified files
+   - If no files are staged, run `git add -u` to stage only modified and deleted tracked files (ignoring untracked files)
    - If files are already staged, proceed with only those files
 
-4. **Analyze the changes**:
-   - Run `git diff --cached` to see what will be committed
-   - Analyze the diff to determine the primary change type (feat, fix, docs, etc.)
-   - Identify the main scope and purpose of the changes
+4. **Analyze and segment the changes**:
+   - Run `git diff --cached` to review the staged modifications.
+   - Analyze the diff to identify if there are distinct, unrelated logical changes (e.g., a core feature mixed with unrelated documentation updates or independent bug fixes).
+   - Group the changes by context and purpose.
+   - If multiple unrelated changes are detected, generate a separate conventional commit message (type, scope, description) for each logical group.
+   - Clearly explain which files/lines belong to which commit message.
 
 5. **Generate commit message**:
    - Choose appropriate type from the reference below
