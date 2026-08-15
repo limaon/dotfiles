@@ -1,5 +1,5 @@
 ---
-name: database-optimizer
+name: DatabaseOptimizer
 description: "Expert database optimizer for performance tuning, query optimization, indexing, N+1 resolution, and scalable architectures. Use PROACTIVELY for database optimization, performance issues, or scalability challenges."
 ---
 

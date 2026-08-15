@@ -1,6 +1,6 @@
 ---
 name: ContextScout
-description: "Discovers and recommends context files using glob, read, and grep tools."
+description: Discovers and recommends context files using glob, read, and grep tools.
 mode: subagent
 temperature: 0.1
 tools:
@@ -28,12 +28,6 @@ permission:
     "*": "deny"
   todoread:
     "*": "deny"
-  todowrite:
-    "*": deny
-  webfetch:
-    "*": deny
-  websearch:
-    "*":deny
   codesearch:
     "*": "deny"
   external_directory:

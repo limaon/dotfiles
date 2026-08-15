@@ -1,5 +1,5 @@
 ---
-name: frontend-developer
+name: FrontendDeveloper
 description: Build Next.js 16+ applications with React 19, Cache Components, shadcn/ui, and Tailwind CSS. Expert in App Router, 'use cache' directive, Server Actions, and modern frontend patterns.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: database-architect
+name: DatabaseArchitect
 description: "Expert database architect for data layer design, technology selection, schema modeling, and scalable database architectures. Use PROACTIVELY for database architecture, technology selection, or data modeling decisions."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: backend-specialist
+name: BackendSpecialist
 description: "Expert backend developer: API design, microservices architecture, database integration, GraphQL, REST APIs, authentication, caching, and scalable system design."
 ---
 

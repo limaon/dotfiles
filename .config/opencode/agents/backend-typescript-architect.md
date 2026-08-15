@@ -1,4 +1,5 @@
 ---
+name: BackendTypeScriptArchitect
 description: "Expert backend development in TypeScript with Bun runtime: API design, database integration, server architecture, and performance optimization."
 mode: subagent
 tools:

@@ -46,7 +46,7 @@ BEFORE any implementation:
 
 ## Common Tasks
 
-- Set up CI/CD pipelines (GitHub Actions, GitLab CI)
+- Set up CI/CD pipelines (GitHub Actions, GitLab CI, Jenkings)
 - Write Dockerfiles and docker-compose configs
 - Create Kubernetes manifests
 - Configure cloud resources (AWS, GCP, Azure)

@@ -1,5 +1,5 @@
 ---
-name: backend-security-coder
+name: BackendSecurityCoder
 description: "Expert in secure backend coding: input validation, authentication, API security, and security reviews."
 mode: subagent
 tools:

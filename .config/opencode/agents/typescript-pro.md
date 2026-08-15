@@ -1,5 +1,5 @@
 ---
-name: typescript-pro
+name: TypeScriptPro
 description: "Master TypeScript with advanced types, generics, and strict type safety. Expert in complex type systems, type inference optimization, decorators, and enterprise-grade patterns."
 mode: subagent
 tools:

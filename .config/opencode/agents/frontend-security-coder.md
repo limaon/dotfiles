@@ -1,5 +1,5 @@
 ---
-name: frontend-security-coder
+name: FrontendSecurityCoder
 description: "Expert in secure frontend coding: XSS prevention, output sanitization, and client-side security patterns and reviews."
 mode: subagent
 tools:

@@ -1,5 +1,5 @@
 ---
-name: Context Retriever
+name: ContextRetriever
 description: "Generic context search and retrieval specialist for finding relevant context files, standards, and guides in any repository"
 mode: subagent
 temperature: 0.1
