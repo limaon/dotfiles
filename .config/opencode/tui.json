@@ -134,7 +134,7 @@
   },
   "plugin": [
     [
-      "@leohenon/opencode-vim-plugin",
+      "@leohenon/opencode-vim-plugin@latest",
       {
         "enabled": true,
         "toggle_key": "ctrl+shift+v",
