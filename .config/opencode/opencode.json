@@ -110,6 +110,15 @@
     "@mohak34/opencode-notifier@latest"
   ],
   "provider": {
+    "anthropic": {
+      "whitelist": [
+        "claude-sonnet-4-5-20250929",
+        "claude-sonnet-4-5",
+        "claude-fable-5",
+        "claude-opus-4-5-20251101",
+        "claude-haiku-4-5-20251001"
+      ]
+    },
     "google": {
       "whitelist": [
         "gemini-2.5-flash",

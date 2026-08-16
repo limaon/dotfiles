@@ -200,6 +200,7 @@ for_window [window_role="^(pop-up|bubble|dialog|task_dialog|Preferences|About|Or
 for_window [window_role="browser"] border pixel
 for_window [window_role="^GtkFileChooserDialog$"] resize set 600 400, move position center
 for_window [title="^(Open|Save|File|Select|Print|Choose)"] border normal 2, resize set 800 510
+for_window [title="wants to open"] border normal 2, resize set 800 510
 for_window [title="Event Tester"] floating enable resize set 400 200
 for_window [title="^(About|Preferences|htop|calcurse)$"] floating enable, border normal, resize set 700 540, move position center
 for_window [title="Save File"] floating enable
