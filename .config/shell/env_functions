@@ -292,23 +292,27 @@ _get_find_exclude_args() {
   done
 }
 
-# Build FZF commands based on available tools
-if command -v fd >/dev/null 2>&1; then
-  FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'fd')"
+# Lazy initialization of FZF commands (called on first use)
+_init_fzf_commands() {
+  if [[ -n "$FZF_DEFAULT_COMMAND" ]]; then
+    return
+  fi
+
+  # Build FZF commands based on available tools
+  if command -v fd >/dev/null 2>&1; then
+    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'fd')"
+    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'fd')"
+  elif command -v rg >/dev/null 2>&1; then
+    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'rg')"
+    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'rg')"
+  else
+    FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'find')"
+    FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'find')"
+  fi
+
   export FZF_DEFAULT_COMMAND
-  FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'fd')"
   export FZF_DIR_COMMAND
-elif command -v rg >/dev/null 2>&1; then
-  FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'rg')"
-  export FZF_DEFAULT_COMMAND
-  FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'rg')"
-  export FZF_DIR_COMMAND
-else
-  FZF_DEFAULT_COMMAND="$(_build_fzf_cmd 'f' 'find')"
-  export FZF_DEFAULT_COMMAND
-  FZF_DIR_COMMAND="$(_build_fzf_cmd 'd' 'find')"
-  export FZF_DIR_COMMAND
-fi
+}
 
 # Usage: locatefall
 # Uses fzf to locate a file in current directory and changes into it if it's a directory, or opens it in editor if it's a file.
@@ -323,6 +327,7 @@ flocate() {
 # Usage: fe
 # Finds and edits a file in current directory, excluding certain paths and file types.
 fe() {
+  _init_fzf_commands
   local file
   local fallback_cmd="find . -type f $(_get_find_exclude_args) ! -size 0 -print"
 
@@ -334,6 +339,7 @@ fe() {
 # Usage: fcd
 # Changes to a directory selected via fzf, excluding certain paths.
 fcd() {
+  _init_fzf_commands
   local dir
   local fallback_cmd="find . -type d $(_get_find_exclude_args) -print"
 
@@ -349,14 +355,23 @@ fkill() {
   [ -n "$pids" ] && echo "$pids" | xargs kill "-${1:-9}"
 }
 
-# Usage: fhist
-# Searches command history using fzf.
+# Usage: fhist (via Ctrl+R keybinding)
+# Searches command history using fzf and loads it into the command line.
+# Note: Only works when called via bind -x (Ctrl+R), not when called directly
 fhist() {
   local cmd
-  cmd=$(history | awk '{$1=""; sub(/^[ \t]*[0-9-]+[ \t]+([0-9:]+[ \t]+)?/, ""); print}' | awk '!seen[$0]++' | fzf-tmux -p +s --tac --exact)
+  local old_histtimeformat="$HISTTIMEFORMAT"
+  HISTTIMEFORMAT=""
+
+  cmd=$(history | tail -n 2000 | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | awk '!seen[$0]++ && NF' | fzf-tmux -p +s --tac --exact)
+
+  HISTTIMEFORMAT="$old_histtimeformat"
+
   [[ -z $cmd ]] && return
-  history -s "$cmd"
-  printf '%s\n' "$cmd"
+
+  # Update readline (only works when called from bind -x)
+  READLINE_LINE="$cmd"
+  READLINE_POINT=${#cmd}
 }
 
 
@@ -371,6 +386,11 @@ _replace_slash_with_semicolon() {
     READLINE_POINT=$((pos+1))
   fi
 }
-[[ $- == *i* ]] && bind -x '"\;": _replace_slash_with_semicolon'
+
+if [[ $- == *i* ]]; then
+  bind -x '"\;": _replace_slash_with_semicolon'
+  # Bind fhist to Ctrl+R (history search)
+  bind -x '"\C-r": fhist'
+fi
 
 # vim:ft=sh

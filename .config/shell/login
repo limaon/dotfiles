@@ -15,15 +15,8 @@ export TS_ONFINISH=tsp_onfinish
 export CVS_RSH=ssh
 export RSYNC_RSH=ssh
 
-# Language
+# Language and locale
 export LANG='en_US.UTF-8'
-export LC_ALL=$LANG
-export LC_COLLATE=$LANG
-export LC_CTYPE=$LANG
-export LC_MESSAGES=$LANG
-export LC_NUMERIC=$LANG
-export LC_TIME=$LANG
-export LC_MONETARY=$LANG
 
 
 ### Default XDG path end clean up ${HOME}

@@ -15,7 +15,7 @@ BASH_ENV=
 # 4. Run ~/.config/bash/login
 . ~/.config/bash/login
 
-# 5. Run ~/.bash/interactive if this is an interactive shell.
+# 5. Run ~/.config/bash/interactive if this is an interactive shell.
 if [ "$PS1" ]; then
     . ~/.config/bash/interactive
 fi
