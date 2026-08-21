@@ -7,20 +7,55 @@ reset_color=$'\001\e[0m\002'
 normal=$'\001\e[0m\002'
 
 git_prompt_vars() {
+  local git_dir
+  git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 1
+
   local branch
-  branch=$(git symbolic-ref --short HEAD 2>/dev/null) || return 1
+  branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+  if [[ -z "$branch" ]]; then
+    if [[ -f "$git_dir/rebase-merge/head-name" ]]; then
+      branch=$(cat "$git_dir/rebase-merge/head-name" | sed 's|refs/heads/||')
+    elif [[ -f "$git_dir/rebase-apply/head-name" ]]; then
+      branch=$(cat "$git_dir/rebase-apply/head-name" | sed 's|refs/heads/||')
+    else
+      return 1
+    fi
+  fi
 
   SCM_BRANCH="$branch"
   SCM_PREFIX=" ${bold_blue}git:("
   SCM_SUFFIX="${bold_blue})"
 
-  local status
-  status=$(git status --porcelain 2>/dev/null)
-
-  if [[ -n "$status" ]]; then
-    SCM_STATE=" ${bold_yellow}✗"
+  if [[ -d "$git_dir/rebase-merge" ]] || [[ -d "$git_dir/rebase-apply" ]]; then
+    SCM_STATE=" ${bold_yellow}\u2694"
   else
-    SCM_STATE=" ${bold_green}✓"
+    local status
+    status=$(git status --porcelain 2>/dev/null)
+
+    if [[ -n "$status" ]]; then
+      SCM_STATE=" ${bold_yellow}\u2717"
+    else
+      local upstream
+      upstream=$(git rev-parse --abbrev-ref "@{u}" 2>/dev/null)
+
+      if [[ -n "$upstream" ]]; then
+        local behind
+        behind=$(git rev-list --count "@{u}..HEAD" 2>/dev/null)
+        local ahead
+        ahead=$(git rev-list --count "HEAD..@{u}" 2>/dev/null)
+
+        if [[ "$ahead" -gt 0 ]]; then
+          SCM_STATE=" ${bold_yellow}\u2193"
+        elif [[ "$behind" -gt 0 ]]; then
+          SCM_STATE=" ${bold_yellow}\u2191"
+        else
+          SCM_STATE=" ${bold_green}\u2713"
+        fi
+      else
+        SCM_STATE=" ${bold_green}\u2713"
+      fi
+    fi
   fi
 }
 
@@ -46,7 +81,7 @@ conda_or_venv_prompt() {
 }
 
 prompt_command() {
-  PS1="$(conda_or_venv_prompt)${bold_green}➜  ${bold_cyan}\W${reset_color}$(scm_prompt_info)${normal} "
+  PS1="$(conda_or_venv_prompt)${bold_green}➜ ${bold_cyan}\W${reset_color}$(scm_prompt_info)${normal} "
 }
 
 PROMPT_COMMAND=prompt_command
