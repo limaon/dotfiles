@@ -212,10 +212,6 @@ export GROFF_NO_SGR=1
 export CLICOLOR=1
 export COLORFGBG="default;default"
 
-# A.I defaults (moved from interactive)
-export AI_PROVIDER=phind
-
-
 # OpenCode - environment base
 export OPENCODE_AUTO_SHARE=false
 export OPENCODE_CONFIG="$HOME/.config/opencode/opencode.json"
@@ -234,5 +230,9 @@ export OPENCODE_DISABLE_FILETIME_CHECK=false
 export OPENCODE_EXPERIMENTAL=true
 export OPENCODE_CLIENT="cli"
 export OPENCODE_ENABLE_EXA=1
+
+# Claude Code - configuration directory
+export CLAUDE_CONFIG_DIR="$HOME/.config/claude"
+export CLAUDE_CODE_DISABLE_AUTO_MEMORY="1"
 
 # vim:ft=sh

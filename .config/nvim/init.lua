@@ -471,6 +471,18 @@ keymap("n", "<F3>", "<cmd>set wrap!<cr>", { desc = "Toggle wrap" })
 keymap("n", "<F4>", "z=", { desc = "Show spelling suggestions" })
 keymap("n", "<F5>", "1z=", { desc = "Accept first spelling suggestion" })
 keymap("i", "<F5>", "<C-o>1z=", { desc = "Accept first spelling suggestion" })
+keymap("n", "<F6>", function()
+	local file = vim.fn.expand("%")
+	vim.system({ "typst", "compile", file }, { text = true }, function(result)
+		vim.schedule(function()
+			if result.code == 0 then
+				vim.notify("Compiled: " .. file, vim.log.levels.INFO)
+			else
+				vim.notify("Typst error", vim.log.levels.ERROR)
+			end
+		end)
+	end)
+end, { desc = "Typst compile to PDF" })
 
 -- }}}
 
@@ -896,7 +908,7 @@ require("lazy").setup({
 
 			vim.lsp.config("tinymist", {
 				settings = {
-					exportPdf = "onSave",
+					exportPdf = "never",
 					formatterMode = "typstyle",
 					formatterIndentSize = 2,
 					formatterPrintWidth = 100,
