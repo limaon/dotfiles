@@ -7,7 +7,10 @@
 ! * If using GNOME on Wayland, uncomment the WaylandEnable=false in
 !   /etc/gdm/custom.conf so that the resources will be loaded.
 
-#define base04        #00141a
+! Color Definitions {{{
+! Color definitions for Solarized theme
+
+#define base04        #001419
 #define base03        #002d38
 #define base02        #073541
 #define base01        #586e74
@@ -26,6 +29,16 @@
 #define cyan          #2aa298
 #define green         #859900
 
+! Bright colors (for color8-15)
+#define bright_red      #f65351
+#define bright_green    #b7fa00
+#define bright_yellow   #ffbf00
+#define bright_blue     #47adf5
+#define bright_magenta  #f254a1
+#define bright_cyan     #2beede
+! }}}
+
+! Terminal Colors {{{
 ! Terminal colors
 *background:            base04
 *foreground:            base0
@@ -48,23 +61,27 @@
 *.color14:               base1
 *.color15:               base3
 
-*highlightColor: base02
-*highlightTextColor: base04
-*.selectionColor: base01
-*.barBackground: white
-*.font: xos4 Terminus:pixelsize=20:antialias=true:autohint=true
-*.mark.background: yellow
+*highlightColor:        base02
+*highlightTextColor:    base04
+*.selectionColor:       base01
+*.barBackground:        white
+*.mark.background:      yellow
 *.bar.background: base01
 *.bar.foreground: base04
+! }}}
 
+! Nsxiv Configuration {{{
 ! === Nsxiv ===
-Nsxiv.window.background:  base04
-Nsxiv.window.foreground:  base0
-Nsxiv.bar.font:           xos4 Terminus:pixelsize=20:antialias=true:autohint=true
-Nsxiv.bar.background:     base01
-Nsxiv.bar.foreground:     base04
+Nsxiv.window.background:        base04
+Nsxiv.window.foreground:        base0
+Nsxiv.bar.font:                 xos4 Terminus:pixelsize=20:antialias=true:autohint=true
+Nsxiv.font:                     xos4 Terminus:pixelsize=20:antialias=true:autohint=true
+Nsxiv.bar.background:           base01
+Nsxiv.bar.foreground:           base04
 Nsxiv.mark.foreground:    yellow
+! }}}
 
+! Cursor & Font Settings {{{
 ! Cursor settings
 Xcursor.theme: Pop
 Xcursor.size: 24
@@ -78,13 +95,16 @@ Xft.hinting:            1
 Xft.hintstyle:          hintslight
 Xft.lcdfilter:          lcddefault
 Xft.rgba:               none
+! }}}
 
-
+! Transparency & Fading {{{
 !! Transparency (0-1):
 *.alpha: 0.8
 *.fading: 35
 *.fadeColor: base04
+! }}}
 
+! XTerm/UXTerm Configuration {{{
 ! Colorscheme (XTerm/UXTerm)
 ?.vt100*background: base04
 ?.vt100*foreground: base0
@@ -105,8 +125,9 @@ Xft.rgba:               none
 ?.vt100*color13: violet
 ?.vt100*color14: base1
 ?.vt100*color15: base3
+! }}}
 
-
+! XTerm Settings {{{
 ! XTerm settings
 xterm*faceName: xft:UbuntuMono:size=16:antialias=true
 xterm*faceNameBold: xft:UbuntuMono:bold:style=Bold:size=15:antialias=true
@@ -140,8 +161,9 @@ xterm*loginShell: true
 ?.vt100.colorULMode: true
 ?.vt100.colorUL: rgb:e4/e4/e4
 ?.*boldMode: false
+! }}}
 
-
+! Scrollbar Configuration {{{
 ! Scrollbar
 ?.vt100.scrollBar: false
 ?.*mouseWheelScrollPage: true
@@ -151,23 +173,29 @@ xterm*loginShell: true
 ?.*scrollBarTtyOutput: false
 ?.*scrollTtyKeypress: true
 ?.letterSpace: 0
+! }}}
 
-
+! URL & Keyboard Configuration {{{
 ! Double-click to select whole URLs
 ?.charClass: 33:48,35:48,37:48,43:48,45-47:48,64:48,95:48,126:48
+! }}}
 
-
+! Alt Keys & Input {{{
 ! Make alt keys
 ?.vt100.metaSendsEscape: true
 ?.vt100.backarrowKey: false
 ?.ttyModes: erase ^?
 ?.*eightBitInput: false
 ?.*eightBitOutput:  true
+! }}}
 
+! Terminal Transparency {{{
 ! terminal transparent setup
 ?.*transparent: true
 ?.*opacity: 0.8
+! }}}
 
+! Copy-Paste Configuration {{{
 ! Copy-paste
 ?.vt100.selectToClipboard: true
 ?.vt100*translations: #override \
@@ -176,3 +204,59 @@ xterm*loginShell: true
         Ctrl <Key> minus: smaller-vt-font() \n\
         Ctrl <Key> plus: larger-vt-font() \n\
         Ctrl <Key> 0: set-vt-font(d)
+! }}}
+
+! st - Simple Terminal {{{
+! === st - Simple Terminal (Solarized Osaka - Official Colors) ===
+! Font configuration
+st.font: JetBrainsMono Nerd Font Mono:pixelsize=18:antialias=true:autohint=true
+st.borderpx: 2
+
+! Solarized Osaka Color Scheme (Official)
+! Base colors
+st.foreground: base0
+st.background: base04
+st.cursorColor: green
+
+! Black (base04, base03)
+st.color0: base04
+st.color8: base03
+
+! Red
+st.color1: red
+st.color9: bright_red
+
+! Green
+st.color2: green
+st.color10: bright_green
+
+! Yellow
+st.color3: yellow
+st.color11: bright_yellow
+
+! Blue
+st.color4: blue
+st.color12: bright_blue
+
+! Magenta
+st.color5: magenta
+st.color13: bright_magenta
+
+! Cyan
+st.color6: cyan
+st.color14: bright_cyan
+
+! White (base2, base3)
+st.color7: base2
+st.color15: base3
+
+! Transparency
+st.alpha: 0.8
+
+! Cursor
+st.cursorshape: 2
+st.cursorthickness: 2
+
+! Bell
+st.bellvolume: 0
+! }}}
