@@ -1,3 +1,5 @@
+set +H  # Disable history expansion (allows % in aliases)
+
 ### Colored man pages via less (solarized-osaka dark theme)
 export LESS_TERMCAP_mb=$'\e[1;31m'        # blink: red
 export LESS_TERMCAP_md=$'\e[1;38;5;32m'   # bold: blue #268bd2
@@ -49,12 +51,12 @@ alias fake="cat /dev/urandom | hexdump -C | grep 'ca fe'"
 
 ## Youtube (yt-dlp)
 alias yt="yt-dlp --embed-metadata -i"
-alias ytautosub="yt --write-auto-sub --sub-lang ja"
-alias yta="yt -x -f bestaudio/best"
-alias mp3dl="yta --audio-quality 1 --audio-format mp3 -o '~/Music/%(title)s.%(ext)s'"
+alias ytautosub="yt --write-auto-subs --sub-langs ja"
+alias yta="yt -x -f bestaudio"
+alias mp3dl="yta --audio-quality 192K --audio-format mp3 -o $HOME/Music/%\(title\)s.%\(ext\)s"
 alias ytv="youtube-viewer"
 alias ytt="yt --skip-download --write-thumbnail"
-alias ytw="yt --merge-output-format webm -f 'bestvideo[ext=webm]+bestaudio/best[ext=webm]'"
+alias ytw="yt --merge-output-format mkv -f 'bestvideo+bestaudio/best'"
 
 
 #Display ISO version and distribution information in short
