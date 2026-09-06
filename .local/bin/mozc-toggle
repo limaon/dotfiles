@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Toggle between multiple input methods and keyboard layouts
+
+CURRENT_ENGINE=$(ibus engine)
+
+case "$CURRENT_ENGINE" in
+  mozc-jp-jis)
+    echo $CURRENT_ENGINE
+    ibus engine xkb:us::eng
+    ;;
+  xkb:us::eng)
+    echo $CURRENT_ENGINE
+    ibus engine xkb:br::por
+    ;;
+  xkb:br::por)
+    echo $CURRENT_ENGINE
+    /usr/bin/ibus engine mozc-jp-jis
+    ;;
+  *)
+    echo "Current engine: $CURRENT_ENGINE" >> /tmp/mozc-toggle.log
+    ibus engine mozc-off
+    ;;
+esac
