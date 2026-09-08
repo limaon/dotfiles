@@ -92,7 +92,7 @@
     },
     "playwright": {
       "type": "local",
-      "command": ["npx", "@playwright/mcp@latest"],
+      "command": ["npx", "@playwright/mcp@latest", "--headless", "--executable-path", "{env:HOME}/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome"],
       "enabled": true
     },
     "mgrep": {
@@ -104,18 +104,29 @@
   "plugin": [
     "opencode-claude-auth@latest",
     "opencode-gemini-auth@latest",
-    "@bastiangx/opencode-unmoji@latest"
+    "@bastiangx/opencode-unmoji@latest",
+    ["opencode-ascii", {
+      "punctuation": true,
+      "arrows": true,
+      "math": true,
+      "emojis": true
+    }]
     // "@franlol/opencode-md-table-formatter@latest",
     // "@mohak34/opencode-notifier@latest"
   ],
   "provider": {
     "anthropic": {
       "whitelist": [
-        "claude-sonnet-4-5-20250929",
-        "claude-sonnet-4-5",
+        "claude-opus-5",
+        "claude-sonnet-5",
         "claude-fable-5",
+        "claude-opus-4-8",
+        "claude-opus-4-7",
+        "claude-sonnet-4-6",
+        "claude-opus-4-6",
         "claude-opus-4-5-20251101",
-        "claude-haiku-4-5-20251001"
+        "claude-haiku-4-5-20251001",
+        "claude-sonnet-4-5-20250929"
       ]
     },
     "google": {
