@@ -1,147 +1,41 @@
 ---
-description: Create well-formatted commits with conventional commit messages
+description: Generate well-formatted conventional commit messages based on staged code changes
 ---
 
-Just execute these following instructions, do not ask me anything:
+Analyze the provided code changes and generate semantic commit messages strictly following these instructions. Do not execute git commands; only return the generated messages.
 
-1. **Check command mode**:
-   - If user provides $ARGUMENTS (a simple message), skip to step 3
+1. **Analyze Staged Files Only**:
+   - Strictly evaluate only the files and changes that are currently in the staging area (`git diff --cached`).
+   - Completely ignore any unstaged modifications or untracked files.
 
-2. **Run pre-commit validation**:
-   - If it is a nodejs project, execute `npm lint` and report any issues
-   - If it is a nodejs project, execute `npm run build` and ensure it succeeds
-   - If either fails, ask user if they want to proceed anyway or fix issues first
+2. **Analyze and Segment**:
+   - Review the staged changes to identify distinct, unrelated logical updates.
+   - If multiple unrelated changes exist (e.g., a core feature mixed with an independent bug fix), group them by purpose and generate a separate commit message for each logical group.
+   - Briefly specify which files belong to which generated message.
 
-3. **Analyze git status**:
-   - Run `git status --porcelain` to check for changes
-   - If no files are staged, run `git add -u` to stage only modified and deleted tracked files (ignoring untracked files)
-   - If files are already staged, proceed with only those files
+3. **Message Format**:
+   - Use the strict format: `<type>: <description>`
+   - **Imperative mood**: Write as commands (e.g., "add feature", not "added feature" or "adds feature").
+   - **Concise**: Keep the description under 72 characters.
 
-4. **Analyze and segment the changes**:
-   - Run `git diff --cached` to review the staged modifications.
-   - Analyze the diff to identify if there are distinct, unrelated logical changes (e.g., a core feature mixed with unrelated documentation updates or independent bug fixes).
-   - Group the changes by context and purpose.
-   - If multiple unrelated changes are detected, generate a separate conventional commit message (type, scope, description) for each logical group.
-   - Clearly explain which files/lines belong to which commit message.
-
-5. **Generate commit message**:
-   - Choose appropriate type from the reference below
-   - Create message following format: `<type>: <description>`
-   - Keep description concise, clear, and in imperative mood
-   - Show the proposed message to user for confirmation
-
-6. **Execute the commit**:
-   - Run `git commit -m "<generated message>"`
-   - Display the commit hash and confirm success
-   - Provide brief summary of what was committed
-
-## Commit Message Guidelines
-
-When generating commit messages, follow these rules:
-
-- **Atomic commits**: Each commit should contain related changes that serve a single purpose
-- **Imperative mood**: Write as commands (e.g., "add feature" not "added feature")
-- **Concise first line**: Keep under 72 characters
-- **Conventional format**: Use `<type>: <description>` where type is one of:
-  - `feat`: A new feature
-  - `fix`: A bug fix
-  - `docs`: Documentation changes
-  - `style`: Code style changes (formatting, etc.)
-  - `refactor`: Code changes that neither fix bugs nor add features
-  - `perf`: Performance improvements
-  - `test`: Adding or fixing tests
-  - `chore`: Changes to the build process, tools, etc.
-- **Present tense, imperative mood**: Write commit messages as commands (e.g., "add feature" not "added feature")
-- **Concise first line**: Keep the first line under 72 characters
-
-  - `test`: Add a failing test
-  - `fix`: Fix compiler/linter warnings
-  - `fix`: Fix security issues
-  - `chore`: Add or update contributors
-  - `refactor`: Move or rename resources
-  - `refactor`: Make architectural changes
-  - `chore`: Merge branches
-  - `chore`: Add or update compiled files or packages
-  - `chore`: Add a dependency
-  - `chore`: Remove a dependency
-  - `chore`: Add or update seed files
-  - ‍ `chore`: Improve developer experience
-  - `feat`: Add or update code related to multithreading or concurrency
-  - `feat`: Improve SEO
-  - `feat`: Add or update types
-  - `feat`: Add or update text and literals
-  - `feat`: Internationalization and localization
-  - `feat`: Add or update business logic
-  - `feat`: Work on responsive design
-  - `feat`: Improve user experience / usability
-  - `fix`: Simple fix for a non-critical issue
-  - `fix`: Catch errors
-  - `fix`: Update code due to external API changes
-  - `fix`: Remove code or files
-  - `style`: Improve structure/format of the code
-  - `fix`: Critical hotfix
-  - `chore`: Begin a project
-  - `chore`: Release/Version tags
-  - `wip`: Work in progress
-  - `fix`: Fix CI build
-  - `chore`: Pin dependencies to specific versions
-  - `ci`: Add or update CI build system
-  - `feat`: Add or update analytics or tracking code
-  - `fix`: Fix typos
-  - `revert`: Revert changes
-  - `chore`: Add or update license
-  - `feat`: Introduce breaking changes
-  - `assets`: Add or update assets
-  - `feat`: Improve accessibility
-  - `docs`: Add or update comments in source code
-  - `db`: Perform database related changes
-  - `feat`: Add or update logs
-  - `fix`: Remove logs
-  - `test`: Mock things
-  - `feat`: Add or update an easter egg
-  - `chore`: Add or update .gitignore file
-  - `test`: Add or update snapshots
-  - `experiment`: Perform experiments
-  - `feat`: Add, update, or remove feature flags
-  - `ui`: Add or update animations and transitions
-  - `refactor`: Remove dead code
-  - `feat`: Add or update code related to validation
-  - `feat`: Improve offline support
+4. **Allowed Types**:
+   - `feat`: New features, business logic, UI/UX improvements, types, accessibility.
+   - `fix`: Bug fixes, security patches, resolving warnings, CI builds, typos.
+   - `docs`: Documentation or source code comments.
+   - `style`: Code formatting, structure, animations (no logic change).
+   - `refactor`: Restructuring code, removing dead code, architectural changes.
+   - `perf`: Performance improvements.
+   - `test`: Adding or fixing unit tests, mocks, or snapshots.
+   - `chore`: Tooling, dependencies, config files, developer experience, gitignore.
+   - `ci`: CI/CD pipeline and deployment changes.
+   - `revert`: Reverting previous commits.
 
 ## Reference: Good Commit Examples
 
-Use these as examples when generating commit messages:
-
 - feat: add user authentication system
 - fix: resolve memory leak in rendering process
 - docs: update API documentation with new endpoints
 - refactor: simplify error handling logic in parser
-- fix: resolve linter warnings in component files
-- chore: improve developer tooling setup process
-- feat: implement business logic for transaction validation
-- fix: address minor styling inconsistency in header
-- fix: patch critical security vulnerability in auth flow
 - style: reorganize component structure for better readability
-- fix: remove deprecated legacy code
-- feat: add input validation for user registration form
-- fix: resolve failing CI pipeline tests
-- feat: implement analytics tracking for user engagement
-- fix: strengthen authentication password requirements
-- feat: improve form accessibility for screen readers
-
-Example commit sequence:
-
-- feat: add user authentication system
-- fix: resolve memory leak in rendering process
-- docs: update API documentation with new endpoints
-- refactor: simplify error handling logic in parser
-- fix: resolve linter warnings in component files
+- chore: pin dependencies to specific versions
 - test: add unit tests for authentication flow
-
-## Agent Behavior Notes
-
-- **Error handling**: If validation fails, give user option to proceed or fix issues first
-- **File priority**: If files are already staged, only commit those specific files
-- **Always run the commit**: You don't need to ask for confirmation unless there is a big issue or error.
-- **Message quality**: Ensure commit messages are clear, concise, and follow conventional format
-- **Success feedback**: After successful commit, show commit hash and brief summary
