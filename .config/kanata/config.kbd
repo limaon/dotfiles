@@ -1,15 +1,20 @@
 ;; vim: ft=lisp
 
-;; Kanata Configuration - Sunaku-style Home Row Mods
+;; Kanata Configuration - Home Row Mods with Same-Hand Blocking
 ;; Created: 2025-01-11
 ;; Layout: US QWERTY with Home Row Mods (GACS order)
 ;;
 ;; Key Remaps:
 ;; ESC/Caps Lock are swapped
 ;;
-;; Home Row Mods:
+;; Home Row Mods with Same-Hand Blocking:
 ;; A/S/D/F: LGUI/LALT/LCTL/LSFT (left hand)
 ;; J/K/L/;;: RSFT/RCTL/RALT/RGUI (right hand)
+;;
+;; Feature: When holding a Home Row Mod key, keys on the SAME side are BLOCKED
+;; This forces you to use the opposite hand, distributing typing load
+;;
+;; Implementation: Uses layer-while-held with XX (no-op) to block same-side keys
 
 (defcfg
   ;; Process keys not in defsrc
@@ -22,18 +27,20 @@
   linux-x11-repeat-delay-rate 300,50
 )
 
-;; Home Row Mods - Sunaku-style (GACS order)
+;; Home Row Mods with TRUE Same-Hand Blocking
+;; Uses multi to activate modifier + layer that blocks same-side keys
 (defalias
-  ;; Tap to type letter, hold for modifier
-  ;; Timeout 200ms for responsive typing
-  a-mod  (tap-hold 200 200 a lmet)
-  s-mod  (tap-hold 200 200 s lalt)
-  d-mod  (tap-hold 200 200 d lctl)
-  f-mod  (tap-hold 200 200 f lsft)
-  j-mod  (tap-hold 200 200 j rsft)
-  k-mod  (tap-hold 200 200 k rctl)
-  l-mod  (tap-hold 200 200 l ralt)
-  sc-mod (tap-hold 200 200 ; rmet)
+  ;; LEFT HAND: Tap for letter, hold for modifier + block left side
+  a-mod (tap-hold 200 200 a (multi lmet (layer-while-held left-blocked)))
+  s-mod (tap-hold 200 200 s (multi lalt (layer-while-held left-blocked)))
+  d-mod (tap-hold 200 200 d (multi lctl (layer-while-held left-blocked)))
+  f-mod (tap-hold 200 200 f (multi lsft (layer-while-held left-blocked)))
+
+  ;; RIGHT HAND: Tap for letter, hold for modifier + block right side
+  j-mod (tap-hold 200 200 j (multi rsft (layer-while-held right-blocked)))
+  k-mod (tap-hold 200 200 k (multi rctl (layer-while-held right-blocked)))
+  l-mod (tap-hold 200 200 l (multi ralt (layer-while-held right-blocked)))
+  sc-mod (tap-hold 200 200 ; (multi rmet (layer-while-held right-blocked)))
 
   ;; Layer toggle: RSFT switches between plain (default) and hrm
   lyr-hrm   (layer-switch hrm)
@@ -72,4 +79,28 @@
   lsft z    x    c    v    b    n    m    ,    .    /    @rsft-plain-toggle
   lctl lmet lalt spc  ralt rmet rctl
   ins
+)
+
+;; Layer activated when holding LEFT hand Home Row Mod
+;; Blocks LEFT side letter keys (XX = no-op), but allows Home Row Mods (_)
+;; RIGHT side passes through (_)
+(deflayer left-blocked
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    XX   XX   XX   XX   XX   _    _    _    _    _    _    _    _
+  _    lmet lalt lctl lsft XX   _    _    _    _    _    _    _
+  _    XX   XX   XX   XX   XX   _    _    _    _    _    _
+  _    _    _    _    _    _    _
+  _
+)
+
+;; Layer activated when holding RIGHT hand Home Row Mod
+;; Blocks RIGHT side letter keys (XX = no-op), but allows Home Row Mods (_)
+;; LEFT side passes through (_)
+(deflayer right-blocked
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    XX   XX   XX   XX   XX   _    _    _
+  _    _    _    _    _    _    XX   rsft rctl ralt rmet _    _
+  _    _    _    _    _    _    XX   XX   XX   XX   XX   _
+  _    _    _    _    _    _    _
+  _
 )
