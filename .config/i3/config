@@ -198,11 +198,11 @@ for_window [window_role="^(pop-up|bubble|dialog|task_dialog|Preferences|About|Or
 
 # Specific exceptions
 for_window [window_role="browser"] border pixel
-for_window [window_role="^GtkFileChooserDialog$"] resize set 600 400, move position center
+# for_window [window_role="^GtkFileChooserDialog$"] resize set 600 400, move position center
 for_window [title="^(Open|Save|File|Select|Print|Choose)"] border normal 2, resize set 800 510
 for_window [title="wants to open"] border normal 2, resize set 800 510
 for_window [title="Event Tester"] floating enable resize set 400 200
-for_window [title="^(About|Preferences|htop|calcurse)$"] floating enable, border normal, resize set 700 540, move position center
+# for_window [title="^(About|Preferences|htop|calcurse)$"] floating enable, border normal, resize set 700 540, move position center
 for_window [title="Save File"] floating enable
 for_window [title="mpv Webcam"] floating enable, move position center, sticky enable, border pixel 2
 no_focus [title="mpv Webcam"]
@@ -224,11 +224,12 @@ for_window [class="Qalculate-gtk"] floating enable
 for_window [class="qBittorrent" title="^(?!.*qBittorrent).*$"] floating enable
 for_window [class="VirtualBox" title="^(?!.*Oracle VirtualBox Manager).*$"] floating enable
 for_window [class="Xed"] floating enable, sticky enable, resize set 600 720
-for_window [class="mpv"] floating enable, move position center
+# for_window [class="mpv"] floating enable, move position center
 for_window [title="Firefox .*— Sharing Indicator"] floating enable, sticky enable, move to scratchpad
 
 # Set position of floating window
-for_window [all] move absolute position center
+# for_window [all] move absolute position center
+# for_window [all] move position mouse
 
 # Open or focus to specific workspace
 assign [class="(?i)Firefox|(?i)chromium|qutebrowser|LibreWolf|Thunderbird"] $ws1
@@ -374,3 +375,6 @@ bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control bright
 bindsym $mod+p exec --no-startup-id dmenu-cliphist sel
 bindsym $mod+o exec --no-startup-id dmenu-cliphist add
 bindsym $mod+Shift+m exec --no-startup-id pkill -f "dmenu-cliphist watch" || dmenu-cliphist watch &
+
+# IBus/Mozc Toggle - Cycle through Mozc, Hiragana, Direct, English, Portuguese
+bindsym Shift+space exec --no-startup-id mozc-toggle
