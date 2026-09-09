@@ -24,6 +24,7 @@ vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
 vim.opt.foldcolumn = "auto"
 vim.opt.termguicolors = true
+vim.lsp.document_color.enable(false)
 vim.opt.cmdheight = 1
 vim.opt.ruler = false
 vim.opt.showcmd = true
@@ -525,7 +526,7 @@ require("lazy").setup({
 				theme.setup({
 					transparent = true,
 					use_background = false,
-					day_brightness = 0.6,
+					vivid_brightness = 0.3,
 					styles = {
 						sidebars = "normal",
 						floats = "normal",
@@ -1222,6 +1223,7 @@ require("lazy").setup({
 	-- [[ blink.cmp - Autocomplete ]] {{{
 	{
 		"saghen/blink.cmp",
+		enabled = true,
 		dependencies = "echasnovski/mini.nvim",
 		version = "1.*",
 
@@ -1307,6 +1309,25 @@ require("lazy").setup({
 			fuzzy = { implementation = "prefer_rust_with_warning" },
 		},
 		opts_extend = { "sources.default" },
+	},
+	-- }}}
+
+	-- [[ neocursor.nvim - Cursor Tab in Neovim ]] {{{
+	-- Requires: Cursor IDE installed + logged in, `uv` on PATH
+	{
+		"teocns/neocursor.nvim",
+		event = "InsertEnter",
+		build = 'uv run --with "httpx[http2]" python -c "import httpx"',
+		opts = {
+			debounce = 250,
+			map_tab = true,
+			map_partial = "<M-Right>",
+			show_hints = false,
+			-- string[] (default: { "uv", "run", "--with", "httpx[http2]" })
+			-- How the Python sidecar is launched.
+			-- Override only for unusual Python setups.
+			-- sidecar_cmd = { "uv", "run", "--with", "httpx[http2]" },
+		},
 	},
 	-- }}}
 
