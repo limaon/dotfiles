@@ -30,6 +30,7 @@ fzf_colors+=",fg+:#839395"
 fzf_colors+=",bg+:#002c38"
 fzf_colors+=",gutter:#001014"
 
+
 require_cmd() {
   local cmd="$1"
   local hint="$2"
@@ -39,57 +40,47 @@ require_cmd() {
   fi
 }
 
-require_cmd fzf "Install: sudo apt install fzf"
-require_cmd jq "Install: sudo apt install jq"
+require_cmd fzf "Please install fzf"
+require_cmd jq "Please install jq"
+
 
 # Find kitty socket dynamically (kitty appends PID to socket name)
 find_kitty_socket() {
-  local sock=""
-  # Try KITTY_LISTEN_ON first
-  if [[ -n "${KITTY_LISTEN_ON:-}" ]]; then
-    sock="${KITTY_LISTEN_ON#unix:}"
-    [[ -S "$sock" ]] && echo "$sock" && return 0
-  fi
-  # Find socket in /tmp
+  local sock="${KITTY_LISTEN_ON#unix:}"
+
+  # Use KITTY_LISTEN_ON if set, otherwise search /tmp
+  [[ -S "$sock" ]] && echo "$sock" && return 0
+
   sock="$(ls /tmp/kitty-* 2>/dev/null | head -1)"
-  if [[ -n "$sock" && -S "$sock" ]]; then
-    echo "$sock"
-    return 0
-  fi
+  [[ -S "$sock" ]] && echo "$sock" && return 0
+
   return 1
 }
 
-sock="$(find_kitty_socket || true)"
-if [[ -z "$sock" ]]; then
-  echo "Kitty socket not found in /tmp. Is kitty running with remote control?"
+sock="$(find_kitty_socket)" || {
+  echo "Kitty socket not found. Is kitty running with remote control?"
   exit 1
-fi
+}
+
 
 normalize_path() {
-  local p="$1"
-  if command -v realpath >/dev/null 2>&1; then
-    realpath "$p"
-  else
-    printf "%s" "$p"
-  fi
+  realpath "$1" 2>/dev/null || printf "%s" "$1"
 }
 
+
 hash_path() {
-  local p="$1"
-  if command -v sha256sum >/dev/null 2>&1; then
-    printf "%s" "$p" | sha256sum | awk '{print $1}'
-  elif command -v md5sum >/dev/null 2>&1; then
-    printf "%s" "$p" | md5sum | awk '{print $1}'
-  else
-    printf "%s" "$p" | python3 -c "import hashlib,sys; print(hashlib.sha256(sys.stdin.read().encode()).hexdigest())"
-  fi
+  sha256sum <<< "$1" 2>/dev/null | awk '{print $1}' || \
+  md5sum <<< "$1" 2>/dev/null | awk '{print $1}' || \
+  python3 -c "import hashlib; print(hashlib.sha256('$1'.encode()).hexdigest())"
 }
+
 
 session_exists() {
   local name="$1"
   kitty @ --to "unix:${sock}" ls 2>/dev/null | jq -e --arg name "$name" \
     'any(.[]?.tabs[]?.windows[]?; .session_name == $name)' >/dev/null
 }
+
 
 find_session_by_path() {
   local target="$1"
@@ -99,10 +90,7 @@ find_session_by_path() {
     [[ -z "$name" || -z "$pwd" ]] && continue
     [[ ! -d "$pwd" ]] && continue
     real="$(normalize_path "$pwd")"
-    if [[ "$real" == "$target" ]]; then
-      printf "%s" "$name"
-      return 0
-    fi
+    [[ "$real" == "$target" ]] && { printf "%s" "$name"; return 0; }
   done < <(
     kitty @ --to "unix:${sock}" ls 2>/dev/null | jq -r '
       .[]?.tabs[]?.windows[]?
@@ -113,6 +101,7 @@ find_session_by_path() {
   )
   return 1
 }
+
 
 collect_ssh_config_files() {
   local root_config="$HOME/.ssh/config"
@@ -146,6 +135,7 @@ collect_ssh_config_files() {
   printf '%s\n' "${files[@]}"
 }
 
+
 print_ssh_menu_lines() {
   local config_files=()
   local host="" label=""
@@ -159,7 +149,7 @@ print_ssh_menu_lines() {
   while IFS= read -r host; do
     [[ -z "$host" ]] && continue
     label="ssh-${host}"
-    printf "%s\t%b%s%b\n" "ssh:${host}" "${green_color}" "$label" "${reset_color}"
+    printf "%b%s%b\t%s\n" "${green_color}" "$label" "${reset_color}" "ssh:${host}"
   done < <(
     awk '{
       sub(/[ \t]*#.*/, "")
@@ -182,8 +172,10 @@ print_menu_lines() {
       \( -name ".git" -o -name ".github" -o -name "node_modules" -o -name ".cache" -o -name "__pycache__" -o -name ".venv" -o -name "venv" \) -prune \
       -o -type d -printf '%p\t%f\n' \
       2>/dev/null
-  done | sort -u -t$'\t' -k1,1 | awk -v OFS='\t' -v color="${base_color}" -v reset="${reset_color}" '{
-    printf "%s\t%s%s%s\n", $1, color, $2, reset
+  done | sort -u -t$'\t' -k1,1 | awk -v OFS='\t' -v color="${base_color}" -v reset="${reset_color}" -v home="$HOME" '{
+    path = $1
+    sub("^" home, "~", path)
+    printf "%s%s%s\t%s\n", color, $2, reset, path
   }'
 
   print_ssh_menu_lines
@@ -261,10 +253,13 @@ set +e
 printf '\033[2J\033[H'
 fzf_out="$(
   fzf --exact --ansi --height=20 --reverse \
+    --delimiter='\t' \
+    --with-nth=1,2 \
+    --nth=1 \
+    --tabstop=22 \
     --header="Type to filter, enter open, esc quit" \
     --prompt="Create New Kitty Session > " \
     --no-multi \
-    --with-nth=2.. \
     --no-sort \
     --tiebreak=index \
     --expect=enter,esc \
@@ -286,7 +281,9 @@ key="$(printf "%s\n" "$fzf_out" | head -n1)"
 
 sel="$(printf "%s\n" "$fzf_out" | sed -n '2p' || true)"
 selected_path=""
-[[ -n "${sel:-}" ]] && selected_path="$(printf "%s" "$sel" | awk -F'\t' '{print $1}')"
+[[ -n "${sel:-}" ]] && selected_path="$(printf "%s" "$sel" | awk -F'\t' '{print $2}')"
+
+selected_path="${selected_path/#\~/$HOME}"
 
 [[ -z "${selected_path:-}" ]] && exit 0
 
