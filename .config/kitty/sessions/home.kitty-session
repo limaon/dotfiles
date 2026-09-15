@@ -1,7 +1,8 @@
-layout tall
+layout splits
 
 cd ~
 
-launch --title "home"
+launch --title "main"
 focus
 focus_os_window
+title main
