@@ -30,12 +30,14 @@
 #define green         #859900
 
 ! Bright colors (for color8-15)
-#define bright_red      #f65351
-#define bright_green    #b7fa00
-#define bright_yellow   #ffbf00
-#define bright_blue     #47adf5
-#define bright_magenta  #f254a1
-#define bright_cyan     #2beede
+#define bright_black    #586e74
+#define bright_red      #d94a48
+#define bright_green    #a6d500
+#define bright_yellow   #e0a800
+#define bright_blue     #3c9fe0
+#define bright_magenta  #d04a91
+#define bright_cyan     #26c8bb
+#define bright_white    #f4efd9
 ! }}}
 
 ! Terminal Colors {{{
@@ -97,113 +99,142 @@ Xft.lcdfilter:          lcddefault
 Xft.rgba:               none
 ! }}}
 
-! Transparency & Fading {{{
-!! Transparency (0-1):
-*.alpha: 0.8
-*.fading: 35
-*.fadeColor: base04
+! Transparency is managed by the X11 compositor.
+
+! URxvt Configuration {{{
+! This section contains urxvt/urxterm-specific resources.
+
+! Appearance, UTF-8 and terminal identity
+URxvt*font: xft:UbuntuMono Nerd Font Mono:size=15:style=Regular:antialias=true
+URxvt*boldFont: xft:UbuntuMono Nerd Font Mono:size=15:style=Bold:antialias=true
+URxvt*termName: rxvt-unicode-256color
+URxvt*depth: 32
+URxvt*internalBorder: 12
+URxvt*geometry: 130x50
+
+! Colors
+URxvt*foreground: base0
+! ARGB background: 85% opaque, interpreted by the X11 compositor.
+URxvt*background: [85]base04
+URxvt*cursorColor: base1
+URxvt*color0: base02
+URxvt*color1: red
+URxvt*color2: green
+URxvt*color3: yellow
+URxvt*color4: blue
+URxvt*color5: magenta
+URxvt*color6: cyan
+URxvt*color7: base2
+URxvt*color8: bright_black
+URxvt*color9: bright_red
+URxvt*color10: bright_green
+URxvt*color11: bright_yellow
+URxvt*color12: bright_blue
+URxvt*color13: bright_magenta
+URxvt*color14: bright_cyan
+URxvt*color15: bright_white
+
+! Selection, scrolling and cursor
+URxvt*highlightColor: base02
+URxvt*highlightTextColor: base04
+URxvt*saveLines: 16384
+URxvt*scrollBar: false
+URxvt*cursorBlink: true
+URxvt*cursorUnderline: false
 ! }}}
 
-! XTerm/UXTerm Configuration {{{
-! Colorscheme (XTerm/UXTerm)
-?.vt100*background: base04
-?.vt100*foreground: base0
-?.vt100*cursorColor: base1
-?.vt100*color0: base02
-?.vt100*color1: red
-?.vt100*color2: green
-?.vt100*color3: yellow
-?.vt100*color4: blue
-?.vt100*color5: magenta
-?.vt100*color6: cyan
-?.vt100*color7: base2
-?.vt100*color8: base04
-?.vt100*color9: orange
-?.vt100*color10: base01
-?.vt100*color11: base00
-?.vt100*color12: base0
-?.vt100*color13: violet
-?.vt100*color14: base1
-?.vt100*color15: base3
-! }}}
+! XTerm Configuration {{{
+! This section contains only XTerm/UXTerm resources.
 
-! XTerm Settings {{{
-! XTerm settings
-xterm*faceName: xft:UbuntuMono:size=16:antialias=true
-xterm*faceNameBold: xft:UbuntuMono:bold:style=Bold:size=15:antialias=true
-xterm*faceNameDoublesize: Noto Sans CJK
-xterm*allowBold: true
-xterm*renderFont: true
-xterm*loginShell: true
-?.vt100.termName: xterm-256color
-?.vt100.locale: false
-?.vt100.utf8: true
-?.vt100.bellIsUrgent: true
-?.vt100*geometry: 130x50
-?.vt100.colorMode: on
-?.scaleHeight: 1.01
-?.internalBorder: 15
-?.*cursorBlink: true
-?.*cursorOnTime: 600
-?.*cursorOffTime: 600
+! Appearance, UTF-8 and terminal identity
+*.vt100.faceName: UbuntuMono Nerd Font Mono:size=15:style=Regular:antialias=true
+*.vt100.boldFont: UbuntuMono Nerd Font Mono:size=15:style=Bold:antialias=true
+*.vt100.faceNameDoublesize: Noto Sans CJK
+*.vt100.renderFont: true
+*.vt100.allowBoldFonts: true
+*.vt100.boldMode: false
+*.vt100.locale: false
+*.vt100.utf8: true
+*.vt100.scaleHeight: 1.02
+*.vt100.internalBorder: 12
+*.vt100.geometry: 130x50
 
-! Every shell is a login shell by default (for inclusion of all necessary environment variables)
-?.vt100.loginshell: true
+! Application-level terminal identity (XTerm and UXTerm both use these).
+XTerm*termName: xterm-256color
+UXTerm*termName: xterm-256color
 
-! Typeface
-?.vt100.faceName: xft:UbuntuMono:size=15:antialias=true
-?.vt100.faceNameBold: xft:UbuntuMono:bold:style=Bold:size=15:antialias=true
-?.vt100.faceNameDoublesize: Noto Sans CJK
-?.vt100*allow_bold: true
-?.vt100.renderFont: true
-?.vt100.colorBDMode: true
-?.vt100.colorBD: rgb:82/a4/d3
-?.vt100.colorULMode: true
-?.vt100.colorUL: rgb:e4/e4/e4
-?.*boldMode: false
-! }}}
+! Color attributes
+*.vt100.foreground: base0
+*.vt100.background: base04
+*.vt100.cursorColor: base1
+*.vt100.colorMode: true
+*.vt100.dynamicColors: false
 
-! Scrollbar Configuration {{{
-! Scrollbar
-?.vt100.scrollBar: false
-?.*mouseWheelScrollPage: true
-?.vt100.saveLines: 16384
-?.*rightScrollBar: true
-?.vt100.scrollbar.width: 6
-?.*scrollBarTtyOutput: false
-?.*scrollTtyKeypress: true
-?.letterSpace: 0
-! }}}
+! ANSI colors 0-7
+*.vt100.color0: base02
+*.vt100.color1: red
+*.vt100.color2: green
+*.vt100.color3: yellow
+*.vt100.color4: blue
+*.vt100.color5: magenta
+*.vt100.color6: cyan
+*.vt100.color7: base2
 
-! URL & Keyboard Configuration {{{
-! Double-click to select whole URLs
-?.charClass: 33:48,35:48,37:48,43:48,45-47:48,64:48,95:48,126:48
-! }}}
+! ANSI bright colors 8-15
+*.vt100.color8: bright_black
+*.vt100.color9: bright_red
+*.vt100.color10: bright_green
+*.vt100.color11: bright_yellow
+*.vt100.color12: bright_blue
+*.vt100.color13: bright_magenta
+*.vt100.color14: bright_cyan
+*.vt100.color15: bright_white
 
-! Alt Keys & Input {{{
-! Make alt keys
-?.vt100.metaSendsEscape: true
-?.vt100.backarrowKey: false
-?.ttyModes: erase ^?
-?.*eightBitInput: false
-?.*eightBitOutput:  true
-! }}}
+! Text attribute colors
+! Keep bold ANSI colors (90-97) instead of forcing one color on all bold text.
+*.vt100.colorBDMode: false
+*.vt100.colorULMode: true
+*.vt100.colorUL: blue
+*.vt100.colorRVMode: true
+*.vt100.colorRV: red
 
-! Terminal Transparency {{{
-! terminal transparent setup
-?.*transparent: true
-?.*opacity: 0.8
-! }}}
+! Selection colors
+*.vt100.highlightColor: base02
+*.vt100.highlightTextColor: base04
+*.vt100.highlightColorMode: true
 
-! Copy-Paste Configuration {{{
-! Copy-paste
-?.vt100.selectToClipboard: true
-?.vt100*translations: #override \
+! Cursor, scrolling and bell
+*.vt100.cursorBlink: true
+*.vt100.cursorOnTime: 600
+*.vt100.cursorOffTime: 600
+*.vt100.cursorBar: true
+*.vt100.saveLines: 16384
+*.vt100.scrollBar: false
+*.vt100.jumpScroll: true
+*.vt100.scrollKey: true
+*.vt100.scrollTtyOutput: false
+*.vt100.mouseWheelScrollPage: true
+*.vt100.bellIsUrgent: true
+
+! Keyboard and selection
+*.vt100.metaSendsEscape: true
+*.vt100.backarrowKey: false
+*.ttyModes: erase ^?
+*.vt100.eightBitInput: false
+*.vt100.eightBitOutput: true
+*.vt100.charClass: 33:48,35:48,37:48,43:48,45-47:48,64:48,95:48,126:48
+*.vt100.selectToClipboard: true
+
+! Ctrl+Shift+C/V match common terminal behavior.
+*.vt100.translations: #override \
         Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
         Ctrl Shift <Key>V: insert-selection(CLIPBOARD) \n\
-        Ctrl <Key> minus: smaller-vt-font() \n\
-        Ctrl <Key> plus: larger-vt-font() \n\
-        Ctrl <Key> 0: set-vt-font(d)
+        Ctrl <Key>minus: smaller-vt-font() \n\
+        Ctrl <Key>plus: larger-vt-font() \n\
+        Ctrl <Key>0: set-vt-font(d)
+
+! OSC 52 enables clipboard integration with tmux and SSH.
+*.disallowedWindowOps: 20,21,SetXprop
 ! }}}
 
 ! st - Simple Terminal {{{
