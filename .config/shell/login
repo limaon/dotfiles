@@ -192,12 +192,20 @@ if command -v asdf >/dev/null 2>&1; then
   . <(asdf completion bash)
 fi
 
-
-
 ## Java setup for asdf
 export _JAVA_OPTIONS="-Dawt.useSystemAAFontSettings=gasp -Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java"
 if [[ -f "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash" ]]; then
   source "${ASDF_DATA_DIR}/plugins/java/set-java-home.bash"
+fi
+
+# gnome-terminal doesn't advertise its 256 colour support.
+if [ "$COLORTERM" = gnome-terminal ] && [ "$TERM" = xterm ]; then
+  export TERM=xterm-256color
+fi
+
+# XTerm supports 24-bit colors but does not export this marker itself.
+if [[ "$TERM" == xterm || "$TERM" == xterm-256color ]]; then
+  export COLORTERM=truecolor
 fi
 
 # Start graphical server on tty1 if not already running.

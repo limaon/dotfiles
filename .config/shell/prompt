@@ -4,7 +4,6 @@ bold_red=$'\001\e[1;31m\002'
 bold_blue=$'\001\e[1;34m\002'
 bold_yellow=$'\001\e[1;33m\002'
 reset_color=$'\001\e[0m\002'
-normal=$'\001\e[0m\002'
 
 git_prompt_vars() {
   local git_dir
@@ -15,45 +14,57 @@ git_prompt_vars() {
 
   if [[ -z "$branch" ]]; then
     if [[ -f "$git_dir/rebase-merge/head-name" ]]; then
-      branch=$(cat "$git_dir/rebase-merge/head-name" | sed 's|refs/heads/||')
+      branch=$(sed 's|refs/heads/||' "$git_dir/rebase-merge/head-name")
     elif [[ -f "$git_dir/rebase-apply/head-name" ]]; then
-      branch=$(cat "$git_dir/rebase-apply/head-name" | sed 's|refs/heads/||')
+      branch=$(sed 's|refs/heads/||' "$git_dir/rebase-apply/head-name")
     else
-      return 1
+      branch=$(git describe --tags --exact-match HEAD 2>/dev/null)
+      if [[ -z "$branch" ]]; then
+        branch=$(git rev-parse --short HEAD 2>/dev/null)
+      fi
     fi
   fi
 
   SCM_BRANCH="$branch"
-  SCM_PREFIX=" ${bold_blue}git:("
-  SCM_SUFFIX="${bold_blue})"
 
   if [[ -d "$git_dir/rebase-merge" ]] || [[ -d "$git_dir/rebase-apply" ]]; then
-    SCM_STATE=" ${bold_yellow}\u2694"
-  else
-    local status
-    status=$(git status --porcelain 2>/dev/null)
-
-    if [[ -n "$status" ]]; then
-      SCM_STATE=" ${bold_yellow}\u2717"
+    local current total
+    if [[ -d "$git_dir/rebase-merge" ]]; then
+      current=$(< "$git_dir/rebase-merge/msgnum")
+      total=$(< "$git_dir/rebase-merge/end")
     else
-      local upstream
-      upstream=$(git rev-parse --abbrev-ref "@{u}" 2>/dev/null)
+      current=$(< "$git_dir/rebase-apply/next")
+      total=$(< "$git_dir/rebase-apply/last")
+    fi
+    SCM_STATE=" ${bold_yellow}\u2694 ${current}/${total}"
+  else
+    local status_output
+    status_output=$(git status --porcelain --branch 2>/dev/null)
 
-      if [[ -n "$upstream" ]]; then
-        local behind
-        behind=$(git rev-list --count "@{u}..HEAD" 2>/dev/null)
-        local ahead
-        ahead=$(git rev-list --count "HEAD..@{u}" 2>/dev/null)
+    if [[ -n "$status_output" ]]; then
+      local branch_line
+      branch_line=$(printf '%s' "$status_output" | head -1)
 
-        if [[ "$ahead" -gt 0 ]]; then
+      if [[ "$branch_line" == *"ahead"* ]] || [[ "$branch_line" == *"behind"* ]]; then
+        local ahead behind
+        ahead=$(printf '%s' "$branch_line" | sed -n 's/.*ahead \([0-9]*\).*/\1/p')
+        behind=$(printf '%s' "$branch_line" | sed -n 's/.*behind \([0-9]*\).*/\1/p')
+
+        if [[ "${ahead:-0}" -gt 0 ]]; then
           SCM_STATE=" ${bold_yellow}\u2193"
-        elif [[ "$behind" -gt 0 ]]; then
+        elif [[ "${behind:-0}" -gt 0 ]]; then
           SCM_STATE=" ${bold_yellow}\u2191"
         else
           SCM_STATE=" ${bold_green}\u2713"
         fi
       else
-        SCM_STATE=" ${bold_green}\u2713"
+        local has_changes
+        has_changes=$(printf '%s' "$status_output" | tail -n +2 | head -1)
+        if [[ -n "$has_changes" ]]; then
+          SCM_STATE=" ${bold_yellow}\u2717"
+        else
+          SCM_STATE=" ${bold_green}\u2713"
+        fi
       fi
     fi
   fi
@@ -68,20 +79,42 @@ scm_prompt_info() {
   git_prompt_vars
 
   if [[ -n "$SCM_BRANCH" ]]; then
-    echo -e "$SCM_PREFIX${bold_red}$SCM_BRANCH$SCM_STATE$SCM_SUFFIX"
+    local git_dir
+    git_dir=$(git rev-parse --git-dir 2>/dev/null) || return 1
+
+    local is_detached=false
+    if [[ -f "$git_dir/HEAD" ]]; then
+      local head_content
+      head_content=$(< "$git_dir/HEAD")
+      if [[ "$head_content" == "ref: refs/heads/"* ]]; then
+        is_detached=false
+      else
+        is_detached=true
+      fi
+    fi
+
+    if [[ "$is_detached" == true ]]; then
+      SCM_PREFIX=" ${bold_yellow}git:("
+      SCM_SUFFIX="${bold_yellow})"
+    else
+      SCM_PREFIX=" ${bold_blue}git:("
+      SCM_SUFFIX="${bold_blue})"
+    fi
+
+    printf '%b' "$SCM_PREFIX${bold_red}$SCM_BRANCH$SCM_STATE$SCM_SUFFIX"
   fi
 }
 
 conda_or_venv_prompt() {
   if [[ -n "${CONDA_DEFAULT_ENV:-}" ]]; then
-    echo -ne "($CONDA_DEFAULT_ENV) "
+    printf '(%s) ' "$CONDA_DEFAULT_ENV"
   elif [[ -n "${VIRTUAL_ENV:-}" ]]; then
-    echo -ne "(${VIRTUAL_ENV##*/}) "
+    printf '(%s) ' "${VIRTUAL_ENV##*/}"
   fi
 }
 
 prompt_command() {
-  PS1="$(conda_or_venv_prompt)${bold_green}➜ ${bold_cyan}\W${reset_color}$(scm_prompt_info)${normal} "
+  PS1="$(conda_or_venv_prompt)${bold_green}➜ ${bold_cyan}\W${reset_color}$(scm_prompt_info)${reset_color} "
 }
 
 PROMPT_COMMAND=prompt_command
