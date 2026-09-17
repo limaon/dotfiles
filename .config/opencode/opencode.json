@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "autoupdate": true,
-  // "default_agent": "OpenAgent",
   "permission": {
     "*": "ask",
     "read": "allow",
@@ -43,38 +42,6 @@
     "reserved": 10000
   },
   "formatter": {
-    "prettier": {
-      "extensions": [
-        ".js",
-        ".jsx",
-        ".ts",
-        ".tsx",
-        ".mjs",
-        ".cjs",
-        ".mts",
-        ".cts",
-        ".json",
-        ".json5",
-        ".jsonc",
-        ".css",
-        ".scss",
-        ".less",
-        ".pcss",
-        ".postcss",
-        ".html",
-        ".htm",
-        ".md",
-        ".mdx",
-        ".markdown",
-        ".yaml",
-        ".yml",
-        ".vue",
-        ".graphql",
-        ".gql",
-        ".handlebars",
-        ".hbs"
-      ]
-    },
     "custom-markdown-formatter": {
       "command": ["npx", "@franlol/opencode-md-table-formatter"],
       "extensions": [".md"]
@@ -94,25 +61,17 @@
       "type": "local",
       "command": ["npx", "@playwright/mcp@latest", "--headless", "--executable-path", "{env:HOME}/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome"],
       "enabled": true
-    },
-    "mgrep": {
-      "command": ["mgrep", "mcp"],
-      "enabled": true,
-      "type": "local"
     }
   },
   "plugin": [
-    "opencode-claude-auth@latest",
-    "opencode-gemini-auth@latest",
     "@bastiangx/opencode-unmoji@latest",
+    "@mohak34/opencode-notifier@latest",
     ["opencode-ascii", {
       "punctuation": true,
       "arrows": true,
       "math": true,
       "emojis": true
     }]
-    // "@franlol/opencode-md-table-formatter@latest",
-    // "@mohak34/opencode-notifier@latest"
   ],
   "provider": {
     "anthropic": {
@@ -128,16 +87,6 @@
         "claude-haiku-4-5-20251001",
         "claude-sonnet-4-5-20250929"
       ]
-    },
-    "google": {
-      "whitelist": [
-        "gemini-2.5-flash",
-        "gemini-2.5-pro",
-        "gemini-3.5-flash",
-        "gemini-3.1-pro-preview",
-        "gemini-3.1-flash-lite"
-      ],
-      "options": {}
     },
     "openrouter": {
       "name": "OpenRouter",
