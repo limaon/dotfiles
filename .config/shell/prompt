@@ -51,9 +51,9 @@ git_prompt_vars() {
         behind=$(printf '%s' "$branch_line" | sed -n 's/.*behind \([0-9]*\).*/\1/p')
 
         if [[ "${ahead:-0}" -gt 0 ]]; then
-          SCM_STATE=" ${bold_yellow}\u2193"
-        elif [[ "${behind:-0}" -gt 0 ]]; then
           SCM_STATE=" ${bold_yellow}\u2191"
+        elif [[ "${behind:-0}" -gt 0 ]]; then
+          SCM_STATE=" ${bold_yellow}\u2193"
         else
           SCM_STATE=" ${bold_green}\u2713"
         fi
