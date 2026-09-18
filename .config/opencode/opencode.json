@@ -63,16 +63,6 @@
       "enabled": true
     }
   },
-  "plugin": [
-    "@bastiangx/opencode-unmoji@latest",
-    "@mohak34/opencode-notifier@latest",
-    ["opencode-ascii", {
-      "punctuation": true,
-      "arrows": true,
-      "math": true,
-      "emojis": true
-    }]
-  ],
   "provider": {
     "anthropic": {
       "whitelist": [

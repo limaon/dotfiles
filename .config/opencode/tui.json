@@ -1,16 +1,11 @@
 {
   "$schema": "https://opencode.ai/tui.json",
-  "theme": "solarized-osaka",
   "leader_timeout": 2000,
-  "scroll_speed": 3,
-  "scroll_acceleration": {
-    "enabled": true
-  },
-  "diff_style": "auto",
-  "mouse": true,
+
   "keybinds": {
     "leader": "ctrl+x",
-    "app_exit": "none",
+
+    "app_exit": "ctrl+x ctrl+c",
     "app_debug": "none",
     "app_console": "none",
     "app_heap_snapshot": "none",
@@ -19,154 +14,219 @@
     "app_toggle_diffwrap": "none",
     "app_toggle_paste_summary": "none",
     "app_toggle_session_directory_filter": "none",
-    "command_list": "none",
+
+    "command_list": "alt+x",
     "help_show": "none",
     "docs_open": "none",
-    "editor_open": "none",
-    "theme_list": "none",
+
+    "editor_open": "<leader>e",
+    "theme_list": "<leader>t",
     "theme_switch_mode": "none",
     "theme_mode_lock": "none",
-    "sidebar_toggle": "none",
+
+    "sidebar_toggle": "<leader>b",
     "scrollbar_toggle": "none",
-    "status_view": "none",
+    "status_view": "<leader>s",
+
+    "session_export": "<leader>x",
     "session_copy": "none",
     "session_move": "none",
-    "session_new": "none",
-    "session_list": "none",
+
+    "session_new": "<leader>n",
+    "session_list": "<leader>l",
+    "session_timeline": "<leader>g",
+
     "session_fork": "none",
-    "session_rename": "none",
-    "session_delete": "ctrl+d",
+    "session_rename": "<leader>r",
+    "session_delete": "<leader>d",
     "session_share": "none",
     "session_unshare": "none",
-    "session_interrupt": "escape",
-    "session_compact": "none",
+
+    "session_interrupt": "ctrl+g,escape",
+
+    "session_compact": "<leader>c",
+
     "session_toggle_timestamps": "none",
     "session_toggle_generic_tool_output": "none",
+
     "session_child_first": "none",
-    "session_child_cycle": "none",
-    "session_child_cycle_reverse": "none",
-    "session_parent": "up",
+    "session_child_cycle": "ctrl+n",
+    "session_child_cycle_reverse": "ctrl+p",
+    "session_parent": "ctrl+u",
+
     "stash_delete": "ctrl+d",
-    "model_provider_list": "none",
-    "model_favorite_toggle": "none",
-    "model_list": "none",
-    "model_cycle_recent": "f2",
-    "model_cycle_recent_reverse": "shift+f2",
+
+    "model_provider_list": "<leader>p",
+    "model_favorite_toggle": "<leader>f",
+    "model_list": "<leader>m",
+
+    "model_cycle_recent": "alt+n",
+    "model_cycle_recent_reverse": "alt+p",
+
     "model_cycle_favorite": "none",
     "model_cycle_favorite_reverse": "none",
+
     "mcp_list": "none",
     "provider_connect": "none",
     "console_org_switch": "none",
-    "agent_list": "none",
-    "agent_cycle": "tab",
-    "agent_cycle_reverse": "shift+tab",
-    "variant_cycle": "ctrl+t",
+
+    "agent_list": "<leader>a",
+    "agent_cycle": "ctrl+n",
+    "agent_cycle_reverse": "ctrl+p",
+
+    "variant_cycle": "alt+v",
     "variant_list": "none",
-    "messages_page_up": "pageup",
-    "messages_page_down": "pagedown",
-    "messages_line_up": "none",
-    "messages_line_down": "none",
-    "messages_half_page_up": "none",
-    "messages_half_page_down": "none",
-    "messages_first": "home",
-    "messages_last": "end",
-    "messages_next": "none",
-    "messages_previous": "none",
+
+    "messages_page_up": "alt+v,pageup",
+    "messages_page_down": "ctrl+v,pagedown",
+
+    "messages_line_up": "ctrl+p",
+    "messages_line_down": "ctrl+n",
+
+    "messages_half_page_up": "alt+u",
+    "messages_half_page_down": "alt+d",
+
+    "messages_first": "alt+<,home",
+    "messages_last": "alt+>,end",
+
+    "messages_next": "ctrl+n",
+    "messages_previous": "ctrl+p",
+
     "messages_last_user": "none",
-    "messages_copy": "none",
-    "messages_undo": "none",
-    "messages_redo": "none",
-    "messages_toggle_conceal": "none",
+
+    "messages_copy": "<leader>w",
+    "messages_undo": "ctrl+/",
+    "messages_redo": "ctrl+shift+/",
+
+    "messages_toggle_conceal": "<leader>h",
+
     "tool_details": "none",
     "display_thinking": "none",
+
     "prompt_submit": "none",
     "prompt_editor_context_clear": "none",
     "prompt_skills": "none",
+
     "prompt_stash": "none",
     "prompt_stash_pop": "none",
     "prompt_stash_list": "none",
+
     "workspace_set": "none",
-    "input_clear": "ctrl+c",
-    "input_paste": "ctrl+v",
-    "input_submit": "return,ctrl+j",
-    "input_newline": "none",
-    "input_move_left": "left",
-    "input_move_right": "right",
-    "input_move_up": "up",
-    "input_move_down": "down",
+
+    "input_clear": "ctrl+g",
+
+    "input_paste": {
+      "key": "ctrl+y",
+      "preventDefault": false
+    },
+
+    "input_submit": "return",
+
+    "input_newline": "ctrl+j,shift+return,ctrl+return,alt+return",
+
+    "input_move_left": "left,ctrl+b",
+    "input_move_right": "right,ctrl+f",
+
+    "input_move_up": "up,ctrl+p",
+    "input_move_down": "down,ctrl+n",
+
     "input_select_left": "shift+left",
     "input_select_right": "shift+right",
     "input_select_up": "shift+up",
     "input_select_down": "shift+down",
-    "input_line_home": "none",
-    "input_line_end": "none",
-    "input_select_line_home": "none",
-    "input_select_line_end": "none",
-    "input_visual_line_home": "none",
-    "input_visual_line_end": "none",
-    "input_select_visual_line_home": "none",
-    "input_select_visual_line_end": "none",
-    "input_buffer_home": "home",
-    "input_buffer_end": "end",
+
+    "input_line_home": "ctrl+a",
+    "input_line_end": "ctrl+e",
+
+    "input_select_line_home": "ctrl+shift+a",
+    "input_select_line_end": "ctrl+shift+e",
+
+    "input_visual_line_home": "alt+a",
+    "input_visual_line_end": "alt+e",
+
+    "input_select_visual_line_home": "alt+shift+a",
+    "input_select_visual_line_end": "alt+shift+e",
+
+    "input_buffer_home": "alt+<,home",
+    "input_buffer_end": "alt+>,end",
+
     "input_select_buffer_home": "shift+home",
     "input_select_buffer_end": "shift+end",
-    "input_delete_line": "none",
-    "input_delete_to_line_end": "none",
-    "input_delete_to_line_start": "none",
-    "input_backspace": "ctrl+h",
-    "input_delete": "none",
-    "input_undo": "none",
-    "input_redo": "none",
-    "input_word_forward": "alt+f",
-    "input_word_backward": "alt+b",
-    "input_select_word_forward": "none",
-    "input_select_word_backward": "none",
-    "input_delete_word_forward": "none",
-    "input_delete_word_backward": "none",
-    "input_select_all": "none",
-    "history_previous": "ctrl+p",
-    "history_next": "ctrl+n"
-  },
-  "attention": {
-    "enabled": false,
-    "notifications": false,
-    "sound": false
-  },
-  "plugin": [
-    [
-      "@leohenon/opencode-vim-plugin@latest",
-      {
-        "enabled": true,
-        "toggle_key": "ctrl+shift+v",
-        "indicator": true,
-        "vim_initial_mode": "normal",
-        "vim_enter_submit": false,
-        "vim_insert_after_submit": false,
-        "vim_system_clipboard_register": true,
-        "vim_normal_leader": "space",
-        "normal_keybinds": {
-          "j": "session.line.down",
-          "k": "session.line.up",
-          "ctrl+u": "messages_page_up",
-          "ctrl+d": "messages_page_down",
-          "<leader>n": "session_new",
-          "<leader>l": "session_list",
-          "<leader>r": "session_rename",
-          "<leader>c": "session_compact",
-          "<leader>e": "editor_open",
-          "<leader>t": "theme_list",
-          "<leader>b": "sidebar_toggle",
-          "<leader>y": "messages_copy",
-          "<leader>h": "messages_toggle_conceal",
-          "<leader>a": "agent_list",
-          "<leader>m": "model_list",
-          "<leader>f": "session_fork",
-          "<leader>s": "status_view",
-          "<leader>q": "app_exit",
-          "ctrl+r": "input_redo",
-          "u": "input_undo"
-        }
-      }
-    ]
-  ]
+
+    "input_delete_line": "ctrl+shift+k",
+
+    "input_delete_to_line_end": "ctrl+k",
+    "input_delete_to_line_start": "ctrl+u",
+
+    "input_backspace": "backspace,shift+backspace,ctrl+h",
+    "input_delete": "ctrl+d,delete,shift+delete",
+
+    "input_undo": "ctrl+/,ctrl+-,super+z",
+    "input_redo": "ctrl+shift+/,ctrl+.,super+shift+z",
+
+    "input_word_forward": "alt+f,alt+right,ctrl+right",
+    "input_word_backward": "alt+b,alt+left,ctrl+left",
+
+    "input_select_word_forward": "alt+shift+f,alt+shift+right",
+    "input_select_word_backward": "alt+shift+b,alt+shift+left",
+
+    "input_delete_word_forward": "alt+d,alt+delete,ctrl+delete",
+
+    "input_delete_word_backward": "alt+backspace,ctrl+w,ctrl+backspace",
+
+    "input_select_all": "ctrl+x h,super+a",
+
+    "history_previous": "alt+p",
+    "history_next": "alt+n",
+
+    "dialog.select.prev": "up,ctrl+p",
+    "dialog.select.next": "down,ctrl+n",
+
+    "dialog.select.page_up": "pageup,alt+v",
+    "dialog.select.page_down": "pagedown,ctrl+v",
+
+    "dialog.select.home": "home,alt+<",
+    "dialog.select.end": "end,alt+>",
+
+    "dialog.select.submit": "return",
+    "dialog.prompt.submit": "return",
+
+    "dialog.mcp.toggle": "space",
+
+    "prompt.autocomplete.prev": "up,ctrl+p",
+    "prompt.autocomplete.next": "down,ctrl+n",
+
+    "prompt.autocomplete.hide": "ctrl+g,escape",
+    "prompt.autocomplete.select": "return",
+    "prompt.autocomplete.complete": "tab",
+
+    "permission.prompt.fullscreen": "ctrl+l",
+
+    "plugins.toggle": "space",
+    "dialog.plugins.install": "shift+i",
+
+    "terminal_suspend": "ctrl+z",
+    "terminal_title_toggle": "none",
+
+    "tips_toggle": "<leader>h",
+
+    "plugin_manager": "none",
+    "plugin_install": "none",
+
+    "which_key_toggle": "<leader>?",
+    "which_key_layout_toggle": "none",
+    "which_key_pending_toggle": "none",
+
+    "which_key_group_previous": "ctrl+p,alt+left",
+    "which_key_group_next": "ctrl+n,alt+right",
+
+    "which_key_scroll_up": "ctrl+p",
+    "which_key_scroll_down": "ctrl+n",
+
+    "which_key_page_up": "alt+v,pageup",
+    "which_key_page_down": "ctrl+v,pagedown",
+
+    "which_key_home": "alt+<,home",
+    "which_key_end": "alt+>,end"
+  }
 }
