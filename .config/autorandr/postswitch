@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# Reload OpenTabletDriver after a monitor layout change so its absolute
+# coordinates match the current X11 screen geometry.
+if xrandr --query | grep -q '^DP1 connected'; then
+    systemctl --user restart opentabletdriver.service
+fi

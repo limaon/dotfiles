@@ -124,14 +124,19 @@ multimon() { # Multi-monitor handler.
 # shellcheck disable=SC2046
 onescreen() { # If only one output available or chosen.
 	local res_args=()
+	local orientation
+
 	mapfile -t res_args < <(get_resolution_args "$1")
+	orientation=$(printf -- 'normal\nleft\nright\ninverted' | \
+		dmenu -i -p "Orientation for $1:")
+
 	xrandr \
 		--output "$1" \
 		--primary \
 		"${res_args[@]}" \
 		--scale 1.0x1.0 \
 		--pos "0x0" \
-	--rotate normal \
+		--rotate "$orientation" \
 	$(echo "$allposs" | grep -v "\b$1" | awk '{print "--output", $1, "--off"}' | paste -sd ' ' -)
 }
 

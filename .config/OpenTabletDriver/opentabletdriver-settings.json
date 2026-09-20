@@ -1,0 +1,230 @@
+{
+  "Revision": "0.6.7",
+  "Profiles": [
+    {
+      "Tablet": "Huion Kamvas 13 (Gen 3)",
+      "OutputMode": {
+        "Path": "OpenTabletDriver.Desktop.Output.LinuxArtistMode",
+        "Settings": [],
+        "Enable": true
+      },
+      "Filters": [],
+      "AbsoluteModeSettings": {
+        "Display": {
+          "Width": 1920.0,
+          "Height": 1080.0,
+          "X": 960.0,
+          "Y": 540.0,
+          "Rotation": 0.0
+        },
+        "Tablet": {
+          "Width": 293.8,
+          "Height": 165.2,
+          "X": 146.9,
+          "Y": 82.6,
+          "Rotation": 180.0
+        },
+        "EnableClipping": false,
+        "EnableAreaLimiting": false,
+        "LockAspectRatio": false
+      },
+      "RelativeModeSettings": {
+        "XSensitivity": 10.0,
+        "YSensitivity": 10.0,
+        "RelativeRotation": 0.0,
+        "RelativeResetDelay": "00:00:00.1000000"
+      },
+      "Bindings": {
+        "TipActivationThreshold": 1.0,
+        "TipButton": {
+          "Path": "OpenTabletDriver.Desktop.Binding.AdaptiveBinding",
+          "Settings": [
+            {
+              "Property": "Binding",
+              "Value": "Tip"
+            }
+          ],
+          "Enable": true
+        },
+        "EraserActivationThreshold": 1.0,
+        "EraserButton": {
+          "Path": "OpenTabletDriver.Desktop.Binding.AdaptiveBinding",
+          "Settings": [
+            {
+              "Property": "Binding",
+              "Value": "Eraser"
+            }
+          ],
+          "Enable": true
+        },
+        "PenButtons": [
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.AdaptiveBinding",
+            "Settings": [
+              {
+                "Property": "Binding",
+                "Value": "Button 1"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.AdaptiveBinding",
+            "Settings": [
+              {
+                "Property": "Binding",
+                "Value": "Button 2"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.AdaptiveBinding",
+            "Settings": [
+              {
+                "Property": "Binding",
+                "Value": "Button 3"
+              }
+            ],
+            "Enable": true
+          }
+        ],
+        "AuxButtons": [
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.MultiKeyBinding",
+            "Settings": [
+              {
+                "Property": "Keys",
+                "Value": "Application+Tab"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.MultiKeyBinding",
+            "Settings": [
+              {
+                "Property": "Keys",
+                "Value": "Control+Z"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.MultiKeyBinding",
+            "Settings": [
+              {
+                "Property": "Keys",
+                "Value": "Control+Y"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.MultiKeyBinding",
+            "Settings": [
+              {
+                "Property": "Keys",
+                "Value": "Control+Minus"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.MultiKeyBinding",
+            "Settings": [
+              {
+                "Property": "Keys",
+                "Value": "Control+Equal"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.KeyBinding",
+            "Settings": [
+              {
+                "Property": "Key",
+                "Value": "PrintScreen"
+              }
+            ],
+            "Enable": true
+          },
+          {
+            "Path": "OpenTabletDriver.Desktop.Binding.MultiKeyBinding",
+            "Settings": [
+              {
+                "Property": "Keys",
+                "Value": "Application+Shift+PrintScreen"
+              }
+            ],
+            "Enable": true
+          }
+        ],
+        "MouseButtons": [],
+        "MouseScrollUp": null,
+        "MouseScrollDown": null,
+        "WheelBindings": [
+          {
+            "WheelButtons": [],
+            "ClockwiseRotation": {
+              "Path": "OpenTabletDriver.Desktop.Binding.KeyBinding",
+              "Settings": [
+                {
+                  "Property": "Key",
+                  "Value": "Right"
+                }
+              ],
+              "Enable": true
+            },
+            "ClockwiseActivationThreshold": 15.0,
+            "CounterClockwiseRotation": {
+              "Path": "OpenTabletDriver.Desktop.Binding.KeyBinding",
+              "Settings": [
+                {
+                  "Property": "Key",
+                  "Value": "Left"
+                }
+              ],
+              "Enable": true
+            },
+            "CounterClockwiseActivationThreshold": 15.0,
+            "StepSize": 15.0
+          },
+          {
+            "WheelButtons": [],
+            "ClockwiseRotation": {
+              "Path": "OpenTabletDriver.Desktop.Binding.KeyBinding",
+              "Settings": [
+                {
+                  "Property": "Key",
+                  "Value": "Down"
+                }
+              ],
+              "Enable": true
+            },
+            "ClockwiseActivationThreshold": 15.0,
+            "CounterClockwiseRotation": {
+              "Path": "OpenTabletDriver.Desktop.Binding.KeyBinding",
+              "Settings": [
+                {
+                  "Property": "Key",
+                  "Value": "Up"
+                }
+              ],
+              "Enable": true
+            },
+            "CounterClockwiseActivationThreshold": 15.0,
+            "StepSize": 15.0
+          }
+        ],
+        "DisablePressure": false,
+        "DisableTilt": false,
+        "EnableDragBindings": false
+      }
+    }
+  ],
+  "LockUsableAreaDisplay": true,
+  "LockUsableAreaTablet": true,
+  "Tools": []
+}
