@@ -314,6 +314,10 @@ local language_settings = {
 	scss = { buffer = vim.deepcopy(two_space_indent) },
 	less = { buffer = vim.deepcopy(two_space_indent) },
 	phtml = { buffer = vim.deepcopy(two_space_indent) },
+	javascript = { buffer = vim.deepcopy(two_space_indent) },
+	javascriptreact = { buffer = vim.deepcopy(two_space_indent) },
+	typescript = { buffer = vim.deepcopy(two_space_indent) },
+	typescriptreact = { buffer = vim.deepcopy(two_space_indent) },
 	markdown = {
 		buffer = { formatoptions = "jcroql" },
 		window = {
@@ -1017,6 +1021,7 @@ require("lazy").setup({
 			})
 
 			vim.lsp.config("ts_ls", {
+				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 				init_options = { hostInfo = "neovim" },
 				settings = {
 					typescript = {
