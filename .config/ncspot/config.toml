@@ -3,7 +3,7 @@ default_keybindings = false
 use_nerdfont = true
 gapless = true
 flip_status_indicators = true
-shuffle = false
+shuffle = true
 repeat = 'playlist'
 volnorm = false
 cover_max_scale = 2
@@ -13,9 +13,6 @@ notify = true
 [notification_format]
 title = "%title"
 body = "%artists"
-
-[audio]
-backend = "pipewire"
 
 [keybindings]
 ##################
@@ -120,21 +117,25 @@ backend = "pipewire"
 "U" = "update"
 
 [theme]
-# background = "#002b36"
-primary = "#93a1a1"
-secondary = "#93a1a1"
-title = "#859900"
-playing = "#b58900"
-# playing_bg = "#586e75"
-highlight = "#fdf6e3"
-highlight_bg = "#002b36"
-error = "#002b36"
-error_bg = "#dc322f"
-statusbar = "#002b36"
-statusbar_progress = "#eee8d5"
-statusbar_bg = "#93a1a1"
-cmdline = "#002b36"
-cmdline_bg = "#586e75"
+# background = "#00141a"
+primary = "#9fabad"
+secondary = "#647a82"
+title = "#b28600"
+playing = "#859900"
+playing_selected = "#ede7d4"
+# playing_bg = "#073541"
+highlight = "#adb8b8"
+highlight_bg = "#103956"
+highlight_inactive_bg = "#002d38"
+error = "#fdf6e2"
+error_bg = "#dc312e"
+statusbar = "#002d38"
+statusbar_bg = "#647a82"
+statusbar_progress = "#859900"
+statusbar_progress_bg = "#002d38"
+cmdline = "#9fabad"
+# cmdline_bg = "#073541"
+search_match = "#b28600"
 
 [track_format]
 left = "%saved | %duration | %title - %artists"
