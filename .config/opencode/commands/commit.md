@@ -14,7 +14,7 @@ Analyze the provided code changes and generate semantic commit messages strictly
    - Briefly specify which files belong to which generated message.
 
 3. **Message Format**:
-   - Use the strict format: `<type>: <description>`
+   - Use the strict format: `<type>[optional scope]: <description>`
    - **Imperative mood**: Write as commands (e.g., "add feature", not "added feature" or "adds feature").
    - **Concise**: Keep the description under 72 characters.
 
