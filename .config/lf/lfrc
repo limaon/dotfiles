@@ -63,6 +63,9 @@ cmd cfg_reload source ~/.config/lf/lfrc
 
 #: File opening with MIME type detection
 cmd open ${{
+  image_files=()
+  video_files=()
+
   for f in $fx; do
     # 0 discard qBittorrent temporary files
     [[ "$f" == *'.!qB' ]] && continue
@@ -86,6 +89,19 @@ cmd open ${{
 
     # 3 MIME detection with mimeapps.list
     mime=$(file --mime-type -Lb -- "$f")
+
+    # Open all selected images in one nsxiv instance.
+    if [[ "$mime" == image/* ]]; then
+      image_files+=("$f")
+      continue
+    fi
+
+    # Open all selected videos in one mpv playlist.
+    if [[ "$mime" == video/* ]]; then
+      video_files+=("$f")
+      continue
+    fi
+
     mimeapps="$HOME/.config/mimeapps.list"
     app=""
 
@@ -100,6 +116,26 @@ cmd open ${{
       setsid -f "${OPENER:-xdg-open}" "$f" >/dev/null 2>&1 &
     fi
   done
+
+  if ((${#image_files[@]})); then
+    if command -v nsxiv >/dev/null 2>&1; then
+      setsid -f nsxiv -- "${image_files[@]}" >/dev/null 2>&1 &
+    else
+      for f in "${image_files[@]}"; do
+        setsid -f "${OPENER:-xdg-open}" "$f" >/dev/null 2>&1 &
+      done
+    fi
+  fi
+
+  if ((${#video_files[@]})); then
+    if command -v mpv >/dev/null 2>&1; then
+      setsid -f mpv -- "${video_files[@]}" >/dev/null 2>&1 &
+    else
+      for f in "${video_files[@]}"; do
+        setsid -f "${OPENER:-xdg-open}" "$f" >/dev/null 2>&1 &
+      done
+    fi
+  fi
 }}
 
 #: Directory change hook
@@ -116,19 +152,201 @@ cmd on-cd %{{
   esac
 }}
 
+# Update the bottom ruler with metadata for the selected video
+cmd on-select &{{
+  clear_file_metadata() {
+    lf -remote "send $id set user_file_meta ''"
+  }
+
+  set_file_metadata() {
+    escaped_metadata="$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
+    lf -remote "send $id set user_file_meta '$escaped_metadata'"
+  }
+
+  archive_entry_count() {
+    case "$1" in
+      application/zip)
+        zipinfo -1 -- "$2" 2>/dev/null | wc -l
+        ;;
+      application/x-tar|application/tar|application/gtar|application/x-gtar|\
+      application/gzip|application/x-gzip|application/bzip2|application/x-bzip2|\
+      application/x-xz|application/zstd|application/x-zstd)
+        tar -tf -- "$2" 2>/dev/null | wc -l
+        ;;
+      application/x-7z-compressed)
+        7z l -slt -- "$2" 2>/dev/null |
+          awk -F ' = ' '$1 == "Path" {count++} END {print count + 0}'
+        ;;
+      application/x-rar|application/rar)
+        unrar lb -- "$2" 2>/dev/null | wc -l
+        ;;
+      *)
+        printf '0\n'
+        ;;
+    esac
+  }
+
+  mime="$(file --mime-type -Lb -- "$f" 2>/dev/null)"
+
+  case "$mime" in
+    image/*)
+      if ! command -v identify &>/dev/null; then
+        clear_file_metadata
+        exit 0
+      fi
+
+      metadata="$(identify -format '%wx%h · %m · %[colorspace] · %z-bit\n' \
+        -- "$f" 2>/dev/null | head -n 1)"
+      capture_date="$(identify -format '%[EXIF:DateTimeOriginal]' \
+        -- "$f" 2>/dev/null | head -n 1)"
+      camera="$(identify -format '%[EXIF:Make] %[EXIF:Model]' \
+        -- "$f" 2>/dev/null | sed 's/[[:space:]]\+/ /g' | sed 's/^ *//;s/ *$//' | head -n 1)"
+      [ -n "$capture_date" ] && metadata="$metadata · $capture_date"
+      [ -n "$camera" ] && metadata="$metadata · $camera"
+      set_file_metadata "$metadata"
+      ;;
+    application/zip|application/x-tar|application/tar|application/gtar|\
+    application/x-gtar|application/gzip|application/x-gzip|application/bzip2|\
+    application/x-bzip2|application/x-xz|application/zstd|application/x-zstd|\
+    application/x-7z-compressed|application/x-rar|application/rar)
+      entries="$(archive_entry_count "$mime" "$f")"
+      set_file_metadata "ARCHIVE · $entries entries"
+      ;;
+    application/epub+zip|application/x-mobipocket-ebook|application/vnd.amazon.ebook)
+      if ! command -v ebook-meta &>/dev/null; then
+        clear_file_metadata
+        exit 0
+      fi
+
+      metadata="$(ebook-meta "$f" 2>/dev/null | awk -F': ' \
+        '$1 == "Title" || $1 == "Author(s)" {values[++count] = $2} \
+         END {for (i = 1; i <= count; i++) printf "%s%s", (i > 1 ? " · " : ""), values[i]}')"
+      set_file_metadata "EBOOK · $metadata"
+      ;;
+    audio/*)
+      if ! command -v ffprobe &>/dev/null || ! command -v jq &>/dev/null; then
+        clear_file_metadata
+        exit 0
+      fi
+
+      metadata="$(
+        ffprobe -v quiet -of json -show_format -show_streams -- "$f" |
+          jq -r '
+            .format as $format |
+            ([.streams[]? | select(.codec_type == "audio")][0]) as $audio |
+            ($format.duration // "0" | tonumber | floor) as $seconds_total |
+            ($seconds_total / 60 | floor) as $minutes |
+            ($seconds_total % 60) as $seconds |
+            ("0" + ($seconds | tostring))[-2:] as $seconds_padded |
+            [
+              (if $audio.codec_name then ($audio.codec_name | ascii_upcase) else empty end),
+              (if $seconds_total > 0 then "\($minutes):\($seconds_padded)" else empty end),
+              (if $audio.bit_rate then "\($audio.bit_rate | tonumber / 1000 | floor) kbps" else empty end),
+              (if $audio.sample_rate then "\($audio.sample_rate | tonumber / 1000) kHz" else empty end),
+              (if $audio.channels then "\($audio.channels)ch" else empty end)
+            ] | join(" · ")
+          ' || true
+      )"
+      set_file_metadata "$metadata"
+      ;;
+    application/pdf)
+      if ! command -v pdfinfo &>/dev/null; then
+        clear_file_metadata
+        exit 0
+      fi
+
+      pages="$(pdfinfo -- "$f" 2>/dev/null | awk '$1 == "Pages:" {print $2}')"
+      page_size="$(pdfinfo -- "$f" 2>/dev/null | awk '$1 == "Page" && $2 == "size:" {print $3 "x" $5}')"
+      metadata="PDF · ${pages:-?} páginas"
+      [ -n "$page_size" ] && metadata="$metadata · $page_size pt"
+      set_file_metadata "$metadata"
+      ;;
+    application/font-*|font/*)
+      if ! command -v fc-query &>/dev/null; then
+        clear_file_metadata
+        exit 0
+      fi
+
+      metadata="$(fc-query -f '%{family} · %{style}\n' "$f" 2>/dev/null | head -n 1)"
+      set_file_metadata "$metadata"
+      ;;
+    video/*)
+      if ! command -v ffprobe &>/dev/null || ! command -v jq &>/dev/null; then
+        clear_file_metadata
+        exit 0
+      fi
+
+      metadata="$(
+        ffprobe -v quiet -of json -show_format -show_streams -- "$f" |
+          jq -r '
+            .format as $format |
+            ([.streams[]? | select(.codec_type == "video")][0]) as $video |
+            ($format.duration // "0" | tonumber | floor) as $seconds_total |
+            ($seconds_total / 60 | floor) as $minutes_total |
+            ($minutes_total / 60 | floor) as $hours |
+            ($minutes_total % 60) as $minutes |
+            ($seconds_total % 60) as $seconds |
+            ("0" + ($minutes | tostring))[-2:] as $minutes_padded |
+            ("0" + ($seconds | tostring))[-2:] as $seconds_padded |
+            [
+              (if $video then
+                "\($video.width // "?")x\($video.height // "?")"
+               else empty end),
+              (if $video.codec_name then $video.codec_name else empty end),
+              (if $seconds_total > 0 then
+                (if $hours > 0 then
+                  "\($hours):\($minutes_padded):\($seconds_padded)"
+                 else
+                  "\($minutes_total):\($seconds_padded)"
+                 end)
+               else empty end)
+            ] | join(" · ")
+          ' || true
+      )"
+
+      set_file_metadata "$metadata"
+      ;;
+    *)
+      clear_file_metadata
+      ;;
+  esac
+}}
+
 #: }}}
 
 #: === NAVIGATION COMMANDS === {{{
+
+#: Return to the previous directory
+cmd previous-directory push "''"
 
 #: Jump to directory with fzf
 cmd changedirectory ${{
   set -f
   MBASE="/run/media/$(id -un)"
-  clear; tput cup $(($(tput lines)/3)); tput bold
-  printf 'Go to where?\n'
+  clear
 
-  dirpath="$(find "$HOME" "$MBASE" -maxdepth 4 -type d 2>/dev/null \
-              | fzf --layout=reverse --height 40% --prompt 'Go to where? ')"
+  dirpath="$(
+    {
+      find "$HOME" -maxdepth 4 -type d 2>/dev/null
+      find "$MBASE" -mindepth 1 -maxdepth 1 -type d \
+        -exec mountpoint -q -- {} \; -print 2>/dev/null
+    } |
+      while IFS= read -r path; do
+        if [[ "$path" == "$HOME" ]]; then
+          printf '~/\n'
+        elif [[ "$path" == "$HOME/"* ]]; then
+          printf '~/%s\n' "${path#"$HOME/"}"
+        else
+          printf '%s\n' "$path"
+        fi
+      done |
+      fzf --layout=reverse --height 40% --prompt 'Go to where? '
+  )"
+
+  case "$dirpath" in
+    '~'|'~/') dirpath="$HOME" ;;
+    '~/'*) dirpath="$HOME/${dirpath#\~/}" ;;
+  esac
 
   [[ -n "$dirpath" ]] && lf -remote "send $id cd \"$dirpath\""
 }}
@@ -180,7 +398,7 @@ cmd cancel-transfer &{{
 
   rm -f -- "$pid_file"
 
-  notify-send -u critical "Transfer cancelled" \
+  notify-send -u critical -i process-stop "Transfer cancelled" \
     "Operation was cancelled by user. Partial files may remain at destination." \
     2>/dev/null
   lf -remote "send $id echoerr 'transfer: cancelled by user'"
@@ -231,20 +449,72 @@ cmd paste ${{
 #: Copy to destination
 cmd copyto ${{
   set -f
-  dest="$(find "$HOME" /run/media -maxdepth 4 -type d 2>/dev/null | fzf --prompt 'Copy to: ')"
+  clear
+  mount_root="/run/media/$(id -un)"
+  dest="$(
+    {
+      find "$HOME" -maxdepth 4 -type d 2>/dev/null
+      find "$mount_root" -mindepth 1 -maxdepth 1 -type d \
+        -exec mountpoint -q -- {} \; -print 2>/dev/null
+    } |
+      while IFS= read -r path; do
+        if [[ "$path" == "$HOME" ]]; then
+          printf '~/\n'
+        elif [[ "$path" == "$HOME/"* ]]; then
+          printf '~/%s\n' "${path#"$HOME/"}"
+        else
+          printf '%s\n' "$path"
+        fi
+      done |
+      fzf --prompt 'Copy to: '
+  )"
+
+  display_dest="$dest"
+
+  case "$dest" in
+    '~'|'~/') dest="$HOME" ;;
+    '~/'*) dest="$HOME/${dest#\~/}" ;;
+  esac
+
   [ -d "$dest" ] || exit 1
   rsync -av --progress -- $fx "$dest" 2>/dev/null && \
-    notify-send -i edit-copy "Copied" "to $dest" 2>/dev/null
+    notify-send -i edit-copy "Copied" "to $display_dest" 2>/dev/null
   lf -remote 'send reload'
 }}
 
 #: Move to destination
 cmd moveto ${{
   set -f
-  dest="$(find "$HOME" /run/media -maxdepth 4 -type d 2>/dev/null | fzf --prompt 'Move to: ')"
+  clear
+  mount_root="/run/media/$(id -un)"
+  dest="$(
+    {
+      find "$HOME" -maxdepth 4 -type d 2>/dev/null
+      find "$mount_root" -mindepth 1 -maxdepth 1 -type d \
+        -exec mountpoint -q -- {} \; -print 2>/dev/null
+    } |
+      while IFS= read -r path; do
+        if [[ "$path" == "$HOME" ]]; then
+          printf '~/\n'
+        elif [[ "$path" == "$HOME/"* ]]; then
+          printf '~/%s\n' "${path#"$HOME/"}"
+        else
+          printf '%s\n' "$path"
+        fi
+      done |
+      fzf --prompt 'Move to: '
+  )"
+
+  display_dest="$dest"
+
+  case "$dest" in
+    '~'|'~/') dest="$HOME" ;;
+    '~/'*) dest="$HOME/${dest#\~/}" ;;
+  esac
+
   [ -d "$dest" ] || exit 1
   rsync -av --progress --remove-source-files -- $fx "$dest" 2>/dev/null && \
-    notify-send -i edit-cut "Moved" "to $dest" 2>/dev/null
+    notify-send -i edit-cut "Moved" "to $display_dest" 2>/dev/null
   lf -remote 'send reload'
 }}
 
@@ -311,7 +581,7 @@ cmd tar ${{
   read -r name
   [ -z "$name" ] && exit 1
   tar -czf "${name}.tar.gz" $fx && \
-    notify-send "Archive created" "${name}.tar.gz" 2>/dev/null
+    notify-send -i archive "Archive created" "${name}.tar.gz" 2>/dev/null
   lf -remote 'send reload'
 }}
 
@@ -322,7 +592,7 @@ cmd zip-files ${{
   read -r name
   [ -z "$name" ] && exit 1
   zip -r -q "${name}.zip" $fx && \
-    notify-send "Archive created" "${name}.zip" 2>/dev/null
+    notify-send -i archive "Archive created" "${name}.zip" 2>/dev/null
   lf -remote 'send reload'
 }}
 
@@ -355,6 +625,7 @@ cmd mkdir ${{
 
 #: Jump to location with fzf
 cmd fzf_jump ${{
+  clear
   res="$(find . 2>/dev/null -maxdepth 6 | fzf --bind tab:down,shift-tab:up --reverse --header='Jump to location')"
   if [ -f "$res" ]; then
     cmd="select"
@@ -370,9 +641,11 @@ cmd fzf_jump ${{
 
 #: Change file permissions
 cmd chmod ${{
-  clear; tput cup $(($(tput lines)/3)); tput bold
+  clear
   set -f
-  printf "%s\n\t" "$fx"
+  while IFS= read -r file; do
+    [ -n "$file" ] && printf "%s\n" "${file##*/}"
+  done <<< "$fx"
   printf "chmod: "
   read ans
 
@@ -389,9 +662,11 @@ EOF
 
 #: Change file owner
 cmd chown ${{
-  clear; tput cup $(($(tput lines)/3)); tput bold
+  clear
   set -f
-  printf "%s\n\t" "$fx"
+  while IFS= read -r file; do
+    [ -n "$file" ] && printf "%s\n" "${file##*/}"
+  done <<< "$fx"
   printf "chown: "
   read ans
 
@@ -459,6 +734,19 @@ cmd ud-unmount ${{
     fi
 }}
 
+#: Open mounted removable devices
+cmd removable-devices ${{
+  mount_root="/run/media/$(id -un)"
+  mounted_device="$(find "$mount_root" -mindepth 1 -maxdepth 1 -type d \
+    -exec mountpoint -q -- {} \; -print -quit 2>/dev/null)"
+
+  if [ -n "$mounted_device" ]; then
+    lf -remote "send $id cd \"$mount_root\""
+  else
+    lf -remote "send $id echoerr 'No removable device mounted'"
+  fi
+}}
+
 #: Set background image
 cmd setbg ${{
   case "$(file --mime-type -Lb "$f")" in
@@ -488,7 +776,6 @@ cmd select-glob &{{
 
 #: Unmap default keys
 map m
-map "'"
 map '"'
 map t
 map c
@@ -574,11 +861,12 @@ map gm cd ~/Music
 map gV cd ~/Videos
 map gC cd ~/.config
 map gL cd ~/.local
-map gr $lf -remote "send $id cd /run/media/$(id -un)"
+map "'" mark-load
+map g- previous-directory
+map gr removable-devices
 map gs go_to_current_song
 map gtr cd ~/.local/share/Trash/files
 map gb cd /usr/share/backgrounds
 map gu ud-unmount
 
 #: }}}
-

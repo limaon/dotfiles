@@ -9,6 +9,7 @@
     {{.ModTime | printf " %s" -}}
     {{with .Target}} → {{.}}{{end -}}
 {{end -}}
+{{with .UserOptions.file_meta}}  {{.}}{{end -}}
 {{.SPACER -}}
 {{with .Keys}}  {{.}}{{end -}}
 {{with .Progress}}  {{join . " "}}{{end -}}

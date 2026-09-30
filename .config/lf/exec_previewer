@@ -1,279 +1,375 @@
 #!/usr/bin/env bash
+
+set -u
+set -o pipefail
+
+command_exists() {
+  command -v "$1" &>/dev/null
+}
+
+unavailable() {
+  printf '[%s]\n' "$1"
+}
+
+preview_head() {
+  local lines="$1"
+  shift
+
+  "$@" | head -n "$lines"
+  local command_status="${PIPESTATUS[0]}"
+
+  [[ "$command_status" -eq 0 || "$command_status" -eq 141 ]]
+}
+
+# Arguments provided by lf's previewer interface.
+file_path="${1:?missing file path}"
+preview_width="${2:-80}"
+preview_height="${3:-24}"
+preview_x="${4:-0}"
+preview_y="${5:-0}"
+preview_mode="${6:-preview}"
+
 #
-# lf preview script - Text-only edition
-# Shows text previews for all file types
+# lf preview script
+# Shows previews for text, media, archives, and images
 #
-# No caching, no images, no external dependencies beyond standard tools
+# External tools are checked before use
 #
 
-filetype="$(file -Lb --mime-type -- "$1")"
-encoding="$(file --mime-encoding -Lb -- "$1" 2>/dev/null)"
+filetype="$(file -Lb --mime-type -- "$file_path")"
+encoding="$(file --mime-encoding -Lb -- "$file_path" 2>/dev/null)"
 
 # -- Text files with syntax highlighting --------------------------------
 
 preview_text() {
-  if command -v bat &>/dev/null; then
+  local file="$1"
+  local width="${2:-80}"
+  width=$((width > 4 ? width - 2 : 2))
+
+  if command_exists bat; then
     bat --color=always --style=numbers --wrap=auto \
-        --terminal-width="$(( $2 - 2 ))" -- "$1" 2>/dev/null || cat -n -- "$1"
+        --terminal-width="$width" -- "$file" 2>/dev/null || cat -n -- "$file"
   else
-    cat -n -- "$1"
+    cat -n -- "$file"
   fi
 }
 
-# -- Archives -----------------------------------------------------------
+# -- Images --------------------------------------------------------------
 
-preview_tar()   { tar tf "$1" | head -n 30; }
-preview_gzip()  { tar -ztf "$1" | head -n 30; }
-preview_bzip2() { tar -jtf "$1" | head -n 30; }
-preview_xz()    { tar -Jtf "$1" | head -n 30; }
-preview_zip()   { unzip -l "$1" | head -n 30; }
-preview_rar()   { unrar l "$1" | head -n 30; }
-preview_7z()    { 7z l "$1" 2>/dev/null | tail -n +9 | head -n 30; }
-preview_zstd()  { tar --use-compress-program=zstd -tf "$1" | head -n 30; }
+preview_image() {
+  local file="$1"
+  local width="${2:-80}"
+  local height="${3:-24}"
+  local x="${4:-0}"
+  local y="${5:-0}"
+
+  if ! command_exists kitty; then
+    unavailable 'kitty not installed'
+  elif [[ "${TERM:-}" != xterm-kitty && -z "${KITTY_WINDOW_ID:-}" ]]; then
+    unavailable 'Kitty graphics protocol unavailable'
+  else
+    kitty +kitten icat \
+      --stdin=no \
+      --transfer-mode=file \
+      --place "${width}x${height}@${x}x${y}" \
+      -- "$file" \
+      < /dev/null > /dev/tty
+
+    # Image placement is an external side effect; do not cache it in lf.
+    exit 1
+  fi
+}
+
+# -- Archives ------------------------------------------------------------
+
+preview_archive() {
+  local file="$1"
+  local mime_type="$2"
+
+  case "$mime_type" in
+    application/x-tar|application/tar|application/gtar|application/x-gtar)
+      preview_head 30 tar -tf "$file"
+      ;;
+    application/gzip|application/x-gzip)
+      preview_head 30 tar -ztf "$file"
+      ;;
+    application/bzip2|application/x-bzip2)
+      preview_head 30 tar -jtf "$file"
+      ;;
+    application/x-xz)
+      preview_head 30 tar -Jtf "$file"
+      ;;
+    application/zip)
+      preview_head 30 unzip -l -- "$file"
+      ;;
+    application/x-rar|application/rar)
+      preview_head 30 unrar l -- "$file"
+      ;;
+    application/x-7z-compressed)
+      7z l -- "$file" 2>/dev/null | tail -n +9 | head -n 30
+      local statuses=("${PIPESTATUS[@]}")
+      [[ "${statuses[0]}" -eq 0 || "${statuses[0]}" -eq 141 ]] &&
+        [[ "${statuses[1]}" -eq 0 || "${statuses[1]}" -eq 141 ]]
+      ;;
+    application/zstd|application/x-zstd)
+      preview_head 30 tar --use-compress-program=zstd -tf "$file"
+      ;;
+  esac
+}
 
 # -- Structured formats -------------------------------------------------
 
 preview_pdf() {
-  if command -v pdftotext &>/dev/null; then
-    pdftotext "$1" - | head -n 50
+  local file="$1"
+
+  if command_exists pdftotext; then
+    preview_head 50 pdftotext "$file" -
   else
-    echo "[pdftotext not installed]"
+    unavailable 'pdftotext not installed'
   fi
 }
 
 preview_office() {
-  if command -v docx2txt &>/dev/null && [[ "$1" == *.docx ]]; then
-    docx2txt "$1" - | head -n 50
-  elif command -v xlsx2csv &>/dev/null && [[ "$1" == *.xlsx ]]; then
-    xlsx2csv "$1" | head -n 30
-  elif command -v catdoc &>/dev/null && [[ "$1" == *.doc ]]; then
-    catdoc "$1" | head -n 50
+  local file="$1"
+
+  if command_exists docx2txt && [[ "$file" == *.docx ]]; then
+    preview_head 50 docx2txt "$file" -
+  elif command_exists xlsx2csv && [[ "$file" == *.xlsx ]]; then
+    preview_head 30 xlsx2csv "$file"
+  elif command_exists catdoc && [[ "$file" == *.doc ]]; then
+    preview_head 50 catdoc "$file"
   else
-    echo "[office preview unavailable]"
+    unavailable 'office preview unavailable'
   fi
 }
 
 preview_iso() {
-  if command -v iso-info &>/dev/null; then
-    iso-info --no-header -l "$1" | head -n 30
+  local file="$1"
+
+  if command_exists iso-info; then
+    preview_head 30 iso-info --no-header -l "$file"
   else
-    echo "[iso-info not installed]"
+    unavailable 'iso-info not installed'
   fi
 }
 
-# -- Video metadata ------------------------------------------------------
+preview_media_metadata() {
+  local file="$1"
+  local media_type="$2"
 
-preview_video() {
-  if command -v ffprobe &>/dev/null; then
-    ffprobe -v quiet -of json -show_format -show_streams -- "$1" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-fmt = data.get('format', {})
-tags = fmt.get('tags', {})
-
-print('File     :', fmt.get('filename', '').split('/')[-1])
-
-for k in ('title', 'artist', 'album', 'date', 'genre', 'description'):
-    v = tags.get(k) or tags.get(k.upper())
-    if v: print(f'{k.capitalize():<12}: {v}')
-
-dur = float(fmt.get('duration', 0))
-if dur:
-    m, s = divmod(int(dur), 60)
-    h, m = divmod(m, 60)
-    print('Duration     :', f'{h}:{m:02}:{s:02}' if h else f'{m}:{s:02}')
-
-size = fmt.get('size')
-if size: print('Size         :', f'{int(size)/1024/1024:.1f} MiB')
-
-video_shown = False
-audio_shown = False
-for st in data.get('streams', []):
-    if st.get('codec_type') == 'video' and not video_shown:
-        codec = st.get('codec_name', '?')
-        w = st.get('width', '?')
-        h = st.get('height', '?')
-        fps = st.get('avg_frame_rate', '?')
-        br = st.get('bit_rate')
-        print(f'Video        : {codec}  {w}x{h}  {fps} fps')
-        if br: print(f'Video BR     : {int(br)//1000} kbps')
-        video_shown = True
-    elif st.get('codec_type') == 'audio' and not audio_shown:
-        codec = st.get('codec_name', '?')
-        sr = st.get('sample_rate', '?')
-        ch = st.get('channels', '?')
-        br = st.get('bit_rate')
-        print(f'Audio        : {codec}  {sr} Hz  {ch}ch')
-        if br: print(f'Audio BR     : {int(br)//1000} kbps')
-        audio_shown = True
-"
+  if ! command_exists ffprobe; then
+    unavailable 'ffprobe not installed'
+  elif ! command_exists jq; then
+    unavailable 'jq not installed'
   else
-    echo "[ffprobe not installed]"
+    ffprobe -v quiet -of json -show_format -show_streams -- "$file" |
+      jq -r --arg media_type "$media_type" '
+        .format as $format |
+        ($format.tags // {}) as $tags |
+        ([.streams[]? | select(.codec_type == "video")][0]) as $video |
+        ([.streams[]? | select(.codec_type == "audio")][0]) as $audio |
+
+        "File     : \($format.filename // "unknown" | split("/")[-1])",
+
+        (["title", "artist", "album", "date", "genre", "description"][] |
+          . as $key |
+          ($tags[$key] // $tags[($key | ascii_upcase)]) as $value |
+          select($value != null and $value != "") |
+          (((($key[0:1] | ascii_upcase) + $key[1:]) + "            ")[0:12]) as $label |
+          "\($label): \($value)"
+        ),
+
+        (if $format.duration then
+          ($format.duration | tonumber | floor) as $total_seconds |
+          ($total_seconds / 60 | floor) as $total_minutes |
+          ($total_minutes / 60 | floor) as $hours |
+          ($total_minutes % 60) as $minutes |
+          ($total_seconds % 60) as $seconds |
+          ("0" + ($minutes | tostring))[-2:] as $minutes_padded |
+          ("0" + ($seconds | tostring))[-2:] as $seconds_padded |
+          "Duration     : " +
+            (if $hours > 0 then
+              "\($hours):\($minutes_padded):\($seconds_padded)"
+             else
+              "\($total_minutes):\($seconds_padded)"
+             end)
+         else empty end),
+
+        (if $format.size then
+          (($format.size | tonumber / 1024 / 1024) * 10 | floor) as $size_tenths |
+          "Size         : \($size_tenths / 10)\(if ($size_tenths % 10) == 0 then ".0" else "" end) MiB"
+         else empty end),
+
+        (if $media_type == "video" and $video != null then
+          "Video        : \($video.codec_name // "?")  \($video.width // "?")x\($video.height // "?")  \($video.avg_frame_rate // "?") fps",
+          (if $video.bit_rate then
+            "Video BR     : \($video.bit_rate | tonumber / 1000 | floor) kbps"
+           else empty end)
+         else empty end),
+
+        (if $audio != null then
+          (if $media_type == "video" then "Audio" else "Codec" end) as $label |
+          "\($label)        : \($audio.codec_name // "?")  \($audio.sample_rate // "?") Hz \($audio.channels // "?")ch",
+          (if $media_type == "video" and $audio.bit_rate then
+            "Audio BR     : \($audio.bit_rate | tonumber / 1000 | floor) kbps"
+           else empty end)
+         else empty end)
+      '
   fi
 }
 
-# -- Audio metadata -----------------------------------------------------
+preview_video_metadata() {
+  local file="$1"
+  preview_media_metadata "$file" video
+}
 
 preview_audio() {
-  if command -v ffprobe &>/dev/null; then
-    ffprobe -v quiet -of json -show_format -show_streams -- "$1" | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-fmt = data.get('format', {})
-tags = fmt.get('tags', {})
+  local file="$1"
+  preview_media_metadata "$file" audio
+}
 
-print('File     :', fmt.get('filename', '').split('/')[-1])
+preview_video() {
+  local file="$1"
+  local width="${2:-80}"
+  local height="${3:-24}"
+  local x="${4:-0}"
+  local y="${5:-0}"
+  local thumbnail
 
-for k in ('title', 'artist', 'album', 'date', 'genre', 'description'):
-    v = tags.get(k) or tags.get(k.upper())
-    if v: print(f'{k.capitalize():<12}: {v}')
-
-dur = float(fmt.get('duration', 0))
-if dur:
-    m, s = divmod(int(dur), 60)
-    h, m = divmod(m, 60)
-    print('Duration     :', f'{h}:{m:02}:{s:02}' if h else f'{m}:{s:02}')
-
-br = fmt.get('bit_rate')
-if br: print('Bitrate      :', f'{int(br)//1000} kbps')
-
-size = fmt.get('size')
-if size: print('Size         :', f'{int(size)/1024/1024:.1f} MiB')
-
-for st in data.get('streams', []):
-    if st.get('codec_type') == 'audio':
-        codec = st.get('codec_name', '?')
-        sr = st.get('sample_rate', '?')
-        ch = st.get('channels', '?')
-        print(f'Codec        : {codec}  {sr} Hz  {ch}ch')
-        break
-"
-  else
-    echo "[ffprobe not installed]"
+  if ! command_exists ffmpeg; then
+    preview_video_metadata "$file"
+    return
   fi
+
+  if ! command_exists kitty || \
+    [[ "${TERM:-}" != xterm-kitty && -z "${KITTY_WINDOW_ID:-}" ]]; then
+    preview_video_metadata "$file"
+    return
+  fi
+
+  thumbnail="$(mktemp --suffix=.jpg)"
+  trap 'rm -f -- "$thumbnail"' EXIT
+
+  if ! ffmpeg -hide_banner -loglevel error \
+    -i "$file" \
+    -frames:v 1 \
+    -q:v 2 \
+    -y "$thumbnail"; then
+    preview_video_metadata "$file"
+    return
+  fi
+
+  kitty +kitten icat \
+    --stdin=no \
+    --transfer-mode=file \
+    --place "${width}x${height}@${x}x${y}" \
+    -- "$thumbnail" \
+    < /dev/null > /dev/tty
+
+  # Image placement is an external side effect; do not cache it in lf.
+  exit 1
 }
 
 # -- Torrent metadata ---------------------------------------------------
 
 preview_torrent() {
-  if command -v transmission-show &>/dev/null; then
-    transmission-show "$1" | head -n 30
-  elif command -v aria2c &>/dev/null; then
-    aria2c -S "$1" | head -n 30
+  local file="$1"
+
+  if command_exists transmission-show; then
+    preview_head 30 transmission-show "$file"
+  elif command_exists aria2c; then
+    preview_head 30 aria2c -S "$file"
   else
-    python3 - "$1" << 'PY'
-import sys, os, datetime
-import bencodepy
-with open(sys.argv[1], 'rb') as fp:
-    meta = bencodepy.decode(fp.read())
-info = meta[b'info']
-name = info[b'name'].decode()
-size = sum(f[b'length'] for f in info.get(b'files', [info]))
-creation = meta.get(b'creation date', 0)
-print(f"Name       : {name}")
-print(f"Size       : {size/2**20:.2f} MiB")
-print(f"Pieces     : {len(info[b'pieces'])//20}")
-print(f"Created    : {datetime.datetime.utcfromtimestamp(creation)}")
-print("Trackers   :")
-for t in meta.get(b'announce-list', [[meta.get(b'announce', b'')]]):
-    print("  *", t[0].decode())
-if b'files' in info:
-    print("Files      :")
-    for f in info[b'files'][:10]:
-        print("  +-", os.path.join(*(p.decode() for p in f[b'path'])))
-PY
+    unavailable 'transmission-show or aria2c not installed'
   fi
 }
 
 # -- Font metadata ------------------------------------------------------
 
 preview_font() {
-  if command -v fc-query &>/dev/null; then
-    fc-query -f "%{family}\n%{fullname}\n%{style}\n%{weight}\n" "$1"
+  local file="$1"
+
+  if command_exists fc-query; then
+    fc-query -f "%{family}\n%{fullname}\n%{style}\n%{weight}\n" "$file"
   else
-    echo "[font preview unavailable]"
+    unavailable 'font preview unavailable'
   fi
 }
 
 # -- File metadata (fallback for binaries) ------------------------------
 
 preview_binary() {
-  printf "File     : %s\n" "$(basename -- "$1")"
-  printf "Type     : %s\n" "$(file -Lb -- "$1" 2>/dev/null)"
+  local file="$1"
+
+  printf "File     : %s\n" "$(basename -- "$file")"
+  printf "Type     : %s\n" "$(file -Lb -- "$file" 2>/dev/null)"
   printf "MIME     : %s\n" "$filetype"
-  printf "Size     : %s\n" "$(du -sh -- "$1" 2>/dev/null | cut -f1)"
-  printf "Modified : %s\n" "$(date -r "$1" '+%d/%m/%Y %H:%M:%S' 2>/dev/null)"
-  printf "Perms    : %s\n" "$(stat -c '%A %U:%G' -- "$1" 2>/dev/null)"
+  printf "Size     : %s\n" "$(du -sh -- "$file" 2>/dev/null | cut -f1)"
+  printf "Modified : %s\n" "$(date -r "$file" '+%d/%m/%Y %H:%M:%S' 2>/dev/null)"
+  printf "Perms    : %s\n" "$(stat -c '%A %U:%G' -- "$file" 2>/dev/null)"
 }
 
-# -- Main dispatcher (lf passes geometry as $2-$5) ----------------------
+# -- Preview dispatcher --------------------------------------------------
 
-case "$filetype" in
+dispatch_preview() {
+  case "$filetype" in
+  # Images
+  image/*)
+    [[ "$preview_mode" == preload ]] && return 1
+    preview_image "$file_path" "$preview_width" "$preview_height" "$preview_x" "$preview_y"
+    ;;
+
   # Text files
   text/*)
-    preview_text "$@"
+    preview_text "$file_path" "$preview_width"
     ;;
 
   # Archives
-  application/x-tar|application/tar|application/gtar|application/x-gtar)
-    preview_tar "$1"
-    ;;
-  application/gzip|application/x-gzip)
-    preview_gzip "$1"
-    ;;
-  application/bzip2|application/x-bzip2)
-    preview_bzip2 "$1"
-    ;;
-  application/x-xz)
-    preview_xz "$1"
-    ;;
-  application/zip)
-    preview_zip "$1"
-    ;;
-  application/x-rar|application/rar)
-    preview_rar "$1"
-    ;;
-  application/x-7z-compressed)
-    preview_7z "$1"
-    ;;
-  application/zstd|application/x-zstd)
-    preview_zstd "$1"
+  application/x-tar|application/tar|application/gtar|application/x-gtar|\
+  application/gzip|application/x-gzip|application/bzip2|application/x-bzip2|\
+  application/x-xz|application/zip|application/x-rar|application/rar|\
+  application/x-7z-compressed|application/zstd|application/x-zstd)
+    preview_archive "$file_path" "$filetype"
     ;;
 
   # Documents
   application/pdf|application/postscript)
-    preview_pdf "$1"
+    preview_pdf "$file_path"
     ;;
   */*office*|*/*document*|*/*wordprocessingml*|*/*spreadsheetml*|*/*presentationml*|\
   application/msword|application/vnd.ms-excel|application/vnd.ms-powerpoint|application/vnd.ms-*)
-    preview_office "$1"
+    preview_office "$file_path"
     ;;
 
   # Media
   video/*)
-    preview_video "$1"
+    [[ "$preview_mode" == preload ]] && return 1
+    preview_video "$file_path" "$preview_width" "$preview_height" "$preview_x" "$preview_y"
     ;;
   audio/*)
-    preview_audio "$1"
+    preview_audio "$file_path"
     ;;
 
   # Other formats
   application/x-iso9660-image)
-    preview_iso "$1"
+    preview_iso "$file_path"
     ;;
   application/x-bittorrent)
-    preview_torrent "$1"
+    preview_torrent "$file_path"
     ;;
   application/font-*|font/*)
-    preview_font "$1"
+    preview_font "$file_path"
     ;;
 
   # Binary fallback
   *)
     if [[ "$encoding" == us-ascii || "$encoding" == utf-* || "$encoding" == iso-8859-* ]]; then
-      preview_text "$@"
+      preview_text "$file_path" "$preview_width"
     else
-      preview_binary "$1"
+      preview_binary "$file_path"
     fi
     ;;
-esac
+  esac
+}
+
+dispatch_preview
