@@ -125,6 +125,35 @@ local function create_autocmd(event, group, pattern, callback, desc)
 	})
 end
 
+-- blink.cmp: use file paths instead of snippets in HTML href/src attributes
+local function get_completion_sources(context)
+	local default_sources = { "lsp", "path", "snippets", "buffer" }
+	local bufnr = context and context.bufnr or vim.api.nvim_get_current_buf()
+	local filetype = vim.bo[bufnr].filetype
+	if not vim.tbl_contains({ "html", "htm", "shtml" }, filetype) then
+		return default_sources
+	end
+
+	local ok, node = pcall(vim.treesitter.get_node, { bufnr = bufnr })
+
+	if not ok then
+		return default_sources
+	end
+
+	while node do
+		if node:type() == "attribute" then
+			local attribute = vim.treesitter.get_node_text(node, bufnr)
+			if attribute:match("^%s*[hH][rR][eE][fF]%s*=")
+				or attribute:match("^%s*[sS][rR][cC]%s*=") then
+				return { "path" }
+			end
+		end
+		node = node:parent()
+	end
+
+	return default_sources
+end
+
 -- Function to split window and switch to next buffer
 ---@diagnostic disable: assign-type-mismatch
 local function split_and_switch(split_cmd)
@@ -1020,6 +1049,11 @@ require("lazy").setup({
 				filetypes = { "php", "phtml", "html", "css", "javascriptreact", "typescriptreact" },
 			})
 
+			vim.lsp.config("superhtml", {
+				cmd = { "superhtml", "lsp" },
+				filetypes = { "html", "shtml", "htm" },
+			})
+
 			vim.lsp.config("ts_ls", {
 				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 				init_options = { hostInfo = "neovim" },
@@ -1104,6 +1138,7 @@ require("lazy").setup({
 
 			local ensure_installed = {
 				"emmet-language-server",
+				"superhtml",
 				"jsonls",
 				"lua_ls",
 				"ts_ls",
@@ -1116,11 +1151,13 @@ require("lazy").setup({
 
 			require("mason-lspconfig").setup({
 				automatic_installation = false,
+				automatic_enable = { exclude = { "html" } },
 				ensure_installed = {},
 			})
 
 			vim.lsp.enable("intelephense")
 			vim.lsp.enable("emmet_language_server")
+			vim.lsp.enable("superhtml")
 			vim.lsp.enable("cssls")
 			vim.lsp.enable("jsonls")
 			vim.lsp.enable("pyright")
@@ -1240,6 +1277,9 @@ require("lazy").setup({
 				nerd_font_variant = "mono",
 			},
 			completion = {
+				keyword = {
+					range = "prefix",
+				},
 				list = {
 					max_items = 6,
 				},
@@ -1260,7 +1300,8 @@ require("lazy").setup({
 				preset = "default",
 			},
 			sources = {
-				default = { "lsp", "path", "snippets", "buffer" },
+				min_keyword_length = 2,
+				default = get_completion_sources,
 				providers = {
 					snippets = {
 						score_offset = 10,
@@ -1311,7 +1352,15 @@ require("lazy").setup({
 					},
 				},
 			},
-			fuzzy = { implementation = "prefer_rust_with_warning" },
+			fuzzy = {
+				implementation = "rust",
+				max_typos = 0,
+				sorts = {
+					"exact",
+					"score",
+					"sort_text",
+				},
+			},
 		},
 		opts_extend = { "sources.default" },
 	},
@@ -1321,6 +1370,7 @@ require("lazy").setup({
 	-- Requires: Cursor IDE installed + logged in, `uv` on PATH
 	{
 		"teocns/neocursor.nvim",
+		enabled = false,
 		event = "InsertEnter",
 		build = 'uv run --with "httpx[http2]" python -c "import httpx"',
 		opts = {
