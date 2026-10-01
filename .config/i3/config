@@ -343,6 +343,7 @@ bindsym $mod+F12 mode "$share_attach"
 
 # ScreenShot menu
 bindsym --release $mod+Print exec --no-startup-id maimpick window_clipboard
+bindsym --release $mod+Shift+Print exec --no-startup-id maimpick area_clipboard
 bindsym --release Print exec --no-startup-id maimpick
 
 # Open Calculator
