@@ -30,8 +30,7 @@
       "echo *": "allow"
     },
     "edit": {
-      "*": "ask",
-      ".env*": "deny"
+      "*": "ask"
     },
     "external_directory": "ask",
     "doom_loop": "ask"

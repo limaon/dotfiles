@@ -1198,7 +1198,7 @@ require("lazy").setup({
 				jsonc = { "prettierd", "prettier", stop_after_first = true },
 				markdown = { "prettierd", "prettier", stop_after_first = true },
 				yaml = { "prettierd", "prettier", stop_after_first = true },
-				php = { "pint" },
+				php = { "phpcbf" },
 				phtml = { "prettierd", "prettier", stop_after_first = true },
 				typst = { "typstyle" },
 				["*"] = { "codespell" },
