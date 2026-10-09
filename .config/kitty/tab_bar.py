@@ -182,7 +182,8 @@ def tab_label(
     title = fit_text(title, title_width)
     if title_width == 0:
         return fit_text(f' {index}: …', width)
-    return fit_text(f'{prefix}{title} ', width)
+    trailing_space = ' ' if not tab.is_active else ' '
+    return fit_text(f'{prefix}{title}{trailing_space}', width)
 
 
 def draw_tab(
@@ -209,14 +210,27 @@ def draw_tab(
     width = max(0, min(max_tab_length, screen.columns - before))
     separator = POWERLINE_SEPARATOR if POWERLINE_ENABLED else ''
     separator_width = cell_width(separator)
-    edge_width = separator_width if width > separator_width else 0
+    next_tab = extra_data.next_tab
+    active_edge = tab.is_active or (
+        next_tab is not None and next_tab.is_active
+    )
+    active_leading_edge = (
+        next_tab is not None and next_tab.is_active and not tab.is_active
+    )
+    edge_width = separator_width
+    if POWERLINE_ENABLED:
+        edge_width += cell_width(POWERLINE_SOFT_SEPARATOR)
+    edge_width = edge_width if width > edge_width else 0
     spacing = (
         min(TAB_SPACING, max(0, width - 1))
         if not POWERLINE_ENABLED and not is_last else 0
     )
     content_width = width - spacing - edge_width
     left, right = status_segments(draw_data, tab)
-    left_padding = separator_width if POWERLINE_ENABLED else TAB_SPACING
+    left_padding = (
+        separator_width + cell_width(POWERLINE_SOFT_SEPARATOR)
+        if POWERLINE_ENABLED else TAB_SPACING
+    )
     left_wanted = cell_width(left.text) + left_padding if index == 1 else 0
     right_wanted = (
         sum(cell_width(part.text) for part in right) if is_last else 0
@@ -247,6 +261,7 @@ def draw_tab(
         if separator:
             set_style(screen, left.background, draw_data.tab_bg(tab))
             screen.draw(separator)
+            screen.draw(POWERLINE_SOFT_SEPARATOR)
         else:
             bar_background = int(draw_data.default_bg)
             set_style(screen, bar_background, bar_background)
@@ -266,13 +281,37 @@ def draw_tab(
             next_background = (
                 ACTIVE_TAB_BG if next_tab.is_active else INACTIVE_TAB_BG
             )
-        # Equal-colored tabs need an outline to keep their boundary visible.
-        if next_tab is not None and background == next_background:
-            separator = POWERLINE_SOFT_SEPARATOR
-            set_style(screen, foreground, next_background)
-        else:
+        # Use a fine diagonal at the active tab's edges for a lighter finish.
+        if tab.is_active or (next_tab is not None and next_tab.is_active):
+            if active_leading_edge:
+                # Test a solid chevron followed by two fine strokes.
+                set_style(screen, background, next_background)
+                screen.draw(POWERLINE_SEPARATOR)
+                screen.draw(POWERLINE_SOFT_SEPARATOR)
+            else:
+                # Preserve the existing fine-then-solid trailing edge.
+                set_style(screen, next_background, background)
+                screen.draw(POWERLINE_SOFT_SEPARATOR)
+                set_style(screen, background, next_background)
+                screen.draw(POWERLINE_SEPARATOR)
+        elif is_last:
+            # Finish the last tab with a solid Powerline tip into the bar.
+            set_style(screen, background, background)
+            screen.draw(' ')
             set_style(screen, background, next_background)
-        screen.draw(separator)
+            screen.draw(POWERLINE_SEPARATOR)
+        elif next_tab is not None and background == next_background:
+            # Leave the first cell plain and put the fine stroke in the second.
+            set_style(screen, background, background)
+            screen.draw(' ')
+            set_style(screen, foreground, background)
+            screen.draw(POWERLINE_SOFT_SEPARATOR)
+        else:
+            # Keep the second fine separator; remove the first one.
+            set_style(screen, background, background)
+            screen.draw(' ')
+            set_style(screen, next_background, background)
+            screen.draw(POWERLINE_SOFT_SEPARATOR)
 
     if spacing:
         set_style(screen, int(draw_data.default_bg), int(draw_data.default_bg))
