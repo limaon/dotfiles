@@ -48,6 +48,16 @@ cd paru
 makepkg -si
 ```
 
+### Setup remote repo
+
+1. Run these Git commands to change the remote repository from HTTPS to SSH:
+
+```sh
+dot remote remove origin
+dot remote set-url origin git@github.com:limaon/dotfiles.git
+dot push --set-upstream origin main
+```
+
 ## Main Keybindings
 
 ### Window manager controls
