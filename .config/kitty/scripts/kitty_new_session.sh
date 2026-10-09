@@ -288,7 +288,7 @@ focus_or_launch_ssh() {
   mkdir -p "${SESSION_DIR}"
   session_file="${SESSION_DIR}/ssh-${safe_host}.kitty-session"
   cat >"${session_file}" <<EOF
-layout split
+layout splits
 launch --title "ssh-${host}" ${kitten_bin} ssh ${host}
 focus
 focus_os_window

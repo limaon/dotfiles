@@ -7,6 +7,7 @@ set -eEuo pipefail
 
 readonly PROJECTS_DIR="${HOME}/Projects"
 readonly SESSIONS_DIR="${HOME}/.config/kitty/sessions/managed-projects"
+readonly TEMP_SESSIONS_DIR='/tmp/kitty-sessions'
 
 # @description Keep an error visible before closing the script's tab.
 # Captures $? on entry and exits with that status after reading Enter.
@@ -55,7 +56,7 @@ rc() {
 # @exitcode 0 Operation succeeded or input was canceled.
 # @exitcode 1 Invalid action, project name, or project state.
 main() {
-  local name project session
+  local name project session confirmation
   trap on_error ERR
 
   case "${1:-}" in
@@ -97,7 +98,7 @@ main() {
 
       mkdir -- "${project}"
       cat >"${session}" <<EOF
-layout split
+layout splits
 cd ~/Projects/${name}
 launch --title "${name}"
 focus
@@ -111,11 +112,17 @@ EOF
         fail 'Project not found among managed projects.'
       fi
 
+      read -r -p "Type '${name}' to delete the project: " confirmation || return 0
+      [[ "${confirmation}" == "${name}" ]] || return 0
+
       rm -r -- "${project}"
       rm -- "${session}"
+      rm -f -- "${TEMP_SESSIONS_DIR}/z-${name}"*.kitty-session
 
       # Run last: this may also close the tab running this script.
       rc close-window --ignore-no-match --match "session:^project-${name}$"
+      rc close-window --ignore-no-match \
+        --match "session:^z-${name}"
       ;;
   esac
 }
