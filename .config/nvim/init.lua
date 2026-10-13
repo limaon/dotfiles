@@ -143,8 +143,7 @@ local function get_completion_sources(context)
 	while node do
 		if node:type() == "attribute" then
 			local attribute = vim.treesitter.get_node_text(node, bufnr)
-			if attribute:match("^%s*[hH][rR][eE][fF]%s*=")
-				or attribute:match("^%s*[sS][rR][cC]%s*=") then
+			if attribute:match("^%s*[hH][rR][eE][fF]%s*=") or attribute:match("^%s*[sS][rR][cC]%s*=") then
 				return { "path" }
 			end
 		end
@@ -686,13 +685,79 @@ require("lazy").setup({
 				vim.keymap.set(mode, lhs, rhs, { desc = desc })
 			end
 
+			vim.api.nvim_create_user_command("GitCommitAI", function()
+				if vim.bo.filetype ~= "gitcommit" then
+					vim.notify("GitCommitAI can only be used in a commit buffer.", vim.log.levels.WARN)
+					return
+				end
+
+				local diff = vim.fn.system({ "git", "diff", "--cached", "--no-ext-diff" })
+				if vim.v.shell_error ~= 0 then
+					vim.notify("Unable to read the staged diff.", vim.log.levels.ERROR)
+					return
+				end
+				if vim.trim(diff) == "" then
+					vim.notify("There are no staged changes to analyze.", vim.log.levels.WARN)
+					return
+				end
+
+				local bufnr = vim.api.nvim_get_current_buf()
+				local prompt = "Analyze the staged diff and generate a commit message following the Conventional Commits specification. "
+					.. "Use a type such as feat, fix, refactor, docs, test, chore, or build. Include a scope when appropriate. "
+					.. "Return only the final message, without markdown, code fences, or explanations."
+
+				vim.notify("Generating commit message...", vim.log.levels.INFO)
+				local process = vim.system(
+					{ "tgpt", "-q", "-w", prompt },
+					{ stdin = true, text = true },
+					function(result)
+						vim.schedule(function()
+							if result.code ~= 0 then
+								local error_message = vim.trim(result.stderr or "")
+								vim.notify(
+									"Failed to generate commit message: "
+										.. (error_message ~= "" and error_message or "status " .. result.code),
+									vim.log.levels.ERROR
+								)
+								return
+							end
+							if not vim.api.nvim_buf_is_valid(bufnr) then
+								return
+							end
+
+							local message = vim.trim(result.stdout or "")
+							if message == "" then
+								vim.notify("tgpt did not return a message.", vim.log.levels.WARN)
+								return
+							end
+
+							local lines = vim.split(message, "\n", { plain = true })
+							local commit_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+							local content_end = #commit_lines
+							for index, line in ipairs(commit_lines) do
+								if line:match("^#") then
+									content_end = index - 1
+									break
+								end
+							end
+
+							vim.api.nvim_buf_set_lines(bufnr, 0, content_end, false, lines)
+							vim.notify("Commit message generated. Review it before saving.", vim.log.levels.INFO)
+						end)
+					end
+				)
+				process:write(diff)
+				process:write(nil)
+			end, {})
+
 			map("n", "<leader>gs", "<cmd>Git<cr>", "[G]it [S]tatus")
 			map("n", "<leader>gc", "<cmd>Git commit<cr>", "[G]it [C]ommit")
+			map("n", "<leader>gm", "<cmd>GitCommitAI<cr>", "[G]it Commit Message AI")
 			map("n", "<leader>gps", "<cmd>Git push<cr>", "[G]it [P]ush")
 			map("n", "<leader>gpl", "<cmd>Git pull<cr>", "[G]it Pu[l]l")
 			map("n", "<leader>gb", "<cmd>Git blame<cr>", "[G]it [B]lame")
 			map("n", "<leader>gdf", "<cmd>Git diff<cr>", "[G]it [D]iff")
-			map("n", "<leader>gl", "<cmd>Git log<cr>", "[G]it [L]og")
+			map("n", "<leader>gl", "<cmd>Git log --oneline --graph --decorate<cr>", "[G]it [L]og")
 			map("n", "<leader>gP", "<cmd>Git push -u origin HEAD<cr>", "[G]it Push U[p]stream")
 		end,
 	},
