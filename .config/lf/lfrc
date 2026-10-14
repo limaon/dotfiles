@@ -138,6 +138,77 @@ cmd open ${{
   fi
 }}
 
+#: Choose an application from mimeapps.list
+cmd open-with ${{
+  set -f
+  clear
+  mimeapps="${XDG_CONFIG_HOME:-$HOME/.config}/mimeapps.list"
+  [ -f "$mimeapps" ] || exit 0
+
+  # Choose an application separately for each selected file.
+  while IFS= read -r target; do
+    [ -n "$target" ] || continue
+    mime=$(file --mime-type -Lb -- "$target")
+
+    apps=$(awk -v mime="$mime" '
+      { sub(/\r$/, "") }
+      /^\[/ { section = $0; next }
+
+      index($0, mime "=") == 1 {
+        count = split(substr($0, length(mime) + 2), items, ";")
+
+        for (i = 1; i <= count; i++) {
+          app = items[i]
+          if (app == "") continue
+
+          if (section == "[Removed Associations]") {
+            removed[app] = 1
+          } else if (section == "[Default Applications]" ||
+                     section == "[Added Associations]") {
+            if (!seen[app]++) ordered[++total] = app
+          }
+        }
+      }
+
+      END {
+        for (i = 1; i <= total; i++)
+          if (!removed[ordered[i]]) print ordered[i]
+      }
+    ' "$mimeapps")
+
+    # Locate desktop entries in XDG application directories.
+    desktop_files=()
+    IFS=: read -r -a data_dirs <<< \
+      "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    data_dirs=("${XDG_DATA_HOME:-$HOME/.local/share}" "${data_dirs[@]}")
+
+    while IFS= read -r app; do
+      [ -n "$app" ] || continue
+      for dir in "${data_dirs[@]}"; do
+        desktop="$dir/applications/$app"
+        if [ -f "$desktop" ]; then
+          desktop_files+=("$desktop")
+          break
+        fi
+      done
+    done <<< "$apps"
+
+    if ((${#desktop_files[@]} == 0)); then
+      lf -remote "send $id echo 'No associated application found'"
+      continue
+    fi
+
+    choice=$(
+      printf '%s\n' "${desktop_files[@]}" |
+        fzf --no-sort --layout=reverse \
+          --delimiter=/ --with-nth=-1 \
+          --prompt='Open with: '
+    ) || exit 0
+
+    setsid -f gio launch "$choice" "$target" >/dev/null 2>&1
+  done <<< "$fx"
+}}
+
 #: Directory change hook
 cmd on-cd %{{
   case "$(basename -- "$PWD")" in
@@ -747,6 +818,17 @@ cmd removable-devices ${{
   fi
 }}
 
+#: Open the GVFS directory containing connected phones
+cmd phones ${{
+  gvfs_root="/run/user/$(id -u)/gvfs"
+  if [ ! -d "$gvfs_root" ]; then
+    lf -remote "send $id echoerr 'GVFS mount directory not found'"
+    exit 1
+  fi
+
+  lf -remote "send $id cd \"$gvfs_root\""
+}}
+
 #: Set background image
 cmd setbg ${{
   case "$(file --mime-type -Lb "$f")" in
@@ -781,7 +863,6 @@ map t
 map c
 map r
 map w
-map o
 
 #: Search mappings
 map f
@@ -847,6 +928,7 @@ map B bulk-rename
 map { half-up
 map } half-down
 map <enter> open
+map o open-with
 
 #: Directory navigation
 map g/ cd /
@@ -864,6 +946,7 @@ map gL cd ~/.local
 map "'" mark-load
 map g- previous-directory
 map gr removable-devices
+map gT phones
 map gs go_to_current_song
 map gtr cd ~/.local/share/Trash/files
 map gb cd /usr/share/backgrounds
