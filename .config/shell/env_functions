@@ -179,9 +179,9 @@ _fzf_select() {
   local fallback_cmd=$2
 
   if [ -n "$fzf_command" ]; then
-    eval "$fzf_command" 2>/dev/null | fzf-tmux -p +m
+    eval "$fzf_command" 2>/dev/null | fzf +m
   else
-    eval "$fallback_cmd" 2>/dev/null | fzf-tmux -p +m
+    eval "$fallback_cmd" 2>/dev/null | fzf +m
   fi
 }
 
@@ -320,7 +320,7 @@ flocate() {
   local file
   local dir
   dir="$(pwd)"
-  file=$(locate "${dir}/" 2>/dev/null | fzf-tmux -p +m) && if [ -d "$file" ]; then cd "$file" || exit; else ${EDITOR:-vim} "$file"; fi
+  file=$(locate "${dir}/" 2>/dev/null | fzf +m) && if [ -d "$file" ]; then cd "$file" || exit; else ${EDITOR:-vim} "$file"; fi
 }
 
 
@@ -351,7 +351,7 @@ fcd() {
 # Kills processes selected via fzf. Default signal is SIGKILL (9).
 fkill() {
   local pids
-  pids=$(ps -ef | sed 1d | fzf-tmux -p -m | awk '{print $2}')
+  pids=$(ps -ef | sed 1d | fzf -m | awk '{print $2}')
   [ -n "$pids" ] && echo "$pids" | xargs kill "-${1:-9}"
 }
 
@@ -363,7 +363,7 @@ fhist() {
   local old_histtimeformat="$HISTTIMEFORMAT"
   HISTTIMEFORMAT=""
 
-  cmd=$(history | tail -n 2000 | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | awk '!seen[$0]++ && NF' | fzf-tmux -p +s --tac --exact)
+  cmd=$(history | tail -n 2000 | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | awk '!seen[$0]++ && NF' | fzf +s --tac --exact)
 
   HISTTIMEFORMAT="$old_histtimeformat"
 

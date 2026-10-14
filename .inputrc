@@ -44,6 +44,20 @@ set mark-symlinked-directories on
 # }}}
 
 
+### History Navigation {{{
+
+$if mode=emacs
+    # Search command history using the current input as a prefix.
+    "\C-p": history-search-backward
+    "\C-n": history-search-forward
+$endif
+
+# Do not beep when an action cannot be performed.
+set bell-style none
+
+# }}}
+
+
 ### UTF {{{
 
 # Hard-code some UTF-8 conversion defaults.
@@ -55,34 +69,34 @@ set convert-meta off
 # }}}
 
 
-### vi-mode edit bindings {{{
+### vi-mode edit bindings (disabled; using emacs mode) {{{
 
 # Treat symbols as word delimiters too.
-set bind-tty-special-chars off
+# set bind-tty-special-chars off
 
-$if mode=vi
-    set keymap vi-command
-    "gg": beginning-of-history
-    "G": end-of-history
-    "ciw": "bdwi"
-
-    set keymap vi-insert
-    TAB: menu-complete
-    "\e[Z": menu-complete-backward
-
-    "\C-l": clear-screen
-    "\C-w": backward-kill-word
-
-    "\C-p": history-search-backward
-    "\C-n": history-search-forward
-
-    "\C-a": beginning-of-line
-    "\C-e": end-of-line
-
-    "\C-f": forward-char
-    "\C-b": backward-char
-    "\C-d": delete-char
-$endif
+# $if mode=vi
+#     set keymap vi-command
+#     "gg": beginning-of-history
+#     "G": end-of-history
+#     "ciw": "bdwi"
+#
+#     set keymap vi-insert
+#     TAB: menu-complete
+#     "\e[Z": menu-complete-backward
+#
+#     "\C-l": clear-screen
+#     "\C-w": backward-kill-word
+#
+#     "\C-p": history-search-backward
+#     "\C-n": history-search-forward
+#
+#     "\C-a": beginning-of-line
+#     "\C-e": end-of-line
+#
+#     "\C-f": forward-char
+#     "\C-b": backward-char
+#     "\C-d": delete-char
+# $endif
 
 # }}}
 
@@ -101,6 +115,7 @@ $endif
 
 ### Cleanup {{{
 # IPython needs this to appear at the bottom of the
-# file for clear-screen to work
-set keymap vi
+# file for clear-screen to work. Keep the vi keymap disabled
+# so Bash uses the emacs keymap.
+# set keymap vi
 # }}}
