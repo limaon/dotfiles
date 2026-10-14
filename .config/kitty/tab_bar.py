@@ -259,9 +259,17 @@ def draw_tab(
     if left_width:
         draw_segments(screen, [left], left_width - left_padding)
         if separator:
-            set_style(screen, left.background, draw_data.tab_bg(tab))
+            # Separate the session block from the first tab with the
+            # inactive-tab color, even when the first tab is active.
+            set_style(screen, left.background, INACTIVE_TAB_BG)
             screen.draw(separator)
-            screen.draw(POWERLINE_SOFT_SEPARATOR)
+            if tab.is_active:
+                # Continue from the inactive wedge into the active blue tab.
+                set_style(screen, INACTIVE_TAB_BG, ACTIVE_TAB_BG)
+                screen.draw(POWERLINE_SEPARATOR)
+            else:
+                set_style(screen, left.background, INACTIVE_TAB_BG)
+                screen.draw(POWERLINE_SOFT_SEPARATOR)
         else:
             bar_background = int(draw_data.default_bg)
             set_style(screen, bar_background, bar_background)
