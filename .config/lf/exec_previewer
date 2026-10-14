@@ -44,13 +44,23 @@ encoding="$(file --mime-encoding -Lb -- "$file_path" 2>/dev/null)"
 preview_text() {
   local file="$1"
   local width="${2:-80}"
+  local excerpt
   width=$((width > 4 ? width - 2 : 2))
 
+  # Bound input before highlighting, including files with a single huge line.
+  # Reuse the same excerpt on fallback; never pass the original file to bat/cat.
+  if ! excerpt="$(preview_head 200 head -c 65536 -- "$file")"; then
+    unavailable 'text preview unavailable'
+    return
+  fi
+
   if command_exists bat; then
-    bat --color=always --style=numbers --wrap=auto \
-        --terminal-width="$width" -- "$file" 2>/dev/null || cat -n -- "$file"
+    printf '%s\n' "$excerpt" |
+      bat --color=always --style=numbers --wrap=auto --paging=never \
+          --terminal-width="$width" --file-name="$file" 2>/dev/null ||
+      printf '%s\n' "$excerpt" | cat -n
   else
-    cat -n -- "$file"
+    printf '%s\n' "$excerpt" | cat -n
   fi
 }
 
@@ -67,15 +77,28 @@ preview_image() {
     unavailable 'kitty not installed'
   elif [[ "${TERM:-}" != xterm-kitty && -z "${KITTY_WINDOW_ID:-}" ]]; then
     unavailable 'Kitty graphics protocol unavailable'
+  elif ! command_exists timeout; then
+    unavailable 'timeout not installed; image preview disabled'
   else
-    kitty +kitten icat \
-      --stdin=no \
-      --transfer-mode=file \
-      --place "${width}x${height}@${x}x${y}" \
-      -- "$file" \
-      < /dev/null > /dev/tty
+    if ! (
+      ulimit -v 1048576 || exit 1
+      export GOMEMLIMIT=128MiB
+      # Extra glibc arenas reserve virtual memory and can exhaust the cap even
+      # for ordinary JPEGs. Bound them locally without raising the memory limit.
+      export MALLOC_ARENA_MAX=2
+      timeout --kill-after=1s 5s kitty +kitten icat \
+        --engine=builtin \
+        --loop=0 \
+        --stdin=no \
+        --transfer-mode=file \
+        --place "${width}x${height}@${x}x${y}" \
+        -- "$file" \
+        < /dev/null > /dev/tty
+    ) 2>/dev/null; then
+      unavailable 'image preview unavailable (unsupported format, resource limit or timeout)'
+      return
+    fi
 
-    # Image placement is an external side effect; do not cache it in lf.
     exit 1
   fi
 }
@@ -220,7 +243,20 @@ preview_media_metadata() {
 
 preview_video_metadata() {
   local file="$1"
-  preview_media_metadata "$file" video
+
+  if ! command_exists timeout; then
+    unavailable 'timeout not installed; video metadata disabled'
+    return
+  fi
+
+  if ! (
+    ulimit -v 1048576 || exit 1
+    export MALLOC_ARENA_MAX=2
+    export -f preview_media_metadata command_exists unavailable
+    timeout --kill-after=1s 5s bash -o pipefail -c 'preview_media_metadata "$1" video' -- "$file"
+  ) 2>/dev/null; then
+    unavailable 'video metadata unavailable (resource limit or timeout)'
+  fi
 }
 
 preview_audio() {
@@ -247,27 +283,37 @@ preview_video() {
     return
   fi
 
-  thumbnail="$(mktemp --suffix=.jpg)"
-  trap 'rm -f -- "$thumbnail"' EXIT
+  if ! command_exists timeout; then
+    unavailable 'timeout not installed; video preview disabled'
+    return
+  fi
 
-  if ! ffmpeg -hide_banner -loglevel error \
-    -i "$file" \
-    -frames:v 1 \
-    -q:v 2 \
-    -y "$thumbnail"; then
+  if ! thumbnail="$(mktemp --suffix=.jpg)"; then
+    preview_video_metadata "$file"
+    return
+  fi
+  # Store the quoted path now: the local variable is out of scope on fallback.
+  trap "rm -f -- $(printf '%q' "$thumbnail")" EXIT
+  trap 'exit 1' HUP INT TERM
+
+  if ! (
+    ulimit -v 1048576 || exit 1
+    export MALLOC_ARENA_MAX=2
+    timeout --kill-after=1s 5s ffmpeg -hide_banner -loglevel error -nostdin \
+      -threads 1 -filter_threads 1 \
+      -i "$file" \
+      -map 0:v:0 -an -sn -dn \
+      -vf "scale=w='min(1280,iw)':h='min(720,ih)':force_original_aspect_ratio=decrease" \
+      -frames:v 1 -threads 1 \
+      -q:v 2 \
+      -y "$thumbnail"
+  ) 2>/dev/null; then
     preview_video_metadata "$file"
     return
   fi
 
-  kitty +kitten icat \
-    --stdin=no \
-    --transfer-mode=file \
-    --place "${width}x${height}@${x}x${y}" \
-    -- "$thumbnail" \
-    < /dev/null > /dev/tty
-
-  # Image placement is an external side effect; do not cache it in lf.
-  exit 1
+  # Reuse the bounded Kitty renderer (including the allocator fix).
+  preview_image "$thumbnail" "$width" "$height" "$x" "$y"
 }
 
 # -- Torrent metadata ---------------------------------------------------
@@ -312,6 +358,14 @@ preview_binary() {
 # -- Preview dispatcher --------------------------------------------------
 
 dispatch_preview() {
+  # Check MIME too: renamed DjVu files must not reach image decoders.
+  if [[ "${file_path,,}" == *.djvu || "${file_path,,}" == *.djv ||
+        "$filetype" == image/vnd.djvu || "$filetype" == image/x-djvu ||
+        "$filetype" == application/x-djvu ]]; then
+    unavailable 'DjVu preview disabled'
+    return
+  fi
+
   case "$filetype" in
   # Images
   image/*)

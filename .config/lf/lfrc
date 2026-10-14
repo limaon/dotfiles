@@ -223,15 +223,33 @@ cmd on-cd %{{
   esac
 }}
 
-# Update the bottom ruler with metadata for the selected video
+# Optional metadata: one bounded collector per client, without blocking navigation.
 cmd on-select &{{
+  # Without these safeguards, skip optional metadata instead of running unbounded.
+  command -v flock >/dev/null && command -v timeout >/dev/null || exit 0
+  [[ "${id:-}" =~ ^[0-9]+$ ]] || exit 0
+  metadata_dir="${XDG_RUNTIME_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/lf}/lf-metadata"
+  mkdir -p -m 700 -- "$metadata_dir" || exit 0
+  exec 9>"$metadata_dir/$id.lock"
+  flock -n 9 || exit 0
+
+  collect_metadata() {
   clear_file_metadata() {
-    lf -remote "send $id set user_file_meta ''"
+    set_file_metadata ''
   }
 
   set_file_metadata() {
-    escaped_metadata="$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"
-    lf -remote "send $id set user_file_meta '$escaped_metadata'"
+    # Quote both values for lf, including paths containing newlines or quotes.
+    local metadata="$1" path="$f"
+    metadata="${metadata//\\/\\\\}"
+    metadata="${metadata//\"/\\\"}"
+    metadata="${metadata//$'\n'/\\n}"
+    metadata="${metadata//$'\r'/\\r}"
+    path="${path//\\/\\\\}"
+    path="${path//\"/\\\"}"
+    path="${path//$'\n'/\\n}"
+    path="${path//$'\r'/\\r}"
+    lf -remote "send $id :set user_file_meta_path \"$path\"; set user_file_meta \"$metadata\""
   }
 
   archive_entry_count() {
@@ -259,6 +277,13 @@ cmd on-select &{{
 
   mime="$(file --mime-type -Lb -- "$f" 2>/dev/null)"
 
+  if [[ "${f,,}" == *.djvu || "${f,,}" == *.djv ||
+        "$mime" == image/vnd.djvu || "$mime" == image/x-djvu ||
+        "$mime" == application/x-djvu ]]; then
+    clear_file_metadata
+    exit 0
+  fi
+
   case "$mime" in
     image/*)
       if ! command -v identify &>/dev/null; then
@@ -266,12 +291,23 @@ cmd on-select &{{
         exit 0
       fi
 
-      metadata="$(identify -format '%wx%h · %m · %[colorspace] · %z-bit\n' \
-        -- "$f" 2>/dev/null | head -n 1)"
-      capture_date="$(identify -format '%[EXIF:DateTimeOriginal]' \
-        -- "$f" 2>/dev/null | head -n 1)"
-      camera="$(identify -format '%[EXIF:Make] %[EXIF:Model]' \
-        -- "$f" 2>/dev/null | sed 's/[[:space:]]\+/ /g' | sed 's/^ *//;s/ *$//' | head -n 1)"
+      # Cache limits alone do not bound decoder allocations: cap this subprocess
+      # at 512 MiB of virtual memory too. No disk or mmap pixel-cache fallback.
+      if ! image_metadata="$(
+        ulimit -v 524288 || exit 1
+        identify -ping -limit thread 1 -limit memory 64MiB \
+          -limit map 0 -limit disk 0 \
+          -format '%wx%h · %m · %[colorspace] · %z-bit\n%[EXIF:DateTimeOriginal]\n%[EXIF:Make] %[EXIF:Model]\n' \
+          -- "${f}[0]" 2>/dev/null
+      )"; then
+        clear_file_metadata
+        exit 0
+      fi
+      mapfile -t image_fields <<< "$image_metadata"
+      metadata="${image_fields[0]:-}"
+      capture_date="${image_fields[1]:-}"
+      camera="$(printf '%s' "${image_fields[2]:-}" |
+        sed 's/[[:space:]]\+/ /g; s/^ *//; s/ *$//')"
       [ -n "$capture_date" ] && metadata="$metadata · $capture_date"
       [ -n "$camera" ] && metadata="$metadata · $camera"
       set_file_metadata "$metadata"
@@ -381,6 +417,11 @@ cmd on-select &{{
       clear_file_metadata
       ;;
   esac
+  }
+
+  export -f collect_metadata
+  # timeout also terminates child processes; fd 9 keeps the lock until they exit.
+  timeout --kill-after=1s 5s bash -eu -c collect_metadata || true
 }}
 
 #: }}}
