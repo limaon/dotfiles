@@ -105,7 +105,7 @@ get_wifi_quality() {
 
 get_wifi_essid() {
   local iface="$1"
-  iw dev "$iface" link 2>/dev/null | awk '/SSID:/ {print $2}'
+  iw dev "$iface" link 2>/dev/null | awk -F 'SSID: ' '/SSID:/ {print substr($0, index($0, "SSID: ") + 6); exit}'
 }
 
 get_connection_name() {
