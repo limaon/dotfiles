@@ -42,8 +42,13 @@
   },
   "formatter": {
     "custom-markdown-formatter": {
-      "command": ["npx", "@franlol/opencode-md-table-formatter"],
-      "extensions": [".md"]
+      "command": [
+        "npx",
+        "@franlol/opencode-md-table-formatter"
+      ],
+      "extensions": [
+        ".md"
+      ]
     }
   },
   "mcp": {
@@ -65,6 +70,27 @@
         "{env:HOME}/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome"
       ],
       "enabled": true
+    },
+    "servers": {
+      "ai-memory": {
+        "type": "local",
+        "command": [
+          "/usr/bin/ai-memory",
+          "mcp-bridge",
+          "--no-session-id",
+          "--server-url",
+          "http://127.0.0.1:49375/mcp"
+        ]
+      },
+      "rea": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "rea-agents@6.7.0",
+          "mcp"
+        ]
+      }
     }
   },
   "provider": {
