@@ -9,8 +9,10 @@
     {{.ModTime | printf " %s" -}}
     {{with .Target}} → {{.}}{{end -}}
 {{end -}}
-{{if eq .UserOptions.file_meta_path .Stat.Path -}}
-    {{with .UserOptions.file_meta}}  {{.}}{{end -}}
+{{with .Stat -}}
+    {{if eq $.UserOptions.file_meta_path .Path -}}
+        {{with $.UserOptions.file_meta}}  {{.}}{{end -}}
+    {{end -}}
 {{end -}}
 {{.SPACER -}}
 {{with .Keys}}  {{.}}{{end -}}
