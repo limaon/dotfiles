@@ -703,6 +703,7 @@ require("lazy").setup({
 
 				local bufnr = vim.api.nvim_get_current_buf()
 				local prompt = "Analyze the staged diff and generate a commit message following the Conventional Commits specification. "
+					.. "Before writing the message, review previous commit messages to understand the repository's style and conventions. "
 					.. "Use a type such as feat, fix, refactor, docs, test, chore, or build. Include a scope when appropriate. "
 					.. "Return only the final message, without markdown, code fences, or explanations."
 
@@ -1119,10 +1120,13 @@ require("lazy").setup({
 				filetypes = { "html", "shtml", "htm" },
 			})
 
-			vim.lsp.config("ts_ls", {
+			vim.lsp.config("vtsls", {
 				filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
 				init_options = { hostInfo = "neovim" },
 				settings = {
+					vtsls = {
+						autoUseWorkspaceTsdk = false,
+					},
 					typescript = {
 						inlayHints = {
 							includeInlayParameterNameHints = "all",
@@ -1206,7 +1210,7 @@ require("lazy").setup({
 				"superhtml",
 				"jsonls",
 				"lua_ls",
-				"ts_ls",
+				"vtsls",
 				"tinymist",
 				"stylua",
 				"eslint_d",
@@ -1216,7 +1220,7 @@ require("lazy").setup({
 
 			require("mason-lspconfig").setup({
 				automatic_installation = false,
-				automatic_enable = { exclude = { "html" } },
+				automatic_enable = { exclude = { "html", "ts_ls" } },
 				ensure_installed = {},
 			})
 
@@ -1227,7 +1231,7 @@ require("lazy").setup({
 			vim.lsp.enable("jsonls")
 			vim.lsp.enable("pyright")
 			vim.lsp.enable("lua_ls")
-			vim.lsp.enable("ts_ls")
+			vim.lsp.enable("vtsls")
 			vim.lsp.enable("tinymist")
 		end,
 	},
