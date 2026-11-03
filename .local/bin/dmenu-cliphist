@@ -6,15 +6,17 @@ set -euo pipefail
 # This script is based on, and inspired by, 'BreadOnPenguins' dmenu_cliphist:
 # https://github.com/BreadOnPenguins/scripts/blob/master/dmenu_cliphist
 
-histfile="${HOME}/.cache/cliphist"
-placeholder=$'\x01NEWLINE\x01'
-POLL_INTERVAL="${POLL_INTERVAL:-1}"
+HISTFILE="/tmp/cliphist"
+PLACEHOLDER=$'\x01NEWLINE\x01'
 
 # Dependency checks
 check_dependencies() {
   local missing=()
   command -v xclip >/dev/null 2>&1 || missing+=("xclip")
-  command -v dmenu >/dev/null 2>&1 || missing+=("dmenu")
+  if [ "${1:-}" = "sel" ]; then
+    command -v dmenu >/dev/null 2>&1 || missing+=("dmenu")
+  fi
+  command -v flock >/dev/null 2>&1 || missing+=("flock")
 
   if [ ${#missing[@]} -gt 0 ]; then
     printf "Error: Missing required dependencies: %s\n" "${missing[*]}" >&2
@@ -38,62 +40,44 @@ get_reverse_cmd() {
   fi
 }
 
-# Safe file creation with atomic operation
+# Create the history file if needed
 ensure_histfile() {
-  if [ ! -f "$histfile" ]; then
-    mkdir -p "$(dirname "$histfile")"
-    touch "$histfile"
-    [ "$HAS_NOTIFY_SEND" -eq 1 ] && notify-send "Creating $histfile"
+  if [ ! -f "$HISTFILE" ]; then
+    mkdir -p "$(dirname "$HISTFILE")"
+    touch "$HISTFILE"
   fi
 }
 
-# Send notification if notify-send is available
-notify() {
-  local message="$1"
-  if [ "$HAS_NOTIFY_SEND" -eq 1 ]; then
-    notify-send -t 1000 "Clipboard Manager" "$message"
-  fi
-}
-
-# Replace newlines with placeholder
+# Replace newlines with PLACEHOLDER
 escape_newlines() {
   local input="$1"
-  printf '%s' "$input" | sed ':a;N;$!ba;s/\n/'"$placeholder"'/g'
+  printf '%s' "${input//$'\n'/$PLACEHOLDER}"
 }
 
-# Replace placeholder with newlines
+# Replace PLACEHOLDER with newlines
 unescape_newlines() {
   local input="$1"
-  printf '%s' "$input" | sed "s/$placeholder/\n/g"
+  printf '%s' "${input//$PLACEHOLDER/$'\n'}"
 }
 
-# Check if clipboard contains an image
-is_clipboard_image() {
-  local targets
-  targets=$(xclip -o -selection clipboard -t TARGETS 2>/dev/null) || return 1
-  printf '%s' "$targets" | grep -qi 'image/' && return 0 || return 1
-}
-
-highlight() {
+read_clipboard() {
   local clip
-  clip=$(xclip -o -selection primary 2>/dev/null) || {
-    printf "Error: Failed to read from primary selection\n" >&2
+  clip=$(xclip -o -selection clipboard 2>/dev/null && printf '\001') || {
+    printf "Error: Failed to read text from clipboard\n" >&2
     exit 1
   }
-  printf '%s' "$clip" | xclip -i -f -selection clipboard 2>/dev/null || {
-    printf "Error: Failed to write to clipboard\n" >&2
-    exit 1
-  }
+  clip=${clip%$'\001'}
   printf '%s' "$clip"
 }
 
 output() {
   local clip
-  clip=$(cat) || {
+  clip=$(cat && printf '\001') || {
     printf "Error: Failed to read from stdin\n" >&2
     exit 1
   }
-  printf '%s' "$clip" | xclip -i -f -selection clipboard 2>/dev/null || {
+  clip=${clip%$'\001'}
+  printf '%s' "$clip" | xclip -i -selection clipboard 2>/dev/null || {
     printf "Error: Failed to write to clipboard\n" >&2
     exit 1
   }
@@ -106,93 +90,88 @@ write() {
 
   [ -z "$clip" ] && return 0
 
-  ensure_histfile
+  ensure_histfile || return
   multiline=$(escape_newlines "$clip")
 
-  if ! grep -Fxq "$multiline" "$histfile"; then
-    printf '%s\n' "$multiline" >> "$histfile"
-  fi
-
-  printf '%s' "$(escape_newlines "$clip")"
-}
-
-# Watch mode - monitor clipboard for changes
-watch_mode() {
-  local poll_interval="${POLL_INTERVAL:-1}"
-  local last_content=""
-
-  while true; do
-    local current
-    current=$(xclip -o -selection clipboard 2>/dev/null) || true
-
-    if [[ "$current" != "$last_content" ]] && [[ -n "$current" ]]; then
-      if ! is_clipboard_image; then
-        write "$current"
-        last_content="$current"
+  (
+    flock -x 9 || exit
+    if grep -Fxq -- "$multiline" "$HISTFILE"; then
+      :
+    else
+      status=$?
+      if [ "$status" -ne 1 ]; then
+        printf "Error: Failed to read history file\n" >&2
+        exit "$status"
       fi
+      printf '%s\n' "$multiline" >> "$HISTFILE" || exit
     fi
+  ) 9>>"$HISTFILE" || return
 
-    sleep "$poll_interval"
-  done
+  printf '%s' "$clip"
 }
-
-# Cleanup on exit
-cleanup() {
-  notify "Clipboard monitoring stopped"
-  exit 0
-}
-
-# Trap signals for graceful shutdown
-trap cleanup SIGTERM SIGINT
 
 sel() {
   local reverse_cmd
   local selection
   local restored
+  local history entry i
+  local -a entries=() labels=()
 
   reverse_cmd=$(get_reverse_cmd)
+  history=$($reverse_cmd "$HISTFILE") || return
+  [ -n "$history" ] || return 0
+  mapfile -t entries <<< "$history"
+  for i in "${!entries[@]}"; do
+    entry=${entries[$i]//$PLACEHOLDER/ }
+    labels+=("$((i + 1)): $entry")
+  done
 
-  selection=$($reverse_cmd "$histfile" | dmenu -l 5 -p "Clipboard history:") || {
+  selection=$(printf '%s\n' "${labels[@]}" | dmenu -i -l 5 -p "Clipboard history:") || {
     printf "Error: Failed to open dmenu\n" >&2
     exit 1
   }
 
   if [ -n "$selection" ]; then
-    restored=$(unescape_newlines "$selection")
+    entry=$selection
+    for i in "${!labels[@]}"; do
+      if [ "$selection" = "${labels[$i]}" ]; then
+        entry=${entries[$i]}
+        break
+      fi
+    done
+    restored=$(unescape_newlines "$entry" && printf '\001')
+    restored=${restored%$'\001'}
     printf '%s' "$restored" | xclip -i -selection clipboard 2>/dev/null || {
       printf "Error: Failed to write to clipboard\n" >&2
       exit 1
     }
-    printf '%s' "Copied to clipboard!"
   fi
 }
 
 # Main
-check_dependencies
+check_dependencies "${1:-}"
 
 case "${1:-}" in
   add)
-    clip=$(highlight)
-    notification=$(write "$clip")
+    clip=$(read_clipboard && printf '\001')
+    clip=${clip%$'\001'}
+    write "$clip" >/dev/null
+    notification="Copied to clipboard"
     ;;
   out)
-    clip=$(output)
+    clip=$(output && printf '\001')
+    clip=${clip%$'\001'}
     notification=$(write "$clip")
     ;;
   sel)
     notification=$(sel)
     ;;
-  watch)
-    ensure_histfile
-    notify "Starting clipboard monitoring..."
-    watch_mode
-    ;;
   *)
-    printf "%s | File: %s\n\nadd - copies primary selection to clipboard, and adds to history file\nout - pipe commands to copy output to clipboard, and add to history file\nsel - select from history file with dmenu and recopy!\nwatch - monitor clipboard for changes automatically\n" "$0" "$histfile"
+    printf "%s | File: %s\n\nadd - adds current clipboard text to history file\nout - pipe commands to copy output to clipboard, and add to history file\nsel - select from history file with dmenu and recopy!\n" "$0" "$HISTFILE"
     exit 0
     ;;
 esac
 
 if [ -n "$notification" ] && [ "$HAS_NOTIFY_SEND" -eq 1 ]; then
-  notify-send "$notification"
+  notify-send -- "$notification" || true
 fi

@@ -303,9 +303,6 @@ exec --no-startup-id xss-lock \
   --notifier "dunstify -u critical -r 9999 'Session' 'Screen will lock in 30 seconds'" \
   -- sysact lock
 
-# Clipboard monitoring
-exec --no-startup-id dmenu-cliphist watch &
-
 
 # Exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e mode "$mode_system"
@@ -375,7 +372,6 @@ bindsym --release XF86MonBrightnessDown exec --no-startup-id xf86-control bright
 # Clipboard
 bindsym $mod+p exec --no-startup-id dmenu-cliphist sel
 bindsym $mod+o exec --no-startup-id dmenu-cliphist add
-bindsym $mod+Shift+m exec --no-startup-id pkill -f "dmenu-cliphist watch" || dmenu-cliphist watch &
 
 # IBus/Mozc Toggle - Cycle through Mozc, Hiragana, Direct, English, Portuguese
 bindsym Shift+space exec --no-startup-id mozc-toggle
