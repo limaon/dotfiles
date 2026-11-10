@@ -1423,7 +1423,11 @@ require("lazy").setup({
 			},
 			fuzzy = {
 				implementation = "rust",
-				max_typos = 0,
+				max_typos = 1,
+				use_proximity = true,
+				frecency = {
+					enabled = true,
+				},
 				sorts = {
 					"exact",
 					"score",
