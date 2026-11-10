@@ -67,6 +67,29 @@ xset b off
 # Execute polkit
 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
 
+# X11 idle handling. xset s TIMEOUT CYCLE uses seconds:
+# TIMEOUT = idle time before dim/notification; CYCLE = delay before locking.
+#
+#   Idle time | Command          | Behavior
+#   5 min     | xset s 300 30    | Dim, then lock 30 seconds later
+#  10 min     | xset s 600 30    | Dim, then lock 30 seconds later (active)
+#  15 min     | xset s 900 30    | Dim, then lock 30 seconds later
+#  30 min     | xset s 1800 30   | Dim, then lock 30 seconds later
+#
+# Never dim/lock from X11 inactivity: xset s off
+# Never power off the monitor via DPMS, but keep dim/lock: xset -dpms
+xset s 600 30
+
+# Let browsers inhibit screen blanking while video is playing.
+if command -v xssproxy >/dev/null 2>&1; then
+    xssproxy &
+fi
+
+xss-lock \
+    --transfer-sleep-lock \
+    --notifier "$HOME/.local/bin/dim-screen" \
+    -- sysact lock &
+
 # Autostart programs by dex
 dex -a -e i3 -s /etc/xdg/autostart/:~/.config/autostart/
 

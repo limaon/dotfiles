@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Save the current brightness and dim to 20% while xss-lock's notifier runs.
+brightnessctl -q -s set 10% || exit 1
+sleep_pid=
+
+restore_brightness() {
+    if [[ -n $sleep_pid ]]; then
+        kill "$sleep_pid" 2>/dev/null || true
+    fi
+    brightnessctl -q -r || true
+}
+
+# xss-lock sends SIGHUP on user activity and SIGTERM when the locker starts.
+trap restore_brightness EXIT
+trap 'exit 0' HUP INT TERM
+
+# Preserve the existing warning notification.
+if command -v dunstify >/dev/null 2>&1; then
+    dunstify -u critical -r 9999 'Session' 'Screen will lock in 30 seconds' || true
+fi
+
+# Keep running until xss-lock signals that the notification should end.
+while :; do
+    sleep 3600 &
+    sleep_pid=$!
+    wait "$sleep_pid"
+    sleep_pid=
+done
